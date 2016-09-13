@@ -17,17 +17,45 @@ title = sys.argv[8]
 summary = sys.argv[9]
 library_name = sys.argv[10]
 
-show_list = ["Show", "Another Show"] # Add shows to list that you want notification for.
 show_notify = ''
+to = ''
 
-for n in show_list:
+# setting user's shows they want notifications for		
+list_user1 = ["show1", "show2"]
+list_user2 = ["show1", "show3"] 
+list_user3 = ["show1", "show4"] 
+list_user4 = ["show1", "show2", "show3", "show4"] 
+
+# Email list
+user_1 = ["user1@gmail.com", list_user1]
+user_2 = ["user2@gmail.com", list_user2]
+user_3 = ["user3@gmail.com", list_user3]
+user_4 = ["user4@gmail.com", list_user4]
+
+# If show matches user's list then the user's email is added
+for n in user_1[1]:
 	if n == show_name:
-		show_notify = n
+	 show_notify = n
+	 to += user_1[0] + ", "
+	 
+for n in user_2[1]:
+	if n == show_name:
+	 show_notify = n
+	 to += user_2[0] + ", "
+	 
+for n in user_3[1]:
+	if n == show_name:
+	 show_notify = n
+	 to += user_3[0] + ", "
+	 
+for n in user_4[1]:
+	if n == show_name:
+	 show_notify = n
+	 to += user_4[0] + ", "
 
 # Email settings
 name = 'PlexPy' # Your name
 sender = 'sender' # From email address
-to = 'reciever' # To email address
 email_server = 'smtp.gmail.com' # Email server (Gmail: smtp.gmail.com)
 email_port = 587  # Email port (Gmail: 587)
 email_username = 'email' # Your email username
