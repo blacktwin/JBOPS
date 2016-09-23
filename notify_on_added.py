@@ -18,40 +18,33 @@ summary = sys.argv[9]
 library_name = sys.argv[10]
 
 show_notify = ''
-to = ''
+to = []
 
+# User list
 # setting user's shows they want notifications for		
-list_user1 = ["show1", "show2"]
-list_user2 = ["show1", "show3"] 
-list_user3 = ["show1", "show4"] 
-list_user4 = ["show1", "show2", "show3", "show4"] 
+user1_list = ["show1", "show2"]
+user2_list = ["show1", "show3"] 
+user3_list = ["show1", "show4"] 
+user4_list = ["show1", "show2", "show3", "show4"] 
 
 # Email list
-user_1 = ["user1@gmail.com", list_user1]
-user_2 = ["user2@gmail.com", list_user2]
-user_3 = ["user3@gmail.com", list_user3]
-user_4 = ["user4@gmail.com", list_user4]
+user_1 = ["user1@gmail.com", user1_list]
+user_2 = ["user2@gmail.com", user2_list]
+user_3 = ["user3@gmail.com", user3_list]
+user_4 = ["user4@gmail.com", user4_list]
+user_all = [user_1, user_2, user_3, user_4]
 
 # If show matches user's list then the user's email is added
-for n in user_1[1]:
-	if n == show_name:
-	 show_notify = n
-	 to += user_1[0] + ", "
-	 
-for n in user_2[1]:
-	if n == show_name:
-	 show_notify = n
-	 to += user_2[0] + ", "
-	 
-for n in user_3[1]:
-	if n == show_name:
-	 show_notify = n
-	 to += user_3[0] + ", "
-	 
-for n in user_4[1]:
-	if n == show_name:
-	 show_notify = n
-	 to += user_4[0] + ", "
+for n in user_all[0:len(user_all)]:
+    user_list = n[1]
+    master_list = user_list[0:len(user_list)]
+    for x in master_list:
+      check_0 = x, n[0]
+      if show_name == check_0[0]:
+		  to.append( check_0[1] )
+
+# 'to' needs to be converted to a str
+to = ', '.join(map(str, to))
 
 # Email settings
 name = 'PlexPy' # Your name
