@@ -71,7 +71,7 @@ show_html = """\
 """ %(show_name, season_num, episode_num, episode_name, library_name, summary, poster) #these are the passed parameters for tvshows
 ### Do not edit below ###
 # Check to se whether it is a tv show or a movie
-if show_name.lower() == show_notify.lower() or show_type.lower() == 'show': # if tv show
+if show_name.lower() == show_notify.lower() or show_type.lower() == 'show' or show_type.lower() == 'episode': # if tv show
     message = MIMEText(show_html, 'html')
     message['Subject'] = email_subject
     message['From'] = email.utils.formataddr((name, sender))
