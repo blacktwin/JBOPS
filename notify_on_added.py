@@ -5,8 +5,8 @@ import sys
 
 # Arguments passed from PlexPy
 # {show_name} {episode_name} {season_num00} {episode_num00} {server_name} {media_type} {poster_url} {title} {summary} {library_name}
-show_name = sys.argv[1]
 # You can add more arguments if you want more details in the email body
+show_name = sys.argv[1]
 episode_name = sys.argv[2]
 season_num = sys.argv[3]
 episode_num = sys.argv[4]
