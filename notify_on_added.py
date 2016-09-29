@@ -2,20 +2,34 @@ from email.mime.text import MIMEText
 import email.utils
 import smtplib
 import sys
+import argparse
 
 # Arguments passed from PlexPy
-# {show_name} {episode_name} {season_num00} {episode_num00} {server_name} {media_type} {poster_url} {title} {summary} {library_name}
+# -sn {show_name} -ena {episode_name} -ssn {season_num00} -enu {episode_num00} -srv {server_name} -med {media_type} -pos {poster_url} -tt {title} -sum {summary} -lbn {library_name}
 # You can add more arguments if you want more details in the email body
-show_name = sys.argv[1]
-episode_name = sys.argv[2]
-season_num = sys.argv[3]
-episode_num = sys.argv[4]
-plex_server = sys.argv[5]
-show_type = sys.argv[6]
-poster = sys.argv[7]
-title = sys.argv[8]
-summary = sys.argv[9]
-library_name = sys.argv[10]
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-sn', '--show_name', action='store', default='',
+                    help='The name of the TV show')
+parser.add_argument('-ena', '--episode_name', action='store', default='',
+                    help='The name of the episode')
+parser.add_argument('-ssn', '--season_num', action='store', default='',
+                    help='The season number of the TV show')
+parser.add_argument('-enu', '--episode_num', action='store', default='',
+                    help='The episode number of the TV show')
+parser.add_argument('-srv', '--plex_server', action='store', default='',
+                    help='The name of the Plex server')
+parser.add_argument('-med', '--show_type', action='store', default='',
+                    help='The type of media')
+parser.add_argument('-pos', '--poster', action='store', default='',
+                    help='The poster url')
+parser.add_argument('-tt', '--title', action='store', default='',
+                    help='The title of the TV show')
+parser.add_argument('-sum', '--summary', action='store', default='',
+                    help='The summary of the TV show')
+parser.add_argument('-lbn', '--library_name', action='store', default='',
+                    help='The name of the TV show')
+p = parser.parse_args()
 
 # Edit user@email.com and shows
 users = [{'email': 'user1@gmail.com',
@@ -28,7 +42,7 @@ users = [{'email': 'user1@gmail.com',
           'shows': ('show1', 'show2', 'show3', 'show4')
           }]
           
-to = ','.join([u['email'] for u in users if show_name in u['shows']])
+to = ','.join([u['email'] for u in users if p.show_name in u['shows']])
 
 # Email settings
 name = 'PlexPy' # Your name
@@ -37,25 +51,26 @@ email_server = 'smtp.gmail.com' # Email server (Gmail: smtp.gmail.com)
 email_port = 587  # Email port (Gmail: 587)
 email_username = 'email' # Your email username
 email_password = 'password' # Your email password
-email_subject = 'New episode for ' + show_name + ' is available on ' +  plex_server # The email subject
+email_subject = 'New episode for ' + p.show_name + ' is available on ' +  p.plex_server # The email subject
 
- # More detailed email body
+# Detailed body for tv shows
 show_html = """\
 <html>
   <head></head>
   <body>
     <p>Hi!<br>
-        %s  S%s - E%s -- %s -- was recently added to %s on PLEX
+        {p.show_name}  S{p.season_num} - E{p.episode_num} -- {p.episode_name} -- was recently added to {p.library_name} on PLEX
         <br><br>
-        <br> %s <br>
-       <br><img src="%s" alt="Poster unavailable" height="150" width="102"><br>
+        <br> {p.summary} <br>
+       <br><img src="{p.poster}" alt="Poster unavailable" height="150" width="102"><br>
     </p>
   </body>
 </html>
-""" %(show_name, season_num, episode_num, episode_name, library_name, summary, poster) #these are the passed parameters for tvshows
+""".format(p=p)
+
 ### Do not edit below ###
-# Check to se whether it is a tv show or a movie
-if show_name.lower() == show_notify.lower() or show_type.lower() == 'show' or show_type.lower() == 'episode': # if tv show
+# Check to see whether it is a tv show
+if p.show_type.lower() == 'show' or p.show_type.lower() == 'episode':
     message = MIMEText(show_html, 'html')
     message['Subject'] = email_subject
     message['From'] = email.utils.formataddr((name, sender))
