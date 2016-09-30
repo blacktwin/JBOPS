@@ -42,6 +42,12 @@ users = [{'email': 'user1@gmail.com',
           'shows': ('show1', 'show2', 'show3', 'show4')
           }]
           
+# Kill script now if show_name is not in lists
+to = list('Match' for u in users if p.show_name in u['shows'])
+if not to:
+	exit
+
+# Join email addresses
 to = ','.join([u['email'] for u in users if p.show_name in u['shows']])
 
 # Email settings
