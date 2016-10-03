@@ -43,8 +43,8 @@ users = [{'email': 'user1@gmail.com',
           }]
           
 # Kill script now if show_name is not in lists
-to = list('Match' for u in users if p.show_name in u['shows'])
-if not to:
+too = list('Match' for u in users if p.show_name in u['shows'])
+if not too:
 	exit()
 
 # Join email addresses
