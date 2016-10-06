@@ -48,7 +48,7 @@ if not too:
 	exit()
 
 # Join email addresses
-to = ','.join([u['email'] for u in users if p.show_name in u['shows']])
+to = list([u['email'] for u in users if p.show_name in u['shows']])
 
 # Email settings
 name = 'PlexPy' # Your name
@@ -80,7 +80,7 @@ if p.show_type.lower() == 'show' or p.show_type.lower() == 'episode':
     message = MIMEText(show_html, 'html')
     message['Subject'] = email_subject
     message['From'] = email.utils.formataddr((name, sender))
-    message['To'] = to
+    
     
     mailserver = smtplib.SMTP(email_server, email_port)
     mailserver.starttls()
