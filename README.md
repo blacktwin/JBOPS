@@ -18,4 +18,7 @@ Email list: Make sure to expand the user_all list to include any new users added
 
 ##notify_geomail.py:
 
-This is based on the work from JonnyWong16/notify_geodata.py. Added user email information and changed email format to HTML. Email contain User's Avatar image, link to location, IP address, and User's Email address.
+This is based on the work from JonnyWong16/notify_geodata.py. Added user email information and changed email format to HTML. Email contain User's Avatar image, link to location, IP address, and User's Email address. Notification sent via the Email Notification Agent. Agent must be setup to work. 
+
+##notify_newip.py:
+Using notify_geomail.py as a base. If a new IP is found send notification via the Email Notification Agent. Agent must be setup to work. 
