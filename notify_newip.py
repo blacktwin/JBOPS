@@ -12,7 +12,7 @@ import sys
 ## EDIT THESE SETTINGS ##
 PLEXPY_APIKEY = 'XXXX'  # Your PlexPy API key
 PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
-AGENT_ID = 7  # The notification agent ID for PlexPy
+AGENT_ID = 10  # The notification agent ID for PlexPy
 
 # Replace LAN IP addresses that start with the LAN_SUBNET with a WAN IP address
 # to retrieve geolocation data. Leave REPLACEMENT_WAN_IP blank for no replacement.
