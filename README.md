@@ -16,6 +16,6 @@ This is based on the work from JonnyWong16/notify_on_show.py and mp998/PlexPy_em
 User list: Show names need to match what Plex named it.
 Email list: Make sure to expand the user_all list to include any new users added.
 
-##notify_geodata.py:
+##notify_geomail.py:
 
 This is based on the work from JonnyWong16/notify_geodata.py. Added user email information and changed email format to HTML. Email contain User's Avatar image, link to location, IP address, and User's Email address.
