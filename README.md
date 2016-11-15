@@ -11,7 +11,7 @@ In the Notification Agents in the Settings menu. Click the Scripts gear. Your sc
 
 This is based on the work from JonnyWong16/notify_on_show.py and mp998/PlexPy_email_notifiation.py. This is used to send an email notification when a specific show is added to Plex. Create a list of users with their email address and show preferences.
 
-###Modify the User list, Email list, and Email settings.
+####Modify the User list, Email list, and Email settings.
 
 User list: Show names need to match what Plex named it.
 Email list: Make sure to expand the user_all list to include any new users added.
