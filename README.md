@@ -22,3 +22,11 @@ This is based on the work from JonnyWong16/notify_geodata.py. Added user email i
 
 ##notify_newip.py:
 Using notify_geomail.py as a base. If a new IP is found send notification via the Email Notification Agent. Agent must be setup to work. 
+
+
+Check out my gist profile for more. https://gist.github.com/blacktwin
+
+
+# Donation Button
+
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4J6RPWZ9J9YML)
