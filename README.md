@@ -1,6 +1,8 @@
 # PlexPy-scripts
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4J6RPWZ9J9YML)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4J6RPWZ9J9YML) 
+
+Check out my gist profile for more. https://gist.github.com/blacktwin
 
 ### Script Arguments:
 -sn {show_name} -ena {episode_name} -ssn {season_num00} -enu {episode_num00} -srv {server_name} -med {media_type} -pos {poster_url} -tt {title} -sum {summary} -lbn {library_name} -ip {ip_address} -us {user} -uid {user_id} -pf {platform} -pl {player} -da {datestamp} -ti {timestamp}
@@ -24,9 +26,4 @@ This is based on the work from JonnyWong16/notify_geodata.py. Added user email i
 
 ## notify_newip.py:
 Using notify_geomail.py as a base. If a new IP is found send notification via the Email Notification Agent. Agent must be setup to work. 
-
-
-Check out my gist profile for more. https://gist.github.com/blacktwin
-
-
 
