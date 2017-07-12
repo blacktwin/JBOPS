@@ -1,12 +1,21 @@
+"""
+PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+        [X] Notify on Recently Added
+PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+        Recently Added: notify_on_added.py
+        
+PlexPy > Settings > Notifications > Script > Script Arguments: 
+-sn {show_name} -ena {episode_name} -ssn {season_num00} -enu {episode_num00} -srv {server_name} -med {media_type} -pos {poster_url} -tt {title} -sum {summary} -lbn {library_name}
+
+You can add more arguments if you want more details in the email body
+"""
+
 from email.mime.text import MIMEText
 import email.utils
 import smtplib
 import sys
 import argparse
 
-# Arguments passed from PlexPy
-# -sn {show_name} -ena {episode_name} -ssn {season_num00} -enu {episode_num00} -srv {server_name} -med {media_type} -pos {poster_url} -tt {title} -sum {summary} -lbn {library_name}
-# You can add more arguments if you want more details in the email body
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-sn', '--show_name', action='store', default='',
@@ -45,6 +54,7 @@ users = [{'email': 'user1@gmail.com',
 # Kill script now if show_name is not in lists
 too = list('Match' for u in users if p.show_name in u['shows'])
 if not too:
+	print 'Kill script now show_name is not in lists'
 	exit()
 
 # Join email addresses
