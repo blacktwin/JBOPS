@@ -3,9 +3,10 @@
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4J6RPWZ9J9YML) 
 
-Scripts pulled from my gist profile. https://gist.github.com/blacktwin
+Script utilize a combination of [PlexPy](https://github.com/JonnyWong16/plexpy) and [python-plexapi](https://github.com/pkkid/python-plexapi).
 
 ## Scripts List
+Scripts pulled from my gist profile. https://gist.github.com/blacktwin
 
 <details>
 <summary><a href="../tree/master/Maps">Maps</a></summary>
