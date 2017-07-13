@@ -12,7 +12,7 @@ Scripts pulled from my gist profile. https://gist.github.com/blacktwin
 
 Settings > Notification Agents > Click the Scripts gear
 
-- [ ] Set scripts location to whereever you'll keep your scripts
+- [ ] Set scripts location to location of your scripts
 - [ ] Scroll down to option you want to use and select the script from the drop down menu
 - [ ] Save
       
