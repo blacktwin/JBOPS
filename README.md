@@ -39,3 +39,17 @@ In the Notification Agents in the Settings menu. Click the Scripts gear. Your sc
 ||[notify_user_favorites](../blob/master/notify/notify_user_favorites.py)|Notify users of recently added episode to show that they have watched at least LIMIT times via email.|
 ||[notify_user_newip](../blob/master/notify/notify_user_newip.py)|Notify user that their account has been accessed by a new IP. IP is cleared to make sure notification is sent again.|
 ||[twitter_notify](../blob/master/notify/twitter_notify.py)|Post to Twitter when TV/Movie is added to Plex. Include custom message and embed poster image. Option to tweet to TWITTER_USER if title is inside TITLE_FIND.|
+|[Utility](../tree/master/utility "Utilities")|||
+||[bypass_auth_name](../blob/master/utility/bypass_auth_name.py)|Use PlexPy to pull last IP address from user and add to List of IP addresses and networks that are allowed without auth in Plex.|
+||[delete_watched_TV](../blob/master/utility/delete_watched_TV.py)|From a list of TV shows, check if users in a list has watched shows episodes. If all users in list have watched an episode of listed show, then delete episode.|
+||[find_plex_meta](../blob/master/utility/find_plex_meta.py)|Find location of Plex metadata.|
+||[find_unwatched](../blob/master/utility/find_unwatched.py)|Find what was added TFRAME ago and not watched using PlexPy.|
+||[grab_gdrive_media](../blob/master/utility/grab_gdrive_media.py)|Grab media (videos, pictures) from Google Drive. All videos and pictures were automatically synced from Google Photos to Google Drive. Puts media into MEDIA_TYPE/YEAR/MONTH-DAY/FILE.ext directory structure.|
+||[plex_api_poster_pull](../blob/master/utility/plex_api_poster_pull.py)|Pull Movie and TV Show poster images from Plex.|
+||[plex_imgur_dl](../blob/master/utility/plex_imgur_dl.py)|Pull poster images from Imgur and places them inside Shows root folder.|
+||[plex_theme_songs](../blob/master/utility/plex_theme_songs.py)|Download theme songs from Plex TV Shows.|
+||[plexapi_delete_playlists](../blob/master/utility/plexapi_delete_playlists.py)|Delete all playlists from Plex using PlexAPI.|
+||[plexapi_search_file](../blob/master/utility/plexapi_search_file.py)|Find full path for Plex items.|
+||[refresh_next_episode](../blob/master/utility/refresh_next_episode.py)|Refresh the next episode of show once current episode is watched.|
+||[remove_watched_movies](../blob/master/utility/remove_watched_movies.py)|Find Movies that have been watched by a list of users. If all users have watched movie then delete.|
+||[stream_limiter_ban_email](../blob/master/utility/stream_limiter_ban_email.py)|This is indented to restrict a user to the LIMIT amount of concurrent streams. User will be warned, punished, and banned completely if violations continue.|
