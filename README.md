@@ -16,6 +16,8 @@ In the Notification Agents in the Settings menu. Click the Scripts gear. Your sc
 
 | Category | File | Description |
 | :--- | :--- | :--- |
+|[Maps](../tree/master/Maps "Look at this map")|||
+||[ips_to_maps](../blob/master/maps/ips_to_maps.py) | Use PlexPy draw a map connecting Server to Clients based on IP addresses.)|
 |[Fun](../tree/master/fun "Fun Fun Fun Fun")|||
 ||[aired_today_playlist](../blob/master/fun/aired_today_playlist.py) | Create a Plex Playlist with what was aired on this today's month-day, sort by oldest first. If Playlist from yesterday exists delete and create today's. If today's Playlist exists exit.|
 ||[plexapi_haiku](../blob/master/fun/plexapi_haiku.py)| Create a hiaku from titles found in Plex.|
