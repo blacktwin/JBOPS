@@ -53,3 +53,9 @@ In the Notification Agents in the Settings menu. Click the Scripts gear. Your sc
 ||[refresh_next_episode](../blob/master/utility/refresh_next_episode.py)|Refresh the next episode of show once current episode is watched.|
 ||[remove_watched_movies](../blob/master/utility/remove_watched_movies.py)|Find Movies that have been watched by a list of users. If all users have watched movie then delete.|
 ||[stream_limiter_ban_email](../blob/master/utility/stream_limiter_ban_email.py)|This is indented to restrict a user to the LIMIT amount of concurrent streams. User will be warned, punished, and banned completely if violations continue.|
+|[Reporting](../tree/master/utility "If you could go ahead and... That’d be great..")|||
+||[added_to_plex](../blob/master/reporting/added_to_plex.py)|Find when media was added between STARTFRAME and ENDFRAME to Plex through PlexPy.|
+||[check_play](../blob/master/reporting/check_play.py)|Check if user has play a file more than 3 times but has not finished watching. Hoping to catch play failures.|
+||[check_plex_log](../blob/master/reporting/check_plex_log.py)|Checking plex logs for debug code WARN and 'Failed to obtain a streaming resource for transcode of key /library/metadata/"titleID"'.|
+||[drive_check](../blob/master/reporting/drive_check.py)|Check if drive exists. If not then notify via PlexPy notifier agent.|
+||[userplays_weekly_reporting](../blob/master/reporting/userplays_weekly_reporting.py)|Use PlexPy to count how many plays per user occurred this week and send email via PlexPy.|
