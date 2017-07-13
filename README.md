@@ -64,7 +64,7 @@ Scripts pulled from my gist profile. https://gist.github.com/blacktwin
   </tr>
     <tr>
     <td><a href="https://gist.github.com/blacktwin/2148bb0b2f8d67b8a08c50ace62ad39f"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
-    <td>[create_wait_kill_trans]<a href="../master/killstream/create_wait_kill_trans.py"></a></td>
+    <td><a href="../master/killstream/create_wait_kill_trans.py">create_wait_kill_trans</a></td>
     <td>Receive session_key from PlexPy when paused. Use session_id to create sub-script to wait for X time then check if transcoding still paused. If so, kill.</td>
   </tr>
   <tr>
