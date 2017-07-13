@@ -16,7 +16,7 @@ In the Notification Agents in the Settings menu. Click the Scripts gear. Your sc
 
 | Category | File | Description |
 | :--- | :--- | :--- |
-|[Maps](../tree/master/Maps "Look at this map")|||
+|[Maps](../tree/master/Maps "Look at this map") <td colspan=2>
 |[![](https://img.shields.io/badge/Imgur-image-blue.svg)](http://i.imgur.com/IXd0IVM.png)|[ips_to_maps](../master/maps/ips_to_maps.py) | Use PlexPy draw a map connecting Server to Clients based on IP addresses.)|
 |[Fun](../tree/master/fun "Fun Fun Fun Fun")|||
 |[![](https://img.shields.io/badge/gist-original-green.svg)](https://gist.github.com/blacktwin/397f07724abebd1223ba6ea644ea1669)|[aired_today_playlist](../master/fun/aired_today_playlist.py) | Create a Plex Playlist with what was aired on this today's month-day, sort by oldest first. If Playlist from yesterday exists delete and create today's. If today's Playlist exists exit.|
