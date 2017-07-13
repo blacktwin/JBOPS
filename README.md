@@ -16,9 +16,9 @@ In the Notification Agents in the Settings menu. Click the Scripts gear. Your sc
 
 | Category | File | Description |
 | :--- | :--- | :--- |
-|[Fun](../tree/master/fun "Fun Fun")|[aired_today_playlist](https://github.com/blacktwin/JBOPS/blob/master/fun/aired_today_playlist.py) | Create a Plex Playlist with what was aired on this today's month-day, sort by oldest first. If Playlist from yesterday exists delete and create today's. If today's Playlist exists exit.|
+|[Fun](../tree/master/fun "Fun Fun Fun Fun")|[aired_today_playlist](https://github.com/blacktwin/JBOPS/blob/master/fun/aired_today_playlist.py) | Create a Plex Playlist with what was aired on this today's month-day, sort by oldest first. If Playlist from yesterday exists delete and create today's. If today's Playlist exists exit.|
 ||[plexapi_haiku](https://github.com/blacktwin/JBOPS/blob/master/fun/plexapi_haiku.py)| Create a hiaku from titles found in Plex.|
-|[killstream](https://github.com/blacktwin/JBOPS/tree/master/killstream)| [create_wait_kill_all](https://github.com/blacktwin/JBOPS/blob/master/killstream/create_wait_kill_all.py)|Receive session_key from PlexPy when paused. Use session_id to create sub-script to wait for X time then check if still paused. If paused kill.|
+|[killstream](../tree/master/killstream "Kill Kill Kill")| [create_wait_kill_all](https://github.com/blacktwin/JBOPS/blob/master/killstream/create_wait_kill_all.py)|Receive session_key from PlexPy when paused. Use session_id to create sub-script to wait for X time then check if still paused. If paused kill.|
 ||[create_wait_kill_trans](https://github.com/blacktwin/JBOPS/blob/master/killstream/create_wait_kill_trans.py)|Receive session_key from PlexPy when paused. Use session_id to create sub-script to wait for X time then check if transcoding still paused. If so, kill.|
 ||[kill_all_more_than](https://github.com/blacktwin/JBOPS/blob/master/killstream/kill_all_more_than.py)|If user has 2 or more concurrent streams kill all streams|
 ||[kill_else_if_buffering](https://github.com/blacktwin/JBOPS/blob/master/killstream/kill_else_if_buffering.py)|Kill concurrent transcode streams of other users if Admin user is experiencing buffering warnings from PlexPy.|
