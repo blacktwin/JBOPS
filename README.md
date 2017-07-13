@@ -11,13 +11,18 @@ Scripts pulled from my gist profile. https://gist.github.com/blacktwin
 #### Enabling Scripts in PlexPy:
 
 Settings > Notification Agents > Click the Scripts gear
+
       Set scripts location to whereever you'll keep your scripts
       Scroll down to option you want to use and select the script from the drop down menu
       Save
+      
 Settings > Notification Agents > Click the Bell next to Scripts
+
       Check desired trigger
       Save
+      
 Settings > Notifications
+
       Enter in the Script Arguments found in the .py script
       Save
 
