@@ -19,7 +19,7 @@ Settings > Notification Agents > Click the Scripts gear
 Settings > Notification Agents > Click the Bell next to Scripts
 
 - [ ] Check desired trigger
-- [ ] Save
+- [ ] Close
       
 Settings > Notifications
 
