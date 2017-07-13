@@ -1,0 +1,417 @@
+"""
+Use PlexPy draw a map connecting Server to Clients based on IP addresses.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -l , --location       Map location. choices: [NA, World]
+                        (default: NA)
+  -c [], --count []     How many IPs to attempt to check.
+                        (default: 2)
+  -u  [ ...], --users  [ ...]
+                        Space separated list of case sensitive names to process. Allowed names are:
+                        {List of Users}
+                        (default: all)
+  -i  [ ...], --ignore  [ ...]
+                        Space separated list of case sensitive names to process. Allowed names are:
+                        {List of Users}
+                        (default: None)
+  -f  [ ...], --filename  [ ...]
+                        Filename of map. None will not save. (default: Map_YYYYMMDD-HHMMSS)
+  -j [], --json []      Filename of json file to use.
+                        (choices: {List of .json files in current dir})
+  -geo [], --geojson []
+                        Create geojson file to load in gisthub.
+                        (default: None)
+
+
+"""
+
+import requests
+import sys
+import json
+import os
+from collections import OrderedDict
+import argparse
+import numpy as np
+import time
+from collections import Counter
+
+import webbrowser
+
+## EDIT THESE SETTINGS ##
+PLEXPY_APIKEY = ''  # Your PlexPy API key
+PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+
+# Replace LAN IP addresses that start with the LAN_SUBNET with a WAN IP address
+# to retrieve geolocation data. Leave REPLACEMENT_WAN_IP blank for no replacement.
+LAN_SUBNET = ('10.10', '127.0.0')
+REPLACEMENT_WAN_IP = ''
+
+# Enter Friendly name for Server ie 'John Smith'
+SERVER_FRIENDLY = 'Server'
+
+# Server location information. Find this information on your own.
+# If server plot is out of scope add print(geo_lst) after ut.user_id loop ~line 151 to find the error
+SERVER_LON = ''
+SERVER_LAT = ''
+SERVER_CITY = ''
+SERVER_STATE = ''
+SERVER_PLATFORM = 'Server'
+
+DEFAULT_COLOR = '#A96A1C' # Plex Orange?
+
+PLATFORM_COLORS = {'Android': '#a4c639', # Green
+                   'Roku':'#800080', # Purple
+                   'Chromecast':'#ffff00', # Yellow
+                   'Xbox One':'#ffffff', # White
+                   'Chrome':'#ff0000', # Red
+                   'Playstation 4':'#0000ff', # Blue
+                   'iOS':'#8b4513', # Poop brown
+                   'Samsung': '#0c4da2', # Blue
+                   'Windows': DEFAULT_COLOR,
+                   'Xbox 360 App': DEFAULT_COLOR}
+
+# title of map
+title_string = "Location of Plex users based on ISP data"
+
+
+class GeoData(object):
+    def __init__(self, data=None):
+        data = data or {}
+        self.continent = data.get('continent', 'N/A')
+        self.country = data.get('country', 'N/A')
+        self.region = data.get('region', 'N/A')
+        self.city = data.get('city', 'N/A')
+        self.postal_code = data.get('postal_code', 'N/A')
+        self.timezone = data.get('timezone', 'N/A')
+        self.latitude = data.get('latitude', 'N/A')
+        self.longitude = data.get('longitude', 'N/A')
+        self.accuracy = data.get('accuracy', 'N/A')
+
+
+class UserIPs(object):
+    def __init__(self, data=None):
+        d = data or {}
+        self.ip_address = d['ip_address']
+        self.friendly_name = d['friendly_name']
+        self.play_count = d['play_count']
+        self.platform = d['platform']
+
+def get_get_users_tables(users):
+    # Get the user IP list from PlexPy
+    payload = {'apikey': PLEXPY_APIKEY,
+               'cmd': 'get_users_table'}
+
+    try:
+        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        response = r.json()
+        res_data = response['response']['data']['data']
+        if users == 'all':
+            return [d['user_id'] for d in res_data]
+        elif users == 'friendly_name':
+            return [d['friendly_name'] for d in res_data]
+        else:
+            return [d['user_id'] for user in users for d in res_data if user == d['friendly_name']]
+    except Exception as e:
+        sys.stderr.write("PlexPy API 'get_get_users_tables' request failed: {0}.".format(e))
+
+def get_get_users_ips(user_id, length):
+    # Get the user IP list from PlexPy
+    payload = {'apikey': PLEXPY_APIKEY,
+               'cmd': 'get_user_ips',
+               'user_id': user_id,
+               'length': length}
+
+    try:
+        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        response = r.json()
+        res_data = response['response']['data']['data']
+        return [UserIPs(data=d) for d in res_data]
+    except Exception as e:
+        sys.stderr.write("PlexPy API 'get_get_users_ips' request failed: {0}.".format(e))
+
+def get_geoip_info(ip_address=''):
+    # Get the geo IP lookup from PlexPy
+    payload = {'apikey': PLEXPY_APIKEY,
+               'cmd': 'get_geoip_lookup',
+               'ip_address': ip_address}
+
+    try:
+        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        response = r.json()
+        # print(json.dumps(response, indent=4, sort_keys=True))
+        if response['response']['result'] == 'success':
+            data = response['response']['data']
+            if data.get('error'):
+                raise Exception(data['error'])
+            else:
+                sys.stdout.write("Successfully retrieved geolocation data.")
+                return GeoData(data=data)
+        else:
+            raise Exception(response['response']['message'])
+    except Exception as e:
+        sys.stderr.write("PlexPy API 'get_geoip_lookup' request failed: {0}.".format(e))
+        return GeoData()
+
+def get_stream_type_by_top_10_platforms():
+    # Get the user IP list from PlexPy
+    payload = {'apikey': PLEXPY_APIKEY,
+               'cmd': 'get_stream_type_by_top_10_platforms'}  # length is number of returns, default is 25
+
+    try:
+        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        response = r.json()
+        res_data = response['response']['data']['categories']
+        return res_data
+    except Exception as e:
+        sys.stderr.write("PlexPy API 'get_stream_type_by_top_10_platforms' request failed: {0}.".format(e))
+
+def add_to_dictlist(d, key, val):
+    if key not in d:
+        d[key] = [val]
+    else:
+        d[key].append(val)
+    for x in d[key]:
+        if (val['region'], val['city']) == (x['region'], x['city']):
+            x['location_count'] += 1
+
+def get_geo_dict(length, users):
+    geo_dict = {SERVER_FRIENDLY: [{'lon': SERVER_LON, 'lat': SERVER_LAT, 'city': SERVER_CITY, 'region': SERVER_STATE,
+                                   'ip': REPLACEMENT_WAN_IP, 'play_count': 0, 'platform': SERVER_PLATFORM,
+                                   'location_count': 0}]}
+    try:
+        for i in get_get_users_tables(users):
+            user_ip = get_get_users_ips(user_id=i, length=length)
+            city_cnt = 0
+            for a in user_ip:
+                ip = a.ip_address
+                if ip.startswith(LAN_SUBNET) and REPLACEMENT_WAN_IP:
+                    ip = REPLACEMENT_WAN_IP
+
+                g = get_geoip_info(ip_address=ip)
+
+                add_to_dictlist(geo_dict, a.friendly_name, {'lon': str(g.longitude), 'lat': str(g.latitude),
+                                                            'city': str(g.city), 'region': str(g.region),
+                                                             'ip': ip, 'play_count': a.play_count,
+                                                             'platform':a.platform, 'location_count': city_cnt})
+
+    except Exception as e:
+        print(e)
+        pass
+    return geo_dict
+
+def get_geojson_dict(user_locations):
+    locs = []
+    for username, locations in user_locations.iteritems():
+        for location in locations:
+            try:
+                locs.append({
+                    "type": "Feature",
+                    "properties": {
+                        "User": username,
+                        "City": location['city'],
+                        "State": location['region'],
+                        "IP": location['ip'],
+                        "Count": location['play_count']
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            float(location['lon']), float(location['lat'])
+                        ]
+                    }
+                })
+
+                locs.append({
+                    "type": "Feature",
+                    "properties": {
+                        "geodesic": "true",
+                        "geodesic_steps": 50,
+                        "geodesic_wrap": "true"
+                    },
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [
+                            [float(location['lon']), float(location['lat'])],
+                            [float(SERVER_LON), float(SERVER_LAT)],
+                        ]
+                    }
+                })
+            except ValueError:
+                pass
+    return {
+        "type": "FeatureCollection",
+        "features": locs
+    }
+
+def draw_map(map_type, geo_dict, filename):
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.basemap import Basemap
+    import matplotlib as mpl
+    ## Map stuff ##
+    plt.figure(figsize=(16, 9), dpi=100, frameon=False, tight_layout=True)
+    if map_type == 'NA':
+        # Map draw size
+        m = Basemap(llcrnrlon=-119, llcrnrlat=22, urcrnrlon=-54, urcrnrlat=55, projection='lcc', resolution='l',
+                    lat_1=32, lat_2=45, lon_0=-95)
+
+    elif map_type == 'World':
+        m = Basemap(projection='robin', lat_0=0, lon_0=-100, resolution='l', area_thresh=100000.0)
+        m.drawmeridians(np.arange(0, 360, 30))
+        m.drawparallels(np.arange(-90, 90, 30))
+
+    # remove line in legend
+    mpl.rcParams['legend.handlelength'] = 0
+    m.drawmapboundary(fill_color='#1F1F1F')
+    m.drawcoastlines()
+    m.drawstates()
+    m.drawcountries()
+    m.fillcontinents(color='#3C3C3C', lake_color='#1F1F1F')
+
+    for key, values in geo_dict.items():
+        # add Accuracy as plot/marker size, change play count to del_s value.
+        if key != SERVER_FRIENDLY:
+            locations_count_total = Counter((sublist['city'], sublist['region']) for sublist in values)
+            print(locations_count_total)
+        for data in values:
+            if key == SERVER_FRIENDLY:
+                color = '#FFAC05'
+                marker = '*'
+                markersize = 10
+                zord = 3
+                alph = 1
+            else:
+                color = PLATFORM_COLORS[data['platform']]
+                marker = '.'
+                markersize = (data['play_count'] * .75)
+                zord = 2
+                alph = 0.4
+            px, py = m(float(data['lon']), float(data['lat']))
+            x, y = m([float(data['lon']), float(SERVER_LON)], [float(data['lat']), float(SERVER_LAT)])
+            legend = 'Location: {}, {},  User: {}\nPlatform: {}, IP: {}, Play Count: {}'.format(
+                data['city'], data['region'], key, data['platform'], data['ip'], data['play_count'])
+            # Keeping lines inside the USA. Plots outside USA will still be in legend
+
+            if float(data['lon']) != float(SERVER_LON) and float(data['lat']) != float(SERVER_LAT) and \
+                                    -124.0 < float(data['lon']) < 66.0:
+                # Drawing lines from Server location to client location
+                if data['location_count'] > 1:
+                    lines = m.plot(x, y, marker=marker, color=color, markersize=0,
+                                   label=legend, alpha=.6, zorder=zord, linewidth=2)
+                    # Adding dash sequence to 2nd, 3rd, etc lines from same city,state
+                    for line in lines:
+                        line.set_solid_capstyle('round')
+                        line.set_dashes([3,5,3,5])
+
+                else:
+                    lines = m.plot(x, y, marker=marker, color=color, markersize=0, label=legend, alpha=.4, zorder=zord,
+                                   linewidth=2)
+
+            client_plot = m.plot(px, py, marker=marker, color=color, markersize=markersize,
+                            label=legend, alpha=alph, zorder=zord+1)
+
+
+    handles, labels = plt.gca().get_legend_handles_labels()
+    idx = labels.index('Location: {}, {},  User: {}\nPlatform: {}, IP: {}, Play Count: {}'.
+                       format(SERVER_CITY, SERVER_STATE, SERVER_FRIENDLY, SERVER_PLATFORM, REPLACEMENT_WAN_IP, 0))
+    labels = labels[idx:] + labels[:idx]
+    handles = handles[idx:] + handles[:idx]
+    by_label = OrderedDict(zip(labels, handles))
+
+    leg = plt.legend(by_label.values(), by_label.keys(), fancybox=True, fontsize='x-small',
+                     numpoints=1, title="Legend", labelspacing=1., borderpad=1.5, handletextpad=2.)
+    if leg:
+        lleng = len(leg.legendHandles)
+        for i in range(0, lleng):
+            leg.legendHandles[i]._legmarker.set_markersize(5)
+            leg.legendHandles[i]._legmarker.set_alpha(1)
+        leg.get_title().set_color('#7B777C')
+        leg.draggable()
+        leg.get_frame().set_facecolor('#2C2C2C')
+        for text in leg.get_texts():
+            plt.setp(text, color='#A5A5A7')
+
+    plt.title(title_string)
+    mng = plt.get_current_fig_manager()
+    ### works on Ubuntu??? >> did NOT working on windows
+    # mng.resize(*mng.window.maxsize())
+    mng.window.state('zoomed')
+    if filename:
+        plt.savefig('{}.png'.format(filename), bbox_inches='tight')
+    plt.show()
+
+
+if __name__ == '__main__':
+
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    user_lst = get_get_users_tables('friendly_name')
+    json_check = sorted([f for f in os.listdir('.') if os.path.isfile(f) and f.endswith(".json")], key=os.path.getmtime)
+    parser = argparse.ArgumentParser(description="Use PlexPy to draw map of user locations base on IP address.",
+                                     formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('-l', '--location', default='NA', choices=['NA', 'World'], metavar='',
+                        help='Map location. choices: [%(choices)s] \n(default: %(default)s)')
+    parser.add_argument('-c', '--count', nargs='?', type=int , default=2, metavar='',
+                        help='How many IPs to attempt to check. \n(default: %(default)s)')
+    parser.add_argument('-u', '--users', nargs='+', type=str ,default='all', choices=user_lst, metavar='',
+                        help='Space separated list of case sensitive names to process. Allowed names are: \n'
+                             '%(choices)s \n(default: %(default)s)')
+    parser.add_argument('-i', '--ignore', nargs='+', type=str, default=None, choices=user_lst, metavar='',
+                        help='Space separated list of case sensitive names to process. Allowed names are: \n'
+                             '%(choices)s \n(default: %(default)s)')
+    parser.add_argument('-p', '--platform', nargs='+', type=str, default='all',
+                        choices=get_stream_type_by_top_10_platforms(), metavar='',
+                        help='Search by platform. Allowed platforms are:\n%(choices)s \n(default: %(default)s)')
+    parser.add_argument('-f', '--filename', nargs='+', type=str, default='Map_{}'.format(timestr), metavar='',
+                        help='Filename of map. None will not save. \n(default: %(default)s)')
+    parser.add_argument('-j', '--json', nargs='?', type=str, choices=json_check, metavar='',
+                        help='Filename of json file to use. \n(choices: %(choices)s)')
+    parser.add_argument('-geo', '--geojson', nargs='?', default=None, metavar='',
+                        help='Create geojson file to load in gisthub.\n(default: %(default)s)')
+
+
+    opts = parser.parse_args()
+    if opts.json:
+        if opts.filename == ['None']:
+            filename = None
+        else:
+            filename = '{}'.format(''.join(opts.filename))
+        print('Using existing .json file to map.')
+        with open(''.join(opts.json)) as json_data:
+            geo_json = json.load(json_data)
+    else:
+        print(opts)
+        if opts.ignore and opts.users == 'all':
+            users = [x for x in user_lst if x not in opts.ignore]
+        else:
+            users = opts.users
+        if opts.filename == ['None']:
+            filename = None
+            json_file = '{}.json'.format(timestr)
+        else:
+            filename = '{}'.format(''.join(opts.filename))
+            json_file = '{}.json'.format(''.join(opts.filename))
+        geo_json = get_geo_dict(opts.count, users)
+        with open(json_file, 'w') as fp:
+            json.dump(geo_json, fp, indent=4, sort_keys=True)
+
+    if opts.geojson:
+        geojson = get_geojson_dict(geo_json)
+        print("\n")
+
+        r = requests.post("https://api.github.com/gists",
+                          json={
+                              "description": title_string,
+                              "files": {
+                                  '{}.geojson'.format(filename): {
+                                      "content": json.dumps(geojson)
+                                  }
+                              }
+                          },
+                          headers={
+                              'Content-Type': 'application/json'
+                          })
+
+        print(r.json()['html_url'])
+        webbrowser.open(r.json()['html_url'])
+    else:
+        draw_map(opts.location, geo_json, filename)
