@@ -21,6 +21,7 @@ import requests
 import platform
 from uuid import getnode
 import sys
+import unicodedata
 
 ## EDIT THESE SETTINGS ##
 PLEX_HOST = ''
@@ -87,6 +88,7 @@ for s in response['MediaContainer']['Video']:
         id = s['Session']['id']
         user = s['User']['title']
         title = (s['grandparentTitle'] + ' - ' if s['type'] == 'episode' else '') + s['title']
+        title = unicodedata.normalize('NFKD', title).encode('ascii','ignore')
         sessions.append((id, user, title))
 
 if len(sessions) == 1:
