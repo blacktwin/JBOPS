@@ -13,7 +13,7 @@ Scripts pulled from my gist profile. https://gist.github.com/blacktwin
 
 <table>
   <tr>
-    <th></th>
+    <th>Example</th>
     <th>File</th>
     <th>Description</th>
   </tr>
@@ -30,7 +30,7 @@ Scripts pulled from my gist profile. https://gist.github.com/blacktwin
 
 <table>
   <tr>
-    <th></th>
+    <th>Gist</th>
     <th>File</th>
     <th>Description</th>
   </tr>
@@ -53,7 +53,7 @@ Scripts pulled from my gist profile. https://gist.github.com/blacktwin
 
 <table>
   <tr>
-    <th></th>
+    <th>Gist</th>
     <th>File</th>
     <th>Description</th>
   </tr>
@@ -116,7 +116,7 @@ Scripts pulled from my gist profile. https://gist.github.com/blacktwin
 
 <table>
   <tr>
-    <th></th>
+    <th>Gist</th>
     <th>File</th>
     <th>Description</th>
   </tr>
@@ -169,7 +169,7 @@ Scripts pulled from my gist profile. https://gist.github.com/blacktwin
 
 <table>
   <tr>
-    <th></th>
+    <th>Gist</th>
     <th>File</th>
     <th>Description</th>
   </tr>
@@ -246,7 +246,7 @@ Scripts pulled from my gist profile. https://gist.github.com/blacktwin
 
 <table>
   <tr>
-    <th></th>
+    <th>Gist</th>
     <th>File</th>
     <th>Description</th>
   </tr>
