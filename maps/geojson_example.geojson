@@ -1,0 +1,423 @@
+{
+    "type": "FeatureCollection", 
+    "features": [
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    16.366667, 
+                    48.2
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "Count": 251, 
+                "City": "city", 
+                "State": "region", 
+                "User": "User4", 
+                "IP": "0.0.0.0"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "LineString", 
+                "coordinates": [
+                    [
+                        16.366667, 
+                        48.2
+                    ], 
+                    [
+                        -104.800644, 
+                        38.846127
+                    ]
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "geodesic_wrap": "true", 
+                "geodesic": "true", 
+                "geodesic_steps": 50
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    16.45, 
+                    49.5
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "Count": 55, 
+                "City": "city", 
+                "State": "region", 
+                "User": "User4", 
+                "IP": "0.0.0.0"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "LineString", 
+                "coordinates": [
+                    [
+                        16.45, 
+                        49.5
+                    ], 
+                    [
+                        -104.800644, 
+                        38.846127
+                    ]
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "geodesic_wrap": "true", 
+                "geodesic": "true", 
+                "geodesic_steps": 50
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    23.316, 
+                    42.684
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "Count": 14, 
+                "City": "city", 
+                "State": "region", 
+                "User": "User5", 
+                "IP": "0.0.0.0"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "LineString", 
+                "coordinates": [
+                    [
+                        23.316, 
+                        42.684
+                    ], 
+                    [
+                        -104.800644, 
+                        38.846127
+                    ]
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "geodesic_wrap": "true", 
+                "geodesic": "true", 
+                "geodesic_steps": 50
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    23.316, 
+                    42.684
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "Count": 8, 
+                "City": "city", 
+                "State": "region", 
+                "User": "User5", 
+                "IP": "0.0.0.0"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "LineString", 
+                "coordinates": [
+                    [
+                        23.316, 
+                        42.684
+                    ], 
+                    [
+                        -104.800644, 
+                        38.846127
+                    ]
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "geodesic_wrap": "true", 
+                "geodesic": "true", 
+                "geodesic_steps": 50
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -76.609383, 
+                    39.299236
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "Count": 147, 
+                "City": "city", 
+                "State": "region", 
+                "User": "User2", 
+                "IP": "0.0.0.0"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "LineString", 
+                "coordinates": [
+                    [
+                        -76.609383, 
+                        39.299236
+                    ], 
+                    [
+                        -104.800644, 
+                        38.846127
+                    ]
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "geodesic_wrap": "true", 
+                "geodesic": "true", 
+                "geodesic_steps": 50
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -76.609383, 
+                    40.299236
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "Count": 7, 
+                "City": "city", 
+                "State": "region", 
+                "User": "User2", 
+                "IP": "0.0.0.0"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "LineString", 
+                "coordinates": [
+                    [
+                        -76.609383, 
+                        40.299236
+                    ], 
+                    [
+                        -104.800644, 
+                        38.846127
+                    ]
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "geodesic_wrap": "true", 
+                "geodesic": "true", 
+                "geodesic_steps": 50
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -78.745193, 
+                    42.661232
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "Count": 2, 
+                "City": "city", 
+                "State": "region", 
+                "User": "User3", 
+                "IP": "0.0.0.0"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "LineString", 
+                "coordinates": [
+                    [
+                        -78.745193, 
+                        42.661232
+                    ], 
+                    [
+                        -104.800644, 
+                        38.846127
+                    ]
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "geodesic_wrap": "true", 
+                "geodesic": "true", 
+                "geodesic_steps": 50
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -71.072105, 
+                    42.302708
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "Count": 193, 
+                "City": "city", 
+                "State": "region", 
+                "User": "User3", 
+                "IP": "0.0.0.0"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "LineString", 
+                "coordinates": [
+                    [
+                        -71.072105, 
+                        42.302708
+                    ], 
+                    [
+                        -104.800644, 
+                        38.846127
+                    ]
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "geodesic_wrap": "true", 
+                "geodesic": "true", 
+                "geodesic_steps": 50
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -115.172813, 
+                    36.114647
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "Count": 365, 
+                "City": "city", 
+                "State": "region", 
+                "User": "User1", 
+                "IP": "0.0.0.0"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "LineString", 
+                "coordinates": [
+                    [
+                        -115.172813, 
+                        36.114647
+                    ], 
+                    [
+                        -104.800644, 
+                        38.846127
+                    ]
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "geodesic_wrap": "true", 
+                "geodesic": "true", 
+                "geodesic_steps": 50
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -115.172813, 
+                    36.114647
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "Count": 1, 
+                "City": "city", 
+                "State": "region", 
+                "User": "User1", 
+                "IP": "0.0.0.0"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "LineString", 
+                "coordinates": [
+                    [
+                        -115.172813, 
+                        36.114647
+                    ], 
+                    [
+                        -104.800644, 
+                        38.846127
+                    ]
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "geodesic_wrap": "true", 
+                "geodesic": "true", 
+                "geodesic_steps": 50
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "Point", 
+                "coordinates": [
+                    -104.800644, 
+                    38.846127
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "Count": 0, 
+                "City": "city", 
+                "State": "region", 
+                "User": "Server", 
+                "IP": "0.0.0.0"
+            }
+        }, 
+        {
+            "geometry": {
+                "type": "LineString", 
+                "coordinates": [
+                    [
+                        -104.800644, 
+                        38.846127
+                    ], 
+                    [
+                        -104.800644, 
+                        38.846127
+                    ]
+                ]
+            }, 
+            "type": "Feature", 
+            "properties": {
+                "geodesic_wrap": "true", 
+                "geodesic": "true", 
+                "geodesic_steps": 50
+            }
+        }
+    ]
+}
