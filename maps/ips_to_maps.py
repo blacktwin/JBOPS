@@ -3,7 +3,7 @@ Use PlexPy draw a map connecting Server to Clients based on IP addresses.
 
 optional arguments:
   -h, --help            show this help message and exit
-  -l , --location       Map location. choices: [NA, World]
+  -l , --location       Map location. choices: (NA, EU, World, Geo)
                         (default: NA)
   -c [], --count []     How many IPs to attempt to check.
                         (default: 2)
@@ -19,9 +19,6 @@ optional arguments:
                         Filename of map. None will not save. (default: Map_YYYYMMDD-HHMMSS)
   -j [], --json []      Filename of json file to use.
                         (choices: {List of .json files in current dir})
-  -geo [], --geojson []
-                        Create geojson file to load in gisthub.
-                        (default: None)
 
 
 """
@@ -250,15 +247,26 @@ def draw_map(map_type, geo_dict, filename):
     import matplotlib as mpl
     ## Map stuff ##
     plt.figure(figsize=(16, 9), dpi=100, frameon=False, tight_layout=True)
+    lon_r = 0
+    lon_l = 0
+
     if map_type == 'NA':
-        # Map draw size
         m = Basemap(llcrnrlon=-119, llcrnrlat=22, urcrnrlon=-54, urcrnrlat=55, projection='lcc', resolution='l',
                     lat_1=32, lat_2=45, lon_0=-95)
+        lon_r = 66.0
+        lon_l = -124.0
+    elif map_type == 'EU':
+        m = Basemap(llcrnrlon=-15., llcrnrlat=20, urcrnrlon=75., urcrnrlat=70, projection='lcc', resolution='l',
+                    lat_1=30, lat_2=60, lon_0=35.)
+        lon_r = 50.83
+        lon_l = -69.03
 
     elif map_type == 'World':
         m = Basemap(projection='robin', lat_0=0, lon_0=-100, resolution='l', area_thresh=100000.0)
         m.drawmeridians(np.arange(0, 360, 30))
         m.drawparallels(np.arange(-90, 90, 30))
+        lon_r = 180
+        lon_l = -180.0
 
     # remove line in legend
     mpl.rcParams['legend.handlelength'] = 0
@@ -270,9 +278,6 @@ def draw_map(map_type, geo_dict, filename):
 
     for key, values in geo_dict.items():
         # add Accuracy as plot/marker size, change play count to del_s value.
-        if key != SERVER_FRIENDLY:
-            locations_count_total = Counter((sublist['city'], sublist['region']) for sublist in values)
-            print(locations_count_total)
         for data in values:
             if key == SERVER_FRIENDLY:
                 color = '#FFAC05'
@@ -283,17 +288,22 @@ def draw_map(map_type, geo_dict, filename):
             else:
                 color = PLATFORM_COLORS[data['platform']]
                 marker = '.'
-                markersize = (data['play_count'] * .75)
+                if data['play_count'] >= 100:
+                    markersize = (data['play_count'] * .1)
+                elif data['play_count'] <= 2:
+                    markersize = 2
+                else:
+                    markersize = 2
                 zord = 2
                 alph = 0.4
             px, py = m(float(data['lon']), float(data['lat']))
             x, y = m([float(data['lon']), float(SERVER_LON)], [float(data['lat']), float(SERVER_LAT)])
             legend = 'Location: {}, {},  User: {}\nPlatform: {}, IP: {}, Play Count: {}'.format(
                 data['city'], data['region'], key, data['platform'], data['ip'], data['play_count'])
-            # Keeping lines inside the USA. Plots outside USA will still be in legend
+            # Keeping lines inside the Location. Plots outside Location will still be in legend
 
             if float(data['lon']) != float(SERVER_LON) and float(data['lat']) != float(SERVER_LAT) and \
-                                    -124.0 < float(data['lon']) < 66.0:
+                                    lon_l < float(data['lon']) < lon_r:
                 # Drawing lines from Server location to client location
                 if data['location_count'] > 1:
                     lines = m.plot(x, y, marker=marker, color=color, markersize=0,
@@ -301,14 +311,15 @@ def draw_map(map_type, geo_dict, filename):
                     # Adding dash sequence to 2nd, 3rd, etc lines from same city,state
                     for line in lines:
                         line.set_solid_capstyle('round')
-                        line.set_dashes([3,5,3,5])
+                        dashes = [x * data['location_count'] for x in [5,8,5,8]]
+                        line.set_dashes(dashes)
 
                 else:
                     lines = m.plot(x, y, marker=marker, color=color, markersize=0, label=legend, alpha=.4, zorder=zord,
                                    linewidth=2)
 
             client_plot = m.plot(px, py, marker=marker, color=color, markersize=markersize,
-                            label=legend, alpha=alph, zorder=zord+1)
+                            label=legend, alpha=alph, zorder=zord)
 
 
     handles, labels = plt.gca().get_legend_handles_labels()
@@ -322,8 +333,8 @@ def draw_map(map_type, geo_dict, filename):
                      numpoints=1, title="Legend", labelspacing=1., borderpad=1.5, handletextpad=2.)
     if leg:
         lleng = len(leg.legendHandles)
-        for i in range(0, lleng):
-            leg.legendHandles[i]._legmarker.set_markersize(5)
+        for i in range(1, lleng):
+            leg.legendHandles[i]._legmarker.set_markersize(10)
             leg.legendHandles[i]._legmarker.set_alpha(1)
         leg.get_title().set_color('#7B777C')
         leg.draggable()
@@ -337,7 +348,7 @@ def draw_map(map_type, geo_dict, filename):
     # mng.resize(*mng.window.maxsize())
     mng.window.state('zoomed')
     if filename:
-        plt.savefig('{}.png'.format(filename), bbox_inches='tight')
+        plt.savefig('{}.png'.format(filename))
     plt.show()
 
 
@@ -348,8 +359,8 @@ if __name__ == '__main__':
     json_check = sorted([f for f in os.listdir('.') if os.path.isfile(f) and f.endswith(".json")], key=os.path.getmtime)
     parser = argparse.ArgumentParser(description="Use PlexPy to draw map of user locations base on IP address.",
                                      formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-l', '--location', default='NA', choices=['NA', 'World'], metavar='',
-                        help='Map location. choices: [%(choices)s] \n(default: %(default)s)')
+    parser.add_argument('-l', '--location', default='NA', choices=['NA', 'EU','World', 'Geo'], metavar='',
+                        help='Map location. choices: (%(choices)s) \n(default: %(default)s)')
     parser.add_argument('-c', '--count', nargs='?', type=int , default=2, metavar='',
                         help='How many IPs to attempt to check. \n(default: %(default)s)')
     parser.add_argument('-u', '--users', nargs='+', type=str ,default='all', choices=user_lst, metavar='',
@@ -365,8 +376,6 @@ if __name__ == '__main__':
                         help='Filename of map. None will not save. \n(default: %(default)s)')
     parser.add_argument('-j', '--json', nargs='?', type=str, choices=json_check, metavar='',
                         help='Filename of json file to use. \n(choices: %(choices)s)')
-    parser.add_argument('-geo', '--geojson', nargs='?', default=None, metavar='',
-                        help='Create geojson file to load in gisthub.\n(default: %(default)s)')
 
 
     opts = parser.parse_args()
@@ -394,7 +403,7 @@ if __name__ == '__main__':
         with open(json_file, 'w') as fp:
             json.dump(geo_json, fp, indent=4, sort_keys=True)
 
-    if opts.geojson:
+    if opts.location == 'Geo':
         geojson = get_geojson_dict(geo_json)
         print("\n")
 
@@ -403,7 +412,7 @@ if __name__ == '__main__':
                               "description": title_string,
                               "files": {
                                   '{}.geojson'.format(filename): {
-                                      "content": json.dumps(geojson)
+                                      "content": json.dumps(geojson, indent=4)
                                   }
                               }
                           },
