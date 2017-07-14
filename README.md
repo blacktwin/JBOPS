@@ -9,7 +9,7 @@ Scripts utilize a combination of [PlexPy](https://github.com/JonnyWong16/plexpy)
 Scripts pulled from my gist profile. https://gist.github.com/blacktwin
 
 <details>
-<summary><a href="../tree/master/Maps">Maps</a></summary>
+<summary><a href="https://github.com/blacktwin/JBOPS/tree/master/Maps">Maps</a></summary>
 
 <table>
   <tr>
@@ -26,7 +26,7 @@ Scripts pulled from my gist profile. https://gist.github.com/blacktwin
 </details>
 
 <details>
-<summary><a href="../tree/master/fun">Fun</a></summary>
+<summary><a href="https://github.com/blacktwin/JBOPS/tree/master/fun">Fun</a></summary>
 
 <table>
   <tr>
@@ -49,7 +49,7 @@ Scripts pulled from my gist profile. https://gist.github.com/blacktwin
 
 
 <details>
-<summary><a href="../tree/master/killstream">Kill stream</a></summary>
+<summary><a href="https://github.com/blacktwin/JBOPS/tree/master/killstream">Kill stream</a></summary>
 
 <table>
   <tr>
@@ -112,7 +112,7 @@ Scripts pulled from my gist profile. https://gist.github.com/blacktwin
 
 
 <details>
-<summary><a href="../tree/master/notify">Notify</a></summary>
+<summary><a href="https://github.com/blacktwin/JBOPS/tree/master/notify">Notify</a></summary>
 
 <table>
   <tr>
@@ -165,7 +165,7 @@ Scripts pulled from my gist profile. https://gist.github.com/blacktwin
 
 
 <details>
-<summary><a href="../tree/master/utility">Utility</a></summary>
+<summary><a href="https://github.com/blacktwin/JBOPS/tree/master/utility">Utility</a></summary>
 
 <table>
   <tr>
@@ -242,7 +242,7 @@ Scripts pulled from my gist profile. https://gist.github.com/blacktwin
 </details>
 
 <details>
-<summary><a href="../tree/master/reporting">Reporting</a></summary>
+<summary><a href="https://github.com/blacktwin/JBOPS/tree/master/reporting">Reporting</a></summary>
 
 <table>
   <tr>
