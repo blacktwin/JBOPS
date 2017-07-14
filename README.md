@@ -18,7 +18,10 @@ Scripts pulled from my gist profile. https://gist.github.com/blacktwin
     <th>Description</th>
   </tr>
   <tr>
-    <td><a href="http://i.imgur.com/IXd0IVM.png"><img src="https://img.shields.io/badge/Imgur-image-blue.svg" alt=""</a></td>
+    <td><a href="https://github.com/blacktwin/JBOPS/raw/master/maps/EU_map_example.PNG"><img src="https://img.shields.io/badge/Image-EU_map-blue.svg" alt=""</a>
+    <a href="https://github.com/blacktwin/JBOPS/raw/master/maps/NA_map_example.PNG"><img src="https://img.shields.io/badge/Image-NA_map-blue.svg" alt=""</a>
+    <a href="https://github.com/blacktwin/JBOPS/raw/master/maps/World_map_example.PNG"><img src="https://img.shields.io/badge/Image-World_map-blue.svg" alt=""</a>
+    <a href="https://github.com/blacktwin/JBOPS/blob/master/maps/geojson_example.geojson"><img src="https://img.shields.io/badge/Image-geojson-blue.svg" alt=""</a></td>
     <td><a href="../master/maps/ips_to_maps.py"ips_to_maps>Maps</a></td>
     <td>Use PlexPy draw a map connecting Server to Clients based on IP addresses.)</td>
   </tr>
