@@ -9,7 +9,7 @@ Scripts utilize a combination of [PlexPy](https://github.com/JonnyWong16/plexpy)
 Scripts pulled from my gist profile. https://gist.github.com/blacktwin
 
 <details>
-<summary><a href="https://github.com/blacktwin/JBOPS/tree/master/Maps">Maps</a></summary>
+<summary><a href="https://github.com/blacktwin/JBOPS/tree/master/maps">Maps</a></summary>
 
 <table>
   <tr>
