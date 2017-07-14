@@ -299,3 +299,22 @@ Settings > Notifications > Click Script
 
 #### PlexPy Script Arguments:
 `-sn {show_name} -ena {episode_name} -ssn {season_num00} -enu {episode_num00} -srv {server_name} -med {media_type} -pos {poster_url} -tt {title} -sum {summary} -lbn {library_name} -grk {grandparent_rating_key} -ip {ip_address} -us {user} -uid {user_id} -pf {platform} -pl {player} -da {datestamp} -ti {timestamp} -purl {plex_url}`
+
+#### Common variables
+
+Plex:
+- [ ]  PLEX_HOST - Local IP to connect to Plex ('localhost',  '192.168.0.x', '127.0.0.1', etc.)
+- [ ]  PLEX_PORT - Port number used by Plex (default: 32400)
+- [ ]  PLEX_SSL - Do you use SSL to connect to Plex (http:// or https://)? '' blank if http and 's' if https
+
+PlexPy:
+- [ ]  PLEXPY_URL - Local IP to connect to PlexPy ('localhost',  '192.168.0.x', '127.0.0.1', etc.)
+  
+Token/API Keys:
+- [ ]  PLEX_TOKEN - Can be found in several locations
+
+     [Plex](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token)
+      
+     PlexPy Settings > Plex.tv Account > PMS Token
+    
+- [ ] PLEXPY_APIKEY - PlexPy Settings > Access Control > Enable API - API Key
