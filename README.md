@@ -279,6 +279,8 @@ Scripts pulled from my gist profile. https://gist.github.com/blacktwin
 </table>
 </details>
 
+----
+
 <details>
 <summary>Setting Up PlexPy for Custom Scripts</summary>
 
@@ -305,21 +307,28 @@ Settings > Notifications > Click Script
 
 </details>
 
-#### Common variables
+---
+<details>
+<summary>Common variables</summary>
 
-Plex:
+<details>
+<summary>Plex</summary>
+
 - [ ]  PLEX_HOST - Local IP to connect to Plex ('localhost',  '192.168.0.x', '127.0.0.1', etc.)
 - [ ]  PLEX_PORT - Port number used by Plex (default: 32400)
-- [ ]  PLEX_SSL - Do you use SSL to connect to Plex (http:// or https://)? '' blank if http and 's' if https
+- [ ]  PLEX_SSL - http:// or https://? '' if http and 's' if https
+- [ ]  PLEX_TOKEN - [Plex](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token) or PlexPy Settings > Plex.tv Account > PMS Token
+</details>
 
-PlexPy:
-- [ ]  PLEXPY_URL - Local IP to connect to PlexPy ('localhost',  '192.168.0.x', '127.0.0.1', etc.)
-  
-Token/API Keys:
-- [ ]  PLEX_TOKEN - Can be found in several locations
+<details>
+<summary>PlexPy</summary>
 
-     [Plex](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token)
-      
-     PlexPy Settings > Plex.tv Account > PMS Token
-    
+- [ ]  PLEXPY_URL - Local IP to connect to PlexPy ('localhost',  '192.168.0.x', '127.0.0.1', etc.)   
 - [ ] PLEXPY_APIKEY - PlexPy Settings > Access Control > Enable API - API Key
+</details>
+
+</details>
+
+
+
+
