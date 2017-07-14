@@ -104,7 +104,7 @@ Scripts pulled from my gist profile. https://gist.github.com/blacktwin
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/14d400a0f442da465389164fa046647a"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
-    <td><a href="../master/killstream/new_kill_trans_pause.py">new_kill_trans_pause</a></td>
+    <td><a href="../master/killstream/kill_trans_pause.py">kill_trans_pause</a></td>
     <td>Kill Plex paused video transcoding streams using PlexPy.</td>
   </tr>
 </table>
