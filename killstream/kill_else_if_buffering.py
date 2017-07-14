@@ -17,7 +17,7 @@ import requests
 import platform
 from uuid import getnode
 from operator import itemgetter
-
+import unicodedata
 
 ## EDIT THESE SETTINGS ##
 PLEX_HOST = ''
@@ -92,6 +92,7 @@ if __name__ == '__main__':
                     percent_comp =  int((float(s['viewOffset']) / float(s['duration'])) * 100)
                     time_to_comp = int(int(s['duration']) - int(s['viewOffset'])) / 1000 / 60
                     title = s['title']
+                    title = unicodedata.normalize('NFKD', title).encode('ascii','ignore')
                     add_to_dictlist(user_dict, user, [id, percent_comp, title, user, time_to_comp])
 
             except KeyError:
