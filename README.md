@@ -302,8 +302,6 @@ Settings > Notifications > Click Script
 - [ ] Enter in the Script Arguments
 - [ ] Save
 
-#### PlexPy Script Arguments:
-`-sn {show_name} -ena {episode_name} -ssn {season_num00} -enu {episode_num00} -srv {server_name} -med {media_type} -pos {poster_url} -tt {title} -sum {summary} -lbn {library_name} -grk {grandparent_rating_key} -ip {ip_address} -us {user} -uid {user_id} -pf {platform} -pl {player} -da {datestamp} -ti {timestamp} -purl {plex_url}`
 
 </details>
 
