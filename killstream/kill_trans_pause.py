@@ -5,7 +5,7 @@ PlexPy > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on playback pause
 
 PlexPy > Settings > Notification Agents > Scripts > Gear icon:
-        Playback Pause: new_kill_trans_pause.py
+        Playback Pause: kill_trans_pause.py
 
 """
 import requests
