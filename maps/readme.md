@@ -18,7 +18,7 @@ Choose which map type you'd like by using the `-l` argument:
 \* not required if creating geojson maps
 
 
-Matplotlib map examples:
+## Matplotlib map examples:
 
 <ul>
 <li><details>
