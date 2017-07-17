@@ -3,7 +3,7 @@
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4J6RPWZ9J9YML) 
 
-Scripts utilize a combination of [PlexPy](https://github.com/JonnyWong16/plexpy) and [python-plexapi](https://github.com/pkkid/python-plexapi).
+Most of these scripts utilize a combination of [PlexPy](https://github.com/JonnyWong16/plexpy) and [python-plexapi](https://github.com/pkkid/python-plexapi).
 
 ## Scripts List
 [![Gist](https://img.shields.io/badge/gist-Blacktwin-green.svg)](https://gist.github.com/blacktwin)
