@@ -1,12 +1,12 @@
 
 # JBOPS - Just a Bunch Of Plex Scripts
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4J6RPWZ9J9YML) 
+[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4J6RPWZ9J9YML) 
 
 Scripts utilize a combination of [PlexPy](https://github.com/JonnyWong16/plexpy) and [python-plexapi](https://github.com/pkkid/python-plexapi).
 
 ## Scripts List
-Scripts pulled from my gist profile. https://gist.github.com/blacktwin
+Scripts pulled from my gist profile. [![(https://gist.github.com/blacktwin)](https://img.shields.io/badge/gist-Blacktwin-green.svg)
 
 <details>
 <summary><a href="https://github.com/blacktwin/JBOPS/tree/master/maps">Maps</a></summary>
