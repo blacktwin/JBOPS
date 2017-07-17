@@ -6,7 +6,7 @@
 Scripts utilize a combination of [PlexPy](https://github.com/JonnyWong16/plexpy) and [python-plexapi](https://github.com/pkkid/python-plexapi).
 
 ## Scripts List
-Scripts pulled from my gist profile. [![Gist](https://gist.github.com/blacktwin)](https://img.shields.io/badge/gist-Blacktwin-green.svg)
+Scripts pulled from my gist profile. [![Gist](https://img.shields.io/badge/gist-Blacktwin-green.svg)](https://gist.github.com/blacktwin)
 
 <details>
 <summary><a href="https://github.com/blacktwin/JBOPS/tree/master/maps">Maps</a></summary>
