@@ -47,6 +47,7 @@ Choose which map type you'd like by using the `-l` argument:
 - [ ] Add check for user count in user_table to allow for greater than 25 users
 - [ ] If platform is missing from PLATFORM_COLORS use DEFAULT_COLOR
 - [ ] Add arg to allow for runs in headless (mpl.use("Agg"))
+- [ ] Add `try` to pass on N/A values for Lon/Lat
 
 ### Feature updates:
 
