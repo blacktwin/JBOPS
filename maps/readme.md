@@ -41,3 +41,18 @@ Choose which map type you'd like by using the `-l` argument:
 ![World_map_example](https://github.com/blacktwin/JBOPS/raw/master/maps/World_map_example.PNG "World_map_example")
 </details></li>
 </ul>
+
+## TODO LIST:
+
+- [ ] Add check for user count in user_table to allow for greater than 25 users
+- [ ] If platform is missing from PLATFORM_COLORS use DEFAULT_COLOR
+- [ ] Add arg to allow for runs in headless (mpl.use("Agg"))
+
+### Feature updates:
+
+- [ ] Add arg for legend (best, none, axes)
+- [ ] Add arg for tracert visualization from server to client
+- [ ] Animate tracert visualization? gif?
+
+
+
