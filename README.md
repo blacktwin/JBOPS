@@ -1,12 +1,12 @@
 
 # JBOPS - Just a Bunch Of Plex Scripts
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4J6RPWZ9J9YML) 
+[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4J6RPWZ9J9YML)  [![PM](https://img.shields.io/badge/Reddit-Message-lightgrey.svg)](https://www.reddit.com/user/Blacktwin/) [![Discord](https://img.shields.io/badge/Discord-Message-7289da.svg)](https://discordapp.com/channels/@me/230715796580597761) 
 
 Most of these scripts utilize a combination of [PlexPy](https://github.com/JonnyWong16/plexpy) and [python-plexapi](https://github.com/pkkid/python-plexapi).
 
 ## Scripts List
-[![Gist](https://img.shields.io/badge/gist-Blacktwin-green.svg)](https://gist.github.com/blacktwin)
+[![Gist](https://img.shields.io/badge/gist-Blacktwin-green.svg)](https://gist.github.com/blacktwin)   
 
 Scripts pulled from my gist profile. 
 
