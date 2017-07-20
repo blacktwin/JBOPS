@@ -279,6 +279,8 @@ def draw_map(map_type, geo_dict, filename):
     for key, values in geo_dict.items():
         # add Accuracy as plot/marker size, change play count to del_s value.
         for data in values:
+            if data['lon'] == "N/A" or data['lat'] == "N/A":
+                continue
             if key == SERVER_FRIENDLY:
                 color = '#FFAC05'
                 marker = '*'
