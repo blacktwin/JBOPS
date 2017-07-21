@@ -299,7 +299,11 @@ def draw_map(map_type, geo_dict, filename):
                 zord = 3
                 alph = 1
             else:
-                color = PLATFORM_COLORS[data['platform']]
+                if data['platform'] in PLATFORM_COLORS:
+                    color = PLATFORM_COLORS[data['platform']]
+                else:
+                    color = DEFAULT_COLOR
+                    print('Platform: {} is missing from PLATFORM_COLORS. Using DEFAULT_COLOR.'.format(data['platform']))
                 marker = '.'
                 if data['play_count'] >= 100:
                     markersize = (data['play_count'] * .1)
