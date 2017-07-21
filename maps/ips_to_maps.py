@@ -19,6 +19,7 @@ optional arguments:
                         Filename of map. None will not save. (default: Map_YYYYMMDD-HHMMSS)
   -j [], --json []      Filename of json file to use.
                         (choices: {List of .json files in current dir})
+  --headless            Run headless.
 
 
 """
@@ -254,10 +255,13 @@ def get_geojson_dict(user_locations):
         "features": locs
     }
 
-def draw_map(map_type, geo_dict, filename):
+def draw_map(map_type, geo_dict, filename, headless):
+    import matplotlib as mpl
+    if headless:
+        mpl.use("Agg")
     import matplotlib.pyplot as plt
     from mpl_toolkits.basemap import Basemap
-    import matplotlib as mpl
+    
     ## Map stuff ##
     plt.figure(figsize=(16, 9), dpi=100, frameon=False, tight_layout=True)
     lon_r = 0
@@ -360,13 +364,13 @@ def draw_map(map_type, geo_dict, filename):
             plt.setp(text, color='#A5A5A7')
 
     plt.title(title_string)
-    mng = plt.get_current_fig_manager()
-    ### works on Ubuntu??? >> did NOT working on windows
-    # mng.resize(*mng.window.maxsize())
-    mng.window.state('zoomed')
     if filename:
         plt.savefig('{}.png'.format(filename))
-    plt.show()
+        print('Image saved as: {}.png'.format(filename))
+    if not headless:
+        mng = plt.get_current_fig_manager()
+        mng.window.state('zoomed')
+        plt.show()
 
 
 if __name__ == '__main__':
@@ -394,7 +398,7 @@ if __name__ == '__main__':
                         help='Filename of map. None will not save. \n(default: %(default)s)')
     parser.add_argument('-j', '--json', nargs='?', type=str, choices=json_check, metavar='',
                         help='Filename of json file to use. \n(choices: %(choices)s)')
-
+    parser.add_argument('--headless', help='Run headless.', action='store_true')
 
     opts = parser.parse_args()
     if opts.json:
@@ -441,4 +445,4 @@ if __name__ == '__main__':
         print(r.json()['html_url'])
         webbrowser.open(r.json()['html_url'])
     else:
-        draw_map(opts.location, geo_json, filename)
+        draw_map(opts.location, geo_json, filename, opts.headless)
