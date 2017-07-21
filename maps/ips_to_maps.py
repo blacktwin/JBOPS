@@ -136,7 +136,6 @@ def get_geoip_info(ip_address=''):
     try:
         r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
-        # print(json.dumps(response, indent=4, sort_keys=True))
         if response['response']['result'] == 'success':
             data = response['response']['data']
             if data.get('error'):
@@ -148,7 +147,7 @@ def get_geoip_info(ip_address=''):
             raise Exception(response['response']['message'])
     except Exception as e:
         sys.stderr.write("PlexPy API 'get_geoip_lookup' request failed: {0}.".format(e))
-        return GeoData()
+        pass
 
 def get_stream_type_by_top_10_platforms():
     # Get the user IP list from PlexPy
@@ -192,6 +191,9 @@ def get_geo_dict(length, users):
                                                              'ip': ip, 'play_count': a.play_count,
                                                              'platform':a.platform, 'location_count': city_cnt})
 
+    except AttributeError:
+        print('User: {} IP: {} caused error in geo_dict.'.format(a.friendly_name, a.ip_address))
+        pass
     except Exception as e:
         print(e)
         pass
