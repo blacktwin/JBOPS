@@ -45,7 +45,7 @@ Choose which map type you'd like by using the `-l` argument:
 ## TODO LIST:
 
 - [x] Add check for user count in user_table to allow for greater than 25 users - [Pull](https://github.com/blacktwin/JBOPS/pull/3)
-- [ ] If platform is missing from PLATFORM_COLORS use DEFAULT_COLOR
+- [x] If platform is missing from PLATFORM_COLORS use DEFAULT_COLOR - [Pull](https://github.com/blacktwin/JBOPS/pull/4)
 - [ ] Add arg to allow for runs in headless (mpl.use("Agg")) 
 - [x] Add pass on N/A values for Lon/Lat - [Pull](https://github.com/blacktwin/JBOPS/pull/2)
 
