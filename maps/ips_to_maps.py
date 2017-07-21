@@ -94,21 +94,32 @@ class UserIPs(object):
         self.play_count = d['play_count']
         self.platform = d['platform']
 
-def get_get_users_tables(users):
-    # Get the user IP list from PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
-               'cmd': 'get_users_table'}
+def get_get_users_tables(users='', length=''):
+    # Get the users list from PlexPy
+
+    if length:
+        payload = {'apikey': PLEXPY_APIKEY,
+                   'cmd': 'get_users_table',
+                   'length': length}
+    else:
+        payload = {'apikey': PLEXPY_APIKEY,
+                   'cmd': 'get_users_table'}
 
     try:
         r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         res_data = response['response']['data']['data']
-        if users == 'all':
-            return [d['user_id'] for d in res_data]
-        elif users == 'friendly_name':
-            return [d['friendly_name'] for d in res_data]
+        if not length and not users:
+            # Return total user count
+            return response['response']['data']['recordsTotal']
         else:
-            return [d['user_id'] for user in users for d in res_data if user == d['friendly_name']]
+            if users == 'all':
+                return [d['user_id'] for d in res_data]
+            elif users == 'friendly_name':
+                return [d['friendly_name'] for d in res_data]
+            else:
+                return [d['user_id'] for user in users for d in res_data if user == d['friendly_name']]
+
     except Exception as e:
         sys.stderr.write("PlexPy API 'get_get_users_tables' request failed: {0}.".format(e))
 
@@ -357,7 +368,8 @@ def draw_map(map_type, geo_dict, filename):
 if __name__ == '__main__':
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    user_lst = get_get_users_tables('friendly_name')
+    user_count = get_get_users_tables()
+    user_lst = sorted(get_get_users_tables('friendly_name', user_count))
     json_check = sorted([f for f in os.listdir('.') if os.path.isfile(f) and f.endswith(".json")], key=os.path.getmtime)
     parser = argparse.ArgumentParser(description="Use PlexPy to draw map of user locations base on IP address.",
                                      formatter_class=argparse.RawTextHelpFormatter)
