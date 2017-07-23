@@ -297,7 +297,7 @@ if __name__ == '__main__':
     parser.add_argument('-u', '--users', help='Which users from Plex will be emailed.',
                         nargs='+', default='self', type=str)
     parser.add_argument('-i', '--ignore', help='Which users from Plex to ignore.',
-                        nargs='+', type=str)
+                        nargs='+', default='None', type=str)
 
 
     opts = parser.parse_args()
