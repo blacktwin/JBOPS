@@ -187,11 +187,12 @@ def get_geo_dict(length, users):
     geo_dict = {SERVER_FRIENDLY: [{'lon': SERVER_LON, 'lat': SERVER_LAT, 'city': SERVER_CITY, 'region': SERVER_STATE,
                                    'ip': REPLACEMENT_WAN_IP, 'play_count': 0, 'platform': SERVER_PLATFORM,
                                    'location_count': 0}]}
-    try:
-        for i in get_get_users_tables(users):
-            user_ip = get_get_users_ips(user_id=i, length=length)
-            city_cnt = 0
-            for a in user_ip:
+
+    for i in get_get_users_tables(users):
+        user_ip = get_get_users_ips(user_id=i, length=length)
+        city_cnt = 0
+        for a in user_ip:
+            try:
                 ip = a.ip_address
                 if ip.startswith(LAN_SUBNET) and REPLACEMENT_WAN_IP:
                     ip = REPLACEMENT_WAN_IP
@@ -202,13 +203,12 @@ def get_geo_dict(length, users):
                                                             'city': str(g.city), 'region': str(g.region),
                                                              'ip': ip, 'play_count': a.play_count,
                                                              'platform':a.platform, 'location_count': city_cnt})
-
-    except AttributeError:
-        print('User: {} IP: {} caused error in geo_dict.'.format(a.friendly_name, a.ip_address))
-        pass
-    except Exception as e:
-        print(e)
-        pass
+            except AttributeError:
+                print('User: {} IP: {} caused error in geo_dict.'.format(a.friendly_name, a.ip_address))
+                pass
+            except Exception as e:
+                print('Error here: {}'.format(e))
+                pass
     return geo_dict
 
 def get_geojson_dict(user_locations):
