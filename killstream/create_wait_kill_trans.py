@@ -132,12 +132,13 @@ if __name__ == '__main__':
 
     response = fetch('status/sessions')
 
-    fileDir = os.path.dirname(os.path.realpath('__file__'))
+    fileDir = fileDir = os.path.dirname(os.path.realpath(__file__))
 
     try:
         if find_sessionID(response):
             stream_info = find_sessionID(response)
             file_name = "{}.py".format(stream_info[0])
+            full_path = os.path.join(fileDir, file_name)
             file = "from time import sleep\n" \
                    "import sys, os\n" \
                    "from {script} import kill_stream \n" \
@@ -157,10 +158,10 @@ if __name__ == '__main__':
                                                        user=stream_info[1], title=stream_info[2],
                                                        sess_key=stream_info[3])
 
-            with open(os.path.join(fileDir, file_name), "w+") as output:
+            with open(full_path, "w+") as output:
                 output.write(file)
 
-            subprocess.Popen([sys.executable, file_name], startupinfo=startupinfo)
+            subprocess.Popen([sys.executable, full_path], startupinfo=startupinfo)
             exit(0)
 
     except TypeError as e:
