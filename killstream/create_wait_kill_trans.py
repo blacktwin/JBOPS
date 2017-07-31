@@ -132,6 +132,8 @@ if __name__ == '__main__':
 
     response = fetch('status/sessions')
 
+    fileDir = os.path.dirname(os.path.realpath('__file__'))
+
     try:
         if find_sessionID(response):
             stream_info = find_sessionID(response)
@@ -155,7 +157,7 @@ if __name__ == '__main__':
                                                        user=stream_info[1], title=stream_info[2],
                                                        sess_key=stream_info[3])
 
-            with open(file_name, "w+") as output:
+            with open(os.path.join(fileDir, file_name), "w+") as output:
                 output.write(file)
 
             subprocess.Popen([sys.executable, file_name], startupinfo=startupinfo)
