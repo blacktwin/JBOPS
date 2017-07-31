@@ -70,5 +70,6 @@ if __name__ == '__main__':
                     and s['Player']['state'] == 'paused':
                 print("Killing {}'s stream for pausing a transcode stream of {}".format(s['User']['title'], s['title']))
                 kill_stream(s['Session']['id'], MESSAGE)
-    except Exception:
+    except Exception as e:
+        print('Session error: {}'.format(e))
         pass
