@@ -2,17 +2,26 @@
 """
 Pulling together User IP information and Email.
 
+Adding to PlexPy
+PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+        [X] Notify on playback start
+PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+        Playback Start: notify_newip.py
+
+Arguments passed from PlexPy
+-sn {show_name} -ena {episode_name} -ssn {season_num00} -enu {episode_num00} -srv {server_name} -med {media_type} -pos {poster_url} -tt {title} -sum {summary} -lbn {library_name} -ip {ip_address} -us {user} -uid {user_id} -pf {platform} -pl {player} -da {datestamp} -ti {timestamp}
+
+
 """
 import argparse
 import requests
 import sys
 
-## -sn {show_name} -ena {episode_name} -ssn {season_num00} -enu {episode_num00} -srv {server_name} -med {media_type} -pos {poster_url} -tt {title} -sum {summary} -lbn {library_name} -ip {ip_address} -us {user} -uid {user_id} -pf {platform} -pl {player} -da {datestamp} -ti {timestamp}
 
 ## EDIT THESE SETTINGS ##
 PLEXPY_APIKEY = 'XXXX'  # Your PlexPy API key
 PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
-AGENT_ID = 10  # The notification agent ID for PlexPy
+NOTIFICATION_ID = 10  # The notification agent ID for PlexPy 10 = Email
 
 # Replace LAN IP addresses that start with the LAN_SUBNET with a WAN IP address
 # to retrieve geolocation data. Leave REPLACEMENT_WAN_IP blank for no replacement.
@@ -147,7 +156,7 @@ def send_notification(arguments=None, geodata=None, useremail=None):
     # Send the notification through PlexPy
     payload = {'apikey': PLEXPY_APIKEY,
                'cmd': 'notify',
-               'agent_id': AGENT_ID,
+               'agent_id': NOTIFICATION_ID,
                'subject': subject,
                'body': body}
 
