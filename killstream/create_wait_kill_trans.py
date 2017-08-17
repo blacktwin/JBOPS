@@ -1,5 +1,5 @@
 '''
-kill_transcode function from https://gist.github.com/Hellowlol/ee47b6534410b1880e19
+fetch function from https://gist.github.com/Hellowlol/ee47b6534410b1880e19
 PlexPy > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on pause
 
@@ -82,16 +82,17 @@ def kill_stream(sessionId, message, xtime, ntime, user, title, sessionKey):
     response = fetch('status/sessions')
 
     if response['MediaContainer']['Video']:
-        for a in response['MediaContainer']['Video']:
-            if a['sessionKey'] == sessionKey:
-                if xtime == ntime and a['Player']['state'] == 'paused' and a['Media']['Part']['decision'] == 'transcode':
+        for video in response['MediaContainer']['Video']:
+            part = video['Media'][0]['Part'][0]
+            if video['sessionKey'] == sessionKey:
+                if xtime == ntime and video['Player']['state'] == 'paused' and part['decision'] == 'transcode':
                     sys.stdout.write("Killing {user}'s paused stream of {title}".format(user=user, title=title))
                     requests.get('http://{}:{}/status/sessions/terminate'.format(PLEX_HOST, PLEX_PORT),
                              headers=headers, params=params)
                     return ntime
-                elif a['Player']['state'] in ('playing', 'buffering'):
+                elif video['Player']['state'] in ('playing', 'buffering'):
                     sys.stdout.write("{user}'s stream of {title} is now {state}".
-                                     format(user=user, title=title, state=a['Player']['state']))
+                                     format(user=user, title=title, state=video['Player']['state']))
                     return None
                 else:
                     return xtime
@@ -104,8 +105,7 @@ def find_sessionID(response):
 
     sessions = []
     for s in response['MediaContainer']['Video']:
-        if s['sessionKey'] == sys.argv[1] and s['Player']['state'] == 'paused' \
-                and s['Media']['Part']['decision'] == 'transcode':
+        if s['sessionKey'] == sys.argv[1] and s['Player']['state'] == 'paused' and s['Media']['Part']['decision'] == 'transcode':
             sess_id = s['Session']['id']
             user = s['User']['title']
             sess_key = sys.argv[1]
