@@ -104,13 +104,14 @@ def kill_stream(sessionId, message, xtime, ntime, user, title, sessionKey):
 def find_sessionID(response):
 
     sessions = []
-    for s in response['MediaContainer']['Video']:
-        if s['sessionKey'] == sys.argv[1] and s['Player']['state'] == 'paused' and s['Media']['Part']['decision'] == 'transcode':
-            sess_id = s['Session']['id']
-            user = s['User']['title']
-            sess_key = sys.argv[1]
-            title = (s['grandparentTitle'] + ' - ' if s['type'] == 'episode' else '') + s['title']
-            title = unicodedata.normalize('NFKD', title).encode('ascii','ignore')
+    for video in response['MediaContainer']['Video']:
+        part = video['Media'][0]['Part'][0]
+        if video['sessionKey'] == sys.argv[1] and video['Player']['state'] == 'paused' \
+                and part['decision'] == 'transcode':
+            sess_id = video['Session']['id']
+            user = video['User']['title']
+            sess_key = video['sessionKey']
+            title = (video['grandparentTitle'] + ' - ' if video['type'] == 'episode' else '') + video['title']
             sessions.append((sess_id, user, title, sess_key))
         else:
             pass
