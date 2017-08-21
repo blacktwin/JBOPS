@@ -112,6 +112,7 @@ def find_sessionID(response):
             user = video['User']['title']
             sess_key = video['sessionKey']
             title = (video['grandparentTitle'] + ' - ' if video['type'] == 'episode' else '') + video['title']
+            title = unicodedata.normalize('NFKD', title).encode('ascii','ignore')
             sessions.append((sess_id, user, title, sess_key))
         else:
             pass
