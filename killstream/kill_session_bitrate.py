@@ -57,12 +57,12 @@ def kill_stream(sessionId, message):
 response  = fetch('status/sessions')
 
 sessions = []
-for s in response['MediaContainer']['Video']:
-    id = s['Session']['id']
-    user = s['User']['title']
-    title = (s['grandparentTitle'] + ' - ' if s['type'] == 'episode' else '') + s['title']
-    title = unicodedata.normalize('NFKD', title).encode('ascii','ignore')
-    bitrate = s['Media']['bitrate']
+for video in response['MediaContainer']['Video']:
+    media = video['Media'][0]
+    id = video['Session']['id']
+    user = video['User']['title']
+    title = (video['grandparentTitle'] + ' - ' if video['type'] == 'episode' else '') + video['title']
+    bitrate = media['bitrate']
     sessions.append((id, user, title, bitrate))
 
 for session in sessions:
