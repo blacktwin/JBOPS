@@ -62,6 +62,7 @@ for video in response['MediaContainer']['Video']:
     id = video['Session']['id']
     user = video['User']['title']
     title = (video['grandparentTitle'] + ' - ' if video['type'] == 'episode' else '') + video['title']
+    title = unicodedata.normalize('NFKD', title).encode('ascii','ignore').translate(None,"'")
     bitrate = media['bitrate']
     sessions.append((id, user, title, bitrate))
 
