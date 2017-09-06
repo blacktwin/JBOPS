@@ -151,33 +151,36 @@ if __name__ == '__main__':
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
     response = fetch('status/sessions')
+    fileDir = fileDir = os.path.dirname(os.path.realpath(__file__))
 
     try:
         if find_sessionID(response):
             stream_info = find_sessionID(response)
             file_name = "{}.py".format(stream_info[0])
-            file = 'from time import sleep\n' \
-                   'import sys, os\n' \
-                   'from {script} import kill_stream \n' \
-                   'message = "{REASON}"\n' \
-                   'sessionID =  os.path.basename(sys.argv[0])[:-3]\n' \
-                   'x = 0\n' \
-                   'n = {ntime}\n' \
-                   'try:\n' \
-                   '    while x < n and x is not None:\n' \
-                   '        sleep({xtime})\n' \
-                   '        x += kill_stream(sessionID, message, {xtime}, n, "{user}", "{title}", "{sess_key}")\n' \
-                   '    kill_stream(sessionID, message, {ntime}, n, "{user}", "{title}", "{sess_key}")\n' \
-                   '    os.remove(sys.argv[0])\n' \
-                   'except TypeError as e:\n' \
-                   '    os.remove(sys.argv[0])'.format(script=os.path.basename(__file__)[:-3],
-                                                   ntime=TIMEOUT, xtime=INTERVAL, REASON=REASON,
-                                                   user=stream_info[1], title=stream_info[2], sess_key=stream_info[3])
+            full_path = os.path.join(fileDir, file_name)
+            file = "from time import sleep\n" \
+                   "import sys, os\n" \
+                   "from {script} import kill_stream \n" \
+                   "message = '{REASON}'\n" \
+                   "sessionID =  os.path.basename(sys.argv[0])[:-3]\n" \
+                   "x = 0\n" \
+                   "n = {ntime}\n" \
+                   "try:\n" \
+                   "    while x < n and x is not None:\n" \
+                   "        sleep({xtime})\n" \
+                   "        x += kill_stream(sessionID, message, {xtime}, n, '{user}', '{title}', '{sess_key}')\n" \
+                   "    kill_stream(sessionID, message, {ntime}, n, '{user}', '{title}', '{sess_key}')\n" \
+                   "    os.remove(sys.argv[0])\n" \
+                   "except TypeError as e:\n" \
+                   "    os.remove(sys.argv[0])".format(script=os.path.basename(__file__)[:-3],
+                                                       ntime=TIMEOUT, xtime=INTERVAL, REASON=REASON,
+                                                       user=stream_info[1], title=stream_info[2],
+                                                       sess_key=stream_info[3])
 
-            with open(file_name, "w+") as output:
+            with open(full_path, "w+") as output:
                 output.write(file)
 
-            subprocess.Popen([sys.executable, file_name], startupinfo=startupinfo)
+            subprocess.Popen([sys.executable, full_path], startupinfo=startupinfo)
             exit(0)
 
     except TypeError as e:
