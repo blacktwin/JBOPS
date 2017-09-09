@@ -186,7 +186,7 @@ Scripts pulled from my gist profile.
   <tr>
     <td><a href="https://gist.github.com/blacktwin/f4149c296f2d1ffd1cbd863c37bb3a3c"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/utility/bypass_auth_name.py">bypass_auth_name</a></td>
-    <td>Use PlexPy to pull last IP address from user and add to List of IP addresses and networks that are allowed without auth in Plex.    <td>
+    <td>Use PlexPy to pull last IP address from user and add to List of IP addresses and networks that are allowed without auth in Plex.    </td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/0332f2dc9534bdf412ff3f664e9513c0"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
