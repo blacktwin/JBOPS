@@ -178,6 +178,11 @@ Scripts pulled from my gist profile.
     <th>File</th>
     <th>Description</th>
   </tr>
+   <tr>
+    <td></td>
+    <td><a href="../master/utility/plex_api_share.py">plex_api_share</a></td>
+    <td>Share or unshare libraries</td>
+  </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/f4149c296f2d1ffd1cbd863c37bb3a3c"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/utility/bypass_auth_name.py">bypass_auth_name</a></td>
@@ -186,57 +191,57 @@ Scripts pulled from my gist profile.
   <tr>
     <td><a href="https://gist.github.com/blacktwin/0332f2dc9534bdf412ff3f664e9513c0"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/utility/delete_watched_TV.py">delete_watched_TV</a></td>
-    <td>From a list of TV shows, check if users in a list has watched shows episodes. If all users in list have watched an episode of listed show, then delete episode.    <td>
+    <td>From a list of TV shows, check if users in a list has watched shows episodes. If all users in list have watched an episode of listed show, then delete episode.    </td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/76b0abf88181618af4598092dd6b0dbb"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/utility/find_plex_meta.py">find_plex_meta</a></td>
-    <td>Find location of Plex metadata.    <td>
+    <td>Find location of Plex metadata.    </td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/603d5da5b70b366e98d0d82d1aa1a470"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/utility/find_unwatched.py">find_unwatched</a></td>
-    <td>Find what was added TFRAME ago and not watched using PlexPy.    <td>
+    <td>Find what was added TFRAME ago and not watched using PlexPy.    </td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/f435aa0ccd498b0840d2407d599bf31d"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/utility/grab_gdrive_media.py">grab_gdrive_media</a></td>
-    <td>Grab media (videos, pictures) from Google Drive. All videos and pictures were automatically synced from Google Photos to Google Drive. Puts media into MEDIA_TYPE/YEAR/MONTH-DAY/FILE.ext directory structure.    <td>
+    <td>Grab media (videos, pictures) from Google Drive. All videos and pictures were automatically synced from Google Photos to Google Drive. Puts media into MEDIA_TYPE/YEAR/MONTH-DAY/FILE.ext directory structure.    </td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/85a63ffd70c6ccb7c1faa70a8f33fc2e"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/utility/plex_api_poster_pull.py">plex_api_poster_pull</a></td>
-    <td>Pull Movie and TV Show poster images from Plex.    <td>
+    <td>Pull Movie and TV Show poster images from Plex.    </td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/17b58156f69cc52026b71fe4d5afea05"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/utility/plex_imgur_dl.py">plex_imgur_dl</a></td>
-    <td>Pull poster images from Imgur and places them inside Shows root folder.    <td>
+    <td>Pull poster images from Imgur and places them inside Shows root folder.    </td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/f10e0a1e85af00e878963b4570a99054"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/utility/plex_theme_songs.py">plex_theme_songs</a></td>
-    <td>Download theme songs from Plex TV Shows.    <td>
+    <td>Download theme songs from Plex TV Shows.    </td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/45c420cbba4e18aadc8cc5090a67b9d1"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/utility/plexapi_delete_playlists.py">plexapi_delete_playlists</a></td>
-    <td>Delete all playlists from Plex using PlexAPI.    <td>
+    <td>Delete all playlists from Plex using PlexAPI.    </td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/df58032de3e6f4d29f7ea562aeaebbab"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/utility/plexapi_search_file.py">plexapi_search_file</a></td>
-    <td>Find full path for Plex items.    <td>
+    <td>Find full path for Plex items.    </td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/3752a76fa0b3fc6d19e842af7b812184"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/utility/refresh_next_episode.py">refresh_next_episode</a></td>
-    <td>Refresh the next episode of show once current episode is watched.    <td>
+    <td>Refresh the next episode of show once current episode is watched.    </td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/370ca42ee20a33fb00c8253fa9bd0de7"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/utility/remove_watched_movies.py">remove_watched_movies</a></td>
-    <td>Find Movies that have been watched by a list of users. If all users have watched movie then delete.    <td>
+    <td>Find Movies that have been watched by a list of users. If all users have watched movie then delete.    </td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/2f619e62d99edcec27f680998379664c"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
@@ -258,22 +263,22 @@ Scripts pulled from my gist profile.
   <tr>
     <td><a href="https://gist.github.com/blacktwin/21823b3394f5b077d42495b21570b593"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/reporting/added_to_plex.py">added_to_plex</a></td>
-    <td>Find when media was added between STARTFRAME and ENDFRAME to Plex through PlexPy.    <td>
+    <td>Find when media was added between STARTFRAME and ENDFRAME to Plex through PlexPy.    </td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/f070dff29ddbeb87973be9c0a94a1df7"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/reporting/check_play.py">check_play</a></td>
-    <td>Check if user has play a file more than 3 times but has not finished watching. Hoping to catch play failures.    <td>
+    <td>Check if user has play a file more than 3 times but has not finished watching. Hoping to catch play failures.    </td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/1a8933252ad1a9bc2c97395a020c144a"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/reporting/check_plex_log.py">check_plex_log</a></td>
-    <td>Checking plex logs for debug code WARN and 'Failed to obtain a streaming resource for transcode of key /library/metadata/"titleID"'.    <td>
+    <td>Checking plex logs for debug code WARN and 'Failed to obtain a streaming resource for transcode of key /library/metadata/"titleID"'.    </td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/561c3a404754eb7b9e543867619d3251"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/reporting/drive_check.py">drive_check</a></td>
-    <td>Check if drive exists. If not then notify via PlexPy notifier agent.    <td>
+    <td>Check if drive exists. If not then notify via PlexPy notifier agent.    </td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/bd905d39ab71c5d7c628e27fddd1086e"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
