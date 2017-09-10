@@ -97,12 +97,11 @@ if __name__ == '__main__':
 
     p = parser.parse_args()
 
-    cc_total = get_get_activity().count(p.user)
-
     x = 0
     while x < TIMEOUT and x is not None:
         # check if user still has concurrent streams
         print('Checking concurrent stream count.')
+        cc_total = get_get_activity().count(p.user)
         if cc_total >= CONCURRENT_TOTAL:
             print('{p.user} still has {total} concurrent streams.'.format(p=p, total=cc_total))
             sleep(INTERVAL)
