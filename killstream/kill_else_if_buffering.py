@@ -32,7 +32,7 @@ ADMIN_USER = ('Admin') # additional usernames can be added ('Admin', 'user2')
 ##
 
 def fetch(path, t='GET'):
-    url = 'http%s://%s:%s/' % (PLEX_SSL, PLEX_HOST, PLEX_PORT)
+    url = 'http{}://{}:{}/'.format(PLEX_SSL, PLEX_HOST, PLEX_PORT)
 
     headers = {'X-Plex-Token': PLEX_TOKEN,
                'Accept': 'application/json',
@@ -67,7 +67,7 @@ def kill_stream(sessionId, message):
     headers = {'X-Plex-Token': PLEX_TOKEN}
     params = {'sessionId': sessionId,
               'reason': message}
-    requests.get('http://{}:{}/status/sessions/terminate'.format(PLEX_HOST, PLEX_PORT),
+    requests.get('http{}://{}:{}/status/sessions/terminate'.format(PLEX_SSL, PLEX_HOST, PLEX_PORT),
                      headers=headers, params=params)
 
 def add_to_dictlist(d, key, val):
@@ -87,13 +87,13 @@ if __name__ == '__main__':
         for s in response['MediaContainer']['Video']:
             try:
                 if s['TranscodeSession']['videoDecision'] == 'transcode' and s['User']['title'] not in ADMIN_USER:
-                    id = s['Session']['id']
+                    sess_id = s['Session']['id']
                     user = s['User']['title']
                     percent_comp =  int((float(s['viewOffset']) / float(s['duration'])) * 100)
                     time_to_comp = int(int(s['duration']) - int(s['viewOffset'])) / 1000 / 60
                     title = s['title']
                     title = unicodedata.normalize('NFKD', title).encode('ascii','ignore')
-                    add_to_dictlist(user_dict, user, [id, percent_comp, title, user, time_to_comp])
+                    add_to_dictlist(user_dict, user, [sess_id, percent_comp, title, user, time_to_comp])
 
             except KeyError:
                 print('{} has a direct stream to ignore.'.format(s['User']['title']))

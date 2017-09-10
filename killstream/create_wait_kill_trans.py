@@ -1,5 +1,5 @@
 '''
-fetch function from https://gist.github.com/Hellowlol/ee47b6534410b1880e19
+fetch transcode function from https://gist.github.com/Hellowlol/ee47b6534410b1880e19
 PlexPy > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on pause
 
@@ -31,10 +31,10 @@ import requests
 
 ## EDIT THESE SETTINGS ##
 
-PLEX_HOST = ''
+PLEX_HOST = '127.0.0.1'
 PLEX_PORT = 32400
 PLEX_SSL = ''  # s or ''
-PLEX_TOKEN = 'xxx'
+PLEX_TOKEN = 'rFr9327dn1JepuTA5o4U'
 
 TIMEOUT = 30
 INTERVAL = 10
@@ -44,7 +44,7 @@ ignore_lst = ('test')
 
 
 def fetch(path, t='GET'):
-    url = 'http%s://%s:%s/' % (PLEX_SSL, PLEX_HOST, PLEX_PORT)
+    url = 'http{}://{}:{}/'.format(PLEX_SSL, PLEX_HOST, PLEX_PORT)
 
     headers = {'X-Plex-Token': PLEX_TOKEN,
                'Accept': 'application/json',
@@ -82,17 +82,16 @@ def kill_stream(sessionId, message, xtime, ntime, user, title, sessionKey):
     response = fetch('status/sessions')
 
     if response['MediaContainer']['Video']:
-        for video in response['MediaContainer']['Video']:
-            part = video['Media'][0]['Part'][0]
-            if video['sessionKey'] == sessionKey:
-                if xtime == ntime and video['Player']['state'] == 'paused' and part['decision'] == 'transcode':
+        for a in response['MediaContainer']['Video']:
+            if a['sessionKey'] == sessionKey:
+                if xtime == ntime and a['Player']['state'] == 'paused' and a['Media']['Part']['decision'] == 'transcode':
                     sys.stdout.write("Killing {user}'s paused stream of {title}".format(user=user, title=title))
-                    requests.get('http://{}:{}/status/sessions/terminate'.format(PLEX_HOST, PLEX_PORT),
+                    requests.get('http{}://{}:{}/status/sessions/terminate'.format(PLEX_SSL, PLEX_HOST, PLEX_PORT),
                              headers=headers, params=params)
                     return ntime
-                elif video['Player']['state'] in ('playing', 'buffering'):
+                elif a['Player']['state'] in ('playing', 'buffering'):
                     sys.stdout.write("{user}'s stream of {title} is now {state}".
-                                     format(user=user, title=title, state=video['Player']['state']))
+                                     format(user=user, title=title, state=a['Player']['state']))
                     return None
                 else:
                     return xtime
@@ -104,15 +103,14 @@ def kill_stream(sessionId, message, xtime, ntime, user, title, sessionKey):
 def find_sessionID(response):
 
     sessions = []
-    for video in response['MediaContainer']['Video']:
-        part = video['Media'][0]['Part'][0]
-        if video['sessionKey'] == sys.argv[1] and video['Player']['state'] == 'paused' \
-                and part['decision'] == 'transcode':
-            sess_id = video['Session']['id']
-            user = video['User']['title']
-            sess_key = video['sessionKey']
-            title = (video['grandparentTitle'] + ' - ' if video['type'] == 'episode' else '') + video['title']
-            title = unicodedata.normalize('NFKD', title).encode('ascii','ignore').translate(None,"'")
+    for s in response['MediaContainer']['Video']:
+        if s['sessionKey'] == sys.argv[1] and s['Player']['state'] == 'paused' \
+                and s['Media']['Part']['decision'] == 'transcode':
+            sess_id = s['Session']['id']
+            user = s['User']['title']
+            sess_key = sys.argv[1]
+            title = (s['grandparentTitle'] + ' - ' if s['type'] == 'episode' else '') + s['title']
+            title = unicodedata.normalize('NFKD', title).encode('ascii','ignore')
             sessions.append((sess_id, user, title, sess_key))
         else:
             pass
@@ -134,7 +132,7 @@ if __name__ == '__main__':
 
     response = fetch('status/sessions')
 
-    fileDir = fileDir = os.path.dirname(os.path.realpath(__file__))
+    fileDir = os.path.dirname(os.path.realpath(__file__))
 
     try:
         if find_sessionID(response):

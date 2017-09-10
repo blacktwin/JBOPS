@@ -1,4 +1,5 @@
 """
+
 Kill Plex video transcoding streams only. All audio streams are left alone.
 
 PlexPy > Settings > Notification Agents > Scripts > Bell icon:
@@ -7,6 +8,8 @@ PlexPy > Settings > Notification Agents > Scripts > Bell icon:
 PlexPy > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: kill_trans_exp_audio.py
 
+Create custom messages for platforms.
+		
 """
 import requests
 import platform
@@ -31,7 +34,7 @@ USER_IGNORE = ('') # ('Username','User2')
 ##
 
 def fetch(path, t='GET'):
-    url = 'http%s://%s:%s/' % (PLEX_SSL, PLEX_HOST, PLEX_PORT)
+    url = 'http{}://{}:{}/'.format(PLEX_SSL, PLEX_HOST, PLEX_PORT)
 
     headers = {'X-Plex-Token': PLEX_TOKEN,
                'Accept': 'application/json',
@@ -65,8 +68,8 @@ def kill_stream(sessionId, message):
     headers = {'X-Plex-Token': PLEX_TOKEN}
     params = {'sessionId': sessionId,
               'reason': message}
-    requests.get('http://{}:{}/status/sessions/terminate'.format(PLEX_HOST, PLEX_PORT),
-                     headers=headers, params=params)
+    requests.get('http{}://{}:{}/status/sessions/terminate'.format(PLEX_SSL, PLEX_HOST, PLEX_PORT),
+                 headers=headers, params=params)
 
 if __name__ == '__main__':
     response  = fetch('status/sessions')

@@ -8,7 +8,7 @@ PlexPy > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: kill_outsider_stream.py
 
 PlexPy > Settings > Notifications > Script > Script Arguments
-        {user}
+        {username}
 """
 import requests
 import platform
@@ -24,10 +24,10 @@ PLEX_TOKEN = 'xxxxxx'
 REASON = 'Accessing Plex from outside network'
 ##
 
-USER = sys.argv[1]
+USERNAME = sys.argv[1]
 
 def fetch(path, t='GET'):
-    url = 'http%s://%s:%s/' % (PLEX_SSL, PLEX_HOST, PLEX_PORT)
+    url = 'http{}://{}:{}/'.format(PLEX_SSL, PLEX_HOST, PLEX_PORT)
 
     headers = {'X-Plex-Token': PLEX_TOKEN,
                'Accept': 'application/json',
@@ -61,11 +61,11 @@ def kill_stream(sessionId, message):
     headers = {'X-Plex-Token': PLEX_TOKEN}
     params = {'sessionId': sessionId,
               'reason': message}
-    requests.get('http://{}:{}/status/sessions/terminate'.format(PLEX_HOST, PLEX_PORT),
+    requests.get('http{}://{}:{}/status/sessions/terminate'.format(PLEX_SSL, PLEX_HOST, PLEX_PORT),
                      headers=headers, params=params)
 
 response  = fetch('status/sessions')
 for s in response['MediaContainer']['Video']:
-    if s['User']['title'] == USER and s['Session']['location'] == 'wan':
-        print("Killing {}'s stream for {}".format(USER, REASON))
+    if s['User']['title'] == USERNAME and s['Session']['location'] == 'wan':
+        print("Killing {}'s stream for {}".format(USERNAME, REASON))
         kill_stream(s['Session']['id'], REASON)
