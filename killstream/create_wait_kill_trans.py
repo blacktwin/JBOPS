@@ -4,15 +4,15 @@ PlexPy > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on pause
 
 PlexPy > Settings > Notification Agents > Scripts > Gear icon:
-        Playback Pause: create_wait_kill_all.py
+        Playback Pause: create_wait_kill_trans.py
 
 PlexPy > Settings > Notifications > Script > Script Arguments:
         {session_key}
 
 
-create_wait_kill_all.py creates a new file with the session_id (sub_script) as it's name.
-PlexPy will timeout create_wait_kill_all.py after 30 seconds (default) but sub_script.py will continue.
-sub_script will check if the stream's session_id is still pause or if playing as restarted.
+create_wait_kill_trans.py creates a new file with the session_id (sub_script) as it's name.
+PlexPy will timeout create_wait_kill_trans.py after 30 seconds (default) but sub_script.py will continue.
+sub_script will check if the transcoding and stream's session_id is still pause or if playing as restarted.
 If playback is restarted then sub_script will stop and delete itself.
 If stream remains paused then it will be killed and sub_script will stop and delete itself.
 
@@ -34,38 +34,13 @@ import requests
 PLEX_HOST = ''
 PLEX_PORT = 32400
 PLEX_SSL = ''  # s or ''
-PLEX_TOKEN = ''
-PLEXPY_APIKEY = 'xxxxxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+PLEX_TOKEN = 'xxxxx'
 
-TIMEOUT = 120
-INTERVAL = 20
+TIMEOUT = 30
+INTERVAL = 10
 
 REASON = 'Because....'
 ignore_lst = ('test')
-
-
-class Activity(object):
-    def __init__(self, data=None):
-        d = data or {}
-        self.video_decision = d['video_decision']
-        self.state = d['state']
-        self.session_key = d['session_key']
-
-
-def get_get_activity():
-    # Get the user IP list from PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
-               'cmd': 'get_activity'}
-
-    try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
-        response = r.json()
-        res_data = response['response']['data']['sessions']
-        return [Activity(data=d) for d in res_data]
-
-    except Exception as e:
-        sys.stderr.write("PlexPy API 'get_get_activity' request failed: {0}.".format(e))
 
 
 def fetch(path, t='GET'):
@@ -104,31 +79,36 @@ def kill_stream(sessionId, message, xtime, ntime, user, title, sessionKey):
     params = {'sessionId': sessionId,
               'reason': message}
 
-    activity = get_get_activity()
+    response = fetch('status/sessions')
 
-    for a in activity:
-        if a.session_key == sessionKey:
-            if a.state == 'paused' and xtime == ntime:
-                sys.stdout.write("Killing {user}'s paused stream of {title}".format(user=user, title=title))
-                requests.get('http{}://{}:{}/status/sessions/terminate'.format(PLEX_SSL, PLEX_HOST, PLEX_PORT),
+    if response['MediaContainer']['Video']:
+        for video in response['MediaContainer']['Video']:
+            if video['sessionKey'] == sessionKey:
+                if xtime == ntime and video['Player']['state'] == 'paused' and video['Media']['Part']['decision'] == 'transcode':
+                    sys.stdout.write("Killing {user}'s paused stream of {title}".format(user=user, title=title))
+                    requests.get('http{}://{}:{}/status/sessions/terminate'.format(PLEX_SSL, PLEX_HOST, PLEX_PORT),
                              headers=headers, params=params)
-                return ntime
-            elif a.state in ('playing', 'buffering'):
-                sys.stdout.write("{user}'s stream of {title} is now {state}".format(user=user, title=title,
-                                                                                    state=a.state))
-                return None
-            else:
-                return xtime
+                    return ntime
+                elif video['Player']['state'] in ('playing', 'buffering'):
+                    sys.stdout.write("{user}'s stream of {title} is now {state}".
+                                     format(user=user, title=title, state=video['Player']['state']))
+                    return None
+                else:
+                    return xtime
+    else:
+        return None
+
 
 
 def find_sessionID(response):
 
     sessions = []
     for video in response['MediaContainer']['Video']:
-        if video['sessionKey'] == sys.argv[1]:
+        if video['sessionKey'] == sys.argv[1] and video['Player']['state'] == 'paused' \
+                and video['Media']['Part']['decision'] == 'transcode':
             sess_id = video['Session']['id']
             user = video['User']['title']
-            sess_key = video['sessionKey']
+            sess_key = sys.argv[1]
             title = (video['grandparentTitle'] + ' - ' if video['type'] == 'episode' else '') + video['title']
             title = unicodedata.normalize('NFKD', title).encode('ascii','ignore')
             sessions.append((sess_id, user, title, sess_key))
@@ -151,30 +131,32 @@ if __name__ == '__main__':
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
     response = fetch('status/sessions')
-    fileDir = fileDir = os.path.dirname(os.path.realpath(__file__))
+
+    fileDir = os.path.dirname(os.path.realpath(__file__))
 
     try:
         if find_sessionID(response):
             stream_info = find_sessionID(response)
             file_name = "{}.py".format(stream_info[0])
             full_path = os.path.join(fileDir, file_name)
-            file = 'from time import sleep\n' \
-                   'import sys, os\n' \
-                   'from {script} import kill_stream \n' \
-                   'message = "{REASON}"\n' \
-                   'sessionID =  os.path.basename(sys.argv[0])[:-3]\n' \
-                   'x = 0\n' \
-                   'n = {ntime}\n' \
-                   'try:\n' \
-                   '    while x < n and x is not None:\n' \
-                   '        sleep({xtime})\n' \
-                   '        x += kill_stream(sessionID, message, {xtime}, n, "{user}", "{title}", "{sess_key}")\n' \
-                   '    kill_stream(sessionID, message, {ntime}, n, "{user}", "{title}", "{sess_key}")\n' \
-                   '    os.remove(sys.argv[0])\n' \
-                   'except TypeError as e:\n' \
-                   '    os.remove(sys.argv[0])'.format(script=os.path.basename(__file__)[:-3],
-                                                   ntime=TIMEOUT, xtime=INTERVAL, REASON=REASON,
-                                                   user=stream_info[1], title=stream_info[2], sess_key=stream_info[3])
+            file = "from time import sleep\n" \
+                   "import sys, os\n" \
+                   "from {script} import kill_stream \n" \
+                   "message = '{REASON}'\n" \
+                   "sessionID =  os.path.basename(sys.argv[0])[:-3]\n" \
+                   "x = 0\n" \
+                   "n = {ntime}\n" \
+                   "try:\n" \
+                   "    while x < n and x is not None:\n" \
+                   "        sleep({xtime})\n" \
+                   "        x += kill_stream(sessionID, message, {xtime}, n, '{user}', '{title}', '{sess_key}')\n" \
+                   "    kill_stream(sessionID, message, {ntime}, n, '{user}', '{title}', '{sess_key}')\n" \
+                   "    os.remove(sys.argv[0])\n" \
+                   "except TypeError as e:\n" \
+                   "    os.remove(sys.argv[0])".format(script=os.path.basename(__file__)[:-3],
+                                                       ntime=TIMEOUT, xtime=INTERVAL, REASON=REASON,
+                                                       user=stream_info[1], title=stream_info[2],
+                                                       sess_key=stream_info[3])
 
             with open(full_path, "w+") as output:
                 output.write(file)

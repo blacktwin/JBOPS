@@ -65,11 +65,11 @@ if __name__ == '__main__':
     response  = fetch('status/sessions')
 
     try:
-        for s in response['MediaContainer']['Video']:
-            if s['TranscodeSession']['videoDecision'] == 'transcode' and s['User']['title'] not in USER_IGNORE \
-                    and s['Player']['state'] == 'paused':
-                print("Killing {}'s stream for pausing a transcode stream of {}".format(s['User']['title'], s['title']))
-                kill_stream(s['Session']['id'], MESSAGE)
+        for video in response['MediaContainer']['Video']:
+            if video['TranscodeSession']['videoDecision'] == 'transcode' and video['User']['title'] not in USER_IGNORE \
+                    and video['Player']['state'] == 'paused':
+                print("Killing {}'s stream for pausing a transcode stream of {}".format(video['User']['title'], s['title']))
+                kill_stream(video['Session']['id'], MESSAGE)
     except Exception as e:
         print('Session error: {}'.format(e))
         pass

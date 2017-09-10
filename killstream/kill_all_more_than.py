@@ -12,7 +12,7 @@ PlexPy > Settings > Notification Agents > Scripts > Gear icon:
         Playback User Concurrent Streams: kill_more_than.py
         
 PlexPy > Settings > Notifications > Script > Script Arguments      
-        {user}
+        {username}
 """
 
 
@@ -31,12 +31,12 @@ PLEX_TOKEN = 'xxxxxxx'
 REASON = 'Because....too many streams'
 
 # 2nd stream information is passed
-USER = sys.argv[1]
+USERNAME = sys.argv[1]
 
 ignore_lst = ('')
 
-if USER in ignore_lst:
-    print(u"{} ignored.".format(USER))
+if USERNAME in ignore_lst:
+    print(u"{} ignored.".format(USERNAME))
     exit()
 
 
@@ -82,7 +82,7 @@ response  = fetch('status/sessions')
 
 sessions = []
 for s in response['MediaContainer']['Video']:
-    if s['User']['title'] == USER:
+    if s['User']['title'] == USERNAME:
         sess_id = s['Session']['id']
         user = s['User']['title']
         title = (s['grandparentTitle'] + ' - ' if s['type'] == 'episode' else '') + s['title']

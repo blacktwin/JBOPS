@@ -84,19 +84,19 @@ if __name__ == '__main__':
     sessions = []
 
     if 'Video' in response['MediaContainer']:
-        for s in response['MediaContainer']['Video']:
+        for video in response['MediaContainer']['Video']:
             try:
-                if s['TranscodeSession']['videoDecision'] == 'transcode' and s['User']['title'] not in ADMIN_USER:
-                    sess_id = s['Session']['id']
-                    user = s['User']['title']
-                    percent_comp =  int((float(s['viewOffset']) / float(s['duration'])) * 100)
-                    time_to_comp = int(int(s['duration']) - int(s['viewOffset'])) / 1000 / 60
-                    title = s['title']
+                if video['TranscodeSession']['videoDecision'] == 'transcode' and video['User']['title'] not in ADMIN_USER:
+                    sess_id = video['Session']['id']
+                    user = video['User']['title']
+                    percent_comp =  int((float(video['viewOffset']) / float(video['duration'])) * 100)
+                    time_to_comp = int(int(video['duration']) - int(video['viewOffset'])) / 1000 / 60
+                    title = video['title']
                     title = unicodedata.normalize('NFKD', title).encode('ascii','ignore')
                     add_to_dictlist(user_dict, user, [sess_id, percent_comp, title, user, time_to_comp])
 
             except KeyError:
-                print('{} has a direct stream to ignore.'.format(s['User']['title']))
+                print('{} has a direct stream to ignore.'.format(video['User']['title']))
 
     # Remove users with only 1 stream. Targeting users with multiple concurrent streams
     filtered_dict = {key: value for key, value in user_dict.items()

@@ -75,14 +75,14 @@ if __name__ == '__main__':
     response  = fetch('status/sessions')
 
     if 'Video' in response['MediaContainer']:
-        for s in response['MediaContainer']['Video']:
-            if s['TranscodeSession']['videoDecision'] == 'transcode' and s['User']['title'] not in USER_IGNORE:
-                MESSAGE = DEVICES.get(s['Player']['platform'], DEFAULT_REASON)
-                print("Killing {}'s stream for transcoding video".format(s['User']['title']))
-                kill_stream(s['Session']['id'], MESSAGE)
+        for video in response['MediaContainer']['Video']:
+            if video['TranscodeSession']['videoDecision'] == 'transcode' and video['User']['title'] not in USER_IGNORE:
+                MESSAGE = DEVICES.get(video['Player']['platform'], DEFAULT_REASON)
+                print("Killing {}'s stream for transcoding video".format(video['User']['title']))
+                kill_stream(video['Session']['id'], MESSAGE)
     elif 'Track' in response['MediaContainer']:
-        for s in response['MediaContainer']['Track']:
-            print("{} is streaming audio, let them pass!".format(s['User']['title']))
+        for track in response['MediaContainer']['Track']:
+            print("{} is streaming audio, let them pass!".format(track['User']['title']))
             exit()
     else:
         exit()

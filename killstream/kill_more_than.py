@@ -32,13 +32,13 @@ PLEX_TOKEN = 'xxxxxxx'
 REASON = 'Because....too many streams'
 
 # 2nd stream information is passed
-USER = sys.argv[1]
+USERNAME = sys.argv[1]
 ADDRESS = sys.argv[2]
 
 ignore_lst = ('')
 
-if USER in ignore_lst:
-    print(u"{} ignored.".format(USER))
+if USERNAME in ignore_lst:
+    print(u"{} ignored.".format(USERNAME))
     exit()
 
 
@@ -83,11 +83,11 @@ def kill_stream(sessionId, message):
 response  = fetch('status/sessions')
 
 sessions = []
-for s in response['MediaContainer']['Video']:
-    if s['User']['title'] == USER and s['Player']['address'].lstrip("::ffff:") == ADDRESS::
-        sess_id = s['Session']['id']
-        user = s['User']['title']
-        title = (s['grandparentTitle'] + ' - ' if s['type'] == 'episode' else '') + s['title']
+for video in response['MediaContainer']['Video']:
+    if video['User']['title'] == USERNAME and video['Player']['address'].lstrip("::ffff:") == ADDRESS::
+        sess_id = video['Session']['id']
+        user = video['User']['title']
+        title = (video['grandparentTitle'] + ' - ' if video['type'] == 'episode' else '') + video['title']
         title = unicodedata.normalize('NFKD', title).encode('ascii','ignore')
         sessions.append((sess_id, user, title))
 

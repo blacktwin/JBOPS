@@ -65,7 +65,7 @@ def kill_stream(sessionId, message):
                      headers=headers, params=params)
 
 response  = fetch('status/sessions')
-for s in response['MediaContainer']['Video']:
-    if s['User']['title'] == USERNAME and s['Session']['location'] == 'wan':
+for video in response['MediaContainer']['Video']:
+    if video['User']['title'] == USERNAME and video['Session']['location'] == 'wan':
         print("Killing {}'s stream for {}".format(USERNAME, REASON))
-        kill_stream(s['Session']['id'], REASON)
+        kill_stream(video['Session']['id'], REASON)
