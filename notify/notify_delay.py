@@ -45,7 +45,7 @@ BODY_TEXT = """\
 
 
 def get_get_activity():
-    # Get the metadata for a media item.
+    # Get the current activity on the PMS.
     payload = {'apikey': PLEXPY_APIKEY,
                'cmd': 'get_activity'}
 
@@ -56,7 +56,7 @@ def get_get_activity():
         return [d['user'] for d in res_data]
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_get_activity' request failed: {0}.".format(e))
+        sys.stderr.write("PlexPy API 'get_activity' request failed: {0}.".format(e))
         pass
 
 def send_notification(SUBJECT_TEXT, BODY_TEXT):
