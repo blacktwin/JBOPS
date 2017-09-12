@@ -125,6 +125,11 @@ Scripts pulled from my gist profile.
     <th>File</th>
     <th>Description</th>
   </tr>
+    <tr>
+    <td></td>
+    <td><a href="../master/notify/notify_delay.py">notify_delay</a></td>
+    <td>Delay Notification Agent message for concurrent streams.</td>
+  </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/e6d589a9af9bdf168717951083861e93"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/notify/find_unwatched_notify.py">find_unwatched_notify</a></td>
