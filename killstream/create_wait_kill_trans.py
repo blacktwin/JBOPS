@@ -83,11 +83,12 @@ def kill_stream(sessionId, message, xtime, ntime, user, title, sessionKey):
 
     if response['MediaContainer']['Video']:
         for video in response['MediaContainer']['Video']:
+            part = video['Media'][0]['Part'][0]
             if video['sessionKey'] == sessionKey:
-                if xtime == ntime and video['Player']['state'] == 'paused' and video['Media']['Part']['decision'] == 'transcode':
+                if xtime == ntime and video['Player']['state'] == 'paused' and part['decision'] == 'transcode':
                     sys.stdout.write("Killing {user}'s paused stream of {title}".format(user=user, title=title))
                     requests.get('http{}://{}:{}/status/sessions/terminate'.format(PLEX_SSL, PLEX_HOST, PLEX_PORT),
-                             headers=headers, params=params)
+                                 headers=headers, params=params)
                     return ntime
                 elif video['Player']['state'] in ('playing', 'buffering'):
                     sys.stdout.write("{user}'s stream of {title} is now {state}".
@@ -99,24 +100,26 @@ def kill_stream(sessionId, message, xtime, ntime, user, title, sessionKey):
         return None
 
 
-
 def find_sessionID(response):
 
     sessions = []
     for video in response['MediaContainer']['Video']:
+        part = video['Media'][0]['Part'][0]
         if video['sessionKey'] == sys.argv[1] and video['Player']['state'] == 'paused' \
-                and video['Media']['Part']['decision'] == 'transcode':
+                and part['decision'] == 'transcode':
             sess_id = video['Session']['id']
             user = video['User']['title']
-            sess_key = sys.argv[1]
+            sess_key = video['sessionKey']
             title = (video['grandparentTitle'] + ' - ' if video['type'] == 'episode' else '') + video['title']
-            title = unicodedata.normalize('NFKD', title).encode('ascii','ignore')
+            title = unicodedata.normalize('NFKD', title).encode('ascii', 'ignore').translate(None,"'")
             sessions.append((sess_id, user, title, sess_key))
+
         else:
             pass
 
+    print(sessions)
     for session in sessions:
-        if session[1] not in ignore_lst:
+        if session[1] in ignore_lst:
             return session
         else:
             print("{}'s stream of {} is ignored.".format(session[1], session[2]))
