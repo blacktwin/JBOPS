@@ -267,7 +267,7 @@ Scripts pulled from my gist profile.
   </tr>
   <tr>
     <td></td>
-    <td><a href="../master/reporting/weekly_stats_reporting.py">added_to_plex</a></td>
+    <td><a href="../master/reporting/weekly_stats_reporting.py">weekly_stats_reporting</a></td>
     <td>Pull library and user statistics of last week.</td>
   </tr>
   <tr>
