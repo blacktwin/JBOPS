@@ -22,8 +22,8 @@ START_DATE = (datetime.datetime.utcfromtimestamp(LASTWEEK).strftime("%Y-%m-%d"))
 END_DATE = (datetime.datetime.utcfromtimestamp(TODAY).strftime("%Y-%m-%d"))  # TODAY as YYYY-MM-DD
 
 # EDIT THESE SETTINGS #
-PLEXPY_APIKEY = 'xxxxxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+PLEXPY_APIKEY = 'xxxxxx'  # Your PlexPy API key
+PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
 SUBJECT_TEXT = "PlexPy Weekly Server, Library, and User Statistics"
 
 # Notification agent ID: https://github.com/JonnyWong16/plexpy/blob/master/API.md#notify
@@ -101,7 +101,7 @@ def get_get_user_names():
     try:
         r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
-        # print(json.dumps(response['response']['data'], indent=4, sort_keys=True))
+
         res_data = response['response']['data']
         return [d for d in res_data if d['friendly_name'] != 'Local']
 
@@ -171,13 +171,6 @@ def send_notification(body_text):
         return None
 
 
-def add_to_dictlist(d, key, val):
-    if key not in d:
-        d[key] = [val]
-    else:
-        d[key].append(val)
-
-
 def sizeof_fmt(num, suffix='B'):
     # Function found https://stackoverflow.com/a/1094933
     for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
@@ -187,8 +180,8 @@ def sizeof_fmt(num, suffix='B'):
     return "%.1f%s%s" % (num, 'Yi', suffix)
 
 
-def get_user_stats(user_stats_lst, stat_logging, user_stats):
-    # Pull User stats and
+def get_user_stats(user_stats_lst, user_stats):
+    # Pull User stats
     user_duration = []
 
     for users in get_get_user_names():
@@ -197,7 +190,6 @@ def get_user_stats(user_stats_lst, stat_logging, user_stats):
             user_name = users['friendly_name']
             user_totals = sum([d['duration'] for d in history['data']])
             user_duration.append([user_name, user_totals])
-            add_to_dictlist(stat_logging['data'], 'data', {'user': user_name, 'duration': user_totals})
 
     user_duration = sorted(user_duration, key=itemgetter(1), reverse=True)
 
@@ -216,7 +208,7 @@ def get_user_stats(user_stats_lst, stat_logging, user_stats):
     return user_stats
 
 
-def get_sections_stats(sections_stats_lst, stat_logging):
+def get_sections_stats(sections_stats_lst):
     section_count = ''
     total_size = 0
 
@@ -233,8 +225,6 @@ def get_sections_stats(sections_stats_lst, stat_logging):
                                    'child_count': sections['child_count'],
                                    'size': lib_size,
                                    'friendly_size': sizeof_fmt(lib_size)}
-
-            add_to_dictlist(stat_logging['data'], sections['section_name'], stat_dict)
 
         if sections['section_type'] == 'artist':
             section_count = ARTIST_STAT.format(sections['count'], sections['parent_count'], sections['child_count'])
@@ -253,18 +243,12 @@ def get_sections_stats(sections_stats_lst, stat_logging):
                                'size': lib_size,
                                'friendly_size': sizeof_fmt(lib_size)}
 
-            add_to_dictlist(stat_logging['data'], sections['section_name'], stat_dict)
-
         else:
             pass
 
         if sections['section_name'] not in LIB_IGNORE and section_count:
             # Html formating
             sections_stats_lst += ['<li>{}: {}</li>'.format(sections['section_name'], section_count)]
-
-
-    stat_logging['total_size'] = total_size
-    stat_logging['total_size_friendly'] = sizeof_fmt(total_size)
 
     # Html formating. Adding the Capacity to button of list.
     sections_stats_lst += ['<li>Capacity: {}</li>'.format(sizeof_fmt(total_size))]
@@ -275,10 +259,8 @@ def get_sections_stats(sections_stats_lst, stat_logging):
 user_stats_lst = []
 sections_stats_lst = []
 
-stat_logging = {'start_date': START_DATE, 'end_date': END_DATE, 'data': {}}
-
-users_stats = get_user_stats(user_stats_lst, stat_logging, USER_STAT)
-lib_stats = get_sections_stats(sections_stats_lst, stat_logging)
+users_stats = get_user_stats(user_stats_lst, USER_STAT)
+lib_stats = get_sections_stats(sections_stats_lst)
 
 # print(json.dumps(stat_logging, indent=4, sort_keys=True))
 
