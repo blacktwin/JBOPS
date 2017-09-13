@@ -266,9 +266,14 @@ Scripts pulled from my gist profile.
     <th>Description</th>
   </tr>
   <tr>
+    <td></td>
+    <td><a href="../master/reporting/weekly_stats_reporting.py">added_to_plex</a></td>
+    <td>Pull library and user statistics of last week.</td>
+  </tr>
+  <tr>
     <td><a href="https://gist.github.com/blacktwin/21823b3394f5b077d42495b21570b593"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/reporting/added_to_plex.py">added_to_plex</a></td>
-    <td>Find when media was added between STARTFRAME and ENDFRAME to Plex through PlexPy.    </td>
+    <td>Find when media was added between STARTFRAME and ENDFRAME to Plex through PlexPy.</td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/f070dff29ddbeb87973be9c0a94a1df7"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
