@@ -65,7 +65,7 @@ BODY_TEXT = """\
   <head></head>
   <body>
     <p>Hi!<br>
-    <br>Below are the server stats for the week of ({start} - {end})<br>
+    <br>Below are the current server stats.<br>
     <ul>
     {sections_stats}
     </ul>
