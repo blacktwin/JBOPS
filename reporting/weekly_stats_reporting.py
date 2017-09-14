@@ -297,7 +297,7 @@ def main():
     for single_date in daterange(start_date, end_date):
         dates_range_lst += [single_date.strftime("%Y-%m-%d")]
 
-    print('Checking users stats from {:02d} days ago.'.format(opts.days))
+    print('Checking user stats from {:02d} days ago.'.format(opts.days))
     user_stats_lst = get_user_stats(dates_range_lst)
     # print(user_stats_lst)
 
