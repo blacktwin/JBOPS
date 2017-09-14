@@ -305,8 +305,8 @@ def main():
     lib_stats = get_sections_stats()
     # print(lib_stats)
 
-    end = datetime.datetime.strptime(time.ctime(float(DAYS_AGO)), "%a %b %d %H:%M:%S %Y").strftime("%a %b %d %Y")
-    start = datetime.datetime.strptime(time.ctime(float(TODAY)), "%a %b %d %H:%M:%S %Y").strftime("%a %b %d %Y")
+    end = datetime.datetime.strptime(time.ctime(float(TODAY)), "%a %b %d %H:%M:%S %Y").strftime("%a %b %d %Y")
+    start = datetime.datetime.strptime(time.ctime(float(DAYS_AGO)), "%a %b %d %H:%M:%S %Y").strftime("%a %b %d %Y")
 
     sections_stats = "\n".join(lib_stats)
     user_stats = "\n".join(user_stats_lst)
