@@ -134,8 +134,7 @@ def get_get_library_media_info(section_id):
     # Get a list of all libraries on your server.
     payload = {'apikey': PLEXPY_APIKEY,
                'cmd': 'get_library_media_info',
-               'section_id': section_id,
-               'refresh': True}
+               'section_id': section_id}
 
     try:
         r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
