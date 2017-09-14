@@ -119,7 +119,7 @@ def find_sessionID(response):
 
     print(sessions)
     for session in sessions:
-        if session[1] in ignore_lst:
+        if session[1] not in ignore_lst:
             return session
         else:
             print("{}'s stream of {} is ignored.".format(session[1], session[2]))
