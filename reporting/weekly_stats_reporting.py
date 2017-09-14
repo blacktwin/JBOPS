@@ -278,7 +278,7 @@ def main():
 
     parser = argparse.ArgumentParser(description="Use PlexPy to pull library and user statistics for date range.",
                                      formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-d', '--days', default=3, metavar='', type=int,
+    parser.add_argument('-d', '--days', default=7, metavar='', type=int,
                         help='Enter in number of days to go back. \n(default: %(default)s)')
 
     opts = parser.parse_args()
