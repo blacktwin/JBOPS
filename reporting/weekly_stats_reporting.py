@@ -7,6 +7,14 @@ User stats display username and hour, minutes, and seconds of view time
 
 PlexPy Settings > Extra Settings >  Check - Calculate Total File Sizes [experimental] ...... wait
 
+Usage: 
+    Use PlexPy to pull library and user statistics for date range.
+
+    optional arguments:
+      -h, --help    show this help message and exit
+      -d , --days   Enter in number of days to go back.
+                    (default: 7)
+
 """
 
 import requests
@@ -15,15 +23,12 @@ import time
 import datetime
 import json
 from operator import itemgetter
+import argparse
 
-TODAY = int(time.time())
-LASTWEEK = int(TODAY - 7 * 24 * 60 * 60)
-START_DATE = (datetime.datetime.utcfromtimestamp(LASTWEEK).strftime("%Y-%m-%d"))  # LASTWEEK as YYYY-MM-DD
-END_DATE = (datetime.datetime.utcfromtimestamp(TODAY).strftime("%Y-%m-%d"))  # TODAY as YYYY-MM-DD
 
 # EDIT THESE SETTINGS #
 PLEXPY_APIKEY = 'xxxxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
+PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
 SUBJECT_TEXT = "PlexPy Weekly Server, Library, and User Statistics"
 
 # Notification agent ID: https://github.com/JonnyWong16/plexpy/blob/master/API.md#notify
@@ -75,12 +80,12 @@ BODY_TEXT = """\
 
 # /EDIT THESE SETTINGS #
 
-def get_get_history(user_id):
+def get_get_history(user_id, check_date):
     # Get the PlexPy history.
     payload = {'apikey': PLEXPY_APIKEY,
                'cmd': 'get_history',
                'user_id': user_id,
-               'start_date': START_DATE}
+               'start_date': check_date}
 
     try:
         r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
@@ -180,51 +185,54 @@ def sizeof_fmt(num, suffix='B'):
     return "%.1f%s%s" % (num, 'Yi', suffix)
 
 
-def get_user_stats(user_stats_lst, user_stats):
-    # Pull User stats
-    user_duration = []
+def add_to_dictlist(d, key, val):
+    if key not in d:
+        d[key] = val
+    else:
+        d[key] += val
 
-    for users in get_get_user_names():
-        history = get_get_history(users['user_id'])
-        if history['filter_duration'] != '0':
-            user_name = users['friendly_name']
-            user_totals = sum([d['duration'] for d in history['data']])
-            user_duration.append([user_name, user_totals])
 
-    user_duration = sorted(user_duration, key=itemgetter(1), reverse=True)
+def get_user_stats(dates_range_lst):
 
-    for user_stat in user_duration:
-        if user_stat[0] not in USER_IGNORE:
-            m, s = divmod(user_stat[1], 60)
+    user_stats_dict = {}
+    user_stats_lst = []
+
+    for check_date in dates_range_lst:
+        print('Checking user stats for date: {}'.format(check_date))
+
+        for users in get_get_user_names():
+            history = get_get_history(users['user_id'], check_date)
+            if history['filter_duration'] != '0':
+                user_name = users['friendly_name']
+                user_totals = sum([d['duration'] for d in history['data']])
+                add_to_dictlist(user_stats_dict, user_name, user_totals)
+
+    # print(user_stats_dict)
+
+    for user, duration in sorted(user_stats_dict.items(), key=itemgetter(1), reverse=True):
+        if user not in USER_IGNORE:
+            m, s = divmod(duration, 60)
             h, m = divmod(m, 60)
             easy_time = TIME_DISPLAY.format(h, m, s)
-            USER_STAT = user_stats.format(user_stat[0], easy_time)
-            # Html formating
-            user_stats_lst += ['<li>{}</li>'.format(USER_STAT)]
+            USER_STATS = USER_STAT.format(user, easy_time)
+            # Html formatting
+            user_stats_lst += ['<li>{}</li>'.format(USER_STATS)]
         else:
             pass
 
-    # print(user_stats)
-    return user_stats
+    # print(user_stats_lst)
+    return user_stats_lst
 
 
-def get_sections_stats(sections_stats_lst):
+def get_sections_stats():
     section_count = ''
     total_size = 0
+    sections_stats_lst = []
 
     for sections in get_get_libraries():
 
         lib_size = get_get_library_media_info(sections['section_id'])
         total_size += lib_size
-
-        if sections['section_type'] in ['artist', 'show', 'photo']:
-
-            stat_dict = {'section_type': sections['section_type'],
-                                   'count': sections['count'],
-                                   'parent_count': sections['parent_count'],
-                                   'child_count': sections['child_count'],
-                                   'size': lib_size,
-                                   'friendly_size': sizeof_fmt(lib_size)}
 
         if sections['section_type'] == 'artist':
             section_count = ARTIST_STAT.format(sections['count'], sections['parent_count'], sections['child_count'])
@@ -238,38 +246,74 @@ def get_sections_stats(sections_stats_lst):
         elif sections['section_type'] == 'movie':
             section_count = MOVIE_STAT.format(sections['count'])
 
-            stat_dict = {'section_type': sections['section_type'],
-                               'count': sections['count'],
-                               'size': lib_size,
-                               'friendly_size': sizeof_fmt(lib_size)}
-
         else:
             pass
 
         if sections['section_name'] not in LIB_IGNORE and section_count:
-            # Html formating
+            # Html formatting
             sections_stats_lst += ['<li>{}: {}</li>'.format(sections['section_name'], section_count)]
 
-    # Html formating. Adding the Capacity to button of list.
+    # Html formatting. Adding the Capacity to bottom of list.
     sections_stats_lst += ['<li>Capacity: {}</li>'.format(sizeof_fmt(total_size))]
-    # print(sections_stats)
+
+    # print(sections_stats_lst)
     return sections_stats_lst
 
 
-user_stats_lst = []
-sections_stats_lst = []
+def daterange(start_date, end_date):
+    for n in range(int((end_date - start_date).days) + 1):
+        yield start_date + datetime.timedelta(n)
 
-users_stats = get_user_stats(user_stats_lst, USER_STAT)
-lib_stats = get_sections_stats(sections_stats_lst)
 
-# print(json.dumps(stat_logging, indent=4, sort_keys=True))
+def date_split(to_split):
+    split_year = int(to_split.split('-')[0])
+    split_month = int(to_split.split('-')[1])
+    split_day = int(to_split.split('-')[2])
+    return [split_year, split_month, split_day]
 
-end = time.ctime(float(TODAY))
-start = time.ctime(float(LASTWEEK))
 
-sections_stats = "\n".join(sections_stats_lst)
-user_stats = "\n".join(user_stats_lst)
+def main():
 
-BODY_TEXT = BODY_TEXT.format(end=end, start=start, sections_stats=sections_stats, user_stats=user_stats)
+    global BODY_TEXT
 
-send_notification(BODY_TEXT)
+    parser = argparse.ArgumentParser(description="Use PlexPy to pull library and user statistics for date range.",
+                                     formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('-d', '--days', default=3, metavar='', type=int,
+                        help='Enter in number of days to go back. \n(default: %(default)s)')
+
+    opts = parser.parse_args()
+
+    TODAY = int(time.time())
+    DAYS = opts.days
+    DAYS_AGO = int(TODAY - DAYS * 24 * 60 * 60)
+    START_DATE = (datetime.datetime.utcfromtimestamp(DAYS_AGO).strftime("%Y-%m-%d"))  # DAYS_AGO as YYYY-MM-DD
+    END_DATE = (datetime.datetime.utcfromtimestamp(TODAY).strftime("%Y-%m-%d"))  # TODAY as YYYY-MM-DD
+
+    start_date = datetime.date(date_split(START_DATE)[0], date_split(START_DATE)[1], date_split(START_DATE)[2])
+    end_date = datetime.date(date_split(END_DATE)[0], date_split(END_DATE)[1], date_split(END_DATE)[2])
+    
+    dates_range_lst = []
+    
+    for single_date in daterange(start_date, end_date):
+        dates_range_lst += [single_date.strftime("%Y-%m-%d")]
+
+    print('Checking users stats from {:02d} days ago.'.format(opts.days))
+    user_stats_lst = get_user_stats(dates_range_lst)
+    # print(user_stats_lst)
+
+    print('Checking library stats.')
+    lib_stats = get_sections_stats()
+    # print(lib_stats)
+
+    end = datetime.datetime.strptime(time.ctime(float(DAYS_AGO)), "%a %b %d %H:%M:%S %Y").strftime("%a %b %d %Y")
+    start = datetime.datetime.strptime(time.ctime(float(TODAY)), "%a %b %d %H:%M:%S %Y").strftime("%a %b %d %Y")
+
+    sections_stats = "\n".join(lib_stats)
+    user_stats = "\n".join(user_stats_lst)
+
+    BODY_TEXT = BODY_TEXT.format(end=end, start=start, sections_stats=sections_stats, user_stats=user_stats)
+
+    send_notification(BODY_TEXT)
+
+if __name__ == '__main__':
+    main()
