@@ -24,18 +24,18 @@ def instantwatch_search(name, type):
     NETFLIX_URL = 'http://www.netflix.com/title/'
 
     if type == 'movie':
-        search_type = '&content_type%5B%5D=1'
+        content_type = '1'
     elif type == 'show':
-        search_type = '&content_type%5B%5D=3'
+        content_type = '3'
     else:
-        search_type =''
+        content_type =''
 
-    search_title = name.lower().replace(' ','+')
-    search_url = 'http://instantwatcher.com/search?source=1+2+3&q={}'.format(search_title)
+    payload = {'content_type': content_type,
+               'q': name.lower()}
+
+    r = requests.get('http://instantwatcher.com/search'.rstrip('/'), params=payload)
 
     results_lst = []
-
-    r = requests.get(search_url + search_type)
 
     res_data = bf.data(fromstring(r.content))
     res_data = res_data['html']['body']['div']['div'][1]
@@ -78,6 +78,7 @@ def instantwatch_search(name, type):
                         print('Netflix Page: {}{}'.format(NETFLIX_URL, data['a']['@data-title-id']))
                     else:
                         print('Could not find exact name match.')
+
 
 for t in plex.library.section('Movies').all():
     print('Running check on {}'.format(t.title))
