@@ -20,7 +20,7 @@ import argparse
 
 # EDIT THESE SETTINGS #
 PLEXPY_APIKEY = 'xxxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
+PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
 SUBJECT_TEXT = "PlexPy Weekly Server, Library, and User Statistics"
 
 # Notification agent ID: https://github.com/JonnyWong16/plexpy/blob/master/API.md#notify
