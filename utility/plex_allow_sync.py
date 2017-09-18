@@ -12,11 +12,6 @@ plex = PlexServer(PLEX_URL, PLEX_TOKEN)
 
 USER_IGNORE = ['username']
 
-user_lst = [str(user.id) for user in plex.myPlexAccount().users() if user.title not in USER_IGNORE]
-
-payload = {'X-Plex-Token': PLEX_TOKEN,
-           'allowSync': 0}
-
-for user_id in user_lst:
-    r = requests.put('http://plex.tv/api/friends/' + user_id, params=payload)
-    print(r.status_code)
+for user in plex.myPlexAccount().users():
+    if user.title not in USER_IGNORE:
+        r = requests.put('http://plex.tv/api/friends/{}'.format(user.id), headers=headers, params=payload)
