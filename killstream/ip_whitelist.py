@@ -43,20 +43,12 @@ plex = PlexServer(PLEX_URL, PLEX_TOKEN)
 
 
 def send_notification(subject_text, body_text):
-    # Format notification text
-    try:
-        subject = subject_text
-        body = body_text
-
-    except LookupError as e:
-        sys.stderr.write("Unable to substitute '{0}' in the notification subject or body".format(e))
-        return None
     # Send the notification through PlexPy
     payload = {'apikey': PLEXPY_APIKEY,
                'cmd': 'notify',
                'agent_id': AGENT_ID,
-               'subject': subject,
-               'body': body}
+               'subject': subject_text,
+               'body': body_text}
 
     try:
         r = requests.post(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
