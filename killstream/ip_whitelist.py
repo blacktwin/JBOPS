@@ -22,10 +22,10 @@ PLEX_URL = 'http://localhost:32400'
 PLEXPY_APIKEY = 'xxxxx'  # Your PlexPy API key
 PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
 
-IP_WHITELIST = ['10.10.0.12']
-REASON = 'IP Address: {} was not found in whitelist.'
-IGNORE_LST = ('Blacktwin')
+IP_WHITELIST = ['10.10.0.12']  # List IP addresses.
+IGNORE_LST = ('')  # List usernames that should be ignored.
 
+REASON = 'IP Address: {} was not found in whitelist.'
 
 AGENT_ID = 14  # Notification agent ID for PlexPy
 # Find Notification agent ID here:
