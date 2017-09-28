@@ -42,11 +42,11 @@ ip_address = sys.argv[2]
 plex = PlexServer(PLEX_URL, PLEX_TOKEN)
 
 
-def send_notification(SUBJECT_TEXT, BODY_TEXT):
+def send_notification(subject_text, body_text):
     # Format notification text
     try:
-        subject = SUBJECT_TEXT.format()
-        body = BODY_TEXT.format()
+        subject = subject_text
+        body = body_text
 
     except LookupError as e:
         sys.stderr.write("Unable to substitute '{0}' in the notification subject or body".format(e))
