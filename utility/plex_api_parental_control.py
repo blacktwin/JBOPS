@@ -69,11 +69,12 @@ def kill_session(user, libraries):
     for session in plex.sessions():
         # Check for users stream and if user is watching a to be unshared library.
         # If to be unshared library is not being watched then stream is not killed.
-        if session.usernames[0] in user and session.librarySectionID != plex.library.section(libraries).key:
-            title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
-            print('{user} is watching {title} and it\'s past their bedtime. Killing stream.'.format(
-                user=user, title=title))
-            session.stop(reason=MESSAGE)
+        for library in libraries:
+            if session.usernames[0] in user and session.librarySectionID != plex.library.section(library).key:
+                title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
+                print('{user} is watching {title} and it\'s past their bedtime. Killing stream.'.format(
+                    user=user, title=title))
+                session.stop(reason=MESSAGE)
 
 
 if __name__ == "__main__":
