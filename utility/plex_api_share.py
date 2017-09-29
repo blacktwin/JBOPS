@@ -37,7 +37,7 @@ from plexapi.server import PlexServer
 import argparse
 
 PLEX_URL = 'http://localhost:32400'
-PLEX_TOKEN = 'xxxxx'
+PLEX_TOKEN = 'xxxxxxx'
 plex = PlexServer(PLEX_URL, PLEX_TOKEN)
 
 user_lst = [x.title for x in plex.myPlexAccount().users()]
@@ -54,7 +54,7 @@ def share(user, libraries):
 
 def unshare(user, libraries):
     plex.myPlexAccount().updateFriend(user=user, server=plex, removeSections=True, sections=libraries)
-    print('Unshared all libraries with {user}.'.format(user=user))
+    print('Unshared libraries: {libraries} from {user}.'.format(libraries=libraries, user=user))
 
 
 if __name__ == "__main__":
