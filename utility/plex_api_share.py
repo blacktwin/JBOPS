@@ -46,10 +46,7 @@ sections_lst = [x.title for x in plex.library.sections()]
 
 def share(user, libraries):
     plex.myPlexAccount().updateFriend(user=user, server=plex, sections=libraries)
-    if not libraries:
-        print('Shared all libraries with {user}.'.format(user=user))
-    else:
-        print('Shared libraries: {libraries} with {user}.'.format(libraries=libraries, user=user))
+    print('Shared libraries: {libraries} with {user}.'.format(libraries=libraries, user=user))
 
 
 def unshare(user, libraries):
