@@ -43,7 +43,7 @@ from plexapi.server import PlexServer
 
 
 PLEX_URL = 'http://localhost:32400'
-PLEX_TOKEN = 'xxxx'
+PLEX_TOKEN = 'xxxxx'
 plex = PlexServer(PLEX_URL, PLEX_TOKEN)
 
 user_lst = [x.title for x in plex.myPlexAccount().users()]
@@ -65,9 +65,11 @@ def unshare(user, libraries):
     print('Unshared libraries: {libraries} from {user}.'.format(libraries=libraries, user=user))
 
 
-def kill_session(user):
+def kill_session(user, libraries):
     for session in plex.sessions():
-        if session.usernames[0] in user:
+        # Check for users stream and if user is watching a to be unshared library.
+        # If to be unshared library is not being watched then stream is not killed.
+        if session.usernames[0] in user and session.librarySectionID != plex.library.section(libraries).key:
             title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
             print('{user} is watching {title} and it\'s past their bedtime. Killing stream.'.format(
                 user=user, title=title))
@@ -92,11 +94,13 @@ if __name__ == "__main__":
 
     if opts.share == 'share':
         share(opts.user, opts.libraries)
-    elif opts.share == 'unshare':
-        unshare(opts.user, opts.libraries)
     elif opts.share == 'share_all':
         unshare(opts.user, sections_lst)
+    elif opts.share == 'unshare':
+        kill_session(opts.user, opts.libraries)
+        unshare(opts.user, opts.libraries)
     elif opts.share == 'unshare_all':
+        kill_session(opts.user, '')
         unshare(opts.user, sections_lst)
     else:
         print('I don\'t know what else you want.')
