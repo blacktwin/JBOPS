@@ -61,7 +61,7 @@ def share(user, libraries):
 
 
 def unshare(user, libraries):
-    plex.myPlexAccount().updateFriend(user=user, server=plex, removeSections=True)
+    plex.myPlexAccount().updateFriend(user=user, server=plex, removeSections=True, sections=libraries)
     print('Unshared libraries: {libraries} from {user}.'.format(libraries=libraries, user=user))
 
 
