@@ -54,7 +54,7 @@ def get_get_user_names(username):
         response = r.json()
         res_data = response['response']['data']
         if username:
-            return [d['user_id'] for d in res_data if d['friendly_name'] == username]
+            return [d['user_id'] for d in res_data if d['friendly_name'] in username]
         else:
             return [d['friendly_name'] for d in res_data]
 
