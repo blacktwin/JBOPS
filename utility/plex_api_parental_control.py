@@ -7,7 +7,7 @@ Share or unshare libraries.
 optional arguments:
   -h, --help            show this help message and exit
   -s [], --share []     To share or to unshare.:
-                        (choices: share, unshare)
+                        (choices: share, share_all, unshare, unshare_all)
   -u [], --user []      Space separated list of case sensitive names to process. Allowed names are:
                         (choices: All users names)
   -l  [ ...], --libraries  [ ...]
@@ -17,17 +17,23 @@ optional arguments:
 
 Usage:
 
-   plex_api_share.py -s unshare -u USER
-       - Kill users current stream.
-       - Unshared all libraries with USER.
-       - USER still exists as a Friend or Home User
-
    plex_api_share.py -s share -u USER -l Movies
        - Shared libraries: ['Movies'] with USER
 
    plex_api_share.py -s share -u USER -l Movies "TV Shows"
        - Shared libraries: ['Movies', 'TV Shows'] with USER
           * Double Quote libraries with spaces
+
+   plex_api_share.py -s share_all -u USER
+       - Shared all libraries with USER.
+
+   plex_api_share.py -s unshare -u USER -l Movies
+       - Unshared libraries: ['Movies'] from USER
+
+   plex_api_share.py -s unshare_all -u USER
+       - Kill users current stream.
+       - Unshared all libraries with USER.
+       - USER is still exists as a Friend or Home User
 
 '''
 
@@ -37,7 +43,7 @@ from plexapi.server import PlexServer
 
 
 PLEX_URL = 'http://localhost:32400'
-PLEX_TOKEN = 'xxxxx'
+PLEX_TOKEN = 'xxxx'
 plex = PlexServer(PLEX_URL, PLEX_TOKEN)
 
 user_lst = [x.title for x in plex.myPlexAccount().users()]
@@ -54,9 +60,9 @@ def share(user, libraries):
         print('Shared libraries: {libraries} with {user}.'.format(libraries=libraries, user=user))
 
 
-def unshare(user):
-    plex.myPlexAccount().updateFriend(user=user, server=plex, removeSections=True)
-    print('Unshared all libraries with {user}.'.format(user=user))
+def unshare(user, libraries):
+    plex.myPlexAccount().updateFriend(user=user, server=plex, remove_sections=True)
+    print('Unshared libraries: {libraries} from {user}.'.format(libraries=libraries, user=user))
 
 
 def kill_session(user):
@@ -87,7 +93,10 @@ if __name__ == "__main__":
     if opts.share == 'share':
         share(opts.user, opts.libraries)
     elif opts.share == 'unshare':
-        kill_session(opts.user)
-        unshare(opts.user)
+        unshare(opts.user, opts.libraries)
+    elif opts.share == 'share_all':
+        unshare(opts.user, sections_lst)
+    elif opts.share == 'unshare_all':
+        unshare(opts.user, sections_lst)
     else:
         print('I don\'t know what else you want.')
