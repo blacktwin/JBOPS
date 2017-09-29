@@ -21,6 +21,7 @@ import sys
 
 ## EDIT THESE SETTINGS ##
 PLEX_TOKEN = 'xxxx'
+PLEX_URL = 'http://localhost:32400'
 PLEXPY_APIKEY = 'xxxx'  # Your PlexPy API key
 PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
 
@@ -64,7 +65,7 @@ def get_get_user_names(username):
 def add_auth_bypass(net_str):
     headers = {"X-Plex-Token": PLEX_TOKEN}
     params = {"allowedNetworks": net_str}
-    requests.put("http://localhost:32400/:/prefs", headers=headers, params=params)
+    requests.put("{}/:/prefs".format(PLEX_URL), headers=headers, params=params)
 
 
 if __name__ == '__main__':
