@@ -13,9 +13,6 @@ optional arguments:
                         (default: All Libraries)
 
 Usage:
-   plex_api_share.py -s share -u USER
-       - Shared all libraries with USER
-
    plex_api_share.py -s unshare -u USER
        - Unshared all libraries with USER.
        - USER is still exists as a Friend or Home User
