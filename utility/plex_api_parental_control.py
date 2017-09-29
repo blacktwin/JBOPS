@@ -39,11 +39,12 @@ Usage:
 
 
 import argparse
+from time import sleep
 from plexapi.server import PlexServer
 
 
 PLEX_URL = 'http://localhost:32400'
-PLEX_TOKEN = 'xxxxx'
+PLEX_TOKEN = 'xxxxxx'
 plex = PlexServer(PLEX_URL, PLEX_TOKEN)
 
 user_lst = [x.title for x in plex.myPlexAccount().users()]
@@ -54,26 +55,19 @@ MESSAGE = "GET TO BED!"
 
 def share(user, libraries):
     plex.myPlexAccount().updateFriend(user=user, server=plex, sections=libraries)
-    if not libraries:
-        print('Shared all libraries with {user}.'.format(user=user))
-    else:
-        print('Shared libraries: {libraries} with {user}.'.format(libraries=libraries, user=user))
+    print('Shared libraries: {libraries} with {user}.'.format(libraries=libraries, user=user))
 
 
 def unshare(user, libraries):
     plex.myPlexAccount().updateFriend(user=user, server=plex, removeSections=True, sections=libraries)
-    print('Unshared libraries: {libraries} from {user}.'.format(libraries=libraries, user=user))
+    print('Unshared all libraries from {user}.'.format(libraries=libraries, user=user))
 
 
 def kill_session(user, libraries):
     for session in plex.sessions():
         # Check for users stream
         if session.usernames[0] in user:
-        # If to be unshared library is not being watched then stream is not killed.
             title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
-            for library in libraries:
-                if session.librarySectionID == plex.library.section(library).key:
-                    break
             print('{user} is watching {title} and it\'s past their bedtime. Killing stream.'.format(
                 user=user, title=title))
             session.stop(reason=MESSAGE)
@@ -84,7 +78,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Share or unshare libraries.",
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-s', '--share', nargs='?', type=str, required=True,
-                        choices=['share', 'share_all', 'unshare', 'unshare_all'], metavar='',
+                        choices=['share', 'share_all', 'unshare'], metavar='',
                         help='To share or to unshare.: \n (choices: %(choices)s)')
     parser.add_argument('-u', '--user', nargs='?', type=str, required=True, choices=user_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
@@ -98,12 +92,10 @@ if __name__ == "__main__":
     if opts.share == 'share':
         share(opts.user, opts.libraries)
     elif opts.share == 'share_all':
-        unshare(opts.user, sections_lst)
+        share(opts.user, sections_lst)
     elif opts.share == 'unshare':
-        kill_session(opts.user, opts.libraries)
-        unshare(opts.user, opts.libraries)
-    elif opts.share == 'unshare_all':
         kill_session(opts.user, sections_lst)
-        unshare(opts.user, sections_lst)
+        sleep(5)
+        unshare(opts.user, opts.libraries)
     else:
         print('I don\'t know what else you want.')
