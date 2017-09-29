@@ -34,7 +34,7 @@ from plexapi.server import PlexServer
 import argparse
 
 PLEX_URL = 'http://localhost:32400'
-PLEX_TOKEN = 'xxxxx'
+PLEX_TOKEN = 'xxxxxx'
 plex = PlexServer(PLEX_URL, PLEX_TOKEN)
 
 user_lst = [x.title for x in plex.myPlexAccount().users()]
@@ -70,8 +70,8 @@ if __name__ == "__main__":
     if opts.share == 'share':
         share(opts.user, opts.libraries)
     elif opts.share == 'unshare':
-        share(opts.user, opts.libraries)
+        unshare(opts.user, opts.libraries)
     elif opts.share == 'share_all':
-        unshare(opts.user, sections_lst)
+        share(opts.user, sections_lst)
     else:
         print('I don\'t know what else you want.')
