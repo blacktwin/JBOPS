@@ -27,10 +27,7 @@ Usage:
    plex_api_share.py -s share_all -u USER
        - Shared all libraries with USER.
 
-   plex_api_share.py -s unshare -u USER -l Movies
-       - Unshared libraries: ['Movies'] from USER
-
-   plex_api_share.py -s unshare_all -u USER
+   plex_api_share.py -s unshare -u USER
        - Kill users current stream.
        - Unshared all libraries with USER.
        - USER is still exists as a Friend or Home User
