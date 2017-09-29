@@ -24,10 +24,7 @@ Usage:
    plex_api_share.py -s share_all -u USER
        - Shared all libraries with USER.
 
-   plex_api_share.py -s unshare -u USER -l Movies
-       - Unshared libraries: ['Movies'] from USER
-
-   plex_api_share.py -s unshare_all -u USER
+   plex_api_share.py -s unshare -u USER
        - Unshared all libraries with USER.
        - USER is still exists as a Friend or Home User
 
@@ -37,7 +34,7 @@ from plexapi.server import PlexServer
 import argparse
 
 PLEX_URL = 'http://localhost:32400'
-PLEX_TOKEN = 'xxxxxxx'
+PLEX_TOKEN = 'xxxxx'
 plex = PlexServer(PLEX_URL, PLEX_TOKEN)
 
 user_lst = [x.title for x in plex.myPlexAccount().users()]
@@ -51,7 +48,7 @@ def share(user, libraries):
 
 def unshare(user, libraries):
     plex.myPlexAccount().updateFriend(user=user, server=plex, removeSections=True, sections=libraries)
-    print('Unshared libraries: {libraries} from {user}.'.format(libraries=libraries, user=user))
+    print('Unshared all libraries from {user}.'.format(libraries=libraries, user=user))
 
 
 if __name__ == "__main__":
@@ -59,7 +56,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Share or unshare libraries.",
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-s', '--share', nargs='?', type=str, required=True,
-                        choices=['share', 'share_all', 'unshare', 'unshare_all'], metavar='',
+                        choices=['share', 'share_all', 'unshare'], metavar='',
                         help='To share or to unshare.: \n (choices: %(choices)s)')
     parser.add_argument('-u', '--user', nargs='?', type=str, required=True, choices=user_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
@@ -73,10 +70,8 @@ if __name__ == "__main__":
     if opts.share == 'share':
         share(opts.user, opts.libraries)
     elif opts.share == 'unshare':
-        unshare(opts.user, opts.libraries)
+        share(opts.user, opts.libraries)
     elif opts.share == 'share_all':
-        unshare(opts.user, sections_lst)
-    elif opts.share == 'unshare_all':
         unshare(opts.user, sections_lst)
     else:
         print('I don\'t know what else you want.')
