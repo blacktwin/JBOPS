@@ -63,9 +63,9 @@ Scripts pulled from my gist profile.
     <th>Description</th>
   </tr>
   <tr>
-    <td><a href="https://gist.github.com/blacktwin/e1d199d98b258d6f2658dd9991c88ca0"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
-    <td><a href="../master/killstream/create_wait_kill_all.py">create_wait_kill_all</a></td>
-    <td>Receive session_key from PlexPy when paused. Use session_id to create sub-script to wait for X time then check if still paused. If paused kill.</td>
+    <td></td>
+    <td><a href="../master/killstream/ip_whitelist.py">ip_whitelist</a></td>
+    <td>Receive session_key and IP from PlexPy when playback starts. Use IP to check against whitelist. If not in whitelist use session_key to determine stream and kill.</td>
   </tr>
     <tr>
     <td><a href="https://gist.github.com/blacktwin/2148bb0b2f8d67b8a08c50ace62ad39f"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
