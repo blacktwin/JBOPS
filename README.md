@@ -183,6 +183,11 @@ Scripts pulled from my gist profile.
     <th>File</th>
     <th>Description</th>
   </tr>
+  <tr>
+    <td></td>
+    <td><a href="../master/utility/plex_api_parental_control.py">plex_api_parental_control</a></td>
+    <td>Set as cron or task for times of allowing and not allowing user access to server. Unsharing will kill any current stream from user before unsharing.</td>
+  </tr>
    <tr>
     <td></td>
     <td><a href="../master/utility/plex_api_share.py">plex_api_share</a></td>
