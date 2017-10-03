@@ -62,6 +62,11 @@ Scripts pulled from my gist profile.
     <th>File</th>
     <th>Description</th>
   </tr>
+   <tr>
+    <td></td>
+    <td><a href="../master/killstream/kill_trans_pause_notify.py">kill_trans_pause_notify</a></td>
+    <td>Kill Plex paused video transcoding streams and receive notification.</td>
+  </tr>
   <tr>
     <td></td>
     <td><a href="../master/killstream/ip_whitelist.py">ip_whitelist</a></td>
