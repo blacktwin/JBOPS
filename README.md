@@ -3,7 +3,7 @@
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4J6RPWZ9J9YML)  [![PM](https://img.shields.io/badge/Reddit-Message-lightgrey.svg)](https://www.reddit.com/user/Blacktwin/)  [![PM](https://img.shields.io/badge/Plex-Message-orange.svg)](https://forums.plex.tv/profile/discussions/Blacktwin)
 
-Most of these scripts utilize a combination of [PlexPy](https://github.com/JonnyWong16/plexpy) and [python-plexapi](https://github.com/pkkid/python-plexapi).
+Most of these scripts utilize a combination of [PlexPy](https://github.com/JonnyWong16/plexpy), [python-plexapi](https://github.com/pkkid/python-plexapi), and [requests](http://docs.python-requests.org/en/master/user/install/#install).
 
 ## Scripts List
 [![Gist](https://img.shields.io/badge/gist-Blacktwin-green.svg)](https://gist.github.com/blacktwin)   
@@ -25,7 +25,7 @@ Scripts pulled from my gist profile.
     <a href="https://github.com/blacktwin/JBOPS/raw/master/maps/World_map_example.PNG"><img src="https://img.shields.io/badge/Image-World_map-blue.svg" alt=""</a>
     <a href="https://github.com/blacktwin/JBOPS/blob/master/maps/geojson_example.geojson"><img src="https://img.shields.io/badge/Image-geojson-blue.svg" alt=""</a></td>
     <td><a href="../master/maps/ips_to_maps.py"ips_to_maps>Maps</a></td>
-    <td>Use PlexPy draw a map connecting Server to Clients based on IP addresses.)</td>
+    <td>Using PlexPy data, draw a map connecting Server to Clients based on IP addresses.</td>
   </tr>
 </table>
 </details>
