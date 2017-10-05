@@ -2,14 +2,18 @@
 Kill Plex paused video transcoding streams.
 
 PlexPy > Settings > Notification Agents > Scripts > Bell icon:
-        [X] Notify on playback pause
+        [X] Notify on playback start
 
 PlexPy > Settings > Notification Agents > Scripts > Gear icon:
-        Playback Pause: kill_trans_pause.py
+        Playback Start: new_kill_trans_pause.py
+
+PlexPy > Settings > Notifications > Script > Script Arguments:
+        {session_key}
 
 """
 import requests
 import platform
+import sys
 from uuid import getnode
 
 
@@ -17,14 +21,14 @@ from uuid import getnode
 PLEX_HOST = ''
 PLEX_PORT = 32400
 PLEX_SSL = ''  # s or ''
-PLEX_TOKEN = 'xxxxx'
+PLEX_TOKEN = ''
 MESSAGE = 'This stream has ended due to being paused and transcoding.'
 
 USER_IGNORE = ('') # ('Username','User2')
 ##
 
 def fetch(path, t='GET'):
-    url = 'http{}://{}:{}/'.format(PLEX_SSL, PLEX_HOST, PLEX_PORT)
+    url = 'http%s://%s:%s/' % (PLEX_SSL, PLEX_HOST, PLEX_PORT)
 
     headers = {'X-Plex-Token': PLEX_TOKEN,
                'Accept': 'application/json',
@@ -58,18 +62,19 @@ def kill_stream(sessionId, message):
     headers = {'X-Plex-Token': PLEX_TOKEN}
     params = {'sessionId': sessionId,
               'reason': message}
-    requests.get('http{}://{}:{}/status/sessions/terminate'.format(PLEX_SSL, PLEX_HOST, PLEX_PORT),
-                 headers=headers, params=params)
+    requests.get('http://{}:{}/status/sessions/terminate'.format(PLEX_HOST, PLEX_PORT),
+                     headers=headers, params=params)
+
 
 if __name__ == '__main__':
     response  = fetch('status/sessions')
 
-    try:
-        for video in response['MediaContainer']['Video']:
-            if video['TranscodeSession']['videoDecision'] == 'transcode' and video['User']['title'] not in USER_IGNORE \
-                    and video['Player']['state'] == 'paused':
-                print("Killing {}'s stream for pausing a transcode stream of {}".format(video['User']['title'], s['title']))
-                kill_stream(video['Session']['id'], MESSAGE)
-    except Exception as e:
-        print('Session error: {}'.format(e))
-        pass
+    for s in response['MediaContainer']['Video']:
+        part = s['Media'][0]['Part'][0]
+        try:
+            if s['sessionKey'] == sys.argv[1] and part['decision'] == 'transcode' \
+                    and s['User']['title'] not in USER_IGNORE and s['Player']['state'] == 'paused':
+                print("Killing {}'s stream for pausing a transcode stream of {}".format(s['User']['title'], s['title']))
+                kill_stream(s['Session']['id'], MESSAGE)
+        except Exception:
+            pass
