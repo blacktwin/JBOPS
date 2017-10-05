@@ -5,7 +5,7 @@ PlexPy > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on playback start
 
 PlexPy > Settings > Notification Agents > Scripts > Gear icon:
-        Playback Start: new_kill_trans_pause.py
+        Playback Start: kill_trans_pause.py
 
 PlexPy > Settings > Notifications > Script > Script Arguments:
         {session_key}
