@@ -6,10 +6,7 @@ PlexPy > Settings > Notification Agents > Scripts > Bell icon:
 
 PlexPy > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: kill_trans_pause.py
-
-PlexPy > Settings > Notifications > Script > Script Arguments:
-        {session_key}
-
+        
 """
 import requests
 import platform
@@ -72,8 +69,8 @@ if __name__ == '__main__':
     for s in response['MediaContainer']['Video']:
         part = s['Media'][0]['Part'][0]
         try:
-            if s['sessionKey'] == sys.argv[1] and part['decision'] == 'transcode' \
-                    and s['User']['title'] not in USER_IGNORE and s['Player']['state'] == 'paused':
+            if part['decision'] == 'transcode' and s['User']['title'] not in USER_IGNORE
+                    and s['Player']['state'] == 'paused':
                 print("Killing {}'s stream for pausing a transcode stream of {}".format(s['User']['title'], s['title']))
                 kill_stream(s['Session']['id'], MESSAGE)
         except Exception:
