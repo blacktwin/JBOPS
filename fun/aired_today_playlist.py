@@ -67,6 +67,6 @@ def find_air_dates(content_lst):
     return play_lst
 
 remove_old()
-play_list = find_air_dates(get_all_content(LIBRARY_NAMES))
+play_lst = find_air_dates(get_all_content(LIBRARY_NAMES))
 # Create Playlist
 plex.createPlaylist(TODAY_PLAY_TITLE, play_lst)
