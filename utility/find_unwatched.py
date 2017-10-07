@@ -165,4 +165,4 @@ for i in sorted(show_lst, reverse=True):
         print("Metadata failed. Likely end of range: {e}").format(e=e)
 
 
-# delete_files(tmp_lst)
+delete_files(tmp_lst)
