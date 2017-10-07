@@ -4,57 +4,69 @@ If Playlist from yesterday exists delete and create today's.
 If today's Playlist exists exit.
 """
 
-import operator, time
+import operator
 from plexapi.server import PlexServer
 import requests
+import datetime
 
-baseurl = 'http://localhost:32400'
-token = 'xxxxxx'
-plex = PlexServer(baseurl, token)
+PLEX_URL = 'http://localhost:32400'
+PLEX_TOKEN = 'xxxxx'
 
-library_name = ['Movies', 'TV Shows'] # You library names
+LIBRARY_NAMES = ['Movies', 'TV Shows'] # Your library names
 
-child_lst = []
-aired_lst = []
+today = datetime.datetime.now().date()
 
-today = time.gmtime(time.time())
+TODAY_PLAY_TITLE = 'Aired Today {}-{}'.format(today.month, today.day)
 
-TODAY_PLAY_TITLE = 'Aired Today {}-{}'.format(today.tm_mon, today.tm_mday)
+plex = PlexServer(PLEX_URL, PLEX_TOKEN)
 
-# Remove old Aired Today Playlists
-for playlist in plex.playlists():
-    if playlist.title == TODAY_PLAY_TITLE.startswith('Aired Today') and not TODAY_PLAY_TITLE:
-        r = requests.delete('{}/playlists/{}?X-Plex-Token={}'
-                    .format(baseurl, TODAY_PLAY_TITLE, token))
-        print('Removing old Aired Today Playlists ')
-        print(r)
-    elif playlist.title == TODAY_PLAY_TITLE:
-        print('{} already exists. No need to make again.'.format(TODAY_PLAY_TITLE))
-        exit(0)
+def remove_old():
+    # Remove old Aired Today Playlists
+    for playlist in plex.playlists():
+        if playlist.title == TODAY_PLAY_TITLE.startswith('Aired Today') and not TODAY_PLAY_TITLE:
+            requests.delete('{}/playlists/{}?X-Plex-Token={}'.format(PLEX_URL, TODAY_PLAY_TITLE, PLEX_TOKEN))
+            print('Removing old Aired Today Playlists')
+        elif playlist.title == TODAY_PLAY_TITLE:
+            print('{} already exists. No need to make again.'.format(TODAY_PLAY_TITLE))
+            exit(0)
 
-# Get all movies or episodes from LIBRARY_NAME
-for library in library_name:
-    for child in plex.library.section(library).all():
-        if child.type == 'movie':
-            child_lst += [child]
-        elif child.type == 'show':
-            child_lst += child.episodes()
-        else:
+
+def get_all_content(library_name):
+    # Get all movies or episodes from LIBRARY_NAME
+    child_lst = []
+    for library in library_name:
+        for child in plex.library.section(library).all():
+            if child.type == 'movie':
+                child_lst += [child]
+            elif child.type == 'show':
+                child_lst += child.episodes()
+            else:
+                pass
+    return child_lst
+
+
+def find_air_dates(content_lst):
+    # Find what aired with today's month-day
+    aired_lst = []
+    for video in content_lst:
+        try:
+            ad_month = str(video.originallyAvailableAt.month)
+            ad_day = str(video.originallyAvailableAt.day)
+            
+            if ad_month == str(today.month) and ad_day == str(today.day):
+                aired_lst += [[video] + [str(video.originallyAvailableAt)]]
+        except Exception as e:
+            print(e)
             pass
+        
+        # Sort by original air date, oldest first
+        aired_lst = sorted(aired_lst, key=operator.itemgetter(1))
 
-# Find what aired with today's month-day
-for video in child_lst:
-    try:
-        if str(video.originallyAvailableAt.month) == str(today.tm_mon) \
-                and str(video.originallyAvailableAt.day) == str(today.tm_mday):
-            aired_lst += [[video] + [str(video.originallyAvailableAt)]]
-    except Exception as e:
-        pass
-    # Sort by original air date, oldest first
-    aired_lst = sorted(aired_lst, key=operator.itemgetter(1))
+    # Remove date used for sorting
+    play_lst = [x[0] for x in aired_lst]
+    return play_lst
 
-# Remove date used for sorting
-play_lst = [x[0] for x in aired_lst]
-
+remove_old()
+play_list = find_air_dates(get_all_content(LIBRARY_NAMES))
 # Create Playlist
 plex.createPlaylist(TODAY_PLAY_TITLE, play_lst)
