@@ -12,15 +12,15 @@ PlexPy > Settings > Notifications > Script > Script Arguments:
 
 import sys
 import requests
-from plexapi.server import PlexServer
-# pip install plexapi
-
 
 ## EDIT THESE SETTINGS ##
 PLEX_TOKEN = 'xxxxx'
 PLEX_URL = 'http://localhost:32400'
 PLEXPY_APIKEY = 'xxxxx'  # Your PlexPy API key
 PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
+PLEX_SERVER_NAME = 'Server Name' # Your Plex Server Name
+
+SSL = True # True or False
 
 IP_WHITELIST = ['10.10.0.12']  # List IP addresses.
 IGNORE_LST = ('')  # List usernames that should be ignored.
@@ -39,7 +39,15 @@ BODY_TEXT = "Killed {user}'s stream of {title}. IP: {ip} not in whitelist"
 sessionKey = sys.argv[1]
 ip_address = sys.argv[2]
 
-plex = PlexServer(PLEX_URL, PLEX_TOKEN)
+if SSL is True:
+    from plexapi.myplex import MyPlexAccount
+    # pip install plexapi
+    account = MyPlexAccount(token=PLEX_TOKEN)
+    plex = account.resource(PLEX_SERVER_NAME).connect(ssl=SSL)
+else:
+    from plexapi.myplex import PlexServer
+    # pip install plexapi
+    plex = PlexServer(PLEX_URL, PLEX_TOKEN)
 
 
 def send_notification(subject_text, body_text):
