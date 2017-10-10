@@ -56,7 +56,7 @@ def find_air_dates(content_lst):
             if ad_month == str(today.month) and ad_day == str(today.day):
                 aired_lst += [[video] + [str(video.originallyAvailableAt)]]
         except Exception as e:
-            print(e)
+            # print(e)
             pass
         
         # Sort by original air date, oldest first
