@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 '''
-Use a whitelist of IP addresses to restrict access. Any streams where the IP not listed will be killed.
+Receive session_key and IP from PlexPy when playback starts. Use IP to check against whitelist. 
+If not in whitelist use session_key to determine stream and kill.
 
 PlexPy > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on playback start
