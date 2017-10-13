@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 '''
+Use a whitelist of IP addresses to restrict access. Any streams where the IP not listed will be killed.
+
 PlexPy > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on playback start
 PlexPy > Settings > Notification Agents > Scripts > Gear icon:
