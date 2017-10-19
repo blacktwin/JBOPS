@@ -14,16 +14,15 @@ PlexPy > Settings > Notification Agents > Scripts > Gear icon:
 '''
 
 import requests
-import platform
-from uuid import getnode
 from operator import itemgetter
 import unicodedata
+from plexapi.server import PlexServer
+
 
 ## EDIT THESE SETTINGS ##
-PLEX_HOST = ''
-PLEX_PORT = 32400
-PLEX_SSL = ''  # s or ''
-PLEX_TOKEN = 'xxxxxx'
+PLEX_TOKEN = 'xxxx'
+PLEX_URL = 'http://localhost:32400'
+
 DEFAULT_REASON = 'Server Admin\'s stream takes priority and {user}(you) has {x} concurrent streams.' \
                  ' {user}\'s stream of {video} is {time}% complete. Should be finished in {comp} minutes. ' \
                  'Try again then.'
@@ -31,44 +30,20 @@ DEFAULT_REASON = 'Server Admin\'s stream takes priority and {user}(you) has {x} 
 ADMIN_USER = ('Admin') # additional usernames can be added ('Admin', 'user2')
 ##
 
-def fetch(path, t='GET'):
-    url = 'http{}://{}:{}/'.format(PLEX_SSL, PLEX_HOST, PLEX_PORT)
-
-    headers = {'X-Plex-Token': PLEX_TOKEN,
-               'Accept': 'application/json',
-               'X-Plex-Provides': 'controller',
-               'X-Plex-Platform': platform.uname()[0],
-               'X-Plex-Platform-Version': platform.uname()[2],
-               'X-Plex-Product': 'Plexpy script',
-               'X-Plex-Version': '0.9.5',
-               'X-Plex-Device': platform.platform(),
-               'X-Plex-Client-Identifier': str(hex(getnode()))
-               }
-
-    try:
-        if t == 'GET':
-            r = requests.get(url + path, headers=headers, verify=False)
-        elif t == 'POST':
-            r = requests.post(url + path, headers=headers, verify=False)
-        elif t == 'DELETE':
-            r = requests.delete(url + path, headers=headers, verify=False)
-
-        if r and len(r.content):  # incase it dont return anything
-
-            return r.json()
-        else:
-            return r.content
-
-    except Exception as e:
-        print e
+sess = requests.Session()
+sess.verify = False
+plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 
-def kill_stream(sessionId, message):
-    headers = {'X-Plex-Token': PLEX_TOKEN}
-    params = {'sessionId': sessionId,
-              'reason': message}
-    requests.get('http{}://{}:{}/status/sessions/terminate'.format(PLEX_SSL, PLEX_HOST, PLEX_PORT),
-                     headers=headers, params=params)
+def kill_session(sess_key, message):
+    for session in plex.sessions():
+        # Check for users stream
+        username = session.usernames[0]
+        if session.sessionKey == sess_key:
+            title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
+            print('{user} is watching {title} and they might be asleep.'.format(user=username, title=title))
+            session.stop(reason=message)
+
 
 def add_to_dictlist(d, key, val):
     if key not in d:
@@ -77,38 +52,35 @@ def add_to_dictlist(d, key, val):
         d[key].append(val)
 
 
-if __name__ == '__main__':
-    response  = fetch('status/sessions')
-
+def main():
     user_dict = {}
-    sessions = []
 
-    if 'Video' in response['MediaContainer']:
-        for video in response['MediaContainer']['Video']:
-            try:
-                if video['TranscodeSession']['videoDecision'] == 'transcode' and video['User']['title'] not in ADMIN_USER:
-                    sess_id = video['Session']['id']
-                    user = video['User']['title']
-                    percent_comp =  int((float(video['viewOffset']) / float(video['duration'])) * 100)
-                    time_to_comp = int(int(video['duration']) - int(video['viewOffset'])) / 1000 / 60
-                    title = video['title']
-                    title = unicodedata.normalize('NFKD', title).encode('ascii','ignore')
-                    add_to_dictlist(user_dict, user, [sess_id, percent_comp, title, user, time_to_comp])
-
-            except KeyError:
-                print('{} has a direct stream to ignore.'.format(video['User']['title']))
+    for session in plex.sessions():
+        trans_dec = session.transcodeSessions[0].videoDecision
+        username = session.usernames[0]
+        if trans_dec == 'transcode' and username not in ADMIN_USER:
+            sess_key = session.sessionKey
+            percent_comp = int((float(session.viewOffset) / float(session.duration)) * 100)
+            time_to_comp = int(int(session.duration) - int(session.viewOffset)) / 1000 / 60
+            title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
+            title = unicodedata.normalize('NFKD', title).encode('ascii', 'ignore').translate(None, "'")
+            add_to_dictlist(user_dict, username, [sess_key, percent_comp, title, username, time_to_comp])
 
     # Remove users with only 1 stream. Targeting users with multiple concurrent streams
     filtered_dict = {key: value for key, value in user_dict.items()
-                 if len(value) is not 1}
+                     if len(value) is not 1}
 
     # Find who to kill and who will be finishing first.
-    for session in filtered_dict.values():
-        to_kill = min(session, key=itemgetter(1))
-        to_finish = max(session, key=itemgetter(1))
+    for users in filtered_dict.values():
+        to_kill = min(users, key=itemgetter(1))
+        to_finish = max(users, key=itemgetter(1))
 
     MESSAGE = DEFAULT_REASON.format(user=to_finish[3], x=len(filtered_dict.values()[0]),
                                     video=to_finish[2], time=to_finish[1], comp=to_finish[4])
 
     print(MESSAGE)
-    kill_stream(to_kill[0], MESSAGE)
+    kill_session(to_kill[0], MESSAGE)
+
+
+if __name__ == '__main__':
+    main()
