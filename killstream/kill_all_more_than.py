@@ -7,88 +7,42 @@ If user has 2* or more concurrent streams kill all user's streams
 
 PlexPy > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on user concurrent streams
-        
+
 PlexPy > Settings > Notification Agents > Scripts > Gear icon:
         Playback User Concurrent Streams: kill_more_than.py
-        
-PlexPy > Settings > Notifications > Script > Script Arguments      
-        {username}
+
+PlexPy > Settings > Notifications > Script > Script Arguments
+        {user}
 """
 
-
 import requests
-import platform
-from uuid import getnode
 import sys
-import unicodedata
+from plexapi.server import PlexServer
 
 ## EDIT THESE SETTINGS ##
-PLEX_HOST = ''
-PLEX_PORT = 32400
-PLEX_SSL = ''  # s or ''
-PLEX_TOKEN = 'xxxxxxx'
+PLEX_TOKEN = 'xxxxx'
+PLEX_URL = 'http://localhost:32400'
 
-REASON = 'Because....too many streams'
+MESSAGE = 'Because....too many streams'
+ignore_lst = ('')
+## EDIT THESE SETTINGS ##
 
 # 2nd stream information is passed
 USERNAME = sys.argv[1]
-
-ignore_lst = ('')
 
 if USERNAME in ignore_lst:
     print(u"{} ignored.".format(USERNAME))
     exit()
 
+sess = requests.Session()
+sess.verify = False
+plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
-def fetch(path, t='GET'):
-    url = 'http{}://{}:{}/'.format(PLEX_SSL, PLEX_HOST, PLEX_PORT)
+def kill_session(user):
+    for session in plex.sessions():
+        # Check for users stream
+        if session.usernames[0] in user:
+            print('Killing all of {user}\'s streams. Too many streams'.format(user=user))
+            session.stop(reason=MESSAGE)
 
-    headers = {'X-Plex-Token': PLEX_TOKEN,
-               'Accept': 'application/json',
-               'X-Plex-Provides': 'controller',
-               'X-Plex-Platform': platform.uname()[0],
-               'X-Plex-Platform-Version': platform.uname()[2],
-               'X-Plex-Product': 'Plexpy script',
-               'X-Plex-Version': '0.9.5',
-               'X-Plex-Device': platform.platform(),
-               'X-Plex-Client-Identifier': str(hex(getnode()))
-               }
-
-    try:
-        if t == 'GET':
-            r = requests.get(url + path, headers=headers, verify=False)
-        elif t == 'POST':
-            r = requests.post(url + path, headers=headers, verify=False)
-        elif t == 'DELETE':
-            r = requests.delete(url + path, headers=headers, verify=False)
-
-        if r and len(r.content):  # incase it dont return anything
-
-            return r.json()
-        else:
-            return r.content
-
-    except Exception as e:
-        print e
-
-def kill_stream(sessionId, message):
-    headers = {'X-Plex-Token': PLEX_TOKEN}
-    params = {'sessionId': sessionId,
-              'reason': message}
-    requests.get('http{}://{}:{}/status/sessions/terminate'.format(PLEX_SSL, PLEX_HOST, PLEX_PORT),
-                     headers=headers, params=params)
-
-response  = fetch('status/sessions')
-
-sessions = []
-for s in response['MediaContainer']['Video']:
-    if s['User']['title'] == USERNAME:
-        sess_id = s['Session']['id']
-        user = s['User']['title']
-        title = (s['grandparentTitle'] + ' - ' if s['type'] == 'episode' else '') + s['title']
-        title = unicodedata.normalize('NFKD', title).encode('ascii','ignore')
-        sessions.append((sess_id, user, title))
-
-for session in sessions:
-    print(u"Killing {}'s second stream of {} for {}".format(session[1], session[2], REASON))
-    kill_stream(session[0], REASON)
+kill_session(USERNAME)
