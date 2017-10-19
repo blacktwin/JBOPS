@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
 '''
-Receive session_key and IP from PlexPy when playback starts. Use IP to check against whitelist. 
-If not in whitelist use session_key to determine stream and kill.
-
 PlexPy > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on playback start
 PlexPy > Settings > Notification Agents > Scripts > Gear icon:
@@ -15,15 +12,16 @@ PlexPy > Settings > Notifications > Script > Script Arguments:
 
 import sys
 import requests
+from plexapi.server import PlexServer
+# pip install plexapi
+
 
 ## EDIT THESE SETTINGS ##
-PLEX_TOKEN = 'xxxxx'
+PLEX_TOKEN = 'xxxxxx'
 PLEX_URL = 'http://localhost:32400'
-PLEXPY_APIKEY = 'xxxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
-PLEX_SERVER_NAME = 'Server Name' # Your Plex Server Name
 
-SSL = True # True or False
+PLEXPY_APIKEY = 'xxxxxx'  # Your PlexPy API key
+PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
 
 IP_WHITELIST = ['10.10.0.12']  # List IP addresses.
 IGNORE_LST = ('')  # List usernames that should be ignored.
@@ -36,30 +34,30 @@ AGENT_ID = 14  # Notification agent ID for PlexPy
 
 SUBJECT_TEXT = "IP Whitelist Violation"
 BODY_TEXT = "Killed {user}'s stream of {title}. IP: {ip} not in whitelist"
-
 ##/EDIT THESE SETTINGS ##
 
 sessionKey = sys.argv[1]
 ip_address = sys.argv[2]
 
-if SSL is True:
-    from plexapi.myplex import MyPlexAccount
-    # pip install plexapi
-    account = MyPlexAccount(token=PLEX_TOKEN)
-    plex = account.resource(PLEX_SERVER_NAME).connect(ssl=SSL)
-else:
-    from plexapi.myplex import PlexServer
-    # pip install plexapi
-    plex = PlexServer(PLEX_URL, PLEX_TOKEN)
-
+sess = requests.Session()
+sess.verify = False
+plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 def send_notification(subject_text, body_text):
+    # Format notification text
+    try:
+        subject = subject_text
+        body = body_text
+
+    except LookupError as e:
+        sys.stderr.write("Unable to substitute '{0}' in the notification subject or body".format(e))
+        return None
     # Send the notification through PlexPy
     payload = {'apikey': PLEXPY_APIKEY,
                'cmd': 'notify',
                'agent_id': AGENT_ID,
-               'subject': subject_text,
-               'body': body_text}
+               'subject': subject,
+               'body': body}
 
     try:
         r = requests.post(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
