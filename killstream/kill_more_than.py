@@ -10,7 +10,7 @@ PlexPy > Settings > Notification Agents > Scripts > Gear icon:
         Playback User Concurrent Streams: kill_more_than.py
 
 PlexPy > Settings > Notifications > Script > Script Arguments
-        {user} {ip_address}
+        {username} {ip_address}
 """
 
 import requests
@@ -18,44 +18,45 @@ import sys
 from plexapi.server import PlexServer
 
 ## EDIT THESE SETTINGS ##
-PLEX_TOKEN = 'xxxx'
+PLEX_TOKEN = 'xxxxx'
 PLEX_URL = 'http://localhost:32400'
 
 MESSAGE = 'Because....too many streams'
-##/EDIT THESE SETTINGS ##
+ignore_lst = ('')
+## EDIT THESE SETTINGS ##
 
 # 2nd stream information is passed
 USERNAME = sys.argv[1]
 ADDRESS = sys.argv[2]
+
+if USERNAME in ignore_lst:
+    print(u"{} ignored.".format(USERNAME))
+    exit()
 
 sess = requests.Session()
 sess.verify = False
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 
-def kill_session(session_key, reason):
+def kill_session(user, ip_address):
+    user_sessions = []
+
     for session in plex.sessions():
-        # Check for users session key
-        if session.sessionKey == session_key:
+        username = session.usernames[0]
+        address = session.players[0].address
+        if username == user and address == ip_address:
+            user_sessions.append((session))
+
+    if len(user_sessions) == 1:
+        for session in user_sessions:
+            username = session.usernames[0]
             title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
-            print('{user} is watching {title} and they might be asleep.'.format(user=user, title=title))
-            session.stop(reason=reason)
+            print(u"Killing {}'s second stream of {} for {}".format(username, title, MESSAGE))
+            session.stop(reason=MESSAGE)
+    else:
+        for session in user_sessions:
+            username = session.usernames[0]
+            print(u"Not killing {}'s second stream. Same IP".format(username))
 
 
-user_sessions = []
-
-for session in plex.sessions():
-    username = session.usernames[0]
-    ip_address = session.players[0].address
-    if username == USERNAME and ip_address == ADDRESS:
-        sess_key = session.sessionKey
-        title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
-        user_sessions.append((sess_key, username, title))
-
-if len(user_sessions) == 1:
-    for session in user_sessions:
-        print(u"Killing {}'s second stream of {} for {}".format(session[1], session[2], MESSAGE))
-        kill_session(session[0], MESSAGE)
-else:
-    for session in user_sessions:
-        print(u"Not killing {}'s second stream. Same IP".format(session[1]))
+kill_session(USERNAME, ADDRESS)
