@@ -34,8 +34,9 @@ AGENT_ID = 14  # Notification agent ID for PlexPy
 
 ##/EDIT THESE SETTINGS ##
 
-
-plex = PlexServer(PLEX_URL, PLEX_TOKEN)
+sess = requests.Session()
+sess.verify = False
+plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 def send_notification(subject_text, body_text):
     # Send the notification through PlexPy
