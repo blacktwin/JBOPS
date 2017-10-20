@@ -10,62 +10,35 @@ PlexPy > Settings > Notification Agents > Scripts > Gear icon:
 PlexPy > Settings > Notifications > Script > Script Arguments
         {username}
 """
+
 import requests
-import platform
-from uuid import getnode
-import json
+from plexapi.server import PlexServer
 import sys
 
 ## EDIT THESE SETTINGS ##
-PLEX_HOST = ''
-PLEX_PORT = 32400
-PLEX_SSL = ''  # s or ''
-PLEX_TOKEN = 'xxxxxx'
-REASON = 'Accessing Plex from outside network'
-##
+PLEX_TOKEN = 'xxxxx'
+PLEX_URL = 'http://localhost:32400'
+MESSAGE = 'Accessing Plex from outside network'
+
+ignore_lst = ('')
+## EDIT THESE SETTINGS ##
 
 USERNAME = sys.argv[1]
 
-def fetch(path, t='GET'):
-    url = 'http{}://{}:{}/'.format(PLEX_SSL, PLEX_HOST, PLEX_PORT)
+if USERNAME in ignore_lst:
+    print(u"{} ignored.".format(USERNAME))
+    exit()
 
-    headers = {'X-Plex-Token': PLEX_TOKEN,
-               'Accept': 'application/json',
-               'X-Plex-Provides': 'controller',
-               'X-Plex-Platform': platform.uname()[0],
-               'X-Plex-Platform-Version': platform.uname()[2],
-               'X-Plex-Product': 'Plexpy script',
-               'X-Plex-Version': '0.9.5',
-               'X-Plex-Device': platform.platform(),
-               'X-Plex-Client-Identifier': str(hex(getnode()))
-               }
+sess = requests.Session()
+sess.verify = False
+plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
-    try:
-        if t == 'GET':
-            r = requests.get(url + path, headers=headers, verify=False)
-        elif t == 'POST':
-            r = requests.post(url + path, headers=headers, verify=False)
-        elif t == 'DELETE':
-            r = requests.delete(url + path, headers=headers, verify=False)
+def kill_session(user):
+    for session in plex.sessions():
+        # Check for users stream
+        if session.usernames[0] in user and session.player[0].local is False:
+            title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
+            print('{user} is watching {title} and they might be asleep.'.format(user=user, title=title))
+            session.stop(reason=MESSAGE)
 
-        if r and len(r.content):  # incase it dont return anything
-
-            return r.json()
-        else:
-            return r.content
-
-    except Exception as e:
-        print e
-
-def kill_stream(sessionId, message):
-    headers = {'X-Plex-Token': PLEX_TOKEN}
-    params = {'sessionId': sessionId,
-              'reason': message}
-    requests.get('http{}://{}:{}/status/sessions/terminate'.format(PLEX_SSL, PLEX_HOST, PLEX_PORT),
-                     headers=headers, params=params)
-
-response  = fetch('status/sessions')
-for video in response['MediaContainer']['Video']:
-    if video['User']['title'] == USERNAME and video['Session']['location'] == 'wan':
-        print("Killing {}'s stream for {}".format(USERNAME, REASON))
-        kill_stream(video['Session']['id'], REASON)
+kill_session(USERNAME)
