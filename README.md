@@ -99,7 +99,7 @@ Scripts pulled from my gist profile.
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/8b174165cfc5e5e80c6698a1494fc9ee"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
-    <td><a href="../master/killstream/kill_plex_streams.py">kill_plex_stream</a></td>
+    <td><a href="../master/killstream/kill_plex_streams.py">kill_plex_streams</a></td>
     <td>Kill all Plex streams for whatever reason you want.</td>
   </tr>
   <tr>
