@@ -62,6 +62,30 @@ Scripts pulled from my gist profile.
     <th>File</th>
     <th>Description</th>
   </tr>
+  <tr>
+    <td></td>
+    <td><a href="../master/killstream/wait_kill_pause_notify_main.py">wait_kill_pause_notify_main</a></td>
+    <td>
+	Receive session_key from PlexPy when paused. Use sub-script <a href="../master/killstream/wait_kill_pause_notify_sub.py">wait_kill_pause_notify_sub</a> 
+	to wait for X time then check if still paused. If so, kill. Toggle whether you'd like to be notified through a PlexPy notification agent.
+	</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="../master/killstream/watch_limit.py">watch_limit</a></td>
+    <td>Kill streams if user has watched too much Plex Today.</td>
+  </tr>
+  <tr>
+  <tr>
+    <td></td>
+    <td><a href="../master/killstream/play_limit.py">play_limit</a></td>
+    <td>Kill streams if user has played too much Plex Today.</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="../master/killstream/kill_time.py">kill_time</a></td>
+    <td>Limit number of plays of TV Show episodes during time of day. Idea is to reduce continuous plays while sleeping.</td>
+  </tr>
    <tr>
     <td></td>
     <td><a href="../master/killstream/kill_trans_pause_notify.py">kill_trans_pause_notify</a></td>
@@ -71,11 +95,6 @@ Scripts pulled from my gist profile.
     <td></td>
     <td><a href="../master/killstream/ip_whitelist.py">ip_whitelist</a></td>
     <td>Receive session_key and IP from PlexPy when playback starts. Use IP to check against whitelist. If not in whitelist use session_key to determine stream and kill.</td>
-  </tr>
-    <tr>
-    <td><a href="https://gist.github.com/blacktwin/2148bb0b2f8d67b8a08c50ace62ad39f"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
-    <td><a href="../master/killstream/create_wait_kill_trans.py">create_wait_kill_trans</a></td>
-    <td>Receive session_key from PlexPy when paused. Use session_id to create sub-script to wait for X time then check if transcoding still paused. If so, kill.</td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/88fce565c8ecf56839641f22f4c5c422"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
