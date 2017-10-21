@@ -35,7 +35,7 @@ plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 def kill_session():
     for session in plex.sessions():
-        user = session.username[0]
+        user = session.usernames[0]
         media_type = session.type
         if user in USER_IGNORE or media_type == 'track':
             print('Ignoring {}\'s {} stream.'.format(user, media_type))
