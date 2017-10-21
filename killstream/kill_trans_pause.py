@@ -6,72 +6,43 @@ PlexPy > Settings > Notification Agents > Scripts > Bell icon:
 
 PlexPy > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: kill_trans_pause.py
-        
-"""
-import requests
-import platform
-import sys
-from uuid import getnode
 
+PlexPy > Settings > Notifications > Script > Script Arguments:
+        {session_key}
+
+"""
+
+import requests
+import sys
+from plexapi.server import PlexServer
 
 ## EDIT THESE SETTINGS ##
-PLEX_HOST = ''
-PLEX_PORT = 32400
-PLEX_SSL = ''  # s or ''
-PLEX_TOKEN = ''
-MESSAGE = 'This stream has ended due to being paused and transcoding.'
+PLEX_TOKEN = 'xxxx'
+PLEX_URL = 'http://localhost:32400'
 
-USER_IGNORE = ('') # ('Username','User2')
-##
+MESSAGE = "You are not allowed to stream above 4 Mbps."
 
-def fetch(path, t='GET'):
-    url = 'http%s://%s:%s/' % (PLEX_SSL, PLEX_HOST, PLEX_PORT)
+ignore_lst = ('')
+##/EDIT THESE SETTINGS ##
 
-    headers = {'X-Plex-Token': PLEX_TOKEN,
-               'Accept': 'application/json',
-               'X-Plex-Provides': 'controller',
-               'X-Plex-Platform': platform.uname()[0],
-               'X-Plex-Platform-Version': platform.uname()[2],
-               'X-Plex-Product': 'Plexpy script',
-               'X-Plex-Version': '0.9.5',
-               'X-Plex-Device': platform.platform(),
-               'X-Plex-Client-Identifier': str(hex(getnode()))
-               }
+sess = requests.Session()
+sess.verify = False
+plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
-    try:
-        if t == 'GET':
-            r = requests.get(url + path, headers=headers, verify=False)
-        elif t == 'POST':
-            r = requests.post(url + path, headers=headers, verify=False)
-        elif t == 'DELETE':
-            r = requests.delete(url + path, headers=headers, verify=False)
-
-        if r and len(r.content):  # incase it dont return anything
-
-            return r.json()
-        else:
-            return r.content
-
-    except Exception as e:
-        print e
-
-def kill_stream(sessionId, message):
-    headers = {'X-Plex-Token': PLEX_TOKEN}
-    params = {'sessionId': sessionId,
-              'reason': message}
-    requests.get('http://{}:{}/status/sessions/terminate'.format(PLEX_HOST, PLEX_PORT),
-                     headers=headers, params=params)
+def kill_session(sess_key):
+    for session in plex.sessions():
+        user = session.username[0]
+        if user in ignore_lst:
+            print('Ignoring {}\'s paused transcode stream.')
+            exit()
+        state = session.players[0].state
+        trans_dec = session.trancodeSessions[0].videoDecision
+        if session.sessionKey is sess_key and state == 'paused' and trans_dec == 'transcode':
+            title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
+            print('Killing {user}\'s stream for pausing a transcode stream of {title}.'.format(user=user, title=title))
+            session.stop(reason=MESSAGE)
 
 
 if __name__ == '__main__':
-    response  = fetch('status/sessions')
-
-    for s in response['MediaContainer']['Video']:
-        part = s['Media'][0]['Part'][0]
-        try:
-            if part['decision'] == 'transcode' and s['User']['title'] not in USER_IGNORE
-                    and s['Player']['state'] == 'paused':
-                print("Killing {}'s stream for pausing a transcode stream of {}".format(s['User']['title'], s['title']))
-                kill_stream(s['Session']['id'], MESSAGE)
-        except Exception:
-            pass
+    session_key = sys.argv[1]
+    kill_session(session_key)
