@@ -1,5 +1,5 @@
 """
-Kill streams if user has watched too much Plex Today.
+Kill streams if user has played too much Plex Today.
 
 PlexPy > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on playback start
