@@ -26,7 +26,6 @@ x = 0
 
 try:
     while x < timeout and x is not None:
-        print(x)
         sleep(x)
         if kill_stream(check_session(sessionKey), interval, timeout) is not None:
             x += kill_stream(check_session(sessionKey), interval, timeout)
