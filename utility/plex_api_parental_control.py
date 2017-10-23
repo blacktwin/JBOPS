@@ -7,7 +7,7 @@ Share or unshare libraries.
 optional arguments:
   -h, --help            show this help message and exit
   -s [], --share []     To share or to unshare.:
-                        (choices: share, share_all, unshare, unshare_all)
+                        (choices: share, share_all, unshare)
   -u [], --user []      Space separated list of case sensitive names to process. Allowed names are:
                         (choices: All users names)
   -l  [ ...], --libraries  [ ...]
