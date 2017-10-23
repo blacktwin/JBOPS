@@ -115,6 +115,6 @@ if __name__ == '__main__':
     sub_path = os.path.join(fileDir, sub_script)
 
     for session in plex.sessions():
-        if session.sessionKey == int(sessionKey) and session.usernames[0] in USER_IGNORE:
+        if session.sessionKey == int(sessionKey) and session.usernames[0] not in USER_IGNORE:
             subprocess.Popen([sys.executable, sub_path, sessionKey, TIMEOUT, INTERVAL],
                              startupinfo=startupinfo)
