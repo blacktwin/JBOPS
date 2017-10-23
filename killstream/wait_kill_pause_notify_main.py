@@ -29,15 +29,15 @@ from plexapi.server import PlexServer
 
 
 ## EDIT THESE SETTINGS ##
-PLEX_TOKEN = 'xxxx'
+PLEX_TOKEN = ''
 PLEX_URL = 'http://localhost:32400'
-PLEXPY_APIKEY = 'xxxx'  # Your PlexPy API key
+PLEXPY_APIKEY = ''  # Your PlexPy API key
 PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
 
 TIMEOUT = '120'
 INTERVAL = '20'
 
-KILL_MESSAGE = 'This stream has ended due to being paused and transcoding.'
+KILL_MESSAGE = 'This stream has ended due to being paused.'
 
 USER_IGNORE = ('') # ('Username','User2')
 
@@ -49,7 +49,7 @@ AGENT_ID = 10  # Notification agent ID for PlexPy
 # https://github.com/JonnyWong16/plexpy/blob/master/API.md#notify
 # AGENT = '' to disable notification
 
-sub_script = 'wait_kill_trans_notify_sub.py'
+sub_script = 'wait_kill_pause_notify_sub.py'
 ##/EDIT THESE SETTINGS ##
 
 sess = requests.Session()
@@ -88,11 +88,11 @@ def check_session(sessionKey):
 
 def kill_stream(session, xtime, ntime):
     state = session.players[0].state
-    videoDecision = session.transcodeSessions[0].videoDecision
     username = session.usernames[0]
     title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
 
-    if state == 'paused' and xtime == ntime and videoDecision == 'transcode':
+    if state == 'paused' and xtime == ntime:
+        session.stop(reason=KILL_MESSAGE)
         if AGENT_ID:
             send_notification(SUBJECT_TEXT, BODY_TEXT.format(user=username, title=title))
         return ntime
@@ -115,6 +115,6 @@ if __name__ == '__main__':
     sub_path = os.path.join(fileDir, sub_script)
 
     for session in plex.sessions():
-        if session.sessionKey == int(sessionKey) and session.usernames[0] not in USER_IGNORE:
+        if session.sessionKey == int(sessionKey) and session.usernames[0] in USER_IGNORE:
             subprocess.Popen([sys.executable, sub_path, sessionKey, TIMEOUT, INTERVAL],
                              startupinfo=startupinfo)
