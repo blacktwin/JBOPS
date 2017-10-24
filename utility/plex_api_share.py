@@ -70,7 +70,7 @@ if __name__ == "__main__":
     if opts.share == 'share':
         share(opts.user, opts.libraries)
     elif opts.share == 'unshare':
-        unshare(opts.user, opts.libraries)
+        unshare(opts.user, sections_lst)
     elif opts.share == 'share_all':
         share(opts.user, sections_lst)
     else:
