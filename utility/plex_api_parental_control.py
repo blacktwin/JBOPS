@@ -93,6 +93,6 @@ if __name__ == "__main__":
     elif opts.share == 'unshare':
         kill_session(opts.user, sections_lst)
         sleep(5)
-        unshare(opts.user, opts.libraries)
+        unshare(opts.user, sections_lst)
     else:
         print('I don\'t know what else you want.')
