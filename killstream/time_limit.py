@@ -9,7 +9,7 @@ PlexPy > Settings > Notification Agents > Scripts > Gear icon:
 
 PlexPy > Settings > Notifications > Script > Script Arguments
         {username}
-
+ 
 """
 
 import requests
