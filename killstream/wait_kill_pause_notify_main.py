@@ -92,9 +92,9 @@ def kill_stream(session, xtime, ntime):
     title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
 
     if state == 'paused' and xtime == ntime:
-        session.stop(reason=KILL_MESSAGE)
         if AGENT_ID:
             send_notification(SUBJECT_TEXT, BODY_TEXT.format(user=username, title=title))
+        session.stop(reason=KILL_MESSAGE)
         return ntime
     elif state in ('playing', 'buffering'):
         sys.stdout.write("{user}'s stream of {title} is now {state}".format(user=username, title=title,
