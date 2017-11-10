@@ -1,5 +1,5 @@
 """
-Kill streams if user has played too much Plex Today.
+Kill streams if user has watched too much Plex Today.
 
 PlexPy > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on playback start
@@ -8,7 +8,7 @@ PlexPy > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: play_limit.py
 
 PlexPy > Settings > Notifications > Script > Script Arguments
-        {username}
+        {username} {section_id}
 
 """
 
@@ -25,14 +25,21 @@ PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
 PLEX_TOKEN = 'xxxxx'
 PLEX_URL = 'http://localhost:32400'
 
-PLAY_LIMIT = {'user1': 2,
-              'user2': 3,
-              'user3': 4}
+PLAY_LIMIT = {'user1':
+                  [{'section_id': 2, 'limit': 0},
+                   {'section_id': 3, 'limit': 2}],
+              'user2':
+                  [{'section_id': 2, 'limit': 0},
+                   {'section_id': 3, 'limit': 2}],
+              'user3':
+                  [{'section_id': 2, 'limit': 0},
+                   {'section_id': 3, 'limit': 2}]}
 
 MESSAGE = 'You have reached your play limit for today.'
 ##/EDIT THESE SETTINGS ##
 
 username = str(sys.argv[1])
+sectionId = int(sys.argv[2])
 
 TODAY = datetime.datetime.today().strftime('%Y-%m-%d')
 
@@ -41,11 +48,12 @@ sess.verify = False
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 
-def get_get_history(username):
+def get_get_history(username, section_id):
     # Get the PlexPy history.
     payload = {'apikey': PLEXPY_APIKEY,
                'cmd': 'get_history',
                'user': username,
+               'section_id': section_id,
                'start_date': TODAY}
 
     try:
@@ -69,6 +77,11 @@ def kill_session(user):
             session.stop(reason=MESSAGE)
 
 
-if get_get_history(username) > PLAY_LIMIT[username]:
+for items in PLAY_LIMIT[username]:
+    if sectionId == items['section_id']:
+        section_id = items['section_id']
+        limit = items['limit']
+
+if get_get_history(username, section_id) > limit:
     print('User has reached play limit for today.')
     kill_session(username)
