@@ -82,10 +82,10 @@ def kill_session(user):
 
 if TIME_LIMIT[username]['d']:
     total_time += TIME_LIMIT[username]['d'] * (24 * 60 * 60)
-if TIME_LIMIT[username]['m']:
-    total_time += TIME_LIMIT[username]['m'] * (60 * 60)
 if TIME_LIMIT[username]['h']:
-    total_time += TIME_LIMIT[username]['h'] * 60
+    total_time += TIME_LIMIT[username]['h'] * (60 * 60)
+if TIME_LIMIT[username]['m']:
+    total_time += TIME_LIMIT[username]['m'] * 60
 
 
 if get_get_history(username) > total_time:
