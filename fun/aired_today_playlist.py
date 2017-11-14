@@ -23,9 +23,9 @@ plex = PlexServer(PLEX_URL, PLEX_TOKEN)
 def remove_old():
     # Remove old Aired Today Playlists
     for playlist in plex.playlists():
-        if playlist.title == TODAY_PLAY_TITLE.startswith('Aired Today') and not TODAY_PLAY_TITLE:
-            requests.delete('{}/playlists/{}?X-Plex-Token={}'.format(PLEX_URL, TODAY_PLAY_TITLE, PLEX_TOKEN))
-            print('Removing old Aired Today Playlists')
+        if playlist.title.startswith('Aired Today') and playlist.title != TODAY_PLAY_TITLE:
+            playlist.delete()
+            print('Removing old Aired Today Playlists: {}'.format(playlist.title))
         elif playlist.title == TODAY_PLAY_TITLE:
             print('{} already exists. No need to make again.'.format(TODAY_PLAY_TITLE))
             exit(0)
