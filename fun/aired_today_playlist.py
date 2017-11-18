@@ -1,5 +1,5 @@
 """
-Create a Plex Playlist with what was aired on this today's month-day, sort by oldest first.
+Create a Plex Playlist with what aired on this day in history (month-day), sort by oldest first.
 If Playlist from yesterday exists delete and create today's.
 If today's Playlist exists exit.
 """
