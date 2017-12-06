@@ -43,7 +43,7 @@ def kill_session():
         trans_dec = session.trancodeSessions[0].videoDecision
         if trans_dec == 'transcode':
             platform = session.players[0].platform
-            MESSAGE = DEVICES[platform].get('message', DEFAULT_REASON)
+            MESSAGE = DEVICES.get(platform, DEFAULT_REASON)
             print(MESSAGE)
             print('Killing {user}\'s stream for transcoding video on {plat}.'.format(user=user, plat=platform))
             session.stop(reason=MESSAGE)
