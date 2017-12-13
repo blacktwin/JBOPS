@@ -48,7 +48,7 @@ if __name__ == '__main__':
     for session in plex.sessions():
         username = session.usernames[0]
         media_type = session.type
-        if username not in USER_IGNORE or media_type == 'track':
+        if username not in USER_IGNORE and media_type != 'track':
             title = session.title
             sess_rating = session.key.split('/')[3]
             trans_dec = session.transcodeSessions[0].videoDecision
