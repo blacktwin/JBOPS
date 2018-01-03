@@ -10,7 +10,6 @@ optional arguments:
   -l  [ ...], --libraries  [ ...]
                         Space separated list of case sensitive names to process. Allowed names are:
                         (choices: All library names)
-                        (default: All Libraries)
 
 Usage:
 
@@ -63,7 +62,7 @@ if __name__ == "__main__":
                              '(choices: %(choices)s)')
     parser.add_argument('-l', '--libraries', nargs='+', default='', choices=sections_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
-                             '(choices: %(choices)s \n(default: All Libraries)')
+                             '(choices: %(choices)s')
 
     opts = parser.parse_args()
     
