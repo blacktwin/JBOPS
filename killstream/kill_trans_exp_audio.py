@@ -45,7 +45,7 @@ def kill_session():
             if trans_dec == 'transcode':
                 platform = session.players[0].platform
                 MESSAGE = DEVICES.get(platform, DEFAULT_REASON)
-                #print(MESSAGE)
+                # print(MESSAGE)
                 print('Killing {user}\'s stream for transcoding video on {plat}.'.format(user=user, plat=platform))
                 session.stop(reason=MESSAGE)
         except IndexError:
