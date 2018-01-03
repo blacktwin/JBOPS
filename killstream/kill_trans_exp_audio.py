@@ -39,7 +39,7 @@ def kill_session():
         media_type = session.type
         if user in USER_IGNORE or media_type == 'track':
             print('Ignoring {}\'s {} stream.'.format(user, media_type))
-            exit()
+            pass
         trans_dec = session.transcodeSessions[0].videoDecision
         if trans_dec == 'transcode':
             platform = session.players[0].platform
