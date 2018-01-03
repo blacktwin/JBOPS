@@ -36,7 +36,7 @@ plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 def kill_session(user):
     for session in plex.sessions():
         # Check for users stream
-        if session.usernames[0] == user and session.player[0].local is False:
+        if session.usernames[0] == user and session.players[0].local is False:
             title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
             print('{user} is watching {title} and they might be asleep.'.format(user=user, title=title))
             session.stop(reason=MESSAGE)
