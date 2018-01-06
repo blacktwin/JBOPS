@@ -27,7 +27,7 @@ x = 0
 try:
     print('Executing sub script.')
     while x < timeout and x is not None:
-        sleep(x)
+        sleep(interval)
         if kill_stream(check_session(sessionKey), interval, timeout) is not None:
             x += kill_stream(check_session(sessionKey), interval, timeout)
         else:
