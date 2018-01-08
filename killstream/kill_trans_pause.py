@@ -31,7 +31,7 @@ plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 def kill_session(sess_key):
     for session in plex.sessions():
-        user = session.username[0]
+        user = session.usernames[0]
         if user in ignore_lst:
             print('Ignoring {}\'s paused transcode stream.'.format(user))
             exit()
