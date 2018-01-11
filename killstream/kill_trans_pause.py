@@ -20,7 +20,7 @@ from plexapi.server import PlexServer
 PLEX_TOKEN = 'xxxx'
 PLEX_URL = 'http://localhost:32400'
 
-MESSAGE = "You are not allowed to stream above 4 Mbps."
+MESSAGE = "You've paused a transcoded stream."
 
 ignore_lst = ('')
 ##/EDIT THESE SETTINGS ##
