@@ -96,15 +96,15 @@ if __name__ == "__main__":
     filterMusic = {}
 
     if opts.movieLabels:
-        filterMovies['labels'] = opts.movieLabels
+        filterMovies['label'] = opts.movieLabels
     if opts.movieRatings:
         filterMovies['contentRating'] = opts.movieRatings
     if opts.tvLabels:
-        filterTelevision['labels'] = opts.tvLabels
+        filterTelevision['label'] = opts.tvLabels
     if opts.tvRatings:
         filterTelevision['contentRating'] = opts.tvRatings
     if opts.musicLabels:
-        filterMusic['labels'] = opts.musicLabels
+        filterMusic['label'] = opts.musicLabels
 
     for user in opts.user:
         if opts.share == 'share':
