@@ -8,7 +8,7 @@ PlexPy > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: kill_trans_library.py
 
 PlexPy > Settings > Notifications > Script > Script Arguments:
-        {section_id}
+        {section_id} {session_key}
 
 """
 import sys
@@ -42,15 +42,17 @@ plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 if __name__ == '__main__':
 
     lib_id = sys.argv[1]
+    session_key = sys.argv[2]
 
     for session in plex.sessions():
         username = session.usernames[0]
         media_type = session.type
-        if username not in USER_IGNORE and media_type != 'track':
+        section_id = session.librarySectionID
+        if username not in USER_IGNORE and media_type != 'track' and lib_id == section_id and session.sessionKey is session_key:
             title = session.title
-            section_id = session.librarySectionID
-            trans_dec = session.transcodeSessions[0].videoDecision
-            if lib_id == section_id and trans_dec == 'transcode':
-                reason = DEVICES.get(session.players[0].platform, DEFAULT_REASON)
-                print(PLEXPY_LOG.format(user=username, title=title, section=section_id))
-                session.stop(reason=reason)
+            if session.transcodeSessions[0]:
+                trans_dec = session.transcodeSessions[0].videoDecision
+                if trans_dec == 'transcode':
+                    reason = DEVICES.get(session.players[0].platform, DEFAULT_REASON)
+                    print(PLEXPY_LOG.format(user=username, title=title, section=section_id))
+                    session.stop(reason=reason)
