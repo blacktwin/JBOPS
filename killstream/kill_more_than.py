@@ -48,7 +48,7 @@ def kill_session(user, ip_address, session_key):
         if username == user and address == ip_address:
             user_sessions.append((session))
 
-    if len(user_sessions) == 1:
+    if len(user_sessions) > 1:
         for session in user_sessions:
             if session_key == session.sessionKey:
                 title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
