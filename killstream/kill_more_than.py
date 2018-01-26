@@ -10,7 +10,7 @@ PlexPy > Settings > Notification Agents > Scripts > Gear icon:
         Playback User Concurrent Streams: kill_more_than.py
 
 PlexPy > Settings > Notifications > Script > Script Arguments
-        {username} {ip_address}
+        {username} {ip_address} {session_key}
 """
 
 import requests
@@ -28,6 +28,7 @@ ignore_lst = ('')
 # 2nd stream information is passed
 USERNAME = sys.argv[1]
 ADDRESS = sys.argv[2]
+SESSION_KEY = sys.argv[3]
 
 if USERNAME in ignore_lst:
     print(u"{} ignored.".format(USERNAME))
@@ -38,7 +39,7 @@ sess.verify = False
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 
-def kill_session(user, ip_address):
+def kill_session(user, ip_address, session_key):
     user_sessions = []
 
     for session in plex.sessions():
@@ -49,14 +50,14 @@ def kill_session(user, ip_address):
 
     if len(user_sessions) == 1:
         for session in user_sessions:
-            username = session.usernames[0]
-            title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
-            print(u"Killing {}'s second stream of {} for {}".format(username, title, MESSAGE))
-            session.stop(reason=MESSAGE)
+            if session_key == session.sessionKey:
+                title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
+                print(u"Killing {}'s second stream of {} for {}".format(username, title, MESSAGE))
+                session.stop(reason=MESSAGE)
     else:
         for session in user_sessions:
             username = session.usernames[0]
             print(u"Not killing {}'s second stream. Same IP".format(username))
 
 
-kill_session(USERNAME, ADDRESS)
+kill_session(USERNAME, ADDRESS, SESSION_KEY)
