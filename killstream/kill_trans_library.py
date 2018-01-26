@@ -42,15 +42,15 @@ plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 if __name__ == '__main__':
 
     lib_id = sys.argv[1]
-    session_key = sys.argv[2]
+    session_key = int(sys.argv[2])
 
     for session in plex.sessions():
         username = session.usernames[0]
         media_type = session.type
         section_id = session.librarySectionID
-        if username not in USER_IGNORE and media_type != 'track' and lib_id == section_id and session.sessionKey is session_key:
+        if username not in USER_IGNORE and media_type != 'track' and lib_id == section_id and session.sessionKey == session_key:
             title = session.title
-            if session.transcodeSessions[0]:
+            if session.transcodeSessions:
                 trans_dec = session.transcodeSessions[0].videoDecision
                 if trans_dec == 'transcode':
                     reason = DEVICES.get(session.players[0].platform, DEFAULT_REASON)
