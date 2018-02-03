@@ -23,13 +23,19 @@ Usage:
 """
 
 import requests
+import ConfigParser
+import io
 import sys
 import argparse
 
-## EDIT THESE SETTINGS ##
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
 
-PLEXPY_APIKEY = 'xxxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
+PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
 
 OUTPUT = 'Library: {section}\nDays: {days}\nPlays: {plays}'
 

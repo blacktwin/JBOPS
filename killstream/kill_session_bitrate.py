@@ -8,13 +8,19 @@ PlexPy > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: kill_session_bitrate.py
 
 """
-
+import ConfigParser
+import io
 import requests
 from plexapi.server import PlexServer
 
-## EDIT THESE SETTINGS ##
-PLEX_TOKEN = 'xxxxx'
-PLEX_URL = 'http://localhost:32400'
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
+
+PLEX_TOKEN=config.get('plex-data', 'PLEX_TOKEN')
+PLEX_URL=config.get('plex-data', 'PLEX_URL')
 
 MESSAGE = "You are not allowed to stream above 4 Mbps."
 

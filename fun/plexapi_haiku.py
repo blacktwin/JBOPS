@@ -3,12 +3,14 @@ https://gist.github.com/blacktwin/4ccb79c7d01a95176b8e88bf4890cd2b
 '''
 
 from plexapi.server import PlexServer
+import ConfigParser
+import io
 import random
 import re
 
 
-baseurl = 'http://localhost:32400'
-token = 'XXXXXXXXXX'
+baseurl = config.get('plex-data', 'PLEX_URL')
+token = config.get('plex-data', 'PLEX_TOKEN')
 plex = PlexServer(baseurl, token)
 
 

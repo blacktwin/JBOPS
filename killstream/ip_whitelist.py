@@ -15,17 +15,24 @@ PlexPy > Settings > Notifications > Script > Script Arguments:
 '''
 
 import sys
+import ConfigParser
+import io
 import requests
 from plexapi.server import PlexServer
 # pip install plexapi
 
 
-## EDIT THESE SETTINGS ##
-PLEX_TOKEN = 'xxxxxx'
-PLEX_URL = 'http://localhost:32400'
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
 
-PLEXPY_APIKEY = 'xxxxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
+PLEX_TOKEN=config.get('plex-data', 'PLEX_TOKEN')
+PLEX_URL=config.get('plex-data', 'PLEX_URL')
+
+PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
+PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
 
 IP_WHITELIST = ['10.10.0.12']  # List IP addresses.
 IGNORE_LST = ('')  # List usernames that should be ignored.

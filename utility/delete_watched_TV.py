@@ -4,13 +4,21 @@ If all users in list have watched an episode of listed show, then delete episode
 """
 
 import requests
+import ConfigParser
+import io
 import sys
 import os
 
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
 
-## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'xxxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
+PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
+
+# EDIT
 SHOW_LST = [123456, 123456, 123456, 123456]  # Show rating keys.
 USER_LST = ['Sam', 'Jakie', 'Blacktwin']  # Name of users
 

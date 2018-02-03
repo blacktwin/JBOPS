@@ -8,13 +8,19 @@ PlexPy > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: kill_trans_exp_audio.py
 
 """
+import ConfigParser
+import io
 import requests
 from plexapi.server import PlexServer
 
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
 
-## EDIT THESE SETTINGS ##
-PLEX_TOKEN = 'xxxx'
-PLEX_URL = 'http://localhost:32400'
+PLEX_TOKEN=config.get('plex-data', 'PLEX_TOKEN')
+PLEX_URL=config.get('plex-data', 'PLEX_URL')
 
 DEFAULT_REASON = 'This stream has ended due to requiring video transcoding. ' \
          'Please raise your Remote Quality to Original to play this content.'

@@ -1,5 +1,7 @@
 import psutil
 import requests
+import ConfigParser
+import io
 import urllib
 
 # Drive letter to check if exists.
@@ -7,8 +9,14 @@ drive = 'D:'
 
 disk = psutil.disk_partitions()
 
-PLEXPY_URL = 'http://localhost:8181/' # Your PlexPy URL
-PLEXPY_APIKEY = '#####' # Enter your PlexPy API Key
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
+
+PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
+PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
 AGENT_ID = 10 # The PlexPy notifier agent id found here: https://github.com/drzoidberg33/plexpy/blob/master/plexpy/notifiers.py#L43
 NOTIFY_SUBJECT = 'PlexPy' # The notification subject
 NOTIFY_BODY = 'The Plex disk {0} was not found'.format(drive) # The notification body

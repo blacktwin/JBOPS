@@ -13,17 +13,23 @@ PlexPy > Settings > Notifications > Script > Script Arguments
 """
 
 import requests
+import ConfigParser
+import io
 import sys
 import datetime
 from plexapi.server import PlexServer
 
 
-## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'xxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
 
-PLEX_TOKEN = 'xxxxx'
-PLEX_URL = 'http://localhost:32400'
+PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
+PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
+PLEX_TOKEN=config.get('plex-data', 'PLEX_TOKEN')
+PLEX_URL=config.get('plex-data', 'PLEX_URL')
 
 WATCH_LIMIT = {'user1': 2,
                'user2': 3,

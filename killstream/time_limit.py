@@ -12,17 +12,23 @@ PlexPy > Settings > Notifications > Script > Script Arguments
  
 """
 
+import ConfigParser
+import io
 import requests
 import sys
 from plexapi.server import PlexServer
 
 
-## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'xxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
 
-PLEX_TOKEN = 'xxxx'
-PLEX_URL = 'http://localhost:32400'
+PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
+PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
+PLEX_TOKEN=config.get('plex-data', 'PLEX_TOKEN')
+PLEX_URL=config.get('plex-data', 'PLEX_URL')
 
 TIME_LIMIT = {'user1': {'d': 1, 'h': 2, 'm': 30, 'remove': True, 'unshare': True},
               'user2': {'d': 0, 'h': 2, 'm': 30, 'remove': False, 'unshare': True},

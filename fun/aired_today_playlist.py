@@ -6,11 +6,19 @@ If today's Playlist exists exit.
 
 import operator
 from plexapi.server import PlexServer
+import ConfigParser
+import io
 import requests
 import datetime
 
-PLEX_URL = 'http://localhost:32400'
-PLEX_TOKEN = 'xxxxx'
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
+
+PLEX_TOKEN=config.get('plex-data', 'PLEX_TOKEN')
+PLEX_URL=config.get('plex-data', 'PLEX_URL')
 
 LIBRARY_NAMES = ['Movies', 'TV Shows'] # Your library names
 

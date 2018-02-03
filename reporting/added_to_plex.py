@@ -6,6 +6,8 @@ Uncomment Exceptions if you run into problem and need to investigate.
 """
 
 import requests
+import ConfigParser
+import io
 import sys
 import time
 
@@ -20,10 +22,16 @@ LASTMONTH = int(TODAY - 2629743) # 2629743 = 1 month in seconds
 # STARTFRAME = LASTMONTH
 # ENDFRAME = TODAY
 
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
+
+PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
+PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
 
 ## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'XXXXX'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
 LIBRARY_NAMES = ['TV Shows', 'Movies'] # Names of your libraries you want to check.
 
 

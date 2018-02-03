@@ -5,11 +5,18 @@ I corrupted a file to test.
 '''
 
 import requests
+import ConfigParser
+import io
 import sys
 
-## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'XXXXXXXX'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
+
+PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
+PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
 
 lib_met = []
 err_title = []
