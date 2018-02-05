@@ -89,35 +89,31 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Share or unshare libraries.",
                                      formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('--share', action='store_true', default=False,
+    parser.add_argument('--share', default=False, action='store_true',
                         help='To share libraries.')
-
-    parser.add_argument('--unshare', action='store_true', default=False,
+    parser.add_argument('--unshare', default=False, action='store_true',
                         help='To unshare all libraries.')
-
     parser.add_argument('--user', nargs='+', choices=user_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
                              '(choices: %(choices)s)')
-
-    parser.add_argument('--allUsers', action='store_true', default=False,
+    parser.add_argument('--allUsers', default=False, action='store_true',
                         help='Select all users.')
     parser.add_argument('--libraries', nargs='+', default=False, choices=sections_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
                              '(choices: %(choices)s')
-    parser.add_argument('--allLibraries', action='store_true', default=False,
+    parser.add_argument('--allLibraries', default=False, action='store_true',
                         help='Select all users.')
-    
     parser.add_argument('--sync', default=False, action='store_true',
                         help='Use to allow user to sync content.')
     parser.add_argument('--camera', default=False, action='store_true',
                         help='Use to allow user to upload photos.')
     parser.add_argument('--channels', default=False, action='store_true',
                         help='Use to allow user to utilize installed channels.')
-    parser.add_argument('--movieRatings', nargs='+', choices=ratings_lst,
+    parser.add_argument('--movieRatings', nargs='+', choices=ratings_lst, metavar='',
                         help='Use to add rating restrictions to movie library types.')
     parser.add_argument('--movieLabels', nargs='+',
                         help='Use to add label restrictions for movie library types.')
-    parser.add_argument('--tvRatings', nargs='+', choices=ratings_lst,
+    parser.add_argument('--tvRatings', nargs='+', choices=ratings_lst, metavar='',
                         help='Use to add rating restrictions for show library types.')
     parser.add_argument('--tvLabels', nargs='+',
                         help='Use to add label restrictions for show library types.')
