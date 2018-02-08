@@ -38,12 +38,12 @@ def kill_session(sess_key):
         state = session.players[0].state
         if session.transcodeSessions:
             trans_dec = session.transcodeSessions[0].videoDecision
-            if session.sessionKey is sess_key and state == 'paused' and trans_dec == 'transcode':
+            if session.sessionKey == sess_key and state == 'paused' and trans_dec == 'transcode':
                 title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
                 print('Killing {user}\'s stream for pausing a transcode stream of {title}.'.format(user=user, title=title))
                 session.stop(reason=MESSAGE)
 
 
 if __name__ == '__main__':
-    session_key = sys.argv[1]
+    session_key = int(sys.argv[1])
     kill_session(session_key)
