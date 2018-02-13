@@ -5,6 +5,8 @@ Find what was added TFRAME ago and not watched and notify admin using PlexPy.
 """
 
 import requests
+import ConfigParser
+import io
 import sys
 import time
 
@@ -12,9 +14,16 @@ TFRAME = 1.577e+7 # ~ 6 months in seconds
 TODAY = time.time()
 
 
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
+
+PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
+PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
+
 ## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'XXXXXXX'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
 LIBRARY_NAMES = ['My Movies', 'My TV Shows'] # Name of libraries you want to check.
 SUBJECT_TEXT = "PlexPy Notification"
 AGENT_ID = 10  # The email notification agent ID for PlexPy

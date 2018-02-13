@@ -23,20 +23,30 @@ Set INTERVAL to how often you want to check the stream status
 import os
 import platform
 import subprocess
+import ConfigParser
+import io
 import sys
 from uuid import getnode
 import unicodedata
 
 import requests
 
-## EDIT THESE SETTINGS ##
 
-PLEX_HOST = ''
-PLEX_PORT = 32400
-PLEX_SSL = ''  # s or ''
-PLEX_TOKEN = ''
-PLEXPY_APIKEY = 'xxxxxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
+
+PLEX_HOST=config.get('plex-data', 'PLEX_HOST')
+PLEX_PORT=config.get('plex-data', 'PLEX_PORT')
+PLEX_TOKEN=config.get('plex-data', 'PLEX_TOKEN')
+PLEX_URL=config.get('plex-data', 'PLEX_URL')
+PLEX_SSL=config.get('plex-data', 'PLEX_SSL')
+
+PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
+PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
+
 
 TIMEOUT = 120
 INTERVAL = 20

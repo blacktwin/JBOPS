@@ -23,18 +23,24 @@ Set INTERVAL to how often you want to check the stream status
 import os
 import platform
 import subprocess
+import ConfigParser
+import io
 import sys
 from uuid import getnode
 import unicodedata
 
 import requests
 
-## EDIT THESE SETTINGS ##
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
 
-PLEX_HOST = ''
-PLEX_PORT = 32400
-PLEX_SSL = ''  # s or ''
-PLEX_TOKEN = 'xxxxx'
+PLEX_HOST=config.get('plex-data', 'PLEX_HOST')
+PLEX_PORT=config.get('plex-data', 'PLEX_PORT')
+PLEX_SSL=config.get('plex-data', 'PLEX_SSL')
+PLEX_TOKEN=config.get('plex-data', 'PLEX_TOKEN')
 
 TIMEOUT = 30
 INTERVAL = 10

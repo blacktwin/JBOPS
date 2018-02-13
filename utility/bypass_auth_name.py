@@ -15,15 +15,21 @@ List of IP addresses is cleared before adding new IPs
 '''
 
 import requests
+import ConfigParser
+import io
 import argparse
 import sys
 
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
 
-## EDIT THESE SETTINGS ##
-PLEX_TOKEN = 'xxxx'
-PLEX_URL = 'http://localhost:32400'
-PLEXPY_APIKEY = 'xxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
+PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
+PLEX_TOKEN=config.get('plex-data', 'PLEX_TOKEN')
+PLEX_URL=config.get('plex-data', 'PLEX_URL')
 
 
 def get_get_history(user_id):

@@ -25,6 +25,8 @@ If title is matched in both, Amazon is first then Netflix.
 """
 
 import requests
+import ConfigParser
+import io
 import argparse
 from xmljson import badgerfish as bf
 from lxml.html import fromstring
@@ -34,10 +36,14 @@ from plexapi.server import PlexServer
 # pip install plexapi
 
 
-## Edit ##
-PLEX_URL = 'http://localhost:32400'
-PLEX_TOKEN = 'xxxx'
-## /Edit ##
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
+
+PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
+PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
 
 sess = requests.Session()
 sess.verify = False

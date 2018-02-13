@@ -14,14 +14,21 @@ PlexPy > Settings > Notification Agents > Scripts > Gear icon:
 '''
 
 import requests
+import ConfigParser
+import io
 from operator import itemgetter
 import unicodedata
 from plexapi.server import PlexServer
 
 
-## EDIT THESE SETTINGS ##
-PLEX_TOKEN = 'xxxx'
-PLEX_URL = 'http://localhost:32400'
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
+
+PLEX_TOKEN=config.get('plex-data', 'PLEX_TOKEN')
+PLEX_URL=config.get('plex-data', 'PLEX_URL')
 
 DEFAULT_REASON = 'Server Admin\'s stream takes priority and {user}(you) has {x} concurrent streams.' \
                  ' {user}\'s stream of {video} is {time}% complete. Should be finished in {comp} minutes. ' \

@@ -12,18 +12,24 @@ PlexPy > Settings > Notifications > Script > Script Arguments
 
 """
 
+import ConfigParser
+import io
 import requests
 import sys
 import datetime
 from plexapi.server import PlexServer
 
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
 
-## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'xxxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
+PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
+PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
 
-PLEX_TOKEN = 'xxxxx'
-PLEX_URL = 'http://localhost:32400'
+PLEX_TOKEN=config.get('plex-data', 'PLEX_TOKEN')
+PLEX_URL=config.get('plex-data', 'PLEX_URL')
 
 PLAY_LIMIT = {'user1':
                   [{'section_id': 2, 'limit': 0},

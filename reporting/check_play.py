@@ -5,14 +5,23 @@
 #   Add to Playback Resume
 
 import requests
+import ConfigParser
+import io
 import sys
 
 user = sys.argv[1]
 title = sys.argv[2]
 
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
+
+PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
+PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
+
 ## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'XXXXXXXXXX'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
 AGENT_ID = 10  # The notification agent ID for PlexPy
 
 SUBJECT_TEXT = "PlexPy Notification"

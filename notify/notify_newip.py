@@ -15,12 +15,20 @@ Arguments passed from PlexPy
 """
 import argparse
 import requests
+import ConfigParser
+import io
 import sys
 
+# Load the configuration file
+with open("../config.ini") as f:
+    real_config = f.read()
+config = ConfigParser.RawConfigParser(allow_no_value=False)
+config.readfp(io.BytesIO(real_config))
+
+PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
+PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
 
 ## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'XXXX'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
 NOTIFICATION_ID = 10  # The notification agent ID for PlexPy 10 = Email
 
 # Replace LAN IP addresses that start with the LAN_SUBNET with a WAN IP address
