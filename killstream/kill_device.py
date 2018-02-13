@@ -29,7 +29,7 @@ DEFAULT_REASON = 'This stream has ended due to your device type.'
 DEVICES = {'Android': 'Andriod message',
            'Chrome': 'Chrome message',
            'Plex Media Player': 'PMP message',
-           'Chromecast': 'Chromecast message'}
+		   'Chromecast': 'Chromecast message'}
 
 USER_IGNORE = ('') # ('Username','User2')
 ##/EDIT THESE SETTINGS ##
@@ -47,7 +47,7 @@ def kill_session():
             exit()
 
         platform = session.players[0].platform
-        if DEVICES[platform]:
+        if DEVICES.get[platform]:
             MESSAGE = DEVICES.get(platform, DEFAULT_REASON)
             print('Killing {user}\'s stream on {plat}.'.format(user=user, plat=platform))
             session.stop(reason=MESSAGE)
