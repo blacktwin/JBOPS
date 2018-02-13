@@ -71,22 +71,21 @@ if __name__ == "__main__":
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
                              '(choices: %(choices)s')
 
-    parser.add_argument('--sync', default=False, action='store_true', 
+    parser.add_argument('--sync', default=False, action='store_true',
                         help='Use to allow user to sync content.')
     parser.add_argument('--camera', default=False, action='store_true',
                         help='Use to allow user to upload photos.')
     parser.add_argument('--channels', default=False, action='store_true',
                         help='Use to allow user to utilize installed channels.')
-
-    parser.add_argument('--movieRatings', default=None, nargs='+', choices=ratings_lst, metavar='',
+    parser.add_argument('--movieRatings', nargs='+', choices=ratings_lst, metavar='',
                         help='Use to add rating restrictions to movie library types.')
-    parser.add_argument('--movieLabels', default=None, nargs='+', metavar='',
+    parser.add_argument('--movieLabels', nargs='+',
                         help='Use to add label restrictions for movie library types.')
-    parser.add_argument('--tvRatings', default=None, nargs='+', choices=ratings_lst, metavar='',
+    parser.add_argument('--tvRatings', nargs='+', choices=ratings_lst, metavar='',
                         help='Use to add rating restrictions for show library types.')
-    parser.add_argument('--tvLabels', default=None, nargs='+', metavar='',
+    parser.add_argument('--tvLabels', nargs='+',
                         help='Use to add label restrictions for show library types.')
-    parser.add_argument('--musicLabels', default=None, nargs='+', metavar='',
+    parser.add_argument('--musicLabels', nargs='+',
                         help='Use to add label restrictions for music library types.')
 
     opts = parser.parse_args()
