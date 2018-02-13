@@ -47,7 +47,7 @@ def kill_session():
             exit()
 
         platform = session.players[0].platform
-        if DEVICES.get[platform]:
+        if DEVICES.get(platform):
             MESSAGE = DEVICES.get(platform, DEFAULT_REASON)
             print('Killing {user}\'s stream on {plat}.'.format(user=user, plat=platform))
             session.stop(reason=MESSAGE)
