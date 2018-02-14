@@ -42,6 +42,9 @@ plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 if __name__ == '__main__':
 
     lib_id = sys.argv[1]
+    if lib_id not in TARGET_LIBRARIES:
+        print('Library accessed is allowed.')
+        exit()
     session_key = int(sys.argv[2])
 
     for session in plex.sessions():
