@@ -1,40 +1,17 @@
 '''
 https://gist.github.com/blacktwin/4ccb79c7d01a95176b8e88bf4890cd2b
 '''
-
 from plexapi.server import PlexServer
 import random
 import re
 
 
 baseurl = 'http://localhost:32400'
-token = 'XXXXXXXXXX'
+token = 'xxxxx'
 plex = PlexServer(baseurl, token)
 
 
-sections_lst = []
-LIBRARIES_LST = ['Movies', 'TV Shows'] # Whatever you name your libraries
-
-
-for x in LIBRARIES_LST:
-    sections = plex.library.section(x).all()
-    sections_lst += [section.title for section in sections]
-
-word_site = [line.split() for line in sections_lst]
-WORDS = [item for sublist in word_site for item in sublist]
-count = len(WORDS)
-r = range(0,count)
-
-
-def ran_words(cnt,):
-    word_site = [line.split() for line in sections_lst]
-    WORDS = [item for sublist in word_site for item in sublist]
-
-    ran_word = random.choice(WORDS)
-    ran_word = ''.join(e for e in ran_word if e.isalnum())
-    sy_cnt = sylco(ran_word)
-    word_cnt = {ran_word: sy_cnt}
-    return word_cnt
+LIBRARIES_LST = ['Movies', 'TV Shows']
 
 
 def sylco(word):
@@ -167,11 +144,34 @@ def sylco(word):
         # calculate the output
     return numVowels - disc + syls
 
-def hi_build(d, cnt):
-    dd = d
+
+def check_roman(word):
+    roman_pattern = r"^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$"
+
+    if (re.search(roman_pattern, word.strip(), re.I)):
+        # print(word)
+        return True
+    else:
+        # print(word)
+        return False
+
+
+def ran_words(sections_lst):
+    word_site = [line.split() for line in sections_lst]
+    WORDS = [item for sublist in word_site for item in sublist]
+
+    ran_word = random.choice(WORDS)
+    ran_word = ''.join(e for e in ran_word if e.isalpha() and not check_roman(ran_word))
+    sy_cnt = sylco(ran_word)
+    word_cnt = {ran_word: sy_cnt}
+    return word_cnt
+
+
+def hi_build(sections_lst, cnt):
+    dd = ran_words(sections_lst)
     while sum(dd.values()) < cnt:
         try:
-            up = ran_words(1)
+            up = ran_words(sections_lst)
             dd.update(up)
             if sum(dd.values()) == cnt:
                 return [dd]
@@ -183,7 +183,14 @@ def hi_build(d, cnt):
     return [dd]
 
 
-m_lst = hi_build(ran_words(1), 5) + hi_build(ran_words(1), 7) + hi_build(ran_words(1), 5)
+sections_lst = []
+for x in LIBRARIES_LST:
+    sections = plex.library.section(x).all()
+    sections_lst += [section.title for section in sections]
+
+m_lst = hi_build(sections_lst, 5) + hi_build(sections_lst, 7) + hi_build(sections_lst, 5)
+# to see word and syllable count uncomment below print.
+#print(m_lst)
 
 stanz1 = ' '.join(m_lst[0].keys())
 stanz2 = ' '.join(m_lst[1].keys())
