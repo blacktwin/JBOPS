@@ -51,7 +51,7 @@ if __name__ == '__main__':
         username = session.usernames[0]
         media_type = session.type
         section_id = session.librarySectionID
-        if username not in USER_IGNORE and media_type != 'track' and lib_id == section_id and session.sessionKey == session_key:
+        if username not in USER_IGNORE and media_type != 'track' and session.sessionKey == session_key:
             title = session.title
             if session.transcodeSessions:
                 trans_dec = session.transcodeSessions[0].videoDecision
