@@ -5,6 +5,7 @@ optional arguments:
   -h, --help            show this help message and exit
   --share               To share libraries.
   --unshare             To unshare all libraries.
+  --kill                Kill user's current stream(s). Include message to override default message
   --user  [ ...]        Space separated list of case sensitive names to process. Allowed names are:
 
                         (choices: All users names)
@@ -56,11 +57,14 @@ Usage:
 '''
 
 from plexapi.server import PlexServer
+from time import sleep
 import argparse
 import requests
 
 PLEX_URL = 'http://localhost:32400'
-PLEX_TOKEN = 'xxxxxx'
+PLEX_TOKEN = 'xxxx'
+
+DEFAULT_MESSAGE = "Steam is being killed by admin."
 
 
 sess = requests.Session()
@@ -72,8 +76,6 @@ user_lst = [x.title for x in plex.myPlexAccount().users()]
 sections_lst = [x.title for x in plex.library.sections()]
 movies_keys = [x.key for x in plex.library.sections() if x.type == 'movie']
 show_keys = [x.key for x in plex.library.sections() if x.type == 'show']
-movie_ratings = []
-show_ratings = []
 
 
 def get_ratings_lst(section_id):
@@ -86,21 +88,49 @@ def get_ratings_lst(section_id):
     ratings_lst = [x['title'] for x in ratings_keys]
     return ratings_lst
 
+
+def find_shares(user):
+    shared_lst = []
+    account = plex.myPlexAccount()
+    user_acct = account.user(user)
+    shared_sections = user_acct.servers[0]
+
+    for section in shared_sections.sections():
+        if section.shared == True:
+            shared_lst.append(section.title)
+
+    return shared_lst
+
+
+def kill_session(user, message):
+    reason = DEFAULT_MESSAGE
+    for session in plex.sessions():
+        # Check for users stream
+        if session.usernames[0] in user:
+            title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
+            print('{user} was watching {title}. Killing stream and unsharing.'.format(
+                user=user, title=title))
+            if message:
+                reason = message
+            session.stop(reason=reason)
+
+
 def share(user, sections, allowSync, camera, channels, filterMovies, filterTelevision, filterMusic):
     plex.myPlexAccount().updateFriend(user=user, server=plex, sections=sections, allowSync=allowSync,
                                       allowCameraUpload=camera, allowChannels=channels, filterMovies=filterMovies,
                                       filterTelevision=filterTelevision, filterMusic=filterMusic)
-    print('Shared libraries: {libraries} with {user}.'.format(libraries=libraries, user=user))
+    print('Shared libraries: {sections} with {user}.'.format(sections=list(set(sections)), user=user))
 
 
-def unshare(user, libraries):
-    plex.myPlexAccount().updateFriend(user=user, server=plex, removeSections=True, sections=libraries)
+def unshare(user, sections):
+    plex.myPlexAccount().updateFriend(user=user, server=plex, removeSections=True, sections=sections)
     print('Unshared all libraries from {user}.'.format(user=user))
 
 
 if __name__ == "__main__":
 
-
+    movie_ratings = []
+    show_ratings = []
     for movie in movies_keys:
         movie_ratings += get_ratings_lst(movie)
     for show in show_keys:
@@ -112,6 +142,12 @@ if __name__ == "__main__":
                         help='To share libraries.')
     parser.add_argument('--unshare', default=False, action='store_true',
                         help='To unshare all libraries.')
+    parser.add_argument('--kill', default=False, nargs='?',
+                        help='Kill user\'s current stream(s). Include message to override default message.')
+    parser.add_argument('--add', default=False, action='store_true',
+                        help='Add additional libraries.')
+    parser.add_argument('--remove', default=False, action='store_true',
+                        help='Remove existing libraries.')
     parser.add_argument('--user', nargs='+', choices=user_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
                              '(choices: %(choices)s)')
@@ -142,7 +178,6 @@ if __name__ == "__main__":
                         help='Use to add label restrictions for show library types.')
     parser.add_argument('--musicLabels', nargs='+', metavar='',
                         help='Use to add label restrictions for music library types.')
-
 
     opts = parser.parse_args()
     users = ''
@@ -184,15 +219,28 @@ if __name__ == "__main__":
         for library in opts.libraries:
             sections_lst.remove(library)
             libraries = sections_lst
-    elif not all([opts.libraries, opts.allLibraries]):
-        print('No libraries defined.')
-        exit()
 
-    # Share or Unshare
+    # Share, Unshare, Kill, Add, or Remove
     for user in users:
-        if opts.share and libraries:
-            share(user, libraries, opts.sync, opts.camera, opts.channels, filterMovies, filterTelevision, filterMusic)
+        if libraries:
+            if opts.share:
+                share(user, libraries, opts.sync, opts.camera, opts.channels, filterMovies, filterTelevision,
+                      filterMusic)
+            if opts.add:
+                shared = find_shares(user)
+                libraries = libraries + shared
+                share(user, libraries, opts.sync, opts.camera, opts.channels, filterMovies, filterTelevision,
+                      filterMusic)
+            if opts.remove:
+                shared = find_shares(user)
+                libraries = [sect for sect in shared if sect not in libraries]
+                share(user, libraries, opts.sync, opts.camera, opts.channels, filterMovies, filterTelevision,
+                      filterMusic)
+        if opts.unshare and opts.kill:
+            kill_session(user, opts.kill)
+            sleep(3)
+            unshare(user, sections_lst)
         elif opts.unshare:
             unshare(user, sections_lst)
-        else:
-            print('I don\'t know what you want.')
+        elif opts.kill:
+            kill_session(user, opts.kill)
