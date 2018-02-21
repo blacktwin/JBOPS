@@ -1,29 +1,28 @@
 import psutil
 import requests
-import urllib
 
 # Drive letter to check if exists.
-drive = 'D:'
+drive = 'F:'
 
 disk = psutil.disk_partitions()
 
-PLEXPY_URL = 'http://localhost:8181/' # Your PlexPy URL
-PLEXPY_APIKEY = '#####' # Enter your PlexPy API Key
-AGENT_ID = 10 # The PlexPy notifier agent id found here: https://github.com/drzoidberg33/plexpy/blob/master/plexpy/notifiers.py#L43
+PLEXPY_URL = 'http://localhost:8182/' # Your PlexPy URL
+PLEXPY_APIKEY = 'xxxxxx' # Enter your PlexPy API Key
+AGENT_LST = [10, 11] # The PlexPy notifier agent id found here: https://github.com/drzoidberg33/plexpy/blob/master/plexpy/notifiers.py#L43
 NOTIFY_SUBJECT = 'PlexPy' # The notification subject
 NOTIFY_BODY = 'The Plex disk {0} was not found'.format(drive) # The notification body
 
 disk_check = [True for i in disk if drive in i.mountpoint]
 
 if not disk_check:
-    # Send notification to PlexPy using the API
-    data = {'apikey': PLEXPY_APIKEY,
+    # Send the notification through PlexPy
+    payload = {'apikey': PLEXPY_APIKEY,
             'cmd': 'notify',
-            'agent_id': int(AGENT_ID),
             'subject': NOTIFY_SUBJECT,
             'body': NOTIFY_BODY}
 
-    url = PLEXPY_URL + 'api/v2?' + urllib.urlencode(data)
-    r = requests.post(url)
+    for agent in AGENT_LST:
+        payload['agent_id'] = agent
+        requests.post(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
 else:
     pass
