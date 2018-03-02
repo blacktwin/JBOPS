@@ -6,6 +6,8 @@ optional arguments:
   --share               To share libraries.
   --unshare             To unshare all libraries.
   --kill                Kill user's current stream(s). Include message to override default message
+  --add                 Add additional libraries.
+  --remove              Remove existing libraries.
   --user  [ ...]        Space separated list of case sensitive names to process. Allowed names are:
 
                         (choices: All users names)
@@ -36,10 +38,16 @@ Usage:
        - Shared libraries: ['Movies', 'TV Shows'] with USER
           * Double Quote libraries with spaces
 
-   plex_api_share.py --share -u USER --allLibraries
+   plex_api_share.py --share --user USER --allLibraries
        - Shared all libraries with USER.
+       
+   plex_api_share.py --share --user USER --add --libraries Movies
+       - Adds Movies library share to USER
+       
+   plex_api_share.py --share --user --allUsers --remove --libraries Movies
+       - Removes Movies library share from all Users
 
-   plex_api_share.py --unshare -u USER
+   plex_api_share.py --unshare --user USER
        - Unshared all libraries with USER.
        - USER is still exists as a Friend or Home User
 
@@ -55,7 +63,6 @@ Usage:
        - Shared [all libraries but Movies] with USER.
 
 '''
-
 from plexapi.server import PlexServer
 from time import sleep
 import argparse
