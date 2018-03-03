@@ -48,7 +48,7 @@ Usage:
    plex_api_share.py --user USER --add --libraries Movies
        - Adds Movies library share to USER
 
-   plex_api_share.py  --allUsers --remove --libraries Movies
+   plex_api_share.py --allUsers --remove --libraries Movies
        - Removes Movies library share from all Users
 
    plex_api_share.py --unshare --user USER
