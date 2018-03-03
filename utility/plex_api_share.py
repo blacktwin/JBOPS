@@ -4,6 +4,7 @@ Share or unshare libraries.
 optional arguments:
   -h, --help            show this help message and exit
   --share               To share libraries.
+  --shared              Display user's shared libraries.
   --unshare             To unshare all libraries.
   --kill                Kill user's current stream(s). Include message to override default message
   --add                 Add additional libraries.
@@ -27,6 +28,9 @@ optional arguments:
 
 Usage:
 
+   plex_api_share.py --user USER --shared
+       - Current shares for USER: ['Movies', 'Music']
+
    plex_api_share.py --share --user USER --libraries Movies
        - Shared libraries: ['Movies'] with USER
 
@@ -40,11 +44,11 @@ Usage:
 
    plex_api_share.py --share --user USER --allLibraries
        - Shared all libraries with USER.
-       
-   plex_api_share.py --share --user USER --add --libraries Movies
+
+   plex_api_share.py --user USER --add --libraries Movies
        - Adds Movies library share to USER
-       
-   plex_api_share.py --share --user --allUsers --remove --libraries Movies
+
+   plex_api_share.py  --allUsers --remove --libraries Movies
        - Removes Movies library share from all Users
 
    plex_api_share.py --unshare --user USER
@@ -54,7 +58,7 @@ Usage:
    Excluding;
 
    --user becomes excluded if --allUsers is set
-   plex_api_share.py --share --allUsers -u USER --libraries Movies
+   plex_api_share.py --share --allUsers --user USER --libraries Movies
        - Shared libraries: ['Movies' ]with USER1.
        - Shared libraries: ['Movies'] with USER2 ... all users but USER
 
@@ -63,6 +67,7 @@ Usage:
        - Shared [all libraries but Movies] with USER.
 
 '''
+
 from plexapi.server import PlexServer
 from time import sleep
 import argparse
@@ -147,6 +152,8 @@ if __name__ == "__main__":
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--share', default=False, action='store_true',
                         help='To share libraries.')
+    parser.add_argument('--shared', default=False, action='store_true',
+                        help='Display user\'s shared libraries.')
     parser.add_argument('--unshare', default=False, action='store_true',
                         help='To unshare all libraries.')
     parser.add_argument('--kill', default=False, nargs='?',
@@ -229,20 +236,22 @@ if __name__ == "__main__":
 
     # Share, Unshare, Kill, Add, or Remove
     for user in users:
+        shared = find_shares(user)
         if libraries:
             if opts.share:
                 share(user, libraries, opts.sync, opts.camera, opts.channels, filterMovies, filterTelevision,
                       filterMusic)
             if opts.add:
-                shared = find_shares(user)
                 libraries = libraries + shared
+                libraries = list(set(libraries))
                 share(user, libraries, opts.sync, opts.camera, opts.channels, filterMovies, filterTelevision,
                       filterMusic)
             if opts.remove:
-                shared = find_shares(user)
                 libraries = [sect for sect in shared if sect not in libraries]
                 share(user, libraries, opts.sync, opts.camera, opts.channels, filterMovies, filterTelevision,
                       filterMusic)
+        if opts.shared:
+            print('Current shares for {}: {}'.format(user, shared))
         if opts.unshare and opts.kill:
             kill_session(user, opts.kill)
             sleep(3)
