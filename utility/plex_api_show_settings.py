@@ -15,13 +15,11 @@ autoDeletionItemPolicyWatchedLibrary=7
 [0, 1, 7]
 
 Example:
-
 python plex_api_show_settings.py --libraries "TV Shows" --watched 7
    - Delete episodes after watching After 1 week
-   
+
 python plex_api_show_settings.py --libraries "TV Shows" --unwatched -7
    - Keep Episodesfrom the past 7 days
-
 """
 import argparse
 import requests
@@ -39,7 +37,7 @@ sess = requests.Session()
 sess.verify = False
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
-sections_lst = [x.title for x in plex.library.sections()]
+sections_lst = [x.title for x in plex.library.sections() if x.type == 'show']
 
 
 def set(rating_key, action, number):
@@ -62,24 +60,24 @@ if __name__ == '__main__':
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--libraries', nargs='+', default=False, choices=sections_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
-                             '(choices: %(choices)s')
+                             '(choices: %(choices)s)')
     parser.add_argument('--watched', nargs='?', default=False, choices=WATCHED_LST, metavar='',
                         help='Keep: Set the maximum number of unwatched episodes to keep for the show. \n'
-                             '(choices: %(choices)s')
+                             '(choices: %(choices)s)')
     parser.add_argument('--unwatched', nargs='?', default=False, choices=UNWATCHED_LST, metavar='',
                         help='Delete episodes after watching: '
                              'Choose how quickly episodes are removed after the server admin has watched them. \n'
-                             '(choices: %(choices)s')
+                             '(choices: %(choices)s)')
 
     opts = parser.parse_args()
-    
+
     if opts.watched:
         setting = 'autoDeletionItemPolicyWatchedLibrary'
         number = opts.watched
     if opts.unwatched:
         setting = 'autoDeletionItemPolicyUnwatchedLibrary'
         number = opts.unwatched
-    
+
     for libary in opts.libraries:
         shows = plex.library.section(libary).all()
 
