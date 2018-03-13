@@ -67,7 +67,7 @@ while countdown < counter and countdown is not None:
               else:
                   sleep(INTERVAL)
                   counter = counter - INTERVAL
-           elif session.players[0].state == 'playing':
+           elif session.players[0].state == 'playing' or session.players[0].state == 'buffering':
                print ("{} resumed the stream of {} so we killed the script.".format(username, title))
                sys.exit(0)
     if not foundSession:
