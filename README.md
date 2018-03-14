@@ -3,7 +3,10 @@
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4J6RPWZ9J9YML)  [![PM](https://img.shields.io/badge/Reddit-Message-lightgrey.svg)](https://www.reddit.com/user/Blacktwin/)  [![PM](https://img.shields.io/badge/Plex-Message-orange.svg)](https://forums.plex.tv/profile/discussions/Blacktwin) [![Issue](https://img.shields.io/badge/Submit-Issue-red.svg)](https://github.com/blacktwin/JBOPS/issues/new) 
 
-Most of these scripts utilize a combination of [PlexPy](https://github.com/JonnyWong16/plexpy), [python-plexapi](https://github.com/pkkid/python-plexapi), and [requests](http://docs.python-requests.org/en/master/user/install/#install).
+Most of these scripts utilize a combination of [Tautulli](https://github.com/Tautulli/Tautulli), [python-plexapi](https://github.com/pkkid/python-plexapi), and [requests](http://docs.python-requests.org/en/master/user/install/#install).
+
+## Notice:
+These scripts have not been tested using Tautulli. The improvements in Tautulli may cause errors with scripts that pull data from Tautulli, especailly metadata. If you come into a problem please create an issue and reference the script that errors out with Tautulli. Once Tautulli is out of Beta I'll look into which scripts need updated and which can be removed. 
 
 ## Scripts List
 [![Gist](https://img.shields.io/badge/gist-Blacktwin-green.svg)](https://gist.github.com/blacktwin)   
@@ -25,7 +28,7 @@ Scripts pulled from my gist profile.
     <a href="https://github.com/blacktwin/JBOPS/raw/master/maps/World_map_example.PNG"><img src="https://img.shields.io/badge/Image-World_map-blue.svg" alt=""</a>
     <a href="https://github.com/blacktwin/JBOPS/blob/master/maps/geojson_example.geojson"><img src="https://img.shields.io/badge/Image-geojson-blue.svg" alt=""</a></td>
     <td><a href="../master/maps/ips_to_maps.py"ips_to_maps>Maps</a></td>
-    <td>Using PlexPy data, draw a map connecting Server to Clients based on IP addresses.</td>
+    <td>Using Tautulli data, draw a map connecting Server to Clients based on IP addresses.</td>
   </tr>
 </table>
 </details>
@@ -66,8 +69,8 @@ Scripts pulled from my gist profile.
     <td></td>
     <td><a href="../master/killstream/wait_kill_pause_notify_main.py">wait_kill_pause_notify_main</a></td>
     <td>
-	Receive session_key from PlexPy when paused. Use sub-script <a href="../master/killstream/wait_kill_pause_notify_sub.py">wait_kill_pause_notify_sub</a> 
-	to wait for X time then check if still paused. If so, kill. Toggle whether you'd like to be notified through a PlexPy notification agent.
+	Receive session_key from Tautulli when paused. Use sub-script <a href="../master/killstream/wait_kill_pause_notify_sub.py">wait_kill_pause_notify_sub</a>
+	to wait for X time then check if still paused. If so, kill. Toggle whether you'd like to be notified through a Tautulli notification agent.
 	</td>
   </tr>
   <tr>
@@ -94,7 +97,7 @@ Scripts pulled from my gist profile.
   <tr>
     <td></td>
     <td><a href="../master/killstream/ip_whitelist.py">ip_whitelist</a></td>
-    <td>Receive session_key and IP from PlexPy when playback starts. Use IP to check against whitelist. If not in whitelist use session_key to determine stream and kill.</td>
+    <td>Receive session_key and IP from Tautulli when playback starts. Use IP to check against whitelist. If not in whitelist use session_key to determine stream and kill.</td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/88fce565c8ecf56839641f22f4c5c422"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
@@ -104,7 +107,7 @@ Scripts pulled from my gist profile.
   <tr>
     <td><a href="https://gist.github.com/blacktwin/d47d3ada86d02a494f9dc33e50dd15b5"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/killstream/kill_else_if_buffering.py">kill_else_if_buffering</a></td>
-    <td>Kill concurrent transcode streams of other users if Admin user is experiencing buffering warnings from PlexPy.</td>
+    <td>Kill concurrent transcode streams of other users if Admin user is experiencing buffering warnings from Tautulli.</td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/6d08b94ca3e80d3ed0bb3c7172fae21d"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
@@ -134,7 +137,7 @@ Scripts pulled from my gist profile.
   <tr>
     <td><a href="https://gist.github.com/blacktwin/14d400a0f442da465389164fa046647a"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/killstream/kill_trans_pause.py">kill_trans_pause</a></td>
-    <td>Kill Plex paused video transcoding streams using PlexPy.</td>
+    <td>Kill Plex paused video transcoding streams using Tautulli.</td>
   </tr>
 </table>
 </details>
@@ -157,12 +160,12 @@ Scripts pulled from my gist profile.
   <tr>
     <td><a href="https://gist.github.com/blacktwin/e6d589a9af9bdf168717951083861e93"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/notify/find_unwatched_notify.py">find_unwatched_notify</a></td>
-    <td>Find what was added TFRAME ago and not watched and notify admin using PlexPy.</td>
+    <td>Find what was added TFRAME ago and not watched and notify admin using Tautulli.</td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/1094dcf38249f36c8d374e0cba7a86cd"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/notify/notify_added_custom.py">notify_added_custom</a></td>
-    <td>Send an email with what was added to Plex in the past week using PlexPy. Email includes title (TV: Show Name: Episode Name; Movie: Movie Title), time added, image, and summary.</td>
+    <td>Send an email with what was added to Plex in the past week using Tautulli. Email includes title (TV: Show Name: Episode Name; Movie: Movie Title), time added, image, and summary.</td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/099c07d8099c18a378bba6415d9253ba"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
@@ -220,7 +223,7 @@ Scripts pulled from my gist profile.
   <tr>
     <td><a href="https://gist.github.com/blacktwin/f4149c296f2d1ffd1cbd863c37bb3a3c"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/utility/bypass_auth_name.py">bypass_auth_name</a></td>
-    <td>Use PlexPy to pull last IP address from user and add to List of IP addresses and networks that are allowed without auth in Plex.    </td>
+    <td>Use Tautulli to pull last IP address from user and add to List of IP addresses and networks that are allowed without auth in Plex.    </td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/0332f2dc9534bdf412ff3f664e9513c0"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
@@ -235,7 +238,7 @@ Scripts pulled from my gist profile.
   <tr>
     <td><a href="https://gist.github.com/blacktwin/603d5da5b70b366e98d0d82d1aa1a470"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/utility/find_unwatched.py">find_unwatched</a></td>
-    <td>Find what was added TFRAME ago and not watched using PlexPy.    </td>
+    <td>Find what was added TFRAME ago and not watched using Tautulli.    </td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/f435aa0ccd498b0840d2407d599bf31d"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
@@ -302,7 +305,7 @@ Scripts pulled from my gist profile.
   <tr>
     <td><a href="https://gist.github.com/blacktwin/21823b3394f5b077d42495b21570b593"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/reporting/added_to_plex.py">added_to_plex</a></td>
-    <td>Find when media was added between STARTFRAME and ENDFRAME to Plex through PlexPy.</td>
+    <td>Find when media was added between STARTFRAME and ENDFRAME to Plex through Tautulli.</td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/f070dff29ddbeb87973be9c0a94a1df7"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
@@ -317,12 +320,12 @@ Scripts pulled from my gist profile.
   <tr>
     <td><a href="https://gist.github.com/blacktwin/561c3a404754eb7b9e543867619d3251"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/reporting/drive_check.py">drive_check</a></td>
-    <td>Check if drive exists. If not then notify via PlexPy notifier agent.    </td>
+    <td>Check if drive exists. If not then notify via Tautulli notifier agent.    </td>
   </tr>
   <tr>
     <td><a href="https://gist.github.com/blacktwin/bd905d39ab71c5d7c628e27fddd1086e"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/reporting/userplays_weekly_reporting.py">userplays_weekly_reporting</a></td>
-    <td>Use PlexPy to count how many plays per user occurred this week and send email via PlexPy.</td>
+    <td>Use Tautulli to count how many plays per user occurred this week and send email via Tautulli.</td>
   </tr>
 
 </table>
@@ -331,9 +334,9 @@ Scripts pulled from my gist profile.
 ----
 
 <details>
-<summary>Setting Up PlexPy for Custom Scripts</summary>
+<summary>Setting Up Tautulli for Custom Scripts</summary>
 
-#### Enabling Scripts in PlexPy:
+#### Enabling Scripts in Tautulli:
 
 Settings > Notification Agents > Click the Scripts gear
 
@@ -364,14 +367,14 @@ Settings > Notifications > Click Script
 - [ ]  PLEX_HOST - Local IP to connect to Plex ('localhost',  '192.168.0.x', '127.0.0.1', etc.)
 - [ ]  PLEX_PORT - Port number used by Plex (default: 32400)
 - [ ]  PLEX_SSL - http:// or https://? '' if http and 's' if https
-- [ ]  PLEX_TOKEN - [Plex](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token) or PlexPy Settings > Plex.tv Account > PMS Token
+- [ ]  PLEX_TOKEN - [Plex](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token) or Tautulli Settings > Plex.tv Account > PMS Token
 </details>
 
 <details>
-<summary>PlexPy</summary>
+<summary>Tautulli</summary>
 
-- [ ]  PLEXPY_URL - Local IP to connect to PlexPy ('localhost',  '192.168.0.x', '127.0.0.1', etc.)   
-- [ ] PLEXPY_APIKEY - PlexPy Settings > Access Control > Enable API - API Key
+- [ ]  TAUTULLI_URL - Local IP to connect to Tautulli ('localhost',  '192.168.0.x', '127.0.0.1', etc.)
+- [ ] TAUTULLI_APIKEY - Tautulli Settings > Access Control > Enable API - API Key
 </details>
 
 </details>
