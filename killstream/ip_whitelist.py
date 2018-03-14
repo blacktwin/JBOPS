@@ -17,7 +17,7 @@ PlexPy > Settings > Notifications > Script > Script Arguments:
 import sys
 import requests
 from plexapi.server import PlexServer
-# pip install plexapi
+import configparser
 
 
 ## EDIT THESE SETTINGS ##
