@@ -6,7 +6,7 @@
 Most of these scripts utilize a combination of [Tautulli](https://github.com/Tautulli/Tautulli), [python-plexapi](https://github.com/pkkid/python-plexapi), and [requests](http://docs.python-requests.org/en/master/user/install/#install).
 
 ## Notice:
-Updating script to better suit Tautulli and adding config file.
+These scripts have not been tested using Tautulli. The improvements in Tautulli may cause errors with scripts that pull data from Tautulli, especailly metadata. If you come into a problem please create an issue and reference the script that errors out with Tautulli. Once Tautulli is out of Beta I'll look into which scripts need updated and which can be removed. 
 
 ## Scripts List
 [![Gist](https://img.shields.io/badge/gist-Blacktwin-green.svg)](https://gist.github.com/blacktwin)   
@@ -338,21 +338,33 @@ Scripts pulled from my gist profile.
 
 #### Enabling Scripts in Tautulli:
 
-Settings > Notification Agents > Click the Scripts gear
+Taultulli > Settings > Notification Agents > Add a Notification Agent > Script
 
-- [ ] Set scripts location to location of your scripts
+Taultulli > Settings > Notification Agents > New Script > Configuration:
+- [ ] Set scripts location to location of your script
 - [ ] Scroll down to option you want to use and select the script from the drop down menu
+- [ ] Set desired Script Timeout value
+- [ ] Optional - Add a description of the script for easy reference
 - [ ] Save
       
-Settings > Notification Agents > Click the Bell next to Scripts
+Taultulli > Settings > Notification Agents > New Script > Triggers:
 
 - [ ] Check desired trigger
-- [ ] Close
-      
-Settings > Notifications > Click Script
-  
-- [ ] Enter in the Script Arguments
 - [ ] Save
+      
+Taultulli > Settings > Notification Agents > New Script > Conditions:
+
+- [ ] Set desired conditions
+- [ ] Save
+
+For more information on Tautulli conditions see [here](https://github.com/Tautulli/Tautulli-Wiki/wiki/Custom-Notification-Conditions)
+
+Taultulli > Settings > Notification Agents > New Script > Script Arguments:
+
+- [ ] Select desired trigger
+- [ ] Input desired notification parameters (List of parameters will likely be found inside script)
+- [ ] Save
+- [ ] Close
 
 
 </details>
@@ -364,18 +376,15 @@ Settings > Notifications > Click Script
 <details>
 <summary>Plex</summary>
 
-- [ ]  PLEX_HOST - Local IP to connect to Plex ('localhost',  '192.168.0.x', '127.0.0.1', etc.)
-- [ ]  PLEX_PORT - Port number used by Plex (default: 32400)
-- [ ]  PLEX_SSL - http:// or https://? '' if http and 's' if https
+- [ ]  PLEX_URL - Local/Remote IP to connect to Plex ('http://localhost:32400', 'https://x.x.x.x:32412', etc.)
 - [ ]  PLEX_TOKEN - [Plex](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token) or Tautulli Settings > Plex.tv Account > PMS Token
 </details>
 
 <details>
 <summary>Tautulli</summary>
 
-- [ ]  TAUTULLI_URL - Local IP to connect to Tautulli ('localhost',  '192.168.0.x', '127.0.0.1', etc.)
-- [ ] TAUTULLI_APIKEY - Tautulli Settings > Access Control > Enable API - API Key
+- [ ]  TAUTULLI_URL - Local/Remote IP to connect to Tautulli ('http://localhost:8181',  'https://x.x.x.x:8182', etc.)
+- [ ]  TAUTULLI_APIKEY - Tautulli Settings > Access Control > Enable API - API Key
 </details>
 
 </details>
-
