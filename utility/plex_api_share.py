@@ -10,13 +10,13 @@ optional arguments:
   --add                 Add additional libraries.
   --remove              Remove existing libraries.
   --user  [ ...]        Space separated list of case sensitive names to process. Allowed names are:
-
                         (choices: All users names)
+  --allUsers            Select all users.
   --libraries  [ ...]
                         Space separated list of case sensitive names to process. Allowed names are:
                         (choices: All library names)
                         (default: All Libraries)
-
+  --allLibraries        Select all libraries.
   --sync                Allow user to sync content
   --camera              Allow user to upload photos
   --channel             Allow user to utilize installed channels
@@ -48,7 +48,7 @@ Usage:
    plex_api_share.py --user USER --add --libraries Movies
        - Adds Movies library share to USER
 
-   plex_api_share.py --allUsers --remove --libraries Movies
+   plex_api_share.py  --allUsers --remove --libraries Movies
        - Removes Movies library share from all Users
 
    plex_api_share.py --unshare --user USER
@@ -72,6 +72,7 @@ from plexapi.server import PlexServer
 from time import sleep
 import argparse
 import requests
+import json
 
 PLEX_URL = 'http://localhost:32400'
 PLEX_TOKEN = 'xxxx'
@@ -96,6 +97,7 @@ def get_ratings_lst(section_id):
     content = requests.get("{}/library/sections/{}/contentRating".format(PLEX_URL, section_id),
                            headers=headers, params=params)
 
+    # print(json.dumps(content.json(), indent=4, sort_keys=True))
     ratings_keys = content.json()['MediaContainer']['Directory']
     ratings_lst = [x['title'] for x in ratings_keys]
     return ratings_lst
@@ -131,7 +133,7 @@ def share(user, sections, allowSync, camera, channels, filterMovies, filterTelev
     plex.myPlexAccount().updateFriend(user=user, server=plex, sections=sections, allowSync=allowSync,
                                       allowCameraUpload=camera, allowChannels=channels, filterMovies=filterMovies,
                                       filterTelevision=filterTelevision, filterMusic=filterMusic)
-    print('Shared libraries: {sections} with {user}.'.format(sections=list(set(sections)), user=user))
+    print('Shared libraries: {sections} with {user}.'.format(sections=sections, user=user))
 
 
 def unshare(user, sections):
@@ -171,7 +173,7 @@ if __name__ == "__main__":
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
                              '(choices: %(choices)s')
     parser.add_argument('--allLibraries', default=False, action='store_true',
-                        help='Select all users.')
+                        help='Select all libraries.')
     parser.add_argument('--sync', default=False, action='store_true',
                         help='Use to allow user to sync content.')
     parser.add_argument('--camera', default=False, action='store_true',
