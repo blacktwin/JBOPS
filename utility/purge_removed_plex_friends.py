@@ -7,6 +7,9 @@ TAUTULLI_API_KEY = 'asd8a9sd8789asd87f9aasdf'
 PLEX_USERNAME = 'someuser'
 PLEX_PASSWORD = 'somepassword'
 
+# Do you want to back up the database before deleting?
+BACKUP_DB = True
+
 # Do not edit past this line #
 account = MyPlexAccount(PLEX_USERNAME, PLEX_PASSWORD)
 
@@ -18,6 +21,10 @@ plex_friend_ids = [friend.id for friend in account.users()]
 tautulli_user_ids = [user['user_id'] for user in tautulli_users]
 
 removed_user_ids = [user_id for user_id in tautulli_user_ids if user_id not in plex_friend_ids]
+
+if BACKUP_DB:
+    payload['cmd'] = 'backup_db'
+    backup = requests.get('http://{}/api/v2'.format(TAUTULLI_BASE_URL), params=payload)
 
 if removed_user_ids:
     payload['cmd'] = 'delete_user'
