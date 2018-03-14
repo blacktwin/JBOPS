@@ -16,6 +16,9 @@ PLEX_PASSWORD = ''
 # Do you want to back up the database before deleting?
 BACKUP_DB = True
 
+# Do you want to back up the database before deleting?
+BACKUP_DB = True
+
 # Do not edit past this line #
 account = MyPlexAccount(PLEX_USERNAME, PLEX_PASSWORD)
 
