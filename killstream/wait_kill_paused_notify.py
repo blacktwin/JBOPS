@@ -42,8 +42,8 @@ sess.verify = False
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 sessionKey = sys.argv[1]
-userName = sys.argv[2]
-tTitle = sys.argv[3]
+username = sys.argv[2]
+streamTitle = sys.argv[3]
 
 start = datetime.now()
 
@@ -51,25 +51,31 @@ countdown = 0
 counter = TIMEOUT + INTERVAL + 100
 
 while countdown < counter and countdown is not None:
+
     foundSession = False
+
     for session in plex.sessions():
+
         if session.sessionKey == int(sessionKey):
            foundSession = True
-           username = session.usernames[0]
-           title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
+
            if session.players[0].state == 'paused':
               now = datetime.now()
               diff = now - start
+
               if diff.total_seconds() >= TIMEOUT:
                  session.stop(reason=KILL_MESSAGE)
-                 print (TAUTULLI_KILL_LOG.format(user=username, timeout=TIMEOUT, title=title))
+                 print (TAUTULLI_KILL_LOG.format(user=username, timeout=TIMEOUT, title=streamTitle))
                  sys.exit(0)
+
               else:
                   sleep(INTERVAL)
                   counter = counter - INTERVAL
+
            elif session.players[0].state == 'playing' or session.players[0].state == 'buffering':
-               print ("{} resumed the stream of {} so we killed the script.".format(username, title))
+               print ("{} resumed the stream of {} so we killed the script.".format(username, streamTitle))
                sys.exit(0)
+
     if not foundSession:
-           print ("Session key ({}) for user {} not found while playing {}. The player may have gone to a paused then stopped state.".format(sessionKey, userName, tTitle))
+           print ("Session key ({}) for user {} not found while playing {}. The player may have gone to a paused then stopped state.".format(sessionKey, username, streamTitle))
            sys.exit(0)
