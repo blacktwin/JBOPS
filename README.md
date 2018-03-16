@@ -6,7 +6,7 @@
 Most of these scripts utilize a combination of [PlexPy](https://github.com/JonnyWong16/plexpy), [python-plexapi](https://github.com/pkkid/python-plexapi), and [requests](http://docs.python-requests.org/en/master/user/install/#install).
 
 ## Notice:
-These scripts have not been tested using Tautulli. The improvements in Tautulli may cause errors with scripts that pull data from Tautulli, especailly metadata. If you come into a problem please create an issue and reference the script that errors out with Tautulli. Once Tautulli is out of Beta I'll look into which scripts need updated and which can be removed. 
+Updating for Tautulli
 
 ## Scripts List
 [![Gist](https://img.shields.io/badge/gist-Blacktwin-green.svg)](https://gist.github.com/blacktwin)   
