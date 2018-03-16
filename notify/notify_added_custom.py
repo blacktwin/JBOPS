@@ -35,8 +35,9 @@ import uuid
 import argparse
 
 
+
 ## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'xxx'  # Your PlexPy API key
+PLEXPY_APIKEY = ''  # Your PlexPy API key
 PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
 LIBRARY_NAMES = ['Movies', 'TV Shows'] # Name of libraries you want to check.
 
@@ -70,7 +71,6 @@ class METAINFO(object):
         self.rating_key = d['rating_key']
         self.media_type = d['media_type']
         self.grandparent_title = d['grandparent_title']
-        self.file_size = d['file_size']
         self.thumb = d['art']
         self.summary = d['summary']
 
@@ -107,7 +107,8 @@ def get_get_metadata(rating_key):
         r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         if response['response']['result'] == 'success':
-            res_data = response['response']['data']['metadata']
+            res_data = response['response']['data']
+
             return METAINFO(data=res_data)
 
     except Exception as e:
@@ -286,7 +287,7 @@ def send_email(msg_text_lst, notify_lst, image_lst, to, days):
     mailserver.login(email_username, email_password)
     mailserver.sendmail(sender, to, message.as_string())
     mailserver.quit()
-    print 'Email sent'
+    print('Email sent')
 
 
 if __name__ == '__main__':
