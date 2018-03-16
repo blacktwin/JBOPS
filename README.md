@@ -340,6 +340,8 @@ Scripts pulled from my gist profile.
 
 Taultulli > Settings > Notification Agents > Add a Notification Agent > Script
 
+#### Configuration
+
 Taultulli > Settings > Notification Agents > New Script > Configuration:
 - [ ] Set scripts location to location of your script
 - [ ] Scroll down to option you want to use and select the script from the drop down menu
@@ -347,11 +349,13 @@ Taultulli > Settings > Notification Agents > New Script > Configuration:
 - [ ] Optional - Add a description of the script for easy reference
 - [ ] Save
       
+#### Triggers
 Taultulli > Settings > Notification Agents > New Script > Triggers:
 
 - [ ] Check desired trigger
 - [ ] Save
-      
+
+#### Conditions
 Taultulli > Settings > Notification Agents > New Script > Conditions:
 
 - [ ] Set desired conditions
@@ -359,6 +363,7 @@ Taultulli > Settings > Notification Agents > New Script > Conditions:
 
 For more information on Tautulli conditions see [here](https://github.com/Tautulli/Tautulli-Wiki/wiki/Custom-Notification-Conditions)
 
+#### Script Arguments
 Taultulli > Settings > Notification Agents > New Script > Script Arguments:
 
 - [ ] Select desired trigger
