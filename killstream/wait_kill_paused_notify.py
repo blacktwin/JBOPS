@@ -12,7 +12,8 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning) # This is for
 Taultulli > Settings > Notification Agents > Add a Notification Agent > Script
 
 Taultulli > Settings > Notification Agents > New Script > Configuration:
-        Script File > Playback Pause: v
+        Script Folder > /path/to/script/folder
+        Script File > wait_kill_paused_notify.py
         Script Timeout > 0
 Taultulli > Settings > Notification Agents > New Script > Triggers:
         [X] Notify on Playback Pause
