@@ -1,4 +1,3 @@
-
 """
 Pulling together User IP information and Email.
 
@@ -9,7 +8,9 @@ PlexPy > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: notify_newip.py
 
 Arguments passed from PlexPy
--sn {show_name} -ena {episode_name} -ssn {season_num00} -enu {episode_num00} -srv {server_name} -med {media_type} -pos {poster_url} -tt {title} -sum {summary} -lbn {library_name} -ip {ip_address} -us {user} -uid {user_id} -pf {platform} -pl {player} -da {datestamp} -ti {timestamp}
+-sn {show_name} -ena {episode_name} -ssn {season_num00} -enu {episode_num00} -srv {server_name} -med {media_type}
+-pos {poster_url} -tt {title} -sum {summary} -lbn {library_name} -ip {ip_address} -us {user} -uid {user_id}
+-pf {platform} -pl {player} -da {datestamp} -ti {timestamp}
 
 
 """
@@ -17,11 +18,10 @@ import argparse
 import requests
 import sys
 
-
 ## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'XXXX'  # Your PlexPy API key
+PLEXPY_APIKEY = ''  # Your PlexPy API key
 PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
-NOTIFICATION_ID = 10  # The notification agent ID for PlexPy 10 = Email
+NOTIFIER_ID = 12  # The notification notifier ID
 
 # Replace LAN IP addresses that start with the LAN_SUBNET with a WAN IP address
 # to retrieve geolocation data. Leave REPLACEMENT_WAN_IP blank for no replacement.
@@ -38,16 +38,19 @@ BODY_TEXT = """\
   <head></head>
   <body>
     <p>Hi!<br>
-    <br><a href="mailto:{u.email}"><img src="{u.user_thumb}" alt="Poster unavailable" height="50" width="50"></a> {p.user} has watched {p.media_type}:{p.title} from a new IP address: {p.ip_address}<br>
-    <br>On {p.platform}[{p.player}] in <a href="http://maps.google.com/?q={g.city},{g.country},{g.postal_code}">{g.city}, {g.country} {g.postal_code}</a> at {p.timestamp} on {p.datestamp}<br>
+    <br><a href="mailto:{u.email}"><img src="{u.user_thumb}" alt="Poster unavailable" height="50" width="50"></a> 
+    {p.user} has watched {p.media_type}:{p.title} from a new IP address: {p.ip_address}<br>
+    <br>On {p.platform}[{p.player}] in 
+    <a href="http://maps.google.com/?q={g.city},{g.country},{g.postal_code}">{g.city}, {g.country} {g.postal_code}</a>
+     at {p.timestamp} on {p.datestamp}<br>
     <br><br>
     <br>User email is: {u.email}<br>
     </p>
   </body>
 </html>
 """
-            
-##Geo Space##
+
+
 class GeoData(object):
     def __init__(self, data=None):
         data = data or {}
@@ -55,27 +58,22 @@ class GeoData(object):
         self.city = data.get('city', 'N/A')
         self.postal_code = data.get('postal_code', 'N/A')
 
-##USER Space##
+
 class UserEmail(object):
     def __init__(self, data=None):
         data = data or {}
         self.email = data.get('email', 'N/A')
         self.user_id = data.get('user_id', 'N/A')
         self.user_thumb = data.get('user_thumb', 'N/A')
-        
-##IP Space##
-class UserIPs(object):
-    def __init__(self, data=None):
-        data = data or {}
-    
-##API Space##
+
+
 def get_user_ip_addresses(user_id='', ip_address=''):
     # Get the user IP list from PlexPy
     payload = {'apikey': PLEXPY_APIKEY,
                'cmd': 'get_user_ips',
                'user_id': user_id,
                'search': ip_address}
-               
+
     try:
         r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
@@ -88,7 +86,7 @@ def get_user_ip_addresses(user_id='', ip_address=''):
                 sys.stdout.write("Successfully retrieved UserIPs data.")
                 if response['response']['data']['recordsFiltered'] == 0:
                     sys.stdout.write("IP has no history.")
-                    return UserIPs(data=data)
+                    return data
                 else:
                     sys.stdout.write("IP has history, killing script.")
                     exit()
@@ -96,7 +94,8 @@ def get_user_ip_addresses(user_id='', ip_address=''):
             raise Exception(response['response']['message'])
     except Exception as e:
         sys.stderr.write("PlexPy API 'get_user_ip_addresses' request failed: {0}.".format(e))
-        return UserIPs()        
+        return
+
 
 def get_geoip_info(ip_address=''):
     # Get the geo IP lookup from PlexPy
@@ -145,6 +144,7 @@ def get_user_email(user_id=''):
         sys.stderr.write("PlexPy API 'get_user' request failed: {0}.".format(e))
         return UserEmail()
 
+
 def send_notification(arguments=None, geodata=None, useremail=None):
     # Format notification text
     try:
@@ -156,14 +156,14 @@ def send_notification(arguments=None, geodata=None, useremail=None):
     # Send the notification through PlexPy
     payload = {'apikey': PLEXPY_APIKEY,
                'cmd': 'notify',
-               'agent_id': NOTIFICATION_ID,
+               'notifier_id': NOTIFIER_ID,
                'subject': subject,
                'body': body}
 
     try:
         r = requests.post(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
-        
+
         if response['response']['result'] == 'success':
             sys.stdout.write("Successfully sent PlexPy notification.")
         else:
@@ -171,6 +171,7 @@ def send_notification(arguments=None, geodata=None, useremail=None):
     except Exception as e:
         sys.stderr.write("PlexPy API 'notify' request failed: {0}.".format(e))
         return None
+
 
 if __name__ == '__main__':
     # Parse arguments from PlexPy
@@ -181,7 +182,7 @@ if __name__ == '__main__':
     parser.add_argument('-us', '--user', action='store', default='',
                         help='Username of the person watching the stream')
     parser.add_argument('-uid', '--user_id', action='store', default='',
-                        help='User_ID of the person watching the stream')                        
+                        help='User_ID of the person watching the stream')
     parser.add_argument('-med', '--media_type', action='store', default='',
                         help='The media type of the stream')
     parser.add_argument('-tt', '--title', action='store', default='',
@@ -210,7 +211,7 @@ if __name__ == '__main__':
                         help='The summary of the TV show')
     parser.add_argument('-lbn', '--library_name', action='store', default='',
                         help='The name of the TV show')
-                        
+
     p = parser.parse_args()
 
     # Check to make sure there is an IP address before proceeding
@@ -219,11 +220,11 @@ if __name__ == '__main__':
             ip_address = REPLACEMENT_WAN_IP
         else:
             ip_address = p.ip_address
-            
+
         g = get_geoip_info(ip_address=ip_address)
         u = get_user_email(user_id=p.user_id)
         get_user_ip_addresses(user_id=p.user_id, ip_address=p.ip_address)
         send_notification(arguments=p, geodata=g, useremail=u)
-        
+
     else:
         sys.stdout.write("No IP address passed from PlexPy.")
