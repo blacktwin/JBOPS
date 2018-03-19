@@ -1,5 +1,5 @@
 """
-Send an email with what was added to Plex in the past week using PlexPy.
+Send an email with what was added to Plex in the past week using Tautulli.
 Email includes title (TV: Show Name: Episode Name; Movie: Movie Title), time added, image, and summary.
 
 Uses:
@@ -37,8 +37,8 @@ import argparse
 
 
 ## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = ''  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+TAUTULLI_APIKEY = ''  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 LIBRARY_NAMES = ['Movies', 'TV Shows'] # Name of libraries you want to check.
 
 # Email settings
@@ -50,7 +50,7 @@ email_server = 'smtp.gmail.com' # Email server (Gmail: smtp.gmail.com)
 email_port = 587  # Email port (Gmail: 587)
 email_username = '' # Your email username
 email_password = '' # Your email password
-email_subject = 'PlexPy Added Last {} day(s) Notification' #The email subject
+email_subject = 'Tautulli Added Last {} day(s) Notification' #The email subject
 
 # Default sizing for pictures
 # Poster
@@ -75,16 +75,16 @@ class METAINFO(object):
         self.summary = d['summary']
 
 
-def get_get_recent(section_id, start, count):
+def get_recent(section_id, start, count):
     # Get the metadata for a media item. Count matters!
-    payload = {'apikey': PLEXPY_APIKEY,
+    payload = {'apikey': TAUTULLI_APIKEY,
                'start': str(start),
                'count': str(count),
                'section_id': section_id,
                'cmd': 'get_recently_added'}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         if response['response']['result'] == 'success':
@@ -93,18 +93,18 @@ def get_get_recent(section_id, start, count):
             return res_data
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_recently_added' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_recently_added' request failed: {0}.".format(e))
 
 
-def get_get_metadata(rating_key):
+def get_metadata(rating_key):
     # Get the metadata for a media item.
-    payload = {'apikey': PLEXPY_APIKEY,
+    payload = {'apikey': TAUTULLI_APIKEY,
                'rating_key': rating_key,
                'cmd': 'get_metadata',
                'media_info': True}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         if response['response']['result'] == 'success':
             res_data = response['response']['data']
@@ -112,68 +112,68 @@ def get_get_metadata(rating_key):
             return METAINFO(data=res_data)
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_metadata' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_metadata' request failed: {0}.".format(e))
 
 
-def get_get_libraries_table():
-    # Get the data on the PlexPy libraries table.
-    payload = {'apikey': PLEXPY_APIKEY,
+def get_libraries_table():
+    # Get the data on the Tautulli libraries table.
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_libraries_table'}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         res_data = response['response']['data']['data']
         return [d['section_id'] for d in res_data if d['section_name'] in LIBRARY_NAMES]
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_libraries_table' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_libraries_table' request failed: {0}.".format(e))
 
 
 def update_library_media_info(section_id):
-    # Get the data on the PlexPy media info tables.
-    payload = {'apikey': PLEXPY_APIKEY,
+    # Get the data on the Tautulli media info tables.
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_library_media_info',
                'section_id': section_id,
                'refresh': True}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.status_code
         if response != 200:
             print(r.content)
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'update_library_media_info' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'update_library_media_info' request failed: {0}.".format(e))
 
 
 def get_pms_image_proxy(thumb):
     # Gets an image from the PMS and saves it to the image cache directory.
-    payload = {'apikey': PLEXPY_APIKEY,
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'pms_image_proxy',
                'img': thumb}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload, stream=True)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload, stream=True)
         return r.url
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_get_users_tables' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_users_tables' request failed: {0}.".format(e))
 
 
-def get_get_users():
-    # Get the user list from PlexPy.
-    payload = {'apikey': PLEXPY_APIKEY,
+def get_users():
+    # Get the user list from Tautulli.
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_users'}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         res_data = response['response']['data']
         return [d for d in res_data]
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_user' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_user' request failed: {0}.".format(e))
 
 
 def get_rating_keys(TODAY, LASTDATE):
@@ -186,7 +186,7 @@ def get_rating_keys(TODAY, LASTDATE):
 
         while True:
             # Assume all items will be returned in descending order of added_at
-            recent_items = get_get_recent(section_id, start, count)
+            recent_items = get_recent(section_id, start, count)
 
             if all([recent_items]):
                 start += count
@@ -206,7 +206,7 @@ def get_rating_keys(TODAY, LASTDATE):
 
 def build_html(rating_key, height, width, pic_type):
 
-    meta = get_get_metadata(str(rating_key))
+    meta = get_metadata(str(rating_key))
 
     added = time.ctime(float(meta.added_at))
     # Pull image url
@@ -292,7 +292,7 @@ def send_email(msg_text_lst, notify_lst, image_lst, to, days):
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description="Send an email with what was added to Plex in the past week using PlexPy.")
+    parser = argparse.ArgumentParser(description="Send an email with what was added to Plex in the past week using Tautulli.")
     parser.add_argument('-t', '--type', help='Metadata picture type from Plex.',
                         required= True, choices=['art', 'poster'])
     parser.add_argument('-s', '--size', help='Metadata picture size from Plex {Height Width}.', nargs='*')
@@ -321,17 +321,17 @@ if __name__ == '__main__':
         width = art_w
 
     # Find the libraries from LIBRARY_NAMES
-    glt = [lib for lib in get_get_libraries_table()]
+    glt = [lib for lib in get_libraries_table()]
 
     # Update media info for libraries.
     [update_library_media_info(i) for i in glt]
 
     # Gather all users email addresses
     if opts.users == ['all']:
-        [to.append(x['email']) for x in get_get_users() if x['email'] != '' and x['email'] not in to
+        [to.append(x['email']) for x in get_users() if x['email'] != '' and x['email'] not in to
          and x['username'] not in opts.ignore]
     elif opts.users != ['all'] and opts.users != 'self':
-        for get_users in get_get_users():
+        for get_users in get_users():
             for arg_users in opts.users:
                 if arg_users in get_users['username']:
                     to = to + [str(get_users['email'])]

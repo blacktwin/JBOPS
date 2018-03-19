@@ -1,13 +1,13 @@
 """
 Pulling together User IP information and Email.
 
-Adding to PlexPy
-PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+Adding to Tautulli
+Tautulli > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on playback start
-PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: notify_newip.py
 
-Arguments passed from PlexPy
+Arguments passed from Tautulli
 -sn {show_name} -ena {episode_name} -ssn {season_num00} -enu {episode_num00} -srv {server_name} -med {media_type}
 -pos {poster_url} -tt {title} -sum {summary} -lbn {library_name} -ip {ip_address} -us {user} -uid {user_id}
 -pf {platform} -pl {player} -da {datestamp} -ti {timestamp}
@@ -19,8 +19,8 @@ import requests
 import sys
 
 ## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = ''  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+TAUTULLI_APIKEY = ''  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 NOTIFIER_ID = 12  # The notification notifier ID
 
 # Replace LAN IP addresses that start with the LAN_SUBNET with a WAN IP address
@@ -68,14 +68,14 @@ class UserEmail(object):
 
 
 def get_user_ip_addresses(user_id='', ip_address=''):
-    # Get the user IP list from PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
+    # Get the user IP list from Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_user_ips',
                'user_id': user_id,
                'search': ip_address}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         if response['response']['result'] == 'success':
@@ -93,18 +93,18 @@ def get_user_ip_addresses(user_id='', ip_address=''):
         else:
             raise Exception(response['response']['message'])
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_user_ip_addresses' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_user_ip_addresses' request failed: {0}.".format(e))
         return
 
 
 def get_geoip_info(ip_address=''):
-    # Get the geo IP lookup from PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
+    # Get the geo IP lookup from Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_geoip_lookup',
                'ip_address': ip_address}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         if response['response']['result'] == 'success':
@@ -117,18 +117,18 @@ def get_geoip_info(ip_address=''):
         else:
             raise Exception(response['response']['message'])
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_geoip_lookup' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_geoip_lookup' request failed: {0}.".format(e))
         return GeoData()
 
 
 def get_user_email(user_id=''):
-    # Get the user email from PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
+    # Get the user email from Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_user',
                'user_id': user_id}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         if response['response']['result'] == 'success':
@@ -141,7 +141,7 @@ def get_user_email(user_id=''):
         else:
             raise Exception(response['response']['message'])
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_user' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_user' request failed: {0}.".format(e))
         return UserEmail()
 
 
@@ -153,28 +153,28 @@ def send_notification(arguments=None, geodata=None, useremail=None):
     except LookupError as e:
         sys.stderr.write("Unable to substitute '{0}' in the notification subject or body".format(e))
         return None
-    # Send the notification through PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
+    # Send the notification through Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'notify',
                'notifier_id': NOTIFIER_ID,
                'subject': subject,
                'body': body}
 
     try:
-        r = requests.post(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.post(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         if response['response']['result'] == 'success':
-            sys.stdout.write("Successfully sent PlexPy notification.")
+            sys.stdout.write("Successfully sent Tautulli notification.")
         else:
             raise Exception(response['response']['message'])
     except Exception as e:
-        sys.stderr.write("PlexPy API 'notify' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'notify' request failed: {0}.".format(e))
         return None
 
 
 if __name__ == '__main__':
-    # Parse arguments from PlexPy
+    # Parse arguments from Tautulli
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-ip', '--ip_address', action='store', default='',
@@ -227,4 +227,4 @@ if __name__ == '__main__':
         send_notification(arguments=p, geodata=g, useremail=u)
 
     else:
-        sys.stdout.write("No IP address passed from PlexPy.")
+        sys.stdout.write("No IP address passed from Tautulli.")

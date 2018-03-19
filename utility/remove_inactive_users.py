@@ -13,8 +13,8 @@ from plexapi.server import PlexServer
 
 
 ## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'xxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
+TAUTULLI_APIKEY = 'xxxx'  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8182/'  # Your Tautulli URL
 
 PLEX_TOKEN = 'xxxx'
 PLEX_URL = 'http://localhost:32400'
@@ -34,21 +34,21 @@ today = time.mktime(datetime.datetime.today().timetuple())
 
 
 def get_users_table():
-    # Get the PlexPy history.
-    payload = {'apikey': PLEXPY_APIKEY,
+    # Get the Tautulli history.
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_users_table',
                'order_column': 'last_seen',
                'order_dir': 'asc'}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         res_data = response['response']['data']['data']
         return [data for data in res_data if data['last_seen']]
 
     except Exception as e:
-        print("PlexPy API 'get_history' request failed: {0}.".format(e))
+        print("Tautulli API 'get_history' request failed: {0}.".format(e))
 
 
 def unshare(user):

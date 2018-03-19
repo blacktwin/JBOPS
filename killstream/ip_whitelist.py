@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
 '''
-Receive session_key and IP from PlexPy when playback starts. 
+Receive session_key and IP from Tautulli when playback starts. 
 Use IP to check against whitelist.
 If not in whitelist use session_key to determine stream and kill.
 
-PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+Tautulli > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on playback start
-PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: ip_whitelist.py
-PlexPy > Settings > Notifications > Script > Script Arguments:
+Tautulli > Settings > Notifications > Script > Script Arguments:
         {session_key} {ip_address}
 
 '''
@@ -24,15 +24,15 @@ from plexapi.server import PlexServer
 PLEX_TOKEN = 'xxxxxx'
 PLEX_URL = 'http://localhost:32400'
 
-PLEXPY_APIKEY = 'xxxxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
+TAUTULLI_APIKEY = 'xxxxxx'  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8182/'  # Your Tautulli URL
 
 IP_WHITELIST = ['10.10.0.12']  # List IP addresses.
 IGNORE_LST = ('')  # List usernames that should be ignored.
 
 REASON = 'IP Address: {} was not found in whitelist.'
 
-AGENT_ID = 14  # Notification agent ID for PlexPy
+AGENT_ID = 14  # Notification agent ID for Tautulli
 # Find Notification agent ID here:
 # https://github.com/JonnyWong16/plexpy/blob/master/API.md#notify
 
@@ -56,23 +56,23 @@ def send_notification(subject_text, body_text):
     except LookupError as e:
         sys.stderr.write("Unable to substitute '{0}' in the notification subject or body".format(e))
         return None
-    # Send the notification through PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
+    # Send the notification through Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'notify',
                'agent_id': AGENT_ID,
                'subject': subject,
                'body': body}
 
     try:
-        r = requests.post(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.post(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         if response['response']['result'] == 'success':
-            sys.stdout.write("Successfully sent PlexPy notification.")
+            sys.stdout.write("Successfully sent Tautulli notification.")
         else:
             raise Exception(response['response']['message'])
     except Exception as e:
-        sys.stderr.write("PlexPy API 'notify' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'notify' request failed: {0}.".format(e))
         return None
 
 

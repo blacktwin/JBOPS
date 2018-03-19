@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
 '''
-PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+Tautulli > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on pause
-PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Playback Pause: wait_kill_pause_notify_main.py
-PlexPy > Settings > Notifications > Script > Script Arguments:
+Tautulli > Settings > Notifications > Script > Script Arguments:
         {session_key}
 
 wait_kill_pause_notify_main.py & wait_kill_pause_notify_sub.py should be in the same directory.
 wait_kill_pause_notify_main.py executes sub_script wait_kill_pause_notify_sub.py.
 
-PlexPy will timeout wait_kill_pause_notify_main.py after 30 seconds (default)
+Tautulli will timeout wait_kill_pause_notify_main.py after 30 seconds (default)
     but wait_kill_pause_notify_sub.py will continue.
 
 wait_kill_pause_notify_sub will check if the stream's session_id is still paused or if playing as restarted.
@@ -31,8 +31,8 @@ from plexapi.server import PlexServer
 ## EDIT THESE SETTINGS ##
 PLEX_TOKEN = ''
 PLEX_URL = 'http://localhost:32400'
-PLEXPY_APIKEY = ''  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
+TAUTULLI_APIKEY = ''  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8182/'  # Your Tautulli URL
 
 TIMEOUT = '120'
 INTERVAL = '20'
@@ -44,7 +44,7 @@ USER_IGNORE = ('') # ('Username','User2')
 SUBJECT_TEXT = "Killed Paused Transcoded Stream."
 BODY_TEXT = "Killed {user}'s paused transcoded stream of {title}."
 
-AGENT_ID = 10  # Notification agent ID for PlexPy
+AGENT_ID = 10  # Notification agent ID for Tautulli
 # Find Notification agent ID here:
 # https://github.com/JonnyWong16/plexpy/blob/master/API.md#notify
 # AGENT = '' to disable notification
@@ -60,23 +60,23 @@ sessionKey = sys.argv[1]
 
 
 def send_notification(subject_text, body_text):
-    # Send the notification through PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
+    # Send the notification through Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'notify',
                'agent_id': AGENT_ID,
                'subject': subject_text,
                'body': body_text}
 
     try:
-        r = requests.post(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.post(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         if response['response']['result'] == 'success':
-            sys.stdout.write("Successfully sent PlexPy notification.")
+            sys.stdout.write("Successfully sent Tautulli notification.")
         else:
             raise Exception(response['response']['message'])
     except Exception as e:
-        sys.stderr.write("PlexPy API 'notify' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'notify' request failed: {0}.".format(e))
         return None
 
 

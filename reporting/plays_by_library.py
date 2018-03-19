@@ -1,5 +1,5 @@
 """
-Use PlexPy to pull plays by library
+Use Tautulli to pull plays by library
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -24,8 +24,8 @@ import json
 
 ## EDIT THESE SETTINGS ##
 
-PLEXPY_APIKEY = 'xxxxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+TAUTULLI_APIKEY = 'xxxxxx'  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 
 OUTPUT = '{section} - Plays: {plays}'
 
@@ -33,12 +33,12 @@ OUTPUT = '{section} - Plays: {plays}'
 
 def get_libraries_table(sections=None):
     # Get a list of new rating keys for the PMS of all of the item's parent/children.
-    payload = {'apikey': PLEXPY_APIKEY,
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_libraries_table',
                'order_column': 'plays'}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         # print(json.dumps(response, indent=4, sort_keys=True))
 
@@ -49,14 +49,14 @@ def get_libraries_table(sections=None):
             return [d for d in res_data if d['section_name']]
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_libraries_table' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_libraries_table' request failed: {0}.".format(e))
 
 
 def main():
 
     lib_lst = [section['section_name'] for section in get_libraries_table()]
 
-    parser = argparse.ArgumentParser(description="Use PlexPy to pull plays by library",
+    parser = argparse.ArgumentParser(description="Use Tautulli to pull plays by library",
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-l', '--libraries', nargs='+', type=str, choices=lib_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'

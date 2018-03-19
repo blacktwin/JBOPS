@@ -1,13 +1,13 @@
 """
 Kill Plex transcoding streams from specific libraries
 
-PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+Tautulli > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on playback start
 
-PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: kill_trans_library.py
 
-PlexPy > Settings > Notifications > Script > Script Arguments:
+Tautulli > Settings > Notifications > Script > Script Arguments:
         {section_id} {session_key}
 
 """
@@ -24,7 +24,7 @@ TARGET_LIBRARIES = ['1', '2'] # Library IDs
 DEFAULT_REASON = 'Stream terminated due to video transcoding of {} content. ' \
                  'Please set your device to use "Original" quality.'.format(', '.join(TARGET_LIBRARIES))
 
-# Find platforms that have history in PlexPy in Play count by platform and stream type Graph
+# Find platforms that have history in Tautulli in Play count by platform and stream type Graph
 DEVICES = {'Android': 'Andriod message',
            'Chrome': 'Chrome message',
            'Plex Media Player': 'PMP message',
@@ -32,7 +32,7 @@ DEVICES = {'Android': 'Andriod message',
 
 USER_IGNORE = ('') # ('Username','User2')
 
-PLEXPY_LOG = 'Killing {user}\'s stream of {title} due to video transcoding content from section {section}.'
+TAUTULLI_LOG = 'Killing {user}\'s stream of {title} due to video transcoding content from section {section}.'
 ##
 
 sess = requests.Session()
@@ -57,5 +57,5 @@ if __name__ == '__main__':
                 trans_dec = session.transcodeSessions[0].videoDecision
                 if trans_dec == 'transcode':
                     reason = DEVICES.get(session.players[0].platform, DEFAULT_REASON)
-                    print(PLEXPY_LOG.format(user=username, title=title, section=section_id))
+                    print(TAUTULLI_LOG.format(user=username, title=title, section=section_id))
                     session.stop(reason=reason)

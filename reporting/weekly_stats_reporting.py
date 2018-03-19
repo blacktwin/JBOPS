@@ -5,7 +5,7 @@ Library stats can display total items in Shows, Seasons, Episodes, Artists, Albu
 
 User stats display username and hour, minutes, and seconds of view time
 
-PlexPy Settings > Extra Settings >  Check - Calculate Total File Sizes [experimental] ...... wait
+Tautulli Settings > Extra Settings >  Check - Calculate Total File Sizes [experimental] ...... wait
 
 """
 
@@ -19,12 +19,12 @@ import argparse
 
 
 # EDIT THESE SETTINGS #
-PLEXPY_APIKEY = 'xxxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
-SUBJECT_TEXT = "PlexPy Weekly Server, Library, and User Statistics"
+TAUTULLI_APIKEY = 'xxxxx'  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
+SUBJECT_TEXT = "Tautulli Weekly Server, Library, and User Statistics"
 
-# Notification agent ID: https://github.com/JonnyWong16/plexpy/blob/master/API.md#notify
-AGENT_ID = 10  # The email notification agent ID for PlexPy
+# Notification notifier ID: https://github.com/JonnyWong16/plexpy/blob/master/API.md#notify
+NOTIFIER_ID = 10  # The email notification notifier ID for Tautulli
 
 # Remove library element you do not want shown. Logging before exclusion.
 # SHOW_STAT = 'Shows: {0}, Episodes: {2}'
@@ -72,15 +72,15 @@ BODY_TEXT = """\
 
 # /EDIT THESE SETTINGS #
 
-def get_get_history(section_id, check_date):
-    # Get the PlexPy history.
-    payload = {'apikey': PLEXPY_APIKEY,
+def get_history(section_id, check_date):
+    # Get the Tautulli history.
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_history',
                'section_id': section_id,
                'start_date': check_date}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         # print(json.dumps(response['response']['data'], indent=4, sort_keys=True))
         res_data = response['response']['data']
@@ -90,40 +90,40 @@ def get_get_history(section_id, check_date):
             pass
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_history' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_history' request failed: {0}.".format(e))
 
 
-def get_get_libraries():
+def get_libraries():
     # Get a list of all libraries on your server.
-    payload = {'apikey': PLEXPY_APIKEY,
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_libraries'}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         # print(json.dumps(response['response']['data'], indent=4, sort_keys=True))
         res_data = response['response']['data']
         return res_data
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_libraries' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_libraries' request failed: {0}.".format(e))
 
 
-def get_get_library_media_info(section_id):
+def get_library_media_info(section_id):
     # Get a list of all libraries on your server.
-    payload = {'apikey': PLEXPY_APIKEY,
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_library_media_info',
                'section_id': section_id}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         # print(json.dumps(response['response']['data'], indent=4, sort_keys=True))
         res_data = response['response']['data']
         return res_data['total_file_size']
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_library_media_info' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_library_media_info' request failed: {0}.".format(e))
 
 
 def send_notification(body_text):
@@ -134,23 +134,23 @@ def send_notification(body_text):
     except LookupError as e:
         sys.stderr.write("Unable to substitute '{0}' in the notification subject or body".format(e))
         return None
-    # Send the notification through PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
+    # Send the notification through Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'notify',
-               'agent_id': AGENT_ID,
+               'notifier_id': NOTIFIER_ID,
                'subject': subject,
                'body': body}
 
     try:
-        r = requests.post(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.post(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         if response['response']['result'] == 'success':
-            sys.stdout.write("Successfully sent PlexPy notification.")
+            sys.stdout.write("Successfully sent Tautulli notification.")
         else:
             raise Exception(response['response']['message'])
     except Exception as e:
-        sys.stderr.write("PlexPy API 'notify' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'notify' request failed: {0}.".format(e))
         return None
 
 
@@ -194,9 +194,9 @@ def get_server_stats(date_ranges):
     user_durations_lst =[]
 
     print('Checking library stats.')
-    for sections in get_get_libraries():
+    for sections in get_libraries():
 
-        lib_size = get_get_library_media_info(sections['section_id'])
+        lib_size = get_library_media_info(sections['section_id'])
         total_size += lib_size
         sections_id_lst += [sections['section_id']]
 
@@ -221,7 +221,7 @@ def get_server_stats(date_ranges):
     for check_date in date_ranges:
         for section_id in sections_id_lst:
             # print(check_date, section_id)
-            history = get_get_history(section_id, check_date)
+            history = get_history(section_id, check_date)
             if history:
                 # print(json.dumps(history, indent=4, sort_keys=True))
                 for data in history:
@@ -254,7 +254,7 @@ def main():
 
     global BODY_TEXT
 
-    parser = argparse.ArgumentParser(description="Use PlexPy to pull library and user statistics for date range.",
+    parser = argparse.ArgumentParser(description="Use Tautulli to pull library and user statistics for date range.",
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-d', '--days', default=7, metavar='', type=int,
                         help='Enter in number of days to go back. \n(default: %(default)s)')

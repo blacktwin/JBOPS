@@ -1,13 +1,13 @@
 """
 Kill Plex transcoding streams only. Checks original quality.
 
-PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+Tautulli > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on playback start
 
-PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: kill_trans_quality.py
 
-PlexPy > Settings > Notifications > Script > Script Arguments:
+Tautulli > Settings > Notifications > Script > Script Arguments:
         {rating_key}
 
 """
@@ -31,7 +31,7 @@ DEVICES = {'Android': 'Andriod message',
 
 USER_IGNORE = ('') # ('Username','User2')
 
-PLEXPY_LOG = 'Killing {user}\'s stream of {title} due to video transcoding of {original} content'
+TAUTULLI_LOG = 'Killing {user}\'s stream of {title} due to video transcoding of {original} content'
 ##
 
 sess = requests.Session()
@@ -54,5 +54,5 @@ if __name__ == '__main__':
             trans_dec = session.transcodeSessions[0].videoDecision
             if sess_rating == str(rating_key) and orig_quality in TARGET_QUALITY and trans_dec == 'transcode':
                 reason = DEVICES.get(session.players[0].platform, DEFAULT_REASON)
-                print(PLEXPY_LOG.format(user=username, title=title,original=orig_quality))
+                print(TAUTULLI_LOG.format(user=username, title=title,original=orig_quality))
                 session.stop(reason=reason)
