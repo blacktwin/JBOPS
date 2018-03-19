@@ -2,6 +2,7 @@
 
 Find what was added TFRAME ago and not watched and notify admin using Tautulli.
 
+TAUTULLI_URL + delete_media_info_cache?section_id={section_id}
 """
 
 import requests
@@ -39,8 +40,10 @@ class METAINFO(object):
         self.rating_key = d['rating_key']
         self.media_type = d['media_type']
         self.grandparent_title = d['grandparent_title']
-        self.file_size = d['file_size']
-        self.file = d['file']
+        media_info = d['media_info'][0]
+        parts = media_info['parts'][0]
+        self.file_size = parts['file_size']
+        self.file = parts['file']
 
 
 def get_new_rating_keys(rating_key, media_type):
@@ -69,8 +72,7 @@ def get_metadata(rating_key):
     # Get the metadata for a media item.
     payload = {'apikey': TAUTULLI_APIKEY,
                'rating_key': rating_key,
-               'cmd': 'get_metadata',
-               'media_info': True}
+               'cmd': 'get_metadata'}
 
     try:
         r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
@@ -92,8 +94,7 @@ def get_library_media_info(section_id):
     try:
         r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
-        print(response)
-        res_data = response['response']['data']
+        res_data = response['response']['data']['data']
         return [LIBINFO(data=d) for d in res_data if d['play_count'] is None and (TODAY - int(d['added_at'])) > TFRAME]
 
     except Exception as e:
@@ -150,7 +151,6 @@ notify_lst = []
 libraries = [lib for lib in get_libraries_table()]
 
 for library in libraries:
-    print(library, type(library))
     try:
         library_media_info = get_library_media_info(library)
         for lib in library_media_info:
@@ -201,4 +201,5 @@ if notify_lst:
     print(BODY_TEXT)
     send_notification(BODY_TEXT)
 else:
+    print('Nothing to report.')
     exit()
