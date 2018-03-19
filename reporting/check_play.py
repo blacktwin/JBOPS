@@ -33,6 +33,7 @@ class UserHIS(object):
         data = data or {}
         self.watched = [d['watched_status'] for d in data]
 
+		
 def get_history():
     # Get the user IP list from Tautulli
     payload = {'apikey': TAUTULLI_APIKEY,
