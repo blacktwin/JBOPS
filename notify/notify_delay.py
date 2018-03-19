@@ -1,4 +1,4 @@
-'''
+"""
 Delay Notification Agent message for concurrent streams
 
 Arguments passed from PlexPy
@@ -12,22 +12,21 @@ PlexPy > Settings > Notification Agents > Scripts > Gear icon:
         User Concurrent Streams: notify_delay.py
 
 PlexPy Settings > Notification Agents > Scripts (Gear) > Script Timeout: 0 to disable or set to > 180
-'''
+"""
 
 import requests
 import sys
 import argparse
 from time import sleep
 
-
 ## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'xxxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
+PLEXPY_APIKEY = ''  # Your PlexPy API key
+PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
 CONCURRENT_TOTAL = 2
 TIMEOUT = 180
 INTERVAL = 20
 
-AGENT_ID = 10  # Notification agent ID for PlexPy
+NOTIFIER_ID = 10  # Notification notifier ID for PlexPy
 # Find Notification agent ID here:
 # https://github.com/JonnyWong16/plexpy/blob/master/API.md#notify
 
@@ -59,11 +58,12 @@ def get_get_activity():
         sys.stderr.write("PlexPy API 'get_activity' request failed: {0}.".format(e))
         pass
 
-def send_notification(SUBJECT_TEXT, BODY_TEXT):
+
+def send_notification(subject_text, body_text):
     # Format notification text
     try:
-        subject = SUBJECT_TEXT.format(p=p, total=cc_total)
-        body = BODY_TEXT.format(p=p, total=cc_total, time=TIMEOUT/60)
+        subject = subject_text.format(p=p, total=cc_total)
+        body = body_text.format(p=p, total=cc_total, time=TIMEOUT / 60)
 
     except LookupError as e:
         sys.stderr.write("Unable to substitute '{0}' in the notification subject or body".format(e))
@@ -71,7 +71,7 @@ def send_notification(SUBJECT_TEXT, BODY_TEXT):
     # Send the notification through PlexPy
     payload = {'apikey': PLEXPY_APIKEY,
                'cmd': 'notify',
-               'agent_id': AGENT_ID,
+               'notifier_id': NOTIFIER_ID,
                'subject': subject,
                'body': body}
 
@@ -86,6 +86,7 @@ def send_notification(SUBJECT_TEXT, BODY_TEXT):
     except Exception as e:
         sys.stderr.write("PlexPy API 'notify' request failed: {0}.".format(e))
         return None
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
