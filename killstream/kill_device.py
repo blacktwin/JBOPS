@@ -1,10 +1,10 @@
 """
 Kill Plex streams based on device.
 
-PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+Tautulli > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on playback start
 
-PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: kill_device.py
 
 """
@@ -18,7 +18,7 @@ PLEX_URL = 'http://localhost:32400'
 
 DEFAULT_REASON = 'This stream has ended due to your device type.'
 
-# Find platforms that have history in PlexPy in Play count by platform and stream type Graph
+# Find platforms that have history in Tautulli in Play count by platform and stream type Graph
 DEVICES = {'Android': 'Andriod message',
            'Chrome': 'Chrome message',
            'Plex Media Player': 'PMP message',

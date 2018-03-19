@@ -1,5 +1,5 @@
 '''
-Use PlexPy to pull last IP address from user and add to List of IP addresses and networks that are allowed without auth in Plex.
+Use Tautulli to pull last IP address from user and add to List of IP addresses and networks that are allowed without auth in Plex.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -22,35 +22,35 @@ import sys
 ## EDIT THESE SETTINGS ##
 PLEX_TOKEN = 'xxxx'
 PLEX_URL = 'http://localhost:32400'
-PLEXPY_APIKEY = 'xxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+TAUTULLI_APIKEY = 'xxxx'  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 
 
-def get_get_history(user_id):
-    # Get the user history from PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
+def get_history(user_id):
+    # Get the user history from Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_history',
                'user_id': user_id,
                'length': 1}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         res_data = response['response']['data']['data']
         return [d['ip_address'] for d in res_data]
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_get_history' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_history' request failed: {0}.".format(e))
 
 
-def get_get_user_names(username):
-    # Get the user names from PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
+def get_user_names(username):
+    # Get the user names from Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_user_names'}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         res_data = response['response']['data']
         if username:
@@ -59,7 +59,7 @@ def get_get_user_names(username):
             return [d['friendly_name'] for d in res_data]
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_get_user_names' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_user_names' request failed: {0}.".format(e))
 
 
 def add_auth_bypass(net_str):
@@ -70,8 +70,8 @@ def add_auth_bypass(net_str):
 
 if __name__ == '__main__':
 
-    user_lst = get_get_user_names('')
-    parser = argparse.ArgumentParser(description="Use PlexPy to pull last IP address from user and add to List of "
+    user_lst = get_user_names('')
+    parser = argparse.ArgumentParser(description="Use Tautulli to pull last IP address from user and add to List of "
                                                  "IP addresses and networks that are allowed without auth in Plex.",
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-u', '--users', nargs='+', type=str, choices=user_lst, metavar='',
@@ -89,16 +89,16 @@ if __name__ == '__main__':
     elif opts.clear and len(opts.users) == 1:
         print('Clearing List of IP addresses and networks that are allowed without auth in Plex.')
         add_auth_bypass('')
-        user_id = get_get_user_names(opts.users)
-        user_ip = get_get_history(user_id)
+        user_id = get_user_names(opts.users)
+        user_ip = get_history(user_id)
         print('Adding {} to List of IP addresses and networks that are allowed without auth in Plex.'
               .format(''.join(user_ip)))
         add_auth_bypass(user_ip)
     elif opts.clear and len(opts.users) > 1:
         print('Clearing List of IP addresses and networks that are allowed without auth in Plex.')
         add_auth_bypass('')
-        userid_lst = [get_get_user_names(user_names) for user_names in opts.users]
-        userip_lst = [get_get_history(user_id) for user_id in userid_lst]
+        userid_lst = [get_user_names(user_names) for user_names in opts.users]
+        userip_lst = [get_history(user_id) for user_id in userid_lst]
         flat_list = [item for sublist in userip_lst for item in sublist]
         print('Adding {} to List of IP addresses and networks that are allowed without auth in Plex.'
               .format(', '.join(flat_list)))

@@ -1,5 +1,5 @@
 """
-Use PlexPy draw a map connecting Server to Clients based on IP addresses.
+Use Tautulli draw a map connecting Server to Clients based on IP addresses.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -35,8 +35,8 @@ import time
 import webbrowser
 
 ## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = ''  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+TAUTULLI_APIKEY = ''  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 
 # Replace LAN IP addresses that start with the LAN_SUBNET with a WAN IP address
 # to retrieve geolocation data. Leave REPLACEMENT_WAN_IP blank for no replacement.
@@ -94,19 +94,19 @@ class UserIPs(object):
         self.platform = d['platform']
 
 
-def get_get_users_tables(users='', length=''):
-    # Get the users list from PlexPy
+def get_users_tables(users='', length=''):
+    # Get the users list from Tautulli
 
     if length:
-        payload = {'apikey': PLEXPY_APIKEY,
+        payload = {'apikey': TAUTULLI_APIKEY,
                    'cmd': 'get_users_table',
                    'length': length}
     else:
-        payload = {'apikey': PLEXPY_APIKEY,
+        payload = {'apikey': TAUTULLI_APIKEY,
                    'cmd': 'get_users_table'}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         res_data = response['response']['data']['data']
         if not length and not users:
@@ -121,33 +121,33 @@ def get_get_users_tables(users='', length=''):
                 return [d['user_id'] for user in users for d in res_data if user == d['friendly_name']]
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_get_users_tables' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_users_tables' request failed: {0}.".format(e))
 
 
-def get_get_users_ips(user_id, length):
-    # Get the user IP list from PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
+def get_users_ips(user_id, length):
+    # Get the user IP list from Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_user_ips',
                'user_id': user_id,
                'length': length}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         res_data = response['response']['data']['data']
         return [UserIPs(data=d) for d in res_data]
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_get_users_ips' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_users_ips' request failed: {0}.".format(e))
 
 
 def get_geoip_info(ip_address=''):
-    # Get the geo IP lookup from PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
+    # Get the geo IP lookup from Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_geoip_lookup',
                'ip_address': ip_address}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         if response['response']['result'] == 'success':
             data = response['response']['data']
@@ -159,22 +159,22 @@ def get_geoip_info(ip_address=''):
         else:
             raise Exception(response['response']['message'])
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_geoip_lookup' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_geoip_lookup' request failed: {0}.".format(e))
         pass
 
 
 def get_stream_type_by_top_10_platforms():
-    # Get the user IP list from PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
+    # Get the user IP list from Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_stream_type_by_top_10_platforms'}  # length is number of returns, default is 25
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         res_data = response['response']['data']['categories']
         return res_data
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_stream_type_by_top_10_platforms' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_stream_type_by_top_10_platforms' request failed: {0}.".format(e))
 
 
 def add_to_dictlist(d, key, val):
@@ -192,8 +192,8 @@ def get_geo_dict(length, users):
                                    'ip': REPLACEMENT_WAN_IP, 'play_count': 0, 'platform': SERVER_PLATFORM,
                                    'location_count': 0}]}
 
-    for i in get_get_users_tables(users):
-        user_ip = get_get_users_ips(user_id=i, length=length)
+    for i in get_users_tables(users):
+        user_ip = get_users_ips(user_id=i, length=length)
         city_cnt = 0
         for a in user_ip:
             try:
@@ -380,10 +380,10 @@ def draw_map(map_type, geo_dict, filename, headless):
 if __name__ == '__main__':
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    user_count = get_get_users_tables()
-    user_lst = sorted(get_get_users_tables('friendly_name', user_count))
+    user_count = get_users_tables()
+    user_lst = sorted(get_users_tables('friendly_name', user_count))
     json_check = sorted([f for f in os.listdir('.') if os.path.isfile(f) and f.endswith(".json")], key=os.path.getmtime)
-    parser = argparse.ArgumentParser(description="Use PlexPy to draw map of user locations base on IP address.",
+    parser = argparse.ArgumentParser(description="Use Tautulli to draw map of user locations base on IP address.",
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-l', '--location', default='NA', choices=['NA', 'EU', 'World', 'Geo'], metavar='',
                         help='Map location. choices: (%(choices)s) \n(default: %(default)s)')

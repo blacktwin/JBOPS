@@ -1,15 +1,15 @@
 """
 If user has 2* or more concurrent streams and the IP of the 2nd stream differs from 1st kill 2nd.
 If 2nd stream IP is the same as 1st stream don't kill.
-*PlexPy > Settings > Notification> User Concurrent Stream Threshold
-    The number of concurrent streams by a single user for PlexPy to trigger a notification. Minimum 2.
-PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+*Tautulli > Settings > Notification> User Concurrent Stream Threshold
+    The number of concurrent streams by a single user for Tautulli to trigger a notification. Minimum 2.
+Tautulli > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on user concurrent streams
 
-PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Playback User Concurrent Streams: kill_more_than.py
 
-PlexPy > Settings > Notifications > Script > Script Arguments
+Tautulli > Settings > Notifications > Script > Script Arguments
         {username} {ip_address} {session_key}
 """
 

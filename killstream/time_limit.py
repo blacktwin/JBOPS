@@ -1,13 +1,13 @@
 """
 Kill streams if user has exceeded time limit on Plex server. Choose to unshare or remove user.
 
-PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+Tautulli > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on playback start
 
-PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: time_limit.py
 
-PlexPy > Settings > Notifications > Script > Script Arguments
+Tautulli > Settings > Notifications > Script > Script Arguments
         {username}
  
 """
@@ -18,8 +18,8 @@ from plexapi.server import PlexServer
 
 
 ## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'xxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
+TAUTULLI_APIKEY = 'xxxx'  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8182/'  # Your Tautulli URL
 
 PLEX_TOKEN = 'xxxx'
 PLEX_URL = 'http://localhost:32400'
@@ -41,21 +41,21 @@ plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 sections_lst = [x.title for x in plex.library.sections()]
 
-def get_get_history(username):
-    # Get the PlexPy history.
-    payload = {'apikey': PLEXPY_APIKEY,
+def get_history(username):
+    # Get the Tautulli history.
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_history',
                'user': username}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         res_data = response['response']['data']['data']
         return sum([data['duration'] for data in res_data])
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_history' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_history' request failed: {0}.".format(e))
 
 
 def unshare(user, libraries):
@@ -88,7 +88,7 @@ if TIME_LIMIT[username]['m']:
     total_time += TIME_LIMIT[username]['m'] * 60
 
 
-if get_get_history(username) > total_time:
+if get_history(username) > total_time:
     print('User has reached time limit.')
     kill_session(username)
     if TIME_LIMIT[username]['remove']:

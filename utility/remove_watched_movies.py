@@ -12,8 +12,8 @@ import shutil
 
 
 ## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'xxxxxxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+TAUTULLI_APIKEY = 'xxxxxxxx'  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 LIBRARY_NAMES = ['My Movies'] # Whatever your movie libraries are called.
 USER_LST = ['Joe', 'Alex'] # Name of users
 
@@ -30,15 +30,15 @@ class METAINFO(object):
         self.file = d['file']
 
 
-def get_get_metadata(rating_key):
+def get_metadata(rating_key):
     # Get the metadata for a media item.
-    payload = {'apikey': PLEXPY_APIKEY,
+    payload = {'apikey': TAUTULLI_APIKEY,
                'rating_key': rating_key,
                'cmd': 'get_metadata',
                'media_info': True}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         res_data = response['response']['data']['metadata']
@@ -46,13 +46,13 @@ def get_get_metadata(rating_key):
             return METAINFO(data=res_data)
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_get_metadata' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_metadata' request failed: {0}.".format(e))
         pass
 
 
-def get_get_history(user, start, length):
-    # Get the PlexPy history.
-    payload = {'apikey': PLEXPY_APIKEY,
+def get_history(user, start, length):
+    # Get the Tautulli history.
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_history',
                'user': user,
                'media_type': 'movie',
@@ -60,14 +60,14 @@ def get_get_history(user, start, length):
                'length': length}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         res_data = response['response']['data']['data']
         return [UserHIS(data=d) for d in res_data if d['watched_status'] == 1]
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_history' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_history' request failed: {0}.".format(e))
 
 
 def delete_files(tmp_lst):
@@ -88,13 +88,13 @@ for user in USER_LST:
     start = 0
     while True:
         # Getting all watched history for listed users
-        history = get_get_history(user, start, count)
+        history = get_history(user, start, count)
         try:
             if all([history]):
                 start += count
                 for h in history:
                     # Getting metadata of what was watched
-                    movies = get_get_metadata(h.rating_key)
+                    movies = get_metadata(h.rating_key)
                     if not any(d['title'] == movies.title for d in movie_lst):
                         movie_dict = {
                             'title': movies.title,

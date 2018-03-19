@@ -1,14 +1,14 @@
 '''
 Refresh the next episode of show once current episode is watched.
-Check PlexPy's Watched Percent in PlexPy > Settings > General
+Check Tautulli's Watched Percent in Tautulli > Settings > General
 
-1. PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+1. Tautulli > Settings > Notification Agents > Scripts > Bell icon:
     [X] Notify on watched
-2. PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+2. Tautulli > Settings > Notification Agents > Scripts > Gear icon:
     Enter the "Script folder" where you save the script.
     Watched: refresh_next_episode.py
     Save
-3. PlexPy > Settings > Notifications > Script > Script Arguments:
+3. Tautulli > Settings > Notifications > Script > Script Arguments:
     {show_name} {episode_num00} {season_num00}
 
 '''
