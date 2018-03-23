@@ -23,7 +23,7 @@ Taultulli > Settings > Notification Agents > New Script > Triggers:
 Conditions:
 Taultulli > Settings > Notification Agents > New Script > Conditions:
 
- Set Conditions: {conditions}
+ Set Conditions: [{condition} | {operator} | {value} ]
  Save
 
 Script Arguments:
