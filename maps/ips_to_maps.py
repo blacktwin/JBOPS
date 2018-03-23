@@ -128,8 +128,7 @@ def get_users_ips(user_id, length):
     # Get the user IP list from Tautulli
     payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_user_ips',
-               'user_id': user_id,
-               'length': length}
+               'user_id': user_id}
 
     try:
         r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
