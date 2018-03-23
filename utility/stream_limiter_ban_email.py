@@ -12,22 +12,22 @@ Caveats:
     Effected user will need to refresh browser/app or restart app to reconnect.
     User watch record stop when unshare is executed.
     If user finishes a movie/show while unshared they will not have that record.
-    PlexPy will not have that record.
+    Tautulli will not have that record.
 
-Adding to PlexPy
+Adding to Tautulli
 
-PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+Tautulli > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on playback start
         [X] Notify on watched
 
-PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: stream_limiter_ban_email.py
         Playback Watched: stream_limiter_ban_email.py
 
-If used in PlexPy:
-PlexPy will continue displaying that user is watching after unshare is executed in ACTIVITY.
-PlexPy will update after ~5 minutes and no longer display user's stream in ACTIVITY.
-PlexPy will think that user has stopped.
+If used in Tautulli:
+Tautulli will continue displaying that user is watching after unshare is executed in ACTIVITY.
+Tautulli will update after ~5 minutes and no longer display user's stream in ACTIVITY.
+Tautulli will think that user has stopped.
 
 
 Create new library with one video.
@@ -60,8 +60,8 @@ import smtplib
 
 ## EDIT THESE SETTINGS ###
 
-PLEXPY_APIKEY = 'XXXXXX'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+TAUTULLI_APIKEY = 'XXXXXX'  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 PLEX_TOKEN = "<token>"
 SERVER_ID = "XXXXX"  # Example: https://i.imgur.com/EjaMTUk.png
 
@@ -127,33 +127,33 @@ class Users(object):
         self.user_id = d['user_id']
         self.friendly_name = d['friendly_name']
 
-def get_get_user(user_id):
-    # Get the user list from PlexPy.
-    payload = {'apikey': PLEXPY_APIKEY,
+def get_user(user_id):
+    # Get the user list from Tautulli.
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_user',
                'user_id': int(user_id)}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         email = response['response']['data']['email']
         friend_name = response['response']['data']['friendly_name']
         return [email, friend_name]
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_get_user' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_user' request failed: {0}.".format(e))
 
 
-def get_get_history(user_id, bankey):
-    # Get the user history from PlexPy. Length matters!
-    payload = {'apikey': PLEXPY_APIKEY,
+def get_history(user_id, bankey):
+    # Get the user history from Tautulli. Length matters!
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_history',
                'rating_key': bankey,
                'user_id': user_id,
                'length': 10000}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         rec_filtered = response['response']['data']['recordsFiltered']
         # grow this out how you will
@@ -163,7 +163,7 @@ def get_get_history(user_id, bankey):
             return 'ban'
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_get_history' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_history' request failed: {0}.".format(e))
 
 def share(user_id, ban):
 
@@ -236,19 +236,19 @@ def unshare(user_id):
 
     return
 
-def get_get_activity():
-    # Get the user IP list from PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
+def get_activity():
+    # Get the user IP list from Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_activity'}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         res_data = response['response']['data']['sessions']
         return [Activity(data=d) for d in res_data]
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_get_activity' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_activity' request failed: {0}.".format(e))
 
 def send_notification(to=None, friendly=None, val_cnt=None, val_tot=None, mess=None):
     # Format notification text
@@ -274,7 +274,7 @@ def send_notification(to=None, friendly=None, val_cnt=None, val_tot=None, mess=N
 
 if __name__ == "__main__":
 
-    activity = get_get_activity()
+    activity = get_activity()
 
     act_lst = [a.user_id for a in activity]
     user_lst = [key for key, value in USER_LIBRARIES.iteritems()]
@@ -283,8 +283,8 @@ if __name__ == "__main__":
     UNBAN = 0
 
     for i in user_lst:
-        history = get_get_history(i, BAN_RATING)
-        mail_add, friendly = get_get_user(i)
+        history = get_history(i, BAN_RATING)
+        mail_add, friendly = get_user(i)
 
         try:
             if act_lst.count(i) >= LIMIT:

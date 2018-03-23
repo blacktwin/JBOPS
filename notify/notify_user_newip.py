@@ -1,9 +1,9 @@
 """
 Pulling together User IP information and Email.
 Enable the API under Settings > Access Control and remember your API key.
-Shutdown PlexPy and open your config.ini file in a text editor.
+Shutdown Tautulli and open your config.ini file in a text editor.
 Set api_sql = 1 in the config file.
-Restart PlexPy.
+Restart Tautulli.
 Place in Playback Start
 """
 import argparse
@@ -16,8 +16,8 @@ import smtplib
 ## -sn {show_name} -ena {episode_name} -ssn {season_num00} -enu {episode_num00} -srv {server_name} -med {media_type} -pos {poster_url} -tt {title} -sum {summary} -lbn {library_name} -ip {ip_address} -us {user} -uid {user_id} -pf {platform} -pl {player} -da {datestamp} -ti {timestamp}
 
 ## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'xxxxxxxxxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+TAUTULLI_APIKEY = 'xxxxxxxxxxx'  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 
 # Replace LAN IP addresses that start with the LAN_SUBNET with a WAN IP address
 # to retrieve geolocation data. Leave REPLACEMENT_WAN_IP blank for no replacement.
@@ -72,14 +72,14 @@ class UserEmail(object):
         
 ##API Space##
 def get_user_ip_addresses(user_id='', ip_address=''):
-    # Get the user IP list from PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
+    # Get the user IP list from Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_user_ips',
                'user_id': user_id,
                'search': ip_address}
                
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         if response['response']['result'] == 'success':
@@ -97,16 +97,16 @@ def get_user_ip_addresses(user_id='', ip_address=''):
         else:
             raise Exception(response['response']['message'])
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_user_ip_addresses' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_user_ip_addresses' request failed: {0}.".format(e))
 
 def get_geoip_info(ip_address=''):
-    # Get the geo IP lookup from PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
+    # Get the geo IP lookup from Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_geoip_lookup',
                'ip_address': ip_address}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         if response['response']['result'] == 'success':
@@ -119,18 +119,18 @@ def get_geoip_info(ip_address=''):
         else:
             raise Exception(response['response']['message'])
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_geoip_lookup' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_geoip_lookup' request failed: {0}.".format(e))
         return GeoData()
 
 
 def get_user_email(user_id=''):
-    # Get the user email from PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
+    # Get the user email from Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_user',
                'user_id': user_id}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         if response['response']['result'] == 'success':
@@ -143,7 +143,7 @@ def get_user_email(user_id=''):
         else:
             raise Exception(response['response']['message'])
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_user' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_user' request failed: {0}.".format(e))
         return UserEmail()
 
 def send_notification(arguments=None, geodata=None, useremail=None):
@@ -170,17 +170,17 @@ def send_notification(arguments=None, geodata=None, useremail=None):
 def clr_sql(ip):
 
     try:
-        payload = {'apikey': PLEXPY_APIKEY,
+        payload = {'apikey': TAUTULLI_APIKEY,
                    'cmd': 'sql',
                    'query': 'DELETE FROM session_history WHERE ip_address = "' + ip + '";'}
 
-        requests.post(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        requests.post(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_sql' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_sql' request failed: {0}.".format(e))
 
 if __name__ == '__main__':
-    # Parse arguments from PlexPy
+    # Parse arguments from Tautulli
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-ip', '--ip_address', action='store', default='',

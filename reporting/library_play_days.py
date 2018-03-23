@@ -1,5 +1,5 @@
 """
-Use PlexPy to print plays by library from 0, 1, 7, or 30 days ago. 0 = total
+Use Tautulli to print plays by library from 0, 1, 7, or 30 days ago. 0 = total
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -28,8 +28,8 @@ import argparse
 
 ## EDIT THESE SETTINGS ##
 
-PLEXPY_APIKEY = 'xxxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+TAUTULLI_APIKEY = 'xxxxx'  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 
 OUTPUT = 'Library: {section}\nDays: {days}\nPlays: {plays}'
 
@@ -37,11 +37,11 @@ OUTPUT = 'Library: {section}\nDays: {days}\nPlays: {plays}'
 
 def get_library_names():
     # Get a list of new rating keys for the PMS of all of the item's parent/children.
-    payload = {'apikey': PLEXPY_APIKEY,
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_library_names'}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         # print(json.dumps(response, indent=4, sort_keys=True))
 
@@ -49,17 +49,17 @@ def get_library_names():
         return [d for d in res_data]
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_library_names' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_library_names' request failed: {0}.".format(e))
 
 
 def get_library_watch_time_stats(section_id):
     # Get a list of new rating keys for the PMS of all of the item's parent/children.
-    payload = {'apikey': PLEXPY_APIKEY,
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_library_watch_time_stats',
                'section_id': section_id}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         # print(json.dumps(response, indent=4, sort_keys=True))
 
@@ -67,7 +67,7 @@ def get_library_watch_time_stats(section_id):
         return [d for d in res_data]
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_library_watch_time_stats' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_library_watch_time_stats' request failed: {0}.".format(e))
 
 
 def main():
@@ -75,7 +75,7 @@ def main():
     lib_lst = [section['section_name'] for section in get_library_names()]
     days_lst = [0, 1, 7, 30]
 
-    parser = argparse.ArgumentParser(description="Use PlexPy to pull plays by library",
+    parser = argparse.ArgumentParser(description="Use Tautulli to pull plays by library",
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-l', '--libraries', nargs='+', type=str, default=lib_lst, choices=lib_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'

@@ -1,13 +1,13 @@
 """
 Kill stream of user if they are accessing Plex from outside network
 
-PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+Tautulli > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on playback start
 
-PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: kill_outsider_stream.py
 
-PlexPy > Settings > Notifications > Script > Script Arguments
+Tautulli > Settings > Notifications > Script > Script Arguments
         {username}
 """
 

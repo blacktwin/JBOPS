@@ -1,5 +1,5 @@
 """
-Use PlexPy draw a map connecting Server to Clients based on IP addresses.
+Use Tautulli draw a map connecting Server to Clients based on IP addresses.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -32,13 +32,11 @@ from collections import OrderedDict
 import argparse
 import numpy as np
 import time
-from collections import Counter
-
 import webbrowser
 
 ## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = ''  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+TAUTULLI_APIKEY = ''  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 
 # Replace LAN IP addresses that start with the LAN_SUBNET with a WAN IP address
 # to retrieve geolocation data. Leave REPLACEMENT_WAN_IP blank for no replacement.
@@ -56,16 +54,16 @@ SERVER_CITY = ''
 SERVER_STATE = ''
 SERVER_PLATFORM = 'Server'
 
-DEFAULT_COLOR = '#A96A1C' # Plex Orange?
+DEFAULT_COLOR = '#A96A1C'  # Plex Orange?
 
-PLATFORM_COLORS = {'Android': '#a4c639', # Green
-                   'Roku':'#800080', # Purple
-                   'Chromecast':'#ffff00', # Yellow
-                   'Xbox One':'#ffffff', # White
-                   'Chrome':'#ff0000', # Red
-                   'Playstation 4':'#0000ff', # Blue
-                   'iOS':'#8b4513', # Poop brown
-                   'Samsung': '#0c4da2', # Blue
+PLATFORM_COLORS = {'Android': '#a4c639',  # Green
+                   'Roku': '#800080',  # Purple
+                   'Chromecast': '#ffff00',  # Yellow
+                   'Xbox One': '#ffffff',  # White
+                   'Chrome': '#ff0000',  # Red
+                   'Playstation 4': '#0000ff',  # Blue
+                   'iOS': '#8b4513',  # Poop brown
+                   'Samsung': '#0c4da2',  # Blue
                    'Windows': DEFAULT_COLOR,
                    'Xbox 360 App': DEFAULT_COLOR}
 
@@ -95,19 +93,20 @@ class UserIPs(object):
         self.play_count = d['play_count']
         self.platform = d['platform']
 
-def get_get_users_tables(users='', length=''):
-    # Get the users list from PlexPy
+
+def get_users_tables(users='', length=''):
+    # Get the users list from Tautulli
 
     if length:
-        payload = {'apikey': PLEXPY_APIKEY,
+        payload = {'apikey': TAUTULLI_APIKEY,
                    'cmd': 'get_users_table',
                    'length': length}
     else:
-        payload = {'apikey': PLEXPY_APIKEY,
+        payload = {'apikey': TAUTULLI_APIKEY,
                    'cmd': 'get_users_table'}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         res_data = response['response']['data']['data']
         if not length and not users:
@@ -122,31 +121,32 @@ def get_get_users_tables(users='', length=''):
                 return [d['user_id'] for user in users for d in res_data if user == d['friendly_name']]
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_get_users_tables' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_users_tables' request failed: {0}.".format(e))
 
-def get_get_users_ips(user_id, length):
-    # Get the user IP list from PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
+
+def get_users_ips(user_id, length):
+    # Get the user IP list from Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_user_ips',
-               'user_id': user_id,
-               'length': length}
+               'user_id': user_id}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         res_data = response['response']['data']['data']
         return [UserIPs(data=d) for d in res_data]
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_get_users_ips' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_users_ips' request failed: {0}.".format(e))
+
 
 def get_geoip_info(ip_address=''):
-    # Get the geo IP lookup from PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
+    # Get the geo IP lookup from Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_geoip_lookup',
                'ip_address': ip_address}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         if response['response']['result'] == 'success':
             data = response['response']['data']
@@ -158,21 +158,23 @@ def get_geoip_info(ip_address=''):
         else:
             raise Exception(response['response']['message'])
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_geoip_lookup' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_geoip_lookup' request failed: {0}.".format(e))
         pass
 
+
 def get_stream_type_by_top_10_platforms():
-    # Get the user IP list from PlexPy
-    payload = {'apikey': PLEXPY_APIKEY,
+    # Get the user IP list from Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_stream_type_by_top_10_platforms'}  # length is number of returns, default is 25
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         res_data = response['response']['data']['categories']
         return res_data
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_stream_type_by_top_10_platforms' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_stream_type_by_top_10_platforms' request failed: {0}.".format(e))
+
 
 def add_to_dictlist(d, key, val):
     if key not in d:
@@ -183,13 +185,14 @@ def add_to_dictlist(d, key, val):
         if (val['region'], val['city']) == (x['region'], x['city']):
             x['location_count'] += 1
 
+
 def get_geo_dict(length, users):
     geo_dict = {SERVER_FRIENDLY: [{'lon': SERVER_LON, 'lat': SERVER_LAT, 'city': SERVER_CITY, 'region': SERVER_STATE,
                                    'ip': REPLACEMENT_WAN_IP, 'play_count': 0, 'platform': SERVER_PLATFORM,
                                    'location_count': 0}]}
 
-    for i in get_get_users_tables(users):
-        user_ip = get_get_users_ips(user_id=i, length=length)
+    for i in get_users_tables(users):
+        user_ip = get_users_ips(user_id=i, length=length)
         city_cnt = 0
         for a in user_ip:
             try:
@@ -201,8 +204,8 @@ def get_geo_dict(length, users):
 
                 add_to_dictlist(geo_dict, a.friendly_name, {'lon': str(g.longitude), 'lat': str(g.latitude),
                                                             'city': str(g.city), 'region': str(g.region),
-                                                             'ip': ip, 'play_count': a.play_count,
-                                                             'platform':a.platform, 'location_count': city_cnt})
+                                                            'ip': ip, 'play_count': a.play_count,
+                                                            'platform': a.platform, 'location_count': city_cnt})
             except AttributeError:
                 print('User: {} IP: {} caused error in geo_dict.'.format(a.friendly_name, a.ip_address))
                 pass
@@ -210,6 +213,7 @@ def get_geo_dict(length, users):
                 print('Error here: {}'.format(e))
                 pass
     return geo_dict
+
 
 def get_geojson_dict(user_locations):
     locs = []
@@ -255,13 +259,14 @@ def get_geojson_dict(user_locations):
         "features": locs
     }
 
+
 def draw_map(map_type, geo_dict, filename, headless):
     import matplotlib as mpl
     if headless:
         mpl.use("Agg")
     import matplotlib.pyplot as plt
     from mpl_toolkits.basemap import Basemap
-    
+
     ## Map stuff ##
     plt.figure(figsize=(16, 9), dpi=100, frameon=False, tight_layout=True)
     lon_r = 0
@@ -324,7 +329,7 @@ def draw_map(map_type, geo_dict, filename, headless):
             # Keeping lines inside the Location. Plots outside Location will still be in legend
 
             if float(data['lon']) != float(SERVER_LON) and float(data['lat']) != float(SERVER_LAT) and \
-                                    lon_l < float(data['lon']) < lon_r:
+                    lon_l < float(data['lon']) < lon_r:
                 # Drawing lines from Server location to client location
                 if data['location_count'] > 1:
                     lines = m.plot(x, y, marker=marker, color=color, markersize=0,
@@ -332,16 +337,14 @@ def draw_map(map_type, geo_dict, filename, headless):
                     # Adding dash sequence to 2nd, 3rd, etc lines from same city,state
                     for line in lines:
                         line.set_solid_capstyle('round')
-                        dashes = [x * data['location_count'] for x in [5,8,5,8]]
+                        dashes = [x * data['location_count'] for x in [5, 8, 5, 8]]
                         line.set_dashes(dashes)
 
                 else:
-                    lines = m.plot(x, y, marker=marker, color=color, markersize=0, label=legend, alpha=.4, zorder=zord,
-                                   linewidth=2)
+                    m.plot(x, y, marker=marker, color=color, markersize=0, label=legend, alpha=.4, zorder=zord,
+                           linewidth=2)
 
-            client_plot = m.plot(px, py, marker=marker, color=color, markersize=markersize,
-                            label=legend, alpha=alph, zorder=zord)
-
+            m.plot(px, py, marker=marker, color=color, markersize=markersize, label=legend, alpha=alph, zorder=zord)
 
     handles, labels = plt.gca().get_legend_handles_labels()
     idx = labels.index('Location: {}, {},  User: {}\nPlatform: {}, IP: {}, Play Count: {}'.
@@ -376,16 +379,16 @@ def draw_map(map_type, geo_dict, filename, headless):
 if __name__ == '__main__':
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    user_count = get_get_users_tables()
-    user_lst = sorted(get_get_users_tables('friendly_name', user_count))
+    user_count = get_users_tables()
+    user_lst = sorted(get_users_tables('friendly_name', user_count))
     json_check = sorted([f for f in os.listdir('.') if os.path.isfile(f) and f.endswith(".json")], key=os.path.getmtime)
-    parser = argparse.ArgumentParser(description="Use PlexPy to draw map of user locations base on IP address.",
+    parser = argparse.ArgumentParser(description="Use Tautulli to draw map of user locations base on IP address.",
                                      formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-l', '--location', default='NA', choices=['NA', 'EU','World', 'Geo'], metavar='',
+    parser.add_argument('-l', '--location', default='NA', choices=['NA', 'EU', 'World', 'Geo'], metavar='',
                         help='Map location. choices: (%(choices)s) \n(default: %(default)s)')
-    parser.add_argument('-c', '--count', nargs='?', type=int , default=2, metavar='',
+    parser.add_argument('-c', '--count', nargs='?', type=int, default=2, metavar='',
                         help='How many IPs to attempt to check. \n(default: %(default)s)')
-    parser.add_argument('-u', '--users', nargs='+', type=str ,default='all', choices=user_lst, metavar='',
+    parser.add_argument('-u', '--users', nargs='+', type=str, default='all', choices=user_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
                              '%(choices)s \n(default: %(default)s)')
     parser.add_argument('-i', '--ignore', nargs='+', type=str, default=None, choices=user_lst, metavar='',
@@ -410,7 +413,7 @@ if __name__ == '__main__':
         with open(''.join(opts.json)) as json_data:
             geo_json = json.load(json_data)
     else:
-        print(opts)
+        # print(opts)
         if opts.ignore and opts.users == 'all':
             users = [x for x in user_lst if x not in opts.ignore]
         else:
@@ -445,4 +448,5 @@ if __name__ == '__main__':
         print(r.json()['html_url'])
         webbrowser.open(r.json()['html_url'])
     else:
+        print(geo_json)
         draw_map(opts.location, geo_json, filename, opts.headless)

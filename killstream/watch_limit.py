@@ -1,13 +1,13 @@
 """
 Kill streams if user has watched too much Plex Today.
 
-PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+Tautulli > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on playback start
 
-PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: watch_limit.py
 
-PlexPy > Settings > Notifications > Script > Script Arguments
+Tautulli > Settings > Notifications > Script > Script Arguments
         {username}
         
 """
@@ -19,8 +19,8 @@ from plexapi.server import PlexServer
 
 
 ## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'xxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
+TAUTULLI_APIKEY = 'xxxx'  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8182/'  # Your Tautulli URL
 
 PLEX_TOKEN = 'xxxxx'
 PLEX_URL = 'http://localhost:32400'
@@ -41,22 +41,22 @@ sess.verify = False
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 
-def get_get_history(username):
-    # Get the PlexPy history.
-    payload = {'apikey': PLEXPY_APIKEY,
+def get_history(username):
+    # Get the Tautulli history.
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_history',
                'user': username,
                'start_date': TODAY}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         res_data = response['response']['data']['data']
         return sum([data['watched_status'] for data in res_data])
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_history' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_history' request failed: {0}.".format(e))
 
 
 def kill_session(user):
@@ -69,6 +69,6 @@ def kill_session(user):
             session.stop(reason=MESSAGE)
 
 
-if get_get_history(username) > WATCH_LIMIT[username]:
+if get_history(username) > WATCH_LIMIT[username]:
     print('User has reached watch limit for today.')
     kill_session(username)

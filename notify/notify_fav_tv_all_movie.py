@@ -3,15 +3,15 @@ Notify users of recently added episode to show that they have watched at least L
 Also notify users of new movies.
 Block users with IGNORE_LST.
 
-Arguments passed from PlexPy
+Arguments passed from Tautulli
 -sn {show_name} -ena {episode_name} -ssn {season_num00} -enu {episode_num00} -srv {server_name} -med {media_type}
 -pos {poster_url} -tt {title} -sum {summary} -lbn {library_name} -grk {grandparent_rating_key}
 You can add more arguments if you want more details in the email body
 
-Adding to PlexPy
-PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+Adding to Tautulli
+Tautulli > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on recently added
-PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Recently Added: notify_fav_tv_all_movie.py
 """
 
@@ -23,8 +23,8 @@ import sys
 import argparse
 
 ## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'XXXXXXX'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+TAUTULLI_APIKEY = 'XXXXXXX'  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 
 IGNORE_LST = ['123456', '123456'] # User_ids
 LIMIT = 3
@@ -93,52 +93,52 @@ class UserHIS(object):
         self.show_key = d['grandparent_rating_key']
 
 
-def get_get_user(user_id):
-    # Get the user list from PlexPy.
-    payload = {'apikey': PLEXPY_APIKEY,
+def get_user(user_id):
+    # Get the user list from Tautulli.
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_user',
                'user_id': int(user_id)}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         res_data = response['response']['data']
         return Users(data=res_data)
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_user' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_user' request failed: {0}.".format(e))
 
-def get_get_users():
-    # Get the user list from PlexPy.
-    payload = {'apikey': PLEXPY_APIKEY,
+def get_users():
+    # Get the user list from Tautulli.
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_users'}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         res_data = response['response']['data']
         return res_data
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_user' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_user' request failed: {0}.".format(e))
 
 
-def get_get_history(showkey):
-    # Get the user history from PlexPy. Length matters!
-    payload = {'apikey': PLEXPY_APIKEY,
+def get_history(showkey):
+    # Get the user history from Tautulli. Length matters!
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_history',
                'grandparent_rating_key': showkey,
                'length': 10000}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         res_data = response['response']['data']['data']
         return [UserHIS(data=d) for d in res_data if d['watched_status'] == 1
                 and d['media_type'].lower() in ('episode', 'show')]
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_history' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_history' request failed: {0}.".format(e))
 
 
 def add_to_dictlist(d, key, val):
@@ -149,7 +149,7 @@ def add_to_dictlist(d, key, val):
 
 
 def get_email(show):
-    history = get_get_history(show)
+    history = get_history(show)
 
     [add_to_dictlist(user_dict, h.user_id, h.show_key) for h in history]
     # {user_id1: [grand_key, grand_key], user_id2: [grand_key]}
@@ -166,7 +166,7 @@ def get_email(show):
     for i in user_lst:
         try:
             if user_dict[i][show] > LIMIT:
-                g = get_get_user(i)
+                g = get_user(i)
                 if g.user_id not in IGNORE_LST:
                     sys.stdout.write("Sending {g.user_id} email for %s.".format(g=g) % show)
                     email_lst += [g.email]
@@ -237,7 +237,7 @@ if __name__ == '__main__':
 
     if p.media_type == 'movie':
         email_subject = MOVIE_SUBJECT.format(p=p)
-        to = filter(None, [x['email'] for x in get_get_users() if x['user_id'] not in IGNORE_LST])
+        to = filter(None, [x['email'] for x in get_users() if x['user_id'] not in IGNORE_LST])
         body_html = MOVIE_BODY.format(p=p)
         send_email(to, email_subject, body_html)
 

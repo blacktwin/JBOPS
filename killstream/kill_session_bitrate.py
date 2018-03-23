@@ -1,10 +1,10 @@
 """
 Kill stream if bitrate is > BITRATE_LIMIT
 
-PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+Tautulli > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on playback start
 
-PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: kill_session_bitrate.py
 
 """

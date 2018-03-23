@@ -2,13 +2,13 @@
 Limit number of plays of TV Show episodes during time of day.
 Idea is to reduce continuous plays while sleeping.
 
-PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+Tautulli > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on playback start
 
-PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Playback Start: kill_time.py
 
-PlexPy > Settings > Notifications > Script > Script Arguments
+Tautulli > Settings > Notifications > Script > Script Arguments
         {username} {media_type} {grandparent_rating_key}
         
 """
@@ -20,8 +20,8 @@ from time import time as ttime
 from plexapi.server import PlexServer
 
 ## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'xxxx'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8182/'  # Your PlexPy URL
+TAUTULLI_APIKEY = 'xxxx'  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8182/'  # Your Tautulli URL
 
 PLEX_TOKEN = 'xxxx'
 PLEX_URL = 'http://localhost:32400'
@@ -51,16 +51,16 @@ sess.verify = False
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 
-def get_get_history(username):
-    # Get the PlexPy history.
-    payload = {'apikey': PLEXPY_APIKEY,
+def get_history(username):
+    # Get the Tautulli history.
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_history',
                'user': username,
                'start_date': TODAY,
                'order_column': 'date'}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         res_data = response['response']['data']['data']
@@ -70,7 +70,7 @@ def get_get_history(username):
         return [ep_watched, stopped_time[0]]
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_history' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_history' request failed: {0}.".format(e))
 
 
 def kill_session(user):
@@ -85,7 +85,7 @@ def kill_session(user):
 if media_type is not 'episode':
     exit()
 
-watched_count, last_stop = get_get_history(username)
+watched_count, last_stop = get_history(username)
 
 if abs(last_stop - unix_time) > 20:
     exit()
