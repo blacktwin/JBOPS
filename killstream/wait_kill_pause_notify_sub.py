@@ -4,7 +4,7 @@
 wait_kill_pause_notify_main.py & wait_kill_pause_notify_sub.py should be in the same directory.
 wait_kill_pause_notify_main.py executes sub_script wait_kill_pause_notify_sub.py.
 
-PlexPy will timeout wait_kill_pause_notify_main.py after 30 seconds (default)
+Tautulli will timeout wait_kill_pause_notify_main.py after 30 seconds (default)
     but wait_kill_pause_notify_sub.py will continue.
 
 wait_kill_pause_notify_sub will check if the stream's session_id is still paused or if playing as restarted.

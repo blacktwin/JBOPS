@@ -14,7 +14,7 @@ import os
 ## Edit ##
 
 # Imgur info
-CLIENT_ID = 'xxxxx' # PlexPy Settings > Notifications > Imgur Client ID
+CLIENT_ID = 'xxxxx' # Tautulli Settings > Notifications > Imgur Client ID
 ALBUM_ID = '7JeSw' # http://imgur.com/a/7JeSw  <--- 7JeSw is the ablum_id
 
 # Local info

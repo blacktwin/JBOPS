@@ -1,13 +1,13 @@
 """
 Kill Plex paused video transcoding streams.
 
-PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+Tautulli > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on playback pause
 
-PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Playback Pause: kill_trans_pause.py
 
-PlexPy > Settings > Notifications > Script > Script Arguments:
+Tautulli > Settings > Notifications > Script > Script Arguments:
         {session_key}
 
 """

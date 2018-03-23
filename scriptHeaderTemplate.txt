@@ -1,0 +1,40 @@
+"""
+Description: {description}
+Author: {author}
+Requires: {requirements}
+
+Enabling Scripts in Tautulli:
+Taultulli > Settings > Notification Agents > Add a Notification Agent > Script
+
+Configuration:
+Taultulli > Settings > Notification Agents > New Script > Configuration:
+
+ Script Name: {script_name}
+ Set Script Timeout: {timeout}
+ Description: {Tautulli_description}
+ Save
+
+Triggers:
+Taultulli > Settings > Notification Agents > New Script > Triggers:
+
+ Check: {trigger}
+ Save
+
+Conditions:
+Taultulli > Settings > Notification Agents > New Script > Conditions:
+
+ Set Conditions: [{condition} | {operator} | {value} ]
+ Save
+
+Script Arguments:
+Taultulli > Settings > Notification Agents > New Script > Script Arguments:
+
+ Select: {trigger}
+ Arguments: {arguments}
+
+ Save
+ Close
+
+ Example:
+
+"""

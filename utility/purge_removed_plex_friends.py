@@ -1,11 +1,17 @@
+"""
+Description: Purge Tautulli users that no longer exist as a friend in Plex
+Author: DirtyCajunRice
+Requires: requests, plexapi
+"""
+
 import requests
 from plexapi.myplex import MyPlexAccount
 
-TAUTULLI_BASE_URL = '192.168.1.100:8181'
-TAUTULLI_API_KEY = 'asd8a9sd8789asd87f9aasdf'
+TAUTULLI_BASE_URL = ''
+TAUTULLI_API_KEY = ''
 
-PLEX_USERNAME = 'someuser'
-PLEX_PASSWORD = 'somepassword'
+PLEX_USERNAME = ''
+PLEX_PASSWORD = ''
 
 # Do you want to back up the database before deleting?
 BACKUP_DB = True

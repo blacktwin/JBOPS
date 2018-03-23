@@ -5,10 +5,10 @@ kill stream will list why it was killed ('Server Admin's stream take priority an
 concurrent streams'). Message will also include an approximation of when the other concurrent stream
 will finish, stream that is closest to finish will be used.
 
-PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+Tautulli > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on buffer warning
 
-PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Buffer Warnings: kill_else_if_buffering.py
 
 '''

@@ -1,10 +1,10 @@
 """
-PlexPy > Settings > Notification Agents > Scripts > Bell icon:
+Tautulli > Settings > Notification Agents > Scripts > Bell icon:
         [X] Notify on Recently Added
-PlexPy > Settings > Notification Agents > Scripts > Gear icon:
+Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Recently Added: notify_on_added.py
         
-PlexPy > Settings > Notifications > Script > Script Arguments: 
+Tautulli > Settings > Notifications > Script > Script Arguments: 
 -sn {show_name} -ena {episode_name} -ssn {season_num00} -enu {episode_num00} -srv {server_name} -med {media_type} -pos {poster_url} -tt {title} -sum {summary} -lbn {library_name}
 
 You can add more arguments if you want more details in the email body
@@ -61,7 +61,7 @@ if not too:
 to = list([u['email'] for u in users if p.show_name in u['shows']])
 
 # Email settings
-name = 'PlexPy' # Your name
+name = 'Tautulli' # Your name
 sender = 'sender' # From email address
 email_server = 'smtp.gmail.com' # Email server (Gmail: smtp.gmail.com)
 email_port = 587  # Email port (Gmail: 587)
