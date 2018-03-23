@@ -1,5 +1,5 @@
 """
-usage: stream_check_instantwatcher.py [-h] [-l  [...]] [-s ] [-t ]
+usage: plex_netflix_check.py [-h] [-l  [...]] [-s ] [-t ]
 
 Use instantwatcher.com to find if Plex items are on Netflix, Amazon, or both.
 
