@@ -32,9 +32,9 @@ IGNORE_LST = ('')  # List usernames that should be ignored.
 
 REASON = 'IP Address: {} was not found in whitelist.'
 
-AGENT_ID = 14  # Notification agent ID for Tautulli
+NOTIFIER_ID = 14  # Notification agent ID for Tautulli
 # Find Notification agent ID here:
-# https://github.com/JonnyWong16/plexpy/blob/master/API.md#notify
+# Tautulli Settings -> NOTIFICATION AGENTS -> :bell: Agent (NotifierID - {Description)
 
 SUBJECT_TEXT = "IP Whitelist Violation"
 BODY_TEXT = "Killed {user}'s stream of {title}. IP: {ip} not in whitelist"
@@ -59,7 +59,7 @@ def send_notification(subject_text, body_text):
     # Send the notification through Tautulli
     payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'notify',
-               'agent_id': AGENT_ID,
+               'notifier_id': NOTIFIER_ID,
                'subject': subject,
                'body': body}
 

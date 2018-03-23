@@ -44,10 +44,10 @@ USER_IGNORE = ('') # ('Username','User2')
 SUBJECT_TEXT = "Killed Paused Transcoded Stream."
 BODY_TEXT = "Killed {user}'s paused transcoded stream of {title}."
 
-AGENT_ID = 10  # Notification agent ID for Tautulli
+NOTIFIER_ID = 10  # Notification agent ID for Tautulli
 # Find Notification agent ID here:
-# https://github.com/JonnyWong16/plexpy/blob/master/API.md#notify
-# AGENT = '' to disable notification
+# Tautulli Settings -> NOTIFICATION AGENTS -> :bell: Agent (NotifierID - {Description)
+# NOTIFIER_ID = '' to disable notification
 
 sub_script = 'wait_kill_pause_notify_sub.py'
 ##/EDIT THESE SETTINGS ##
@@ -63,7 +63,7 @@ def send_notification(subject_text, body_text):
     # Send the notification through Tautulli
     payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'notify',
-               'agent_id': AGENT_ID,
+               'notifier_id': NOTIFIER_ID,
                'subject': subject_text,
                'body': body_text}
 
@@ -92,7 +92,7 @@ def kill_stream(session, xtime, ntime):
     title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
 
     if state == 'paused' and xtime == ntime:
-        if AGENT_ID:
+        if NOTIFIER_ID:
             send_notification(SUBJECT_TEXT, BODY_TEXT.format(user=username, title=title))
         session.stop(reason=KILL_MESSAGE)
         return ntime
