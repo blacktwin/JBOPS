@@ -40,17 +40,18 @@ def kill_session():
         if user in USER_IGNORE or media_type == 'track':
             print('Ignoring {}\'s {} stream.'.format(user, media_type))
             pass
-        try:
-            trans_dec = session.transcodeSessions[0].videoDecision
-            if trans_dec == 'transcode':
-                platform = session.players[0].platform
-                MESSAGE = DEVICES.get(platform, DEFAULT_REASON)
-                # print(MESSAGE)
-                print('Killing {user}\'s stream for transcoding video on {plat}.'.format(user=user, plat=platform))
-                session.stop(reason=MESSAGE)
-        except IndexError:
-            # print('{} not transcoding.'.format(user))
-            pass
+        else:
+            try:
+                trans_dec = session.transcodeSessions[0].videoDecision
+                if trans_dec == 'transcode':
+                    platform = session.players[0].platform
+                    MESSAGE = DEVICES.get(platform, DEFAULT_REASON)
+                    # print(MESSAGE)
+                    print('Killing {user}\'s stream for transcoding video on {plat}.'.format(user=user, plat=platform))
+                    session.stop(reason=MESSAGE)
+            except IndexError:
+                # print('{} not transcoding.'.format(user))
+                pass
 
 
 if __name__ == '__main__':

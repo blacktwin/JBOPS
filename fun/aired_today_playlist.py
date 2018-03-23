@@ -66,7 +66,11 @@ def find_air_dates(content_lst):
     play_lst = [x[0] for x in aired_lst]
     return play_lst
 
+
 remove_old()
 play_lst = find_air_dates(get_all_content(LIBRARY_NAMES))
 # Create Playlist
-plex.createPlaylist(TODAY_PLAY_TITLE, play_lst)
+if play_lst:
+    plex.createPlaylist(TODAY_PLAY_TITLE, play_lst)
+else:
+    print('Found nothing aired on this day in history.')
