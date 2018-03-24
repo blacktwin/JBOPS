@@ -25,7 +25,10 @@ class METAINFO(object):
     def __init__(self, data=None):
         d = data or {}
         self.title = d['title']
-        self.file = d['file']
+        media_info = d['media_info'][0]
+        parts = media_info['parts'][0]
+        self.file_size = parts['file_size']
+        self.file = parts['file']
         self.media_type = d['media_type']
         self.grandparent_title = d['grandparent_title']
 

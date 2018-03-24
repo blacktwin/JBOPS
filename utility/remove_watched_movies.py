@@ -27,7 +27,9 @@ class METAINFO(object):
     def __init__(self, data=None):
         d = data or {}
         self.title = d['title']
-        self.file = d['file']
+        media_info = d['media_info'][0]
+        parts = media_info['parts'][0]
+        self.file = parts['file']
 
 
 def get_metadata(rating_key):
