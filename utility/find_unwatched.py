@@ -38,8 +38,10 @@ class METAINFO(object):
         self.rating_key = d['rating_key']
         self.media_type = d['media_type']
         self.grandparent_title = d['grandparent_title']
-        self.file_size = d['file_size']
-        self.file = d['file']
+        media_info = d['media_info'][0]
+        parts = media_info['parts'][0]
+        self.file_size = parts['file_size']
+        self.file = parts['file']
 
 
 def get_new_rating_keys(rating_key, media_type):

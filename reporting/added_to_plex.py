@@ -68,7 +68,7 @@ def get_new_rating_keys(rating_key, media_type):
         return episode_lst
 
     except Exception as e:
-        #sys.stderr.write("Tautulli API 'get_new_rating_keys' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_new_rating_keys' request failed: {0}.".format(e))
 
 def get_library_media_info(section_id):
     # Get the data on the Tautulli media info tables. Length matters!
@@ -104,7 +104,7 @@ def get_metadata(rating_key):
             return METAINFO(data=res_data)
 
     except Exception as e:
-        # sys.stderr.write("Tautulli API 'get_metadata' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_metadata' request failed: {0}.".format(e))
 
 def update_library_media_info(section_id):
     # Get the data on the Tautulli media info tables.
