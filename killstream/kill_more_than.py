@@ -28,7 +28,7 @@ ignore_lst = ('')
 # 2nd stream information is passed
 USERNAME = sys.argv[1]
 ADDRESS = sys.argv[2]
-SESSION_KEY = sys.argv[3]
+SESSION_KEY = int(sys.argv[3])
 
 if USERNAME in ignore_lst:
     print(u"{} ignored.".format(USERNAME))
@@ -48,16 +48,15 @@ def kill_session(user, ip_address, session_key):
         if username == user and address == ip_address:
             user_sessions.append((session))
 
-    if len(user_sessions) > 1:
+    if len(user_sessions) == 1:
         for session in user_sessions:
             if session_key == session.sessionKey:
                 title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
-                print(u"Killing {}'s second stream of {} for {}".format(username, title, MESSAGE))
+                print(u"Killing {}'s second stream of {} for {}".format(user, title, MESSAGE))
                 session.stop(reason=MESSAGE)
     else:
-        for session in user_sessions:
-            username = session.usernames[0]
-            print(u"Not killing {}'s second stream. Same IP".format(username))
+        print(u"Not killing {}'s second stream. Same IP".format(user))
 
 
 kill_session(USERNAME, ADDRESS, SESSION_KEY)
+
