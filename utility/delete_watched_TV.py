@@ -41,7 +41,7 @@ def get_metadata(rating_key):
         r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
-        res_data = response['response']['data']['metadata']
+        res_data = response['response']['data']
         return METAINFO(data=res_data)
 
     except Exception as e:
