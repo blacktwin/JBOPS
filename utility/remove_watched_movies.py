@@ -41,7 +41,7 @@ def get_metadata(rating_key):
         r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
-        res_data = response['response']['data']['metadata']
+        res_data = response['response']['data']
         if res_data['library_name'] in LIBRARY_NAMES:
             return METAINFO(data=res_data)
 

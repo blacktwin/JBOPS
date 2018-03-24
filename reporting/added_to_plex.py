@@ -99,7 +99,7 @@ def get_metadata(rating_key):
         r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
-        res_data = response['response']['data']['metadata']
+        res_data = response['response']['data']
         if STARTFRAME <= int(res_data['added_at']) <= ENDFRAME:
             return METAINFO(data=res_data)
 
