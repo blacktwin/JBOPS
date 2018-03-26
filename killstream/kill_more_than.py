@@ -41,21 +41,25 @@ plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 def kill_session(user, ip_address, session_key):
     user_sessions = []
+    userip_sessions = []
 
     for session in plex.sessions():
         username = session.usernames[0]
         address = session.players[0].address
-        if username == user and address == ip_address:
+        if username == user:
             user_sessions.append((session))
+        if username == user and address == ip_address:
+            userip_sessions.append((session))
 
-    if len(user_sessions) == 1:
+
+    if len(user_sessions) >= 2 > len(userip_sessions):
         for session in user_sessions:
             if session_key == session.sessionKey:
                 title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
                 print(u"Killing {}'s second stream of {} for {}".format(user, title, MESSAGE))
                 session.stop(reason=MESSAGE)
     else:
-        print(u"Not killing {}'s second stream. Same IP".format(user))
+        print(u"Not killing {}'s second stream. Same IP.".format(user))
 
 
 kill_session(USERNAME, ADDRESS, SESSION_KEY)
