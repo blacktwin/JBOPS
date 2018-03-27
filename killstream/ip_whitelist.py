@@ -86,6 +86,6 @@ if ip_address not in IP_WHITELIST:
             session.stop(reason=REASON.format(ip_address))
             send_notification(SUBJECT_TEXT, BODY_TEXT.format(user=username, ip=ip_address, title=title))
         else:
-            print('User: {} is ignored from this script.'.format(username))
+            sys.stdout.write('User: {} is ignored from this script.'.format(username))
 else:
-    print('IP: {} is in whitelist, ignoring.'.format(ip_address))
+    sys.stdout.write('IP: {} is in whitelist, ignoring.'.format(ip_address))
