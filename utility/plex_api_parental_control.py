@@ -60,7 +60,7 @@ def unshare(user, libraries):
     print('Unshared all libraries from {user}.'.format(libraries=libraries, user=user))
 
 
-def kill_session(user, libraries):
+def kill_session(user):
     for session in plex.sessions():
         # Check for users stream
         if session.usernames[0] in user:
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     elif opts.share == 'share_all':
         share(opts.user, sections_lst)
     elif opts.share == 'unshare':
-        kill_session(opts.user, sections_lst)
+        kill_session(opts.user)
         sleep(5)
         unshare(opts.user, sections_lst)
     else:
