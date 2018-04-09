@@ -109,7 +109,7 @@ def instantwatch_search(name, media_type, site, search_limit):
 
                 for data in results['span']:
                     if data['@class'] == 'title' and search_limit is not 0:
-                        if data['a']['$'].lower().startswith(name.lower()):
+                        if str(data['a']['$']).lower().startswith(name.lower()):
                             if amazon_id:
                                 if data['a']['@data-title-id'] == amazon_id:
                                     print('Match found on Amazon for {}'.format(data['a']['$']))
@@ -196,7 +196,7 @@ def main():
     parser.add_argument('-l', '--library', metavar='', choices=sections_lst, nargs='+',
                         help='Space separated list of case sensitive names to process. Allowed names are:\n'
                              '(choices: %(choices)s)')
-    parser.add_argument('-s', '--search', metavar='', nargs='?',
+    parser.add_argument('-s', '--search', metavar='', nargs='?', type=str,
                         help='Search any name.')
     parser.add_argument('-m', '--media_type', metavar='', choices=['movie', 'show'], nargs='?',
                         help='Refine search for name by using media type.\n'
