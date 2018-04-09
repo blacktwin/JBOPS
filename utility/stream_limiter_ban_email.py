@@ -282,15 +282,15 @@ if __name__ == "__main__":
     BAN = 1
     UNBAN = 0
 
-    for i in user_lst:
-        history = get_history(i, BAN_RATING)
-        mail_add, friendly = get_user(i)
+    for user in user_lst:
+        history = get_history(user, BAN_RATING)
+        mail_add, friendly = get_user(user)
 
         try:
-            if act_lst.count(i) >= LIMIT:
+            if act_lst.count(user) >= LIMIT:
                 # Trigger for first and next violation
-                unshare(i) # Remove libraries
-                share(i, BAN) # Share banned library
+                unshare(user) # Remove libraries
+                share(user, BAN) # Share banned library
                 sys.stdout.write("Shared BAN_LIBRARY with user {0}".format(i))
                 if type(history) is int:
                     # Next violation, history of banned video.
@@ -301,16 +301,16 @@ if __name__ == "__main__":
                 # email address, friendly name, violation number, violation limit, message
             elif type(history) is int:
                 # Trigger to share
-                if share(i, UNBAN) == 400:
+                if share(user, UNBAN) == 400:
                     exit() # User has history of watching banned video but libraries are already restored.
                 else:
-                    unshare(i) # Remove banned library
-                    share(i, UNBAN) # Restore libraries
+                    unshare(user) # Remove banned library
+                    share(user, UNBAN) # Restore libraries
             elif history == 'ban':
                 # Trigger for ban
-                unshare(i)
+                unshare(user)
                 send_notification(mail_add, friendly, VIOLATION_LIMIT, VIOLATION_LIMIT, FINAL_WARN)
                 # email address, friendly name, violation number, violation limit, message
-                sys.stdout.write("User {0} has been banned".format(i))
+                sys.stdout.write("User {0} has been banned".format(user))
         except Exception as e:
             sys.stderr.write("Share_unshare failed: {0}.".format(e))

@@ -124,7 +124,7 @@ def get_users_tables(users='', length=''):
         sys.stderr.write("Tautulli API 'get_users_tables' request failed: {0}.".format(e))
 
 
-def get_users_ips(user_id, length):
+def get_users_ips(user_id):
     # Get the user IP list from Tautulli
     payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_user_ips',
@@ -191,8 +191,8 @@ def get_geo_dict(length, users):
                                    'ip': REPLACEMENT_WAN_IP, 'play_count': 0, 'platform': SERVER_PLATFORM,
                                    'location_count': 0}]}
 
-    for i in get_users_tables(users):
-        user_ip = get_users_ips(user_id=i, length=length)
+    for user in get_users_tables(users=users, length=length):
+        user_ip = get_users_ips(user_id=user)
         city_cnt = 0
         for a in user_ip:
             try:
@@ -445,8 +445,7 @@ if __name__ == '__main__':
                               'Content-Type': 'application/json'
                           })
 
-        print(r.json()['html_url'])
         webbrowser.open(r.json()['html_url'])
     else:
-        print(geo_json)
+        # print(geo_json)
         draw_map(opts.location, geo_json, filename, opts.headless)

@@ -1,6 +1,8 @@
 """
 From a list of TV shows, check if users in a list has watched shows episodes.
 If all users in list have watched an episode of listed show, then delete episode.
+
+Add deletion via Plex.
 """
 
 import requests
