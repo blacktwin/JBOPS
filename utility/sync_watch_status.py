@@ -55,14 +55,11 @@ import argparse
 import os
 from plexapi.server import PlexServer
 
-
-PLEX_FALLBACK_URL = 'http://127.0.0.1:32400'
 PLEX_OVERRIDE_URL = ''
-PLEX_URL = PLEX_OVERRIDE_URL or os.getenv('PLEX_URL', PLEX_FALLBACK_URL)
+PLEX_URL = PLEX_OVERRIDE_URL or os.getenv('PLEX_URL')
 
-PLEX_FALLBACK_TOKEN = ''
 PLEX_OVERRIDE_TOKEN = ''
-PLEX_TOKEN = PLEX_OVERRIDE_TOKEN or os.getenv('PLEX_TOKEN', PLEX_FALLBACK_TOKEN)
+PLEX_TOKEN = PLEX_OVERRIDE_TOKEN or os.getenv('PLEX_TOKEN')
 
 
 sess = requests.Session()
