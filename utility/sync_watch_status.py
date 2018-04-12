@@ -68,12 +68,17 @@ plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 sections_lst = [x.title for x in plex.library.sections()]
 user_lst = [x.title for x in plex.myPlexAccount().users()]
+# Adding admin account name to list
+user_lst.append(plex.myPlexAccount().title)
 
 def get_account(user):
-    # Access Plex User's Account
-    userAccount = plex.myPlexAccount().user(user)
-    token = userAccount.get_token(plex.machineIdentifier)
-    server = PlexServer(PLEX_URL, token)
+    if user == plex.myPlexAccount().title:
+        server = plex
+    else:
+        # Access Plex User's Account
+        userAccount = plex.myPlexAccount().user(user)
+        token = userAccount.get_token(plex.machineIdentifier)
+        server = PlexServer(PLEX_URL, token)
     return server
 
 
