@@ -143,7 +143,7 @@ if __name__ == '__main__':
                                 # Check each episode
                                 if child.isWatched:
                                     ep_title = child.title.encode('utf-8')
-                                    plexTo.fetchItem(item.key).markWatched()
+                                    plexTo.fetchItem(child.key).markWatched()
                                     print('Synced watch status of {} - {} to {}\'s account.'
                                           .format(title, ep_title, user))
                 except Exception as e:
