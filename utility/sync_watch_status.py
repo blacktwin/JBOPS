@@ -101,7 +101,6 @@ if __name__ == '__main__':
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
                              '(choices: %(choices)s)')
 
-
     opts = parser.parse_args()
     # print(opts)
 
@@ -120,18 +119,33 @@ if __name__ == '__main__':
             sections_lst.remove(library)
             libraries = sections_lst
 
+    # Go through list of users
     for user in opts.userTo:
         # Create Sync-To user account
         plexTo = get_account(user)
         if libraries:
+            # Go through Libraries
             for library in libraries:
                 try:
                     print('Checking library: {}'.format(library))
-                    section = plexFrom.library.section(library)
-                    for item in section.search(unwatched=False):
+                    # Check library for watched items
+                    section = plexFrom.library.section(library).search(unwatched=False)
+                    for item in section:
                         title = item.title.encode('utf-8')
-                        plexTo.fetchItem(item.key).markWatched()
-                        print('Synced watch status of {} to {}\'s account.'.format(title, user))
+                        # Check movie media type
+                        if item.type == 'movie':
+                            plexTo.fetchItem(item.key).markWatched()
+                            print('Synced watch status of {} to {}\'s account.'.format(title, user))
+                        # Check show media type
+                        elif item.type == 'show':
+                            # If one episode is watched, series is flagged as watched
+                            for child in item.episodes():
+                                # Check each episode
+                                if child.isWatched:
+                                    ep_title = child.title.encode('utf-8')
+                                    plexTo.fetchItem(item.key).markWatched()
+                                    print('Synced watch status of {} - {} to {}\'s account.'
+                                          .format(title, ep_title, user))
                 except Exception as e:
                     if str(e).startswith('Unknown'):
                         print('Library ({}) does not have a watch status.'.format(library))
@@ -142,6 +156,7 @@ if __name__ == '__main__':
                     else:
                         print(e)
                     pass
+        # Check rating key from Tautulli
         elif opts.ratingKey:
             item = plexTo.fetchItem(opts.ratingKey)
             title = item.title.encode('utf-8')
