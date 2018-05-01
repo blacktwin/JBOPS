@@ -82,7 +82,7 @@ def kill_session(user):
             session.stop(reason=MESSAGE)
 
 
-if media_type is not 'episode':
+if media_type != 'episode':
     exit()
 
 watched_count, last_stop = get_history(username)
