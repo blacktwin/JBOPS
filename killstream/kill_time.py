@@ -38,7 +38,7 @@ END_TIME = time(06,00) # 06:00
 
 username = str(sys.argv[1])
 media_type = str(sys.argv[2])
-grandparent_rating_key = str(sys.argv[3])
+grandparent_rating_key = int(sys.argv[3])
 
 TODAY = datetime.today().strftime('%Y-%m-%d')
 
@@ -66,7 +66,7 @@ def get_history(username):
         res_data = response['response']['data']['data']
         ep_watched = sum([data['watched_status'] for data in res_data
                     if data['grandparent_rating_key'] == grandparent_rating_key and data['watched_status'] == 1])
-        stopped_time = [data['stopped'] for data in res_data if data['watched_status' == 1]]
+        stopped_time = [data['stopped'] for data in res_data if data['watched_status'] == 1]
         return [ep_watched, stopped_time[0]]
 
     except Exception as e:
