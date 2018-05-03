@@ -1,15 +1,43 @@
 """
-Limit number of plays of TV Show episodes during time of day.
-Idea is to reduce continuous plays while sleeping.
+Description: Limit number of plays of TV Show episodes during time of day.
+                Idea is to reduce continuous plays while sleeping.
+Author: Blacktwin
+Requires: requests, plexapi
 
-Tautulli > Settings > Notification Agents > Scripts > Bell icon:
-        [X] Notify on playback start
+Enabling Scripts in Tautulli:
+Taultulli > Settings > Notification Agents > Add a Notification Agent > Script
 
-Tautulli > Settings > Notification Agents > Scripts > Gear icon:
-        Playback Start: kill_time.py
+Configuration:
+Taultulli > Settings > Notification Agents > New Script > Configuration:
 
-Tautulli > Settings > Notifications > Script > Script Arguments
-        {username} {media_type} {grandparent_rating_key}
+ Script Name: kill_time.py
+ Set Script Timeout: default
+ Description: {Tautulli_description}
+ Save
+
+Triggers:
+Taultulli > Settings > Notification Agents > New Script > Triggers:
+
+ Check: Playback Start
+ Save
+
+Conditions:
+Taultulli > Settings > Notification Agents > New Script > Conditions:
+
+ Set Conditions: [{Media Type} | {is} | {episode} ]
+ Save
+
+Script Arguments:
+Taultulli > Settings > Notification Agents > New Script > Script Arguments:
+
+ Select: Playback Start
+ Arguments: {username} {grandparent_rating_key}
+
+ Save
+ Close
+
+ Example:
+
         
 """
 
@@ -26,19 +54,20 @@ TAUTULLI_URL = 'http://localhost:8182/'  # Your Tautulli URL
 PLEX_TOKEN = 'xxxx'
 PLEX_URL = 'http://localhost:32400'
 
+TIME_DELAY = 60
+
 WATCH_LIMIT = {'user1': 2,
                'user2': 3,
                'user3': 4}
 
-MESSAGE = 'Are you still watching or are you asleep? If not please wait and try again.'
+MESSAGE = 'Are you still watching or are you asleep? If not please wait ~{} seconds and try again.'.format(TIME_DELAY)
 
 START_TIME = time(22,00) # 22:00
 END_TIME = time(06,00) # 06:00
 ##/EDIT THESE SETTINGS ##
 
 username = str(sys.argv[1])
-media_type = str(sys.argv[2])
-grandparent_rating_key = int(sys.argv[3])
+grandparent_rating_key = int(sys.argv[2])
 
 TODAY = datetime.today().strftime('%Y-%m-%d')
 
@@ -51,8 +80,8 @@ sess.verify = False
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 
-def get_history(username):
-    # Get the Tautulli history.
+def get_get_history(username):
+    # Get the PlexPy history.
     payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_history',
                'user': username,
@@ -64,10 +93,22 @@ def get_history(username):
         response = r.json()
 
         res_data = response['response']['data']['data']
-        ep_watched = sum([data['watched_status'] for data in res_data
-                    if data['grandparent_rating_key'] == grandparent_rating_key and data['watched_status'] == 1])
-        stopped_time = [data['stopped'] for data in res_data if data['watched_status'] == 1]
-        return [ep_watched, stopped_time[0]]
+
+        ep_watched = [data['watched_status'] for data in res_data
+                    if data['grandparent_rating_key'] == grandparent_rating_key and data['watched_status'] == 1]
+        if not ep_watched:
+            ep_watched = 0
+        else:
+            ep_watched = sum(ep_watched)
+
+        stopped_time = [data['stopped'] for data in res_data
+                        if data['grandparent_rating_key'] == grandparent_rating_key and data['watched_status'] == 1]
+        if not stopped_time:
+            stopped_time = unix_time
+        else:
+            stopped_time = stopped_time[0]
+
+        return ep_watched, stopped_time
 
     except Exception as e:
         sys.stderr.write("Tautulli API 'get_history' request failed: {0}.".format(e))
@@ -76,21 +117,24 @@ def get_history(username):
 def kill_session(user):
     for session in plex.sessions():
         # Check for users stream
-        if session.usernames[0] is user:
+        if session.usernames[0] == user:
             title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
             print('{user} is watching {title} and they might be asleep.'.format(user=user, title=title))
             session.stop(reason=MESSAGE)
 
 
-if media_type != 'episode':
-    exit()
+watched_count, last_stop = get_get_history(username)
 
-watched_count, last_stop = get_history(username)
-
-if abs(last_stop - unix_time) > 20:
+if abs(last_stop - unix_time) > TIME_DELAY:
+    print('{} is awake!'.format(username))
     exit()
 
 if watched_count > WATCH_LIMIT[username]:
+    print('Checking time range for {}.'.format(username))
     if START_TIME <= now_time or now_time <= END_TIME:
-        print('User may be asleep.')
         kill_session(username)
+    else:
+        print('{} outside of time range.'.format(username))
+else:
+    print('{} limit is {} but has only watched {} episodes of this show today.'.format(
+        username, WATCH_LIMIT[username], watched_count))
