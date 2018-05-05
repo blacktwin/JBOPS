@@ -41,7 +41,7 @@ plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 def kill_session(user):
     for session in plex.sessions():
         # Check for users stream
-        if session.usernames[0] in user:
+        if session.usernames[0] == user:
             print('Killing all of {user}\'s streams. Too many streams'.format(user=user))
             session.stop(reason=MESSAGE)
 
