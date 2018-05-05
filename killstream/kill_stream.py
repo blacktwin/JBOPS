@@ -30,7 +30,7 @@ Script Arguments:
 Taultulli > Settings > Notification Agents > New Script > Script Arguments:
 
  Select: Playback Start, Playback Pause
- Arguments: {session_id}
+ Arguments: {session_id} "Your message here. Use double quotes!"
 
  Save
  Close
@@ -43,6 +43,10 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
      Kill paused transcodes:
         Set Trigger: Playback Paused
         Set Conditions: [ {Transcode Decision} | {is} | {transcode} ]
+
+     Limit User stream count, kill last stream:
+        Set Trigger: Playback Start
+        Set Conditions: [ {User Streams} | {is greater than} | {3} ]
 
      IP Whitelist:
         Set Trigger: Playback Start
@@ -97,13 +101,12 @@ if TAUTULLI_OVERRIDE_URL:
 if TAUTULLI_OVERRIDE_API:
     TAUTULLI_APIKEY = TAUTULLI_OVERRIDE_API
 
-MESSAGE = 'Your stream was terminated for "reasons"'
-
 session_id = str(sys.argv[1])
+message = str(sys.argv[2])
 
 payload = {'apikey': TAUTULLI_APIKEY,
            'cmd': 'terminate_session',
            'session_id': session_id,
-           'message': MESSAGE}
+           'message': message}
 
 requests.post(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
