@@ -30,7 +30,7 @@ Script Arguments:
 Taultulli > Settings > Notification Agents > New Script > Script Arguments:
 
  Select: Playback Start, Playback Pause
- Arguments: {session_id} "Your message here. Use double quotes!"
+ Arguments: {session_id} Your message here.
 
  Save
  Close
@@ -101,12 +101,19 @@ if TAUTULLI_OVERRIDE_URL:
 if TAUTULLI_OVERRIDE_API:
     TAUTULLI_APIKEY = TAUTULLI_OVERRIDE_API
 
+sess = requests.Session()
+# Ignore verifying the SSL certificate
+sess.verify = False # '/path/to/certfile'
+# If verify is set to a path to a directory,
+# the directory must have been processed using the c_rehash utility supplied with OpenSSL.
+
 session_id = str(sys.argv[1])
-message = str(sys.argv[2])
+message = str(' '.join(sys.argv[2:]))
+
 
 payload = {'apikey': TAUTULLI_APIKEY,
            'cmd': 'terminate_session',
            'session_id': session_id,
            'message': message}
 
-requests.post(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
+sess.post(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
