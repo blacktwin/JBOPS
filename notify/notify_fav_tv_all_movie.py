@@ -18,20 +18,29 @@ PlexPy > Settings > Notification Agents > Scripts > Gear icon:
 import requests
 import ConfigParser
 import io
+import os.path
 from email.mime.text import MIMEText
 import email.utils
 import smtplib
 import sys
 import argparse
 
-# Load the configuration file
-with open("../config.ini") as f:
-    real_config = f.read()
-config = ConfigParser.RawConfigParser(allow_no_value=False)
-config.readfp(io.BytesIO(real_config))
 
-PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
-PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
+TAUTULLI_APIKEY = ''  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8183/'  # Your Tautulli URL
+
+## DO NOT EDIT
+config_exists = os.path.exists("../config.ini")
+if config_exists:
+    # Load the configuration file
+    with open("../config.ini") as f:
+        real_config = f.read()
+        config = ConfigParser.RawConfigParser(allow_no_value=False)
+        config.readfp(io.BytesIO(real_config))
+
+        TAUTULLI_APIKEY=config.get('tautulli-data', 'TAUTULLI_APIKEY')
+        TAUTULLI_URL=config.get('tautulli-data', 'TAUTULLI_URL')
+##/DO NOT EDIT
 
 IGNORE_LST = ['123456', '123456'] # User_ids
 LIMIT = 3

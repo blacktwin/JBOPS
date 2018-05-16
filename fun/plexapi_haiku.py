@@ -5,12 +5,29 @@ https://gist.github.com/blacktwin/4ccb79c7d01a95176b8e88bf4890cd2b
 from plexapi.server import PlexServer
 import ConfigParser
 import io
+import os.path
 import random
 import re
 
+## EDIT THESE SETTINGS IF NOT USING THE CONFIG ##
+baseurl = 'http://localhost:32400'
+token = 'xxxxxx'
 
-baseurl = config.get('plex-data', 'PLEX_URL')
-token = config.get('plex-data', 'PLEX_TOKEN')
+## DO NOT EDIT
+config_exists = os.path.exists("../config.ini")
+if config_exists:
+    # Load the configuration file
+    with open("../config.ini") as f:
+        real_config = f.read()
+        config = ConfigParser.RawConfigParser(allow_no_value=False)
+        config.readfp(io.BytesIO(real_config))
+
+        token=config.get('plex-data', 'PLEX_TOKEN')
+        baseurl=config.get('plex-data', 'PLEX_URL')
+##/DO NOT EDIT
+
+##/EDIT THESE SETTINGS
+
 plex = PlexServer(baseurl, token)
 
 

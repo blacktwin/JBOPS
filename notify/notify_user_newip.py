@@ -17,14 +17,21 @@ import smtplib
 
 ## -sn {show_name} -ena {episode_name} -ssn {season_num00} -enu {episode_num00} -srv {server_name} -med {media_type} -pos {poster_url} -tt {title} -sum {summary} -lbn {library_name} -ip {ip_address} -us {user} -uid {user_id} -pf {platform} -pl {player} -da {datestamp} -ti {timestamp}
 
-# Load the configuration file
-with open("../config.ini") as f:
-    real_config = f.read()
-config = ConfigParser.RawConfigParser(allow_no_value=False)
-config.readfp(io.BytesIO(real_config))
+TAUTULLI_APIKEY = ''  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8183/'  # Your Tautulli URL
 
-PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
-PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
+## DO NOT EDIT
+config_exists = os.path.exists("../config.ini")
+if config_exists:
+    # Load the configuration file
+    with open("../config.ini") as f:
+        real_config = f.read()
+        config = ConfigParser.RawConfigParser(allow_no_value=False)
+        config.readfp(io.BytesIO(real_config))
+
+        TAUTULLI_APIKEY=config.get('tautulli-data', 'TAUTULLI_APIKEY')
+        TAUTULLI_URL=config.get('tautulli-data', 'TAUTULLI_URL')
+##/DO NOT EDIT
 
 # Replace LAN IP addresses that start with the LAN_SUBNET with a WAN IP address
 # to retrieve geolocation data. Leave REPLACEMENT_WAN_IP blank for no replacement.
@@ -76,7 +83,7 @@ class UserEmail(object):
         self.email = data.get('email', 'N/A')
         self.user_id = data.get('user_id', 'N/A')
         self.user_thumb = data.get('user_thumb', 'N/A')
-        
+
 ##API Space##
 def get_user_ip_addresses(user_id='', ip_address=''):
     # Get the user IP list from PlexPy
@@ -84,7 +91,7 @@ def get_user_ip_addresses(user_id='', ip_address=''):
                'cmd': 'get_user_ips',
                'user_id': user_id,
                'search': ip_address}
-               
+
     try:
         r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
@@ -195,7 +202,7 @@ if __name__ == '__main__':
     parser.add_argument('-us', '--user', action='store', default='',
                         help='Username of the person watching the stream')
     parser.add_argument('-uid', '--user_id', action='store', default='',
-                        help='User_ID of the person watching the stream')                        
+                        help='User_ID of the person watching the stream')
     parser.add_argument('-med', '--media_type', action='store', default='',
                         help='The media type of the stream')
     parser.add_argument('-tt', '--title', action='store', default='',
@@ -224,7 +231,7 @@ if __name__ == '__main__':
                         help='The summary of the TV show')
     parser.add_argument('-lbn', '--library_name', action='store', default='',
                         help='The name of the TV show')
-                        
+
     p = parser.parse_args()
 
     if p.user_id not in IGNORE_LST:

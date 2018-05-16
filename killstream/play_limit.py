@@ -14,22 +14,33 @@ PlexPy > Settings > Notifications > Script > Script Arguments
 
 import ConfigParser
 import io
+import os.path
 import requests
 import sys
 import datetime
 from plexapi.server import PlexServer
 
-# Load the configuration file
-with open("../config.ini") as f:
-    real_config = f.read()
-config = ConfigParser.RawConfigParser(allow_no_value=False)
-config.readfp(io.BytesIO(real_config))
+## EDIT THESE SETTINGS IF NOT USING THE CONFIG ##
+TAUTULLI_APIKEY = 'xxxx'  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8182/'  # Your Tautulli URL
 
-PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
-PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
+PLEX_TOKEN = 'xxxx'
+PLEX_URL = 'http://localhost:32400'
 
-PLEX_TOKEN=config.get('plex-data', 'PLEX_TOKEN')
-PLEX_URL=config.get('plex-data', 'PLEX_URL')
+## DO NOT EDIT
+config_exists = os.path.exists("../config.ini")
+if config_exists:
+    # Load the configuration file
+    with open("../config.ini") as f:
+        real_config = f.read()
+        config = ConfigParser.RawConfigParser(allow_no_value=False)
+        config.readfp(io.BytesIO(real_config))
+
+        PLEX_TOKEN=config.get('plex-data', 'PLEX_TOKEN')
+        PLEX_URL=config.get('plex-data', 'PLEX_URL')
+        TAUTULLI_APIKEY=config.get('tautulli-data', 'TAUTULLI_APIKEY')
+        TAUTULLI_URL=config.get('tautulli-data', 'TAUTULLI_URL')
+##/DO NOT EDIT
 
 PLAY_LIMIT = {'user1':
                   [{'section_id': 2, 'limit': 0},
