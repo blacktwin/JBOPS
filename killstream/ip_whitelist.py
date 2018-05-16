@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Receive session_key and IP from PlexPy when playback starts. 
+Receive session_key and IP from PlexPy when playback starts.
 Use IP to check against whitelist.
 If not in whitelist use session_key to determine stream and kill.
 
@@ -17,22 +17,34 @@ PlexPy > Settings > Notifications > Script > Script Arguments:
 import sys
 import ConfigParser
 import io
+import os.path
 import requests
 from plexapi.server import PlexServer
 # pip install plexapi
 
+## EDIT THESE SETTINGS IF NOT USING THE CONFIG ##
+TAUTULLI_APIKEY = 'xxxx'  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8182/'  # Your Tautulli URL
 
-# Load the configuration file
-with open("../config.ini") as f:
-    real_config = f.read()
-config = ConfigParser.RawConfigParser(allow_no_value=False)
-config.readfp(io.BytesIO(real_config))
+PLEX_TOKEN = 'xxxx'
+PLEX_URL = 'http://localhost:32400'
 
-PLEX_TOKEN=config.get('plex-data', 'PLEX_TOKEN')
-PLEX_URL=config.get('plex-data', 'PLEX_URL')
+## DO NOT EDIT
+config_exists = os.path.exists("../config.ini")
+if config_exists:
+    # Load the configuration file
+    with open("../config.ini") as f:
+        real_config = f.read()
+        config = ConfigParser.RawConfigParser(allow_no_value=False)
+        config.readfp(io.BytesIO(real_config))
 
-PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
-PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
+        TAUTULLI_APIKEY=config.get('tautulli-data', 'TAUTULLI_APIKEY')
+        TAUTULLI_URL=config.get('tautulli-data', 'TAUTULLI_URL')
+
+        PLEX_TOKEN=config.get('plex-data', 'PLEX_TOKEN')
+        PLEX_URL=config.get('plex-data', 'PLEX_URL')
+##/DO NOT EDIT
+
 
 IP_WHITELIST = ['10.10.0.12']  # List IP addresses.
 IGNORE_LST = ('')  # List usernames that should be ignored.

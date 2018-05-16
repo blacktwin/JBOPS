@@ -1,6 +1,6 @@
 """
 
-Find what was added TFRAME ago and not watched using PlexPy.
+Find what was added TFRAME ago and not watched using Tautulli.
 
 """
 
@@ -13,8 +13,8 @@ TODAY = time.time()
 
 
 ## EDIT THESE SETTINGS ##
-PLEXPY_APIKEY = 'XXXXXX'  # Your PlexPy API key
-PLEXPY_URL = 'http://localhost:8181/'  # Your PlexPy URL
+TAUTULLI_APIKEY = 'XXXXXX'  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 LIBRARY_NAMES = ['My TV Shows', 'My Movies'] # Name of libraries you want to check.
 
 
@@ -38,19 +38,21 @@ class METAINFO(object):
         self.rating_key = d['rating_key']
         self.media_type = d['media_type']
         self.grandparent_title = d['grandparent_title']
-        self.file_size = d['file_size']
-        self.file = d['file']
+        media_info = d['media_info'][0]
+        parts = media_info['parts'][0]
+        self.file_size = parts['file_size']
+        self.file = parts['file']
 
 
-def get_get_new_rating_keys(rating_key, media_type):
+def get_new_rating_keys(rating_key, media_type):
     # Get a list of new rating keys for the PMS of all of the item's parent/children.
-    payload = {'apikey': PLEXPY_APIKEY,
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_new_rating_keys',
                'rating_key': rating_key,
                'media_type': media_type}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         res_data = response['response']['data']
@@ -61,60 +63,60 @@ def get_get_new_rating_keys(rating_key, media_type):
         return episode_lst
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_new_rating_keys' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_new_rating_keys' request failed: {0}.".format(e))
 
 
-def get_get_metadata(rating_key):
+def get_metadata(rating_key):
     # Get the metadata for a media item.
-    payload = {'apikey': PLEXPY_APIKEY,
+    payload = {'apikey': TAUTULLI_APIKEY,
                'rating_key': rating_key,
                'cmd': 'get_metadata',
                'media_info': True}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
-        res_data = response['response']['data']['metadata']
+        res_data = response['response']['data']
         return METAINFO(data=res_data)
 
     except Exception as e:
-        # sys.stderr.write("PlexPy API 'get_get_metadata' request failed: {0}.".format(e))
+        # sys.stderr.write("Tautulli API 'get_metadata' request failed: {0}.".format(e))
         pass
 
 
-def get_get_library_media_info(section_id):
-    # Get the data on the PlexPy media info tables.
-    payload = {'apikey': PLEXPY_APIKEY,
+def get_library_media_info(section_id):
+    # Get the data on the Tautulli media info tables.
+    payload = {'apikey': TAUTULLI_APIKEY,
                'section_id': section_id,
                'cmd': 'get_library_media_info',
                'length': 10000}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         res_data = response['response']['data']['data']
         return [LIBINFO(data=d) for d in res_data if d['play_count'] is None and (TODAY - int(d['added_at'])) > TFRAME]
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_library_media_info' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_library_media_info' request failed: {0}.".format(e))
 
-def get_get_libraries_table():
-    # Get the data on the PlexPy libraries table.
-    payload = {'apikey': PLEXPY_APIKEY,
+def get_libraries_table():
+    # Get the data on the Tautulli libraries table.
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_libraries_table'}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         res_data = response['response']['data']['data']
         return [d['section_id'] for d in res_data if d['section_name'] in LIBRARY_NAMES]
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_libraries_table' request failed: {0}.".format(e))
-        
+        sys.stderr.write("Tautulli API 'get_libraries_table' request failed: {0}.".format(e))
+
 def delete_files(tmp_lst):
     del_file = raw_input('Delete all unwatched files? (yes/no)').lower()
     if del_file.startswith('y'):
@@ -127,16 +129,16 @@ def delete_files(tmp_lst):
 show_lst = []
 path_lst = []
 
-glt = [lib for lib in get_get_libraries_table()]
+glt = [lib for lib in get_libraries_table()]
 
 for i in glt:
     try:
-        gglm = get_get_library_media_info(i)
+        gglm = get_library_media_info(i)
         for x in gglm:
             try:
                 if x.media_type in ['show', 'episode']:
                     # Need to find TV shows rating_key for episode.
-                    show_lst += get_get_new_rating_keys(x.rating_key, x.media_type)
+                    show_lst += get_new_rating_keys(x.rating_key, x.media_type)
                 else:
                     # Find movie rating_key.
                     show_lst += [int(x.rating_key)]
@@ -149,7 +151,7 @@ for i in glt:
 # Remove reverse sort if you want the oldest keys first.
 for i in sorted(show_lst, reverse=True):
     try:
-        x = get_get_metadata(str(i))
+        x = get_metadata(str(i))
         added = time.ctime(float(x.added_at))
         if x.grandparent_title == '' or x.media_type == 'movie':
             # Movies

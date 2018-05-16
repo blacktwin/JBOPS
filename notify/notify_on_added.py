@@ -1,12 +1,12 @@
-"""
-PlexPy > Settings > Notification Agents > Scripts > Bell icon:
-        [X] Notify on Recently Added
-PlexPy > Settings > Notification Agents > Scripts > Gear icon:
-        Recently Added: notify_on_added.py
-        
-PlexPy > Settings > Notifications > Script > Script Arguments: 
--sn {show_name} -ena {episode_name} -ssn {season_num00} -enu {episode_num00} -srv {server_name} -med {media_type} -pos {poster_url} -tt {title} -sum {summary} -lbn {library_name}
 
+"""
+Tautulli > Settings > Notification Agents > Scripts > Bell icon:
+        [X] Notify on Recently Added
+Tautulli > Settings > Notification Agents > Scripts > Gear icon:
+        Recently Added: notify_on_added.py
+
+Tautulli > Settings > Notifications > Script > Script Arguments:
+-sn {show_name} -ena {episode_name} -ssn {season_num00} -enu {episode_num00} -srv {server_name} -med {media_type} -pos {poster_url} -tt {title} -sum {summary} -lbn {library_name}
 You can add more arguments if you want more details in the email body
 """
 
@@ -50,7 +50,7 @@ users = [{'email': 'user1@gmail.com',
          {'email': 'user3@gmail.com',
           'shows': ('show1', 'show2', 'show3', 'show4')
           }]
-          
+
 # Kill script now if show_name is not in lists
 too = list('Match' for u in users if p.show_name in u['shows'])
 if not too:
@@ -61,7 +61,7 @@ if not too:
 to = list([u['email'] for u in users if p.show_name in u['shows']])
 
 # Email settings
-name = 'PlexPy' # Your name
+name = 'Tautulli' # Your name
 sender = 'sender' # From email address
 email_server = 'smtp.gmail.com' # Email server (Gmail: smtp.gmail.com)
 email_port = 587  # Email port (Gmail: 587)
@@ -90,8 +90,8 @@ if p.show_type.lower() == 'show' or p.show_type.lower() == 'episode':
     message = MIMEText(show_html, 'html')
     message['Subject'] = email_subject
     message['From'] = email.utils.formataddr((name, sender))
-    
-    
+
+
     mailserver = smtplib.SMTP(email_server, email_port)
     mailserver.starttls()
     mailserver.ehlo()
@@ -99,4 +99,4 @@ if p.show_type.lower() == 'show' or p.show_type.lower() == 'episode':
     mailserver.sendmail(sender, to, message.as_string())
     mailserver.quit()
 else:
-	exit()
+exit()

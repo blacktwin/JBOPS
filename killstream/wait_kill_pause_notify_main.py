@@ -22,6 +22,7 @@ Set INTERVAL to how often you want to check the stream status
 '''
 
 import os
+import os.path
 import sys
 import ConfigParser
 import io
@@ -29,17 +30,27 @@ import requests
 import subprocess
 from plexapi.server import PlexServer
 
+## EDIT THESE SETTINGS IF NOT USING THE CONFIG ##
+TAUTULLI_APIKEY = 'xxxx'  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8182/'  # Your Tautulli URL
 
-# Load the configuration file
-with open("../config.ini") as f:
-    real_config = f.read()
-config = ConfigParser.RawConfigParser(allow_no_value=False)
-config.readfp(io.BytesIO(real_config))
+PLEX_TOKEN = 'xxxx'
+PLEX_URL = 'http://localhost:32400'
 
-PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
-PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
-PLEX_TOKEN=config.get('plex-data', 'PLEX_TOKEN')
-PLEX_URL=config.get('plex-data', 'PLEX_URL')
+## DO NOT EDIT
+config_exists = os.path.exists("../config.ini")
+if config_exists:
+    # Load the configuration file
+    with open("../config.ini") as f:
+        real_config = f.read()
+        config = ConfigParser.RawConfigParser(allow_no_value=False)
+        config.readfp(io.BytesIO(real_config))
+
+        PLEX_TOKEN=config.get('plex-data', 'PLEX_TOKEN')
+        PLEX_URL=config.get('plex-data', 'PLEX_URL')
+        TAUTULLI_APIKEY=config.get('tautulli-data', 'TAUTULLI_APIKEY')
+        TAUTULLI_URL=config.get('tautulli-data', 'TAUTULLI_URL')
+##/DO NOT EDIT
 
 TIMEOUT = '120'
 INTERVAL = '20'

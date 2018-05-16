@@ -1,6 +1,5 @@
 """
-Use PlexPy to print plays by library from 0, 1, 7, or 30 days ago. 0 = total
-
+Use Tautulli to print plays by library from 0, 1, 7, or 30 days ago. 0 = total
 optional arguments:
   -h, --help            show this help message and exit
   -l  [ ...], --libraries  [ ...]
@@ -10,7 +9,6 @@ optional arguments:
                         Space separated list of case sensitive names to process. Allowed names are:
                         (defaults: [0, 1, 7, 30])
                          (choices: 0, 1, 7, 30)
-
 Usage:
    plays_days.py -l "TV Shows" Movies -d 30 1 0
     Library: Movies
@@ -19,7 +17,6 @@ Usage:
     Library: TV Shows
     Days: 1 : 30 : 0
     Plays: 56 : 754 : 2899
-
 """
 
 import requests
@@ -28,14 +25,22 @@ import io
 import sys
 import argparse
 
-# Load the configuration file
-with open("../config.ini") as f:
-    real_config = f.read()
-config = ConfigParser.RawConfigParser(allow_no_value=False)
-config.readfp(io.BytesIO(real_config))
+TAUTULLI_APIKEY = ''  # Your Tautulli API key
+TAUTULLI_URL = 'http://localhost:8183/'  # Your Tautulli URL
 
-PLEXPY_APIKEY=config.get('plexpy-data', 'PLEXPY_APIKEY')
-PLEXPY_URL=config.get('plexpy-data', 'PLEXPY_URL')
+## DO NOT EDIT
+config_exists = os.path.exists("../config.ini")
+if config_exists:
+    # Load the configuration file
+    with open("../config.ini") as f:
+        real_config = f.read()
+        config = ConfigParser.RawConfigParser(allow_no_value=False)
+        config.readfp(io.BytesIO(real_config))
+
+        TAUTULLI_APIKEY=config.get('tautulli-data', 'TAUTULLI_APIKEY')
+        TAUTULLI_URL=config.get('tautulli-data', 'TAUTULLI_URL')
+##/DO NOT EDIT
+
 
 OUTPUT = 'Library: {section}\nDays: {days}\nPlays: {plays}'
 
@@ -43,11 +48,11 @@ OUTPUT = 'Library: {section}\nDays: {days}\nPlays: {plays}'
 
 def get_library_names():
     # Get a list of new rating keys for the PMS of all of the item's parent/children.
-    payload = {'apikey': PLEXPY_APIKEY,
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_library_names'}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         # print(json.dumps(response, indent=4, sort_keys=True))
 
@@ -55,17 +60,17 @@ def get_library_names():
         return [d for d in res_data]
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_library_names' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_library_names' request failed: {0}.".format(e))
 
 
 def get_library_watch_time_stats(section_id):
     # Get a list of new rating keys for the PMS of all of the item's parent/children.
-    payload = {'apikey': PLEXPY_APIKEY,
+    payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_library_watch_time_stats',
                'section_id': section_id}
 
     try:
-        r = requests.get(PLEXPY_URL.rstrip('/') + '/api/v2', params=payload)
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         # print(json.dumps(response, indent=4, sort_keys=True))
 
@@ -73,7 +78,7 @@ def get_library_watch_time_stats(section_id):
         return [d for d in res_data]
 
     except Exception as e:
-        sys.stderr.write("PlexPy API 'get_library_watch_time_stats' request failed: {0}.".format(e))
+        sys.stderr.write("Tautulli API 'get_library_watch_time_stats' request failed: {0}.".format(e))
 
 
 def main():
@@ -81,7 +86,7 @@ def main():
     lib_lst = [section['section_name'] for section in get_library_names()]
     days_lst = [0, 1, 7, 30]
 
-    parser = argparse.ArgumentParser(description="Use PlexPy to pull plays by library",
+    parser = argparse.ArgumentParser(description="Use Tautulli to pull plays by library",
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-l', '--libraries', nargs='+', type=str, default=lib_lst, choices=lib_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'

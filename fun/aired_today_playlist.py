@@ -8,17 +8,26 @@ import operator
 from plexapi.server import PlexServer
 import ConfigParser
 import io
+import os.path
 import requests
 import datetime
 
-# Load the configuration file
-with open("../config.ini") as f:
-    real_config = f.read()
-config = ConfigParser.RawConfigParser(allow_no_value=False)
-config.readfp(io.BytesIO(real_config))
+## EDIT THESE SETTINGS IF NOT USING THE CONFIG ##
+PLEX_TOKEN = 'xxxx'
+PLEX_URL = 'http://localhost:32400'
 
-PLEX_TOKEN=config.get('plex-data', 'PLEX_TOKEN')
-PLEX_URL=config.get('plex-data', 'PLEX_URL')
+## DO NOT EDIT
+config_exists = os.path.exists("../config.ini")
+if config_exists:
+    # Load the configuration file
+    with open("../config.ini") as f:
+        real_config = f.read()
+        config = ConfigParser.RawConfigParser(allow_no_value=False)
+        config.readfp(io.BytesIO(real_config))
+
+        PLEX_TOKEN=config.get('plex-data', 'PLEX_TOKEN')
+        PLEX_URL=config.get('plex-data', 'PLEX_URL')
+##/DO NOT EDIT
 
 LIBRARY_NAMES = ['Movies', 'TV Shows'] # Your library names
 
@@ -60,13 +69,13 @@ def find_air_dates(content_lst):
         try:
             ad_month = str(video.originallyAvailableAt.month)
             ad_day = str(video.originallyAvailableAt.day)
-            
+
             if ad_month == str(today.month) and ad_day == str(today.day):
                 aired_lst += [[video] + [str(video.originallyAvailableAt)]]
         except Exception as e:
             # print(e)
             pass
-        
+
         # Sort by original air date, oldest first
         aired_lst = sorted(aired_lst, key=operator.itemgetter(1))
 
