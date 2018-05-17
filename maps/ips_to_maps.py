@@ -130,7 +130,7 @@ def get_users_tables(users='', length=''):
         sys.stderr.write("Tautulli API 'get_users_tables' request failed: {0}.".format(e))
 
 
-def get_users_ips(user_id):
+def get_users_ips(user_id, length):
     # Get the user IP list from Tautulli
     payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_user_ips',
@@ -183,8 +183,8 @@ def get_geo_dict(length, users):
                                    'ip': REPLACEMENT_WAN_IP, 'play_count': 0, 'platform': SERVER_PLATFORM,
                                    'location_count': 0}]}
 
-    for user in get_users_tables(users=users, length=length):
-        user_ip = get_users_ips(user_id=user)
+    for i in get_users_tables(users):
+        user_ip = get_users_ips(user_id=i, length=length)
         city_cnt = 0
         for a in user_ip:
             try:
@@ -252,7 +252,7 @@ def get_geojson_dict(user_locations):
     }
 
 
-def draw_map(map_type, geo_dict, filename, headless):
+def draw_map(map_type, geo_dict, filename, headless, leg_choice):
     import matplotlib as mpl
     if headless:
         mpl.use("Agg")
@@ -260,7 +260,7 @@ def draw_map(map_type, geo_dict, filename, headless):
     from mpl_toolkits.basemap import Basemap
 
     ## Map stuff ##
-    plt.figure(figsize=(16, 9), dpi=100, frameon=False, tight_layout=True)
+    plt.figure(figsize=(16, 9), dpi=100, frameon=False)
     lon_r = 0
     lon_l = 0
 
@@ -277,8 +277,8 @@ def draw_map(map_type, geo_dict, filename, headless):
 
     elif map_type == 'World':
         m = Basemap(projection='robin', lat_0=0, lon_0=-100, resolution='l', area_thresh=100000.0)
-        m.drawmeridians(np.arange(0, 360, 30))
-        m.drawparallels(np.arange(-90, 90, 30))
+        # m.drawmeridians(np.arange(0, 360, 30))
+        # m.drawparallels(np.arange(-90, 90, 30))
         lon_r = 180
         lon_l = -180.0
 
@@ -288,7 +288,7 @@ def draw_map(map_type, geo_dict, filename, headless):
     m.drawcoastlines()
     m.drawstates()
     m.drawcountries()
-    m.fillcontinents(color='#3C3C3C', lake_color='#1F1F1F')
+    m.drawlsmask(land_color='#3C3C3C', ocean_color='#1F1F1F')
 
     for key, values in geo_dict.items():
         # add Accuracy as plot/marker size, change play count to del_s value.
@@ -338,25 +338,27 @@ def draw_map(map_type, geo_dict, filename, headless):
 
             m.plot(px, py, marker=marker, color=color, markersize=markersize, label=legend, alpha=alph, zorder=zord)
 
-    handles, labels = plt.gca().get_legend_handles_labels()
-    idx = labels.index('Location: {}, {},  User: {}\nPlatform: {}, IP: {}, Play Count: {}'.
-                       format(SERVER_CITY, SERVER_STATE, SERVER_FRIENDLY, SERVER_PLATFORM, REPLACEMENT_WAN_IP, 0))
-    labels = labels[idx:] + labels[:idx]
-    handles = handles[idx:] + handles[:idx]
-    by_label = OrderedDict(zip(labels, handles))
+    if leg_choice:
+        handles, labels = plt.gca().get_legend_handles_labels()
+        idx = labels.index('Location: {}, {},  User: {}\nPlatform: {}, IP: {}, Play Count: {}'.
+                           format(SERVER_CITY, SERVER_STATE, SERVER_FRIENDLY, SERVER_PLATFORM, REPLACEMENT_WAN_IP,
+                                  0))
+        labels = labels[idx:] + labels[:idx]
+        handles = handles[idx:] + handles[:idx]
+        by_label = OrderedDict(zip(labels, handles))
 
-    leg = plt.legend(by_label.values(), by_label.keys(), fancybox=True, fontsize='x-small',
-                     numpoints=1, title="Legend", labelspacing=1., borderpad=1.5, handletextpad=2.)
-    if leg:
-        lleng = len(leg.legendHandles)
-        for i in range(1, lleng):
-            leg.legendHandles[i]._legmarker.set_markersize(10)
-            leg.legendHandles[i]._legmarker.set_alpha(1)
-        leg.get_title().set_color('#7B777C')
-        leg.draggable()
-        leg.get_frame().set_facecolor('#2C2C2C')
-        for text in leg.get_texts():
-            plt.setp(text, color='#A5A5A7')
+        leg = plt.legend(by_label.values(), by_label.keys(), fancybox=True, fontsize='x-small',
+                         numpoints=1, title="Legend", labelspacing=1., borderpad=1.5, handletextpad=2.)
+        if leg:
+            lleng = len(leg.legendHandles)
+            for i in range(1, lleng):
+                leg.legendHandles[i]._legmarker.set_markersize(10)
+                leg.legendHandles[i]._legmarker.set_alpha(1)
+            leg.get_title().set_color('#7B777C')
+            leg.draggable()
+            leg.get_frame().set_facecolor('#2C2C2C')
+            for text in leg.get_texts():
+                plt.setp(text, color='#A5A5A7')
 
     plt.title(title_string)
     if filename:
@@ -367,16 +369,16 @@ def draw_map(map_type, geo_dict, filename, headless):
         mng.window.state('zoomed')
         plt.show()
 
-
 if __name__ == '__main__':
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
     user_count = get_users_tables()
     user_lst = sorted(get_users_tables('friendly_name', user_count))
-    json_check = sorted([f for f in os.listdir('.') if os.path.isfile(f) and f.endswith(".json")], key=os.path.getmtime)
-    parser = argparse.ArgumentParser(description="Use Tautulli to draw map of user locations base on IP address.",
+    json_check = sorted([f for f in os.listdir('.') if os.path.isfile(f) and f.endswith(".json")],
+                        key=os.path.getmtime)
+    parser = argparse.ArgumentParser(description="Use PlexPy to draw map of user locations base on IP address.",
                                      formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-l', '--location', default='NA', choices=['NA', 'EU', 'World', 'Geo'], metavar='',
+    parser.add_argument('-m', '--map', default='NA', choices=['NA', 'EU', 'World', 'Geo'], metavar='',
                         help='Map location. choices: (%(choices)s) \n(default: %(default)s)')
     parser.add_argument('-c', '--count', nargs='?', type=int, default=2, metavar='',
                         help='How many IPs to attempt to check. \n(default: %(default)s)')
@@ -390,7 +392,12 @@ if __name__ == '__main__':
                         help='Filename of map. None will not save. \n(default: %(default)s)')
     parser.add_argument('-j', '--json', nargs='?', type=str, choices=json_check, metavar='',
                         help='Filename of json file to use. \n(choices: %(choices)s)')
-    parser.add_argument('--headless', help='Run headless.', action='store_true')
+
+    parser.add_argument('--headless', action='store_true', help='Run headless.')
+
+    parser.add_argument('--legend', dest='legend', action='store_true', help='Toggle on legend.')
+    parser.add_argument('--no_legend', dest='legend', action='store_false', help='Toggle off legend.')
+    parser.set_defaults(legend=True)
 
     opts = parser.parse_args()
     if opts.json:
@@ -417,7 +424,7 @@ if __name__ == '__main__':
         with open(json_file, 'w') as fp:
             json.dump(geo_json, fp, indent=4, sort_keys=True)
 
-    if opts.location == 'Geo':
+    if opts.map == 'Geo':
         geojson = get_geojson_dict(geo_json)
         print("\n")
 
@@ -434,7 +441,8 @@ if __name__ == '__main__':
                               'Content-Type': 'application/json'
                           })
 
-        webbrowser.open(r.json()['html_url'])
+        print(r.json()['html_url'])
+        if not opts.headless:
+            webbrowser.open(r.json()['html_url'])
     else:
-        # print(geo_json)
-        draw_map(opts.location, geo_json, filename, opts.headless)
+        draw_map(opts.map, geo_json, filename, opts.headless, opts.legend)
