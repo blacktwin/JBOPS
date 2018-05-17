@@ -127,7 +127,7 @@ def get_history(showkey):
     # Get the user history from Tautulli. Length matters!
     payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_history',
-               'grandparent_rating_key': showkey,
+               'grandparent_rating_key': int(showkey),
                'length': 10000}
 
     try:
