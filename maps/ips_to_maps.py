@@ -33,6 +33,7 @@ import argparse
 import numpy as np
 import time
 import webbrowser
+import re
 
 ## EDIT THESE SETTINGS ##
 TAUTULLI_APIKEY = ''  # Your Tautulli API key
@@ -71,13 +72,18 @@ PLATFORM_COLORS = {'Android': '#a4c639',  # Green
 title_string = "Location of Plex users based on ISP data"
 
 
+def clean_up_text(title):
+    cleaned = re.sub('\W+', ' ', title)
+    return cleaned
+
+
 class GeoData(object):
     def __init__(self, data=None):
         data = data or {}
         self.continent = data.get('continent', 'N/A')
         self.country = data.get('country', 'N/A')
-        self.region = data.get('region', 'N/A')
-        self.city = data.get('city', 'N/A')
+        self.region = clean_up_text(data.get('region', 'N/A'))
+        self.city = clean_up_text(data.get('city', 'N/A'))
         self.postal_code = data.get('postal_code', 'N/A')
         self.timezone = data.get('timezone', 'N/A')
         self.latitude = data.get('latitude', 'N/A')
@@ -89,7 +95,7 @@ class UserIPs(object):
     def __init__(self, data=None):
         d = data or {}
         self.ip_address = d['ip_address']
-        self.friendly_name = d['friendly_name']
+        self.friendly_name = clean_up_text(d['friendly_name'])
         self.play_count = d['play_count']
         self.platform = d['platform']
 
@@ -160,20 +166,6 @@ def get_geoip_info(ip_address=''):
     except Exception as e:
         sys.stderr.write("Tautulli API 'get_geoip_lookup' request failed: {0}.".format(e))
         pass
-
-
-def get_stream_type_by_top_10_platforms():
-    # Get the user IP list from Tautulli
-    payload = {'apikey': TAUTULLI_APIKEY,
-               'cmd': 'get_stream_type_by_top_10_platforms'}  # length is number of returns, default is 25
-
-    try:
-        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
-        response = r.json()
-        res_data = response['response']['data']['categories']
-        return res_data
-    except Exception as e:
-        sys.stderr.write("Tautulli API 'get_stream_type_by_top_10_platforms' request failed: {0}.".format(e))
 
 
 def add_to_dictlist(d, key, val):
@@ -394,9 +386,6 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--ignore', nargs='+', type=str, default=None, choices=user_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
                              '%(choices)s \n(default: %(default)s)')
-    parser.add_argument('-p', '--platform', nargs='+', type=str, default='all',
-                        choices=get_stream_type_by_top_10_platforms(), metavar='',
-                        help='Search by platform. Allowed platforms are:\n%(choices)s \n(default: %(default)s)')
     parser.add_argument('-f', '--filename', nargs='+', type=str, default='Map_{}'.format(timestr), metavar='',
                         help='Filename of map. None will not save. \n(default: %(default)s)')
     parser.add_argument('-j', '--json', nargs='?', type=str, choices=json_check, metavar='',
