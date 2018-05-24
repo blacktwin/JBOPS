@@ -369,6 +369,7 @@ def draw_map(map_type, geo_dict, filename, headless, leg_choice):
         mng.window.state('zoomed')
         plt.show()
 
+
 if __name__ == '__main__':
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
