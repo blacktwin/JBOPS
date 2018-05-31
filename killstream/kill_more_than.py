@@ -58,6 +58,16 @@ def kill_session(user, ip_address, session_key):
                 title = (session.grandparentTitle + ' - ' if session.type == 'episode' else '') + session.title
                 print(u"Killing {}'s second stream of {} for {}".format(user, title, MESSAGE))
                 session.stop(reason=MESSAGE)
+#                import httplib, urllib
+#                conn = httplib.HTTPSConnection("api.pushover.net:443")
+#                conn.request("POST", "/1/messages.json",
+#                  urllib.urlencode({
+#                    "token": "apptoken",
+#                    "user": "usertoken",
+#                     "message": ("Killing {}'s second stream of {} for {}".format(user, title, MESSAGE)),
+#                  }), { "Content-type": "application/x-www-form-urlencoded" })
+#                conn.getresponse()
+#                sys.exit(0)
     else:
         print(u"Not killing {}'s second stream. Same IP.".format(user))
 
