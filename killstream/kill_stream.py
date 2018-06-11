@@ -11,7 +11,7 @@ Taultulli > Settings > Notification Agents > New Script > Configuration:
 
  Script Name: kill_stream
  Set Script Timeout: {timeout}
- Description: Kill stream
+ Description: Kill stream(s)
  Save
 
 Triggers:
@@ -30,61 +30,16 @@ Script Arguments:
 Taultulli > Settings > Notification Agents > New Script > Script Arguments:
 
  Select: Playback Start, Playback Pause
- Arguments: {session_id} Your message here.
+ Arguments: --jbop {selector} --userId {user_id} --username {username}
+            --sessionId {session_id} --killMessage "Your message here." --notify {notifierID}
 
  Save
  Close
 
- Example:
-     Kill transcodes:
-        Set Trigger: Playback Start
-        Set Conditions: [ {Transcode Decision} | {is} | {transcode} ]
-
-     Kill paused transcodes:
-        Set Trigger: Playback Paused
-        Set Conditions: [ {Transcode Decision} | {is} | {transcode} ]
-
-     Limit User stream count, kill last stream:
-        Set Trigger: Playback Start
-        Set Conditions: [ {User Streams} | {is greater than} | {3} ]
-
-     IP Whitelist:
-        Set Trigger: Playback Start
-        Set Conditions: [ {IP Address} | {is not} | {192.168.0.100 or 192.168.0.101} ]
-
-     Kill by platform:
-        Set Trigger: Playback Start
-        Set Conditions: [ {Platform} | {is} | {Roku or Android} ]
-
-     Kill transcode by library:
-        Set Trigger: Playback Start
-        Set Conditions: [ {Transcode Decision} | {is} | {transcode} ]
-                        [ {Library Name} | {is} | {4K Movies} ]
-
-     Kill transcode by original resolution:
-        Set Trigger: Playback Start
-        Set Conditions: [ {Transcode Decision} | {is} | {transcode} ]
-                        [ {Video Resolution} | {is} | {1080 or 720}]
-
-     Kill transcode by bitrate:
-        Set Trigger: Playback Start
-        Set Conditions: [ {Transcode Decision} | {is} | {transcode} ]
-                        [ {Bitrate} | {is greater than} | {4000} ]
-
-     Kill by hours of the day:
-        Set Trigger: Playback Start
-        Set Conditions: [ {Timestamp} | {begins with} | {09 or 10} ]
-        # Killing any streams from 9am to 11am
-
-     Kill non local streams:
-        Set Trigger: Playback Start
-        Set Conditions: [ {Stream location} | {is} | {wan} ]
-        or
-        Set Conditions: [ {Stream location} | {is not} | {lan} ]
-
 """
 
 import requests
+import argparse
 import sys
 import os
 
@@ -95,6 +50,9 @@ TAUTULLI_APIKEY = os.getenv('TAUTULLI_APIKEY', TAUTULLI_FALLBACK_APIKEY)
 
 TAUTULLI_OVERRIDE_URL = ''
 TAUTULLI_OVERRIDE_API = ''
+
+SUBJECT_TEXT = "Tautulli has killed a stream."
+BODY_TEXT = "Killed {user}'s stream. Reason: {message}."
 
 if TAUTULLI_OVERRIDE_URL:
     TAUTULLI_URL = TAUTULLI_OVERRIDE_URL
@@ -107,13 +65,86 @@ sess.verify = False # '/path/to/certfile'
 # If verify is set to a path to a directory,
 # the directory must have been processed using the c_rehash utility supplied with OpenSSL.
 
-session_id = str(sys.argv[1])
-message = str(' '.join(sys.argv[2:]))
+SELECTOR = ['stream', 'allStreams', 'limit', 'delay']
 
 
-payload = {'apikey': TAUTULLI_APIKEY,
-           'cmd': 'terminate_session',
-           'session_id': session_id,
-           'message': message}
+def send_notification(subject_text, body_text, notifier_id):
+    # Send the notification through Tautulli
+    payload = {'apikey': TAUTULLI_APIKEY,
+               'cmd': 'notify',
+               'notifier_id': notifier_id,
+               'subject': subject_text,
+               'body': body_text}
 
-sess.post(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
+    try:
+        r = requests.post(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
+        response = r.json()
+
+        if response['response']['result'] == 'success':
+            sys.stdout.write("Successfully sent Tautulli notification.")
+        else:
+            raise Exception(response['response']['message'])
+    except Exception as e:
+        sys.stderr.write("Tautulli API 'notify' request failed: {0}.".format(e))
+        return None
+
+
+def get_activity(user_id):
+    # Get the current activity on the PMS.
+    payload = {'apikey': TAUTULLI_APIKEY,
+               'cmd': 'get_activity'}
+
+    try:
+        req = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
+        response = req.json()
+
+        res_data = response['response']['data']['sessions']
+        user_streams = [d['session_id'] for d in res_data if d['user_id'] == user_id]
+        return user_streams
+
+    except Exception as e:
+        sys.stderr.write("Tautulli API 'get_activity' request failed: {0}.".format(e))
+        pass
+
+
+def terminate_session(session_id, message):
+    # Stop a streaming session.
+    payload = {'apikey': TAUTULLI_APIKEY,
+               'cmd': 'terminate_session',
+               'session_id': session_id,
+               'message': message}
+
+    try:
+        req = sess.post(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
+        response = req.json()
+
+        if response['response']['result'] == 'success':
+            sys.stdout.write("Successfully killed Plex session: [}.".format(session_id))
+        else:
+            raise Exception(response['response']['message'])
+    except Exception as e:
+        sys.stderr.write("Tautulli API 'terminate_session' request failed: {0}.".format(e))
+        return None
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Killing Plex streams from Tautulli.")
+    parser.add_argument('--jbop', help='Kill selector.', required=True, choices=SELECTOR)
+    parser.add_argument('--userId', help='The unique identifier for the user.', type=int)
+    parser.add_argument('--username', help='The username of the person streaming.')
+    parser.add_argument('--sessionId', help='The unique identifier for the stream.', required=True)
+    parser.add_argument('--killMessage', help='Message to send to user whose stream is killed.')
+    parser.add_argument('--notify', help='Notification Agent ID number to Agent to send notification.')
+
+    opts = parser.parse_args()
+
+    if opts.jbop == 'stream':
+        terminate_session(opts.sessionId, opts.killMessage)
+    elif opts.jbop == 'allStreams':
+        streams = get_activity(opts.userId)
+        for session_id in streams:
+            terminate_session(session_id, opts.killMessage)
+
+    if opts.notify:
+        BODY_TEXT = BODY_TEXT.format(user=opts.username, message=opts.killMessage)
+        send_notification(SUBJECT_TEXT, BODY_TEXT, opts.notify)
