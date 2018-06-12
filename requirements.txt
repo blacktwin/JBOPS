@@ -1,0 +1,9 @@
+#---------------------------------------------------------
+# Potential requirements.
+# pip install -r requirements.txt
+#---------------------------------------------------------
+requests
+plexapi
+matplotlib
+numpy
+basemap
