@@ -1,0 +1,46 @@
+Example:
+    Kill transcodes:
+        Set Trigger: Playback Start
+        Set Conditions: [ {Transcode Decision} | {is} | {transcode} ]
+
+    Kill paused transcodes:
+        Set Trigger: Playback Paused
+        Set Conditions: [ {Transcode Decision} | {is} | {transcode} ]
+
+    Limit User stream count, kill last stream:
+        Set Trigger: Playback Start
+        Set Conditions: [ {User Streams} | {is greater than} | {3} ]
+
+    IP Whitelist:
+        Set Trigger: Playback Start
+        Set Conditions: [ {IP Address} | {is not} | {192.168.0.100 or 192.168.0.101} ]
+
+    Kill by platform:
+        Set Trigger: Playback Start
+        Set Conditions: [ {Platform} | {is} | {Roku or Android} ]
+
+    Kill transcode by library:
+        Set Trigger: Playback Start
+        Set Conditions: [ {Transcode Decision} | {is} | {transcode} ]
+                    [ {Library Name} | {is} | {4K Movies} ]
+
+    Kill transcode by original resolution:
+        Set Trigger: Playback Start
+        Set Conditions: [ {Transcode Decision} | {is} | {transcode} ]
+                        [ {Video Resolution} | {is} | {1080 or 720}]
+
+    Kill transcode by bitrate:
+        Set Trigger: Playback Start
+        Set Conditions: [ {Transcode Decision} | {is} | {transcode} ]
+                        [ {Bitrate} | {is greater than} | {4000} ]
+
+    Kill by hours of the day:
+        Set Trigger: Playback Start
+        Set Conditions: [ {Timestamp} | {begins with} | {09 or 10} ]
+        # Killing any streams from 9am to 11am
+
+    Kill non local streams:
+        Set Trigger: Playback Start
+        Set Conditions: [ {Stream location} | {is} | {wan} ]
+        or
+        Set Conditions: [ {Stream location} | {is not} | {lan} ]
