@@ -5,6 +5,15 @@
 
 Most of these scripts utilize a combination of [Tautulli](https://github.com/Tautulli/Tautulli), [python-plexapi](https://github.com/pkkid/python-plexapi), and [requests](http://docs.python-requests.org/en/master/user/install/#install).
 
+For use of config.ini for common variables please use [plexapi.CONFIG](http://python-plexapi.readthedocs.io/en/latest/configuration.html)
+
+Default location `~/.config/plexapi/config.ini`
+```python
+# To find path
+import plexapi
+print(plexapi.CONFIG_PATH)
+```
+
 ## Notice:
 Updated for Tautulli. Use plexpy-branch if you are still using PlexPy.
 
