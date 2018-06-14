@@ -31,7 +31,7 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
 
  Select: Playback Start, Playback Pause
  Arguments: --jbop {selector} --userId {user_id} --username {username}
-            --sessionId {session_id} --killMessage "Your message here." --notify {notifierID}
+            --sessionId {session_id} --killMessage Your message here. No quotes. --notify {notifierID}
 
  Save
  Close
@@ -121,22 +121,33 @@ def terminate_session(session_id, message):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Killing Plex streams from Tautulli.")
-    parser.add_argument('--jbop', help='Kill selector.\nChoices: (%(choices)s)', required=True, choices=SELECTOR)
-    parser.add_argument('--userId', help='The unique identifier for the user.', type=int)
-    parser.add_argument('--username', help='The username of the person streaming.')
-    parser.add_argument('--sessionId', help='The unique identifier for the stream.', required=True)
-    parser.add_argument('--killMessage', help='Message to send to user whose stream is killed.')
-    parser.add_argument('--notify', help='Notification Agent ID number to Agent to send notification.')
+    parser.add_argument('--jbop', required=True, choices=SELECTOR,
+                        help='Kill selector.\nChoices: (%(choices)s)')
+    parser.add_argument('--userId', type=int,
+                        help='The unique identifier for the user.')
+    parser.add_argument('--username',
+                        help='The username of the person streaming.')
+    parser.add_argument('--sessionId', required=True,
+                        help='The unique identifier for the stream.')
+    parser.add_argument('--killMessage', nargs='+',
+                        help='Message to send to user whose stream is killed.')
+    parser.add_argument('--notify', type=int,
+                        help='Notification Agent ID number to Agent to send notification.')
 
     opts = parser.parse_args()
 
+    if opts.killMessage:
+        message = ' '.join(opts.killMessage)
+    else:
+        message = ''
+
     if opts.jbop == 'stream':
-        terminate_session(opts.sessionId, opts.killMessage)
+        terminate_session(opts.sessionId, message)
     elif opts.jbop == 'allStreams':
         streams = get_activity(opts.userId)
         for session_id in streams:
-            terminate_session(session_id, opts.killMessage)
+            terminate_session(session_id, message)
 
     if opts.notify:
-        BODY_TEXT = BODY_TEXT.format(user=opts.username, message=opts.killMessage)
+        BODY_TEXT = BODY_TEXT.format(user=opts.username, message=message)
         send_notification(SUBJECT_TEXT, BODY_TEXT, opts.notify)
