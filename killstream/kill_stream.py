@@ -57,7 +57,7 @@ sess.verify = False # '/path/to/certfile'
 # If verify is set to a path to a directory,
 # the directory must have been processed using the c_rehash utility supplied with OpenSSL.
 
-SELECTOR = ['stream', 'allStreams', 'limit', 'delay']
+SELECTOR = ['stream', 'allStreams']
 
 
 def send_notification(subject_text, body_text, notifier_id):
@@ -121,7 +121,7 @@ def terminate_session(session_id, message):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Killing Plex streams from Tautulli.")
-    parser.add_argument('--jbop', help='Kill selector.', required=True, choices=SELECTOR)
+    parser.add_argument('--jbop', help='Kill selector.\nChoices: (%(choices)s)', required=True, choices=SELECTOR)
     parser.add_argument('--userId', help='The unique identifier for the user.', type=int)
     parser.add_argument('--username', help='The username of the person streaming.')
     parser.add_argument('--sessionId', help='The unique identifier for the stream.', required=True)
