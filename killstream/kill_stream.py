@@ -111,7 +111,7 @@ def terminate_session(session_id, message):
         response = req.json()
 
         if response['response']['result'] == 'success':
-            sys.stdout.write("Successfully killed Plex session: [}.".format(session_id))
+            sys.stdout.write("Successfully killed Plex session: {0}.".format(session_id))
         else:
             raise Exception(response['response']['message'])
     except Exception as e:
