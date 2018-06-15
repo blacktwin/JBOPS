@@ -6,7 +6,7 @@ Killing streams is a Plex Pass only feature. So these scripts will only work for
 
 ### Kill_stream.py examples:
 
-Arguments examples:
+#### Arguments examples:
 
 Kill the one offending stream with a custom message and send notification to notfication agent ID 1
     
@@ -21,7 +21,7 @@ Kill the one offending stream with default message
     --jbop stream --userId {user_id} --username {username} --sessionId {session_id}
 
 
-Condition Examples:
+#### Condition Examples:
 
 Kill transcodes:
 
