@@ -30,8 +30,8 @@ Script Arguments:
 Taultulli > Settings > Notification Agents > New Script > Script Arguments:
 
  Select: Playback Start, Playback Pause
- Arguments: --jbop {selector} --userId {user_id} --username {username}
-            --sessionId {session_id} --killMessage Your message here. No quotes. --notify {notifierID}
+ Arguments: --jbop SELECTOR --userId {user_id} --username {username}
+            --sessionId {session_id} --killMessage Your message here. No quotes. --notify notifierID
 
  Save
  Close
