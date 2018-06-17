@@ -50,7 +50,8 @@ TAUTULLI_URL = os.getenv('TAUTULLI_URL', TAUTULLI_URL)
 TAUTULLI_APIKEY = os.getenv('TAUTULLI_APIKEY', TAUTULLI_APIKEY)
 
 SUBJECT_TEXT = "Tautulli has killed a stream."
-BODY_TEXT = "Killed {user}'s stream. Reason: {message}."
+BODY_TEXT = "Killed session ID '{id}'. Reason: {message}"
+BODY_TEXT_USER = "Killed {user}'s stream. Reason: {message}."
 
 sess = requests.Session()
 # Ignore verifying the SSL certificate
@@ -142,7 +143,7 @@ def get_user_session_ids(user_id):
     return user_streams
 
 
-def terminate_session(session_id, message):
+def terminate_session(session_id, message, notifier=None, username=None):
     # Stop a streaming session.
     payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'terminate_session',
@@ -156,6 +157,12 @@ def terminate_session(session_id, message):
         if response['response']['result'] == 'success':
             sys.stdout.write(
                 "Successfully killed Plex session: {0}.".format(session_id))
+            if notifier:
+                if username:
+                    body = BODY_TEXT.format(user=username, message=message)
+                else:
+                    body = BODY_TEXT.format(id=session_id, message=message)
+                send_notification(SUBJECT_TEXT, body, notifier)
         else:
             raise Exception(response['response']['message'])
     except Exception as e:
@@ -189,12 +196,8 @@ if __name__ == "__main__":
         message = ''
 
     if opts.jbop == 'stream':
-        terminate_session(opts.sessionId, message)
+        terminate_session(opts.sessionId, message, opts.notify, opts.username)
     elif opts.jbop == 'allStreams':
         streams = get_user_session_ids(opts.userId)
         for session_id in streams:
-            terminate_session(session_id, message)
-
-    if opts.notify:
-        BODY_TEXT = BODY_TEXT.format(user=opts.username, message=message)
-        send_notification(SUBJECT_TEXT, BODY_TEXT, opts.notify)
+            terminate_session(session_id, message, opts.notify, opts.username)
