@@ -31,7 +31,9 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
 
  Select: Playback Start, Playback Pause
  Arguments: --jbop SELECTOR --userId {user_id} --username {username}
-            --sessionId {session_id} --killMessage Your message here. No quotes. --notify notifierID
+            --sessionId {session_id}
+            --killMessage Your message here. No quotes.
+            --notify notifierID
 
  Save
  Close
@@ -53,9 +55,10 @@ BODY_TEXT = "Killed {user}'s stream. Reason: {message}."
 
 sess = requests.Session()
 # Ignore verifying the SSL certificate
-sess.verify = False # '/path/to/certfile'
+sess.verify = False  # '/path/to/certfile'
 # If verify is set to a path to a directory,
-# the directory must have been processed using the c_rehash utility supplied with OpenSSL.
+# the directory must have been processed using the c_rehash utility supplied
+# with OpenSSL.
 
 SELECTOR = ['stream', 'allStreams']
 
@@ -77,7 +80,8 @@ def send_notification(subject_text, body_text, notifier_id):
         else:
             raise Exception(response['response']['message'])
     except Exception as e:
-        sys.stderr.write("Tautulli API 'notify' request failed: {0}.".format(e))
+        sys.stderr.write(
+            "Tautulli API 'notify' request failed: {0}.".format(e))
         return None
 
 
@@ -87,15 +91,18 @@ def get_activity(user_id):
                'cmd': 'get_activity'}
 
     try:
-        req = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
+        req = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2',
+                           params=payload)
         response = req.json()
 
         res_data = response['response']['data']['sessions']
-        user_streams = [d['session_id'] for d in res_data if d['user_id'] == user_id]
+        user_streams = [d['session_id']
+                        for d in res_data if d['user_id'] == user_id]
         return user_streams
 
     except Exception as e:
-        sys.stderr.write("Tautulli API 'get_activity' request failed: {0}.".format(e))
+        sys.stderr.write(
+            "Tautulli API 'get_activity' request failed: {0}.".format(e))
         pass
 
 
@@ -111,16 +118,19 @@ def terminate_session(session_id, message):
         response = req.json()
 
         if response['response']['result'] == 'success':
-            sys.stdout.write("Successfully killed Plex session: {0}.".format(session_id))
+            sys.stdout.write(
+                "Successfully killed Plex session: {0}.".format(session_id))
         else:
             raise Exception(response['response']['message'])
     except Exception as e:
-        sys.stderr.write("Tautulli API 'terminate_session' request failed: {0}.".format(e))
+        sys.stderr.write(
+            "Tautulli API 'terminate_session' request failed: {0}.".format(e))
         return None
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Killing Plex streams from Tautulli.")
+    parser = argparse.ArgumentParser(
+        description="Killing Plex streams from Tautulli.")
     parser.add_argument('--jbop', required=True, choices=SELECTOR,
                         help='Kill selector.\nChoices: (%(choices)s)')
     parser.add_argument('--userId', type=int,
@@ -132,7 +142,8 @@ if __name__ == "__main__":
     parser.add_argument('--killMessage', nargs='+',
                         help='Message to send to user whose stream is killed.')
     parser.add_argument('--notify', type=int,
-                        help='Notification Agent ID number to Agent to send notification.')
+                        help='Notification Agent ID number to Agent to send ' +
+                             'notification.')
 
     opts = parser.parse_args()
 
