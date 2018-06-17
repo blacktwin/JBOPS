@@ -59,6 +59,10 @@ sess.verify = False  # '/path/to/certfile'
 # If verify is set to a path to a directory,
 # the directory must have been processed using the c_rehash utility supplied
 # with OpenSSL.
+if sess.verify is False:
+    # Disable the warning that the request is insecure, we know that...
+    import urllib3
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 SELECTOR = ['stream', 'allStreams']
 
