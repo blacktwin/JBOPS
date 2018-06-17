@@ -64,7 +64,17 @@ SELECTOR = ['stream', 'allStreams']
 
 
 def send_notification(subject_text, body_text, notifier_id):
-    # Send the notification through Tautulli
+    """Send a notification through Tautulli
+
+    Parameters
+    ----------
+    subject_text : str
+        The text to use for the subject line of the message.
+    body_text : str
+        The text to use for the body of the notification.
+    notifier_id : int
+        Tautulli Notification Agent ID to send the notification to.
+    """
     payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'notify',
                'notifier_id': notifier_id,
