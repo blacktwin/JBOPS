@@ -86,7 +86,7 @@ def send_notification(subject_text, body_text, notifier_id):
                'body': body_text}
 
     try:
-        r = requests.post(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
+        r = sess.post(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
         if response['response']['result'] == 'success':
@@ -111,8 +111,7 @@ def get_activity():
                'cmd': 'get_activity'}
 
     try:
-        req = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2',
-                           params=payload)
+        req = sess.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = req.json()
 
         res_data = response['response']['data']['sessions']
