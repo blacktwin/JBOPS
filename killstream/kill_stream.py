@@ -31,9 +31,8 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
 
  Select: Playback Start, Playback Pause
  Arguments: --jbop SELECTOR --userId {user_id} --username {username}
-            --sessionId {session_id}
+            --sessionId {session_id} --notify notifierID
             --killMessage Your message here. No quotes.
-            --notify notifierID
 
  Save
  Close
@@ -176,11 +175,11 @@ if __name__ == "__main__":
                         help='The username of the person streaming.')
     parser.add_argument('--sessionId', required=True,
                         help='The unique identifier for the stream.')
-    parser.add_argument('--killMessage', nargs='+',
-                        help='Message to send to user whose stream is killed.')
     parser.add_argument('--notify', type=int,
                         help='Notification Agent ID number to Agent to send ' +
                              'notification.')
+    parser.add_argument('--killMessage', nargs='+',
+                        help='Message to send to user whose stream is killed.')
 
     opts = parser.parse_args()
 
