@@ -95,8 +95,14 @@ def send_notification(subject_text, body_text, notifier_id):
         return None
 
 
-def get_activity(user_id):
-    # Get the current activity on the PMS.
+def get_activity():
+    """Get the current activity on the PMS.
+
+    Returns
+    -------
+    list
+        The current active sessions on the Plex server.
+    """
     payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_activity'}
 
@@ -106,14 +112,32 @@ def get_activity(user_id):
         response = req.json()
 
         res_data = response['response']['data']['sessions']
-        user_streams = [d['session_id']
-                        for d in res_data if d['user_id'] == user_id]
-        return user_streams
+        return res_data
 
     except Exception as e:
         sys.stderr.write(
             "Tautulli API 'get_activity' request failed: {0}.".format(e))
         pass
+
+
+def get_user_activity(user_id):
+    """Get current sessions for a specific user.
+
+    Parameters
+    ----------
+    user_id : int
+        The ID of the user to grab sessions for.
+
+    Returns
+    -------
+    list
+        The active sessions for the specific user ID.
+
+    """
+    sessions = get_activity()
+    user_streams = [s['session_id']
+                    for s in sessions if s['user_id'] == user_id]
+    return user_streams
 
 
 def terminate_session(session_id, message):
@@ -165,7 +189,7 @@ if __name__ == "__main__":
     if opts.jbop == 'stream':
         terminate_session(opts.sessionId, message)
     elif opts.jbop == 'allStreams':
-        streams = get_activity(opts.userId)
+        streams = get_user_activity(opts.userId)
         for session_id in streams:
             terminate_session(session_id, message)
 
