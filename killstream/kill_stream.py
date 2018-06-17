@@ -144,7 +144,19 @@ def get_user_session_ids(user_id):
 
 
 def terminate_session(session_id, message, notifier=None, username=None):
-    # Stop a streaming session.
+    """Stop a streaming session.
+
+    Parameters
+    ----------
+    session_id : str
+        The session ID of the stream to terminate.
+    message : str
+        The message to display to the user when terminating a stream.
+    notifier : int
+        Notification agent ID to send a message to (the default is None).
+    username : str
+        The username for the terminated session (the default is None).
+    """
     payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'terminate_session',
                'session_id': session_id,
