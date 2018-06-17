@@ -32,6 +32,7 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
  Select: Playback Start, Playback Pause
  Arguments: --jbop SELECTOR --userId {user_id} --username {username}
             --sessionId {session_id} --notify notifierID
+            --interval 30 --limit 1200
             --killMessage Your message here. No quotes.
 
  Save
@@ -43,6 +44,8 @@ import requests
 import argparse
 import sys
 import os
+from time import sleep
+from datetime import datetime
 
 TAUTULLI_URL = ''
 TAUTULLI_APIKEY = ''
@@ -64,7 +67,7 @@ if sess.verify is False:
     import urllib3
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-SELECTOR = ['stream', 'allStreams']
+SELECTOR = ['stream', 'allStreams', 'paused']
 
 
 def send_notification(subject_text, body_text, notifier_id):
@@ -183,6 +186,59 @@ def terminate_session(session_id, message, notifier=None, username=None):
         return None
 
 
+def terminate_long_pause(session_id, message, limit, interval, notify=None):
+    """Kills the session if it is paused for longer than <limit> seconds.
+
+    Parameters
+    ----------
+    session_id : str
+        The session id of the session to monitor.
+    message : str
+        The message to use if the stream is terminated.
+    limit : int
+        The number of seconds the session is allowed to remain paused before it
+        is terminated.
+    interval : int
+        The amount of time to wait between checks of the session state.
+    notify : int
+        Tautulli Notification Agent ID to send a notification to on killing a
+        stream.
+    """
+    start = datetime.now()
+    fudgeFactor = 100  # Keep checking this long after the defined limit
+    pausedTime = 0
+    checkLimit = limit + interval + fudgeFactor
+
+    while pausedTime < checkLimit:
+        sessions = get_activity()
+        foundSession = False
+
+        for session in sessions:
+            if session['session_id'] == session_id:
+                foundSession = True
+                state = session['state']
+
+                if state == 'paused':
+                    now = datetime.now()
+                    diff = now - start
+
+                    if diff.total_seconds() >= limit:
+                        terminate_session(session_id, message, notify)
+                        sys.exit(0)
+                    else:
+                        sleep(interval)
+                elif state == 'playing' or state == 'buffering':
+                    sys.stdout.write(
+                        "Session '{}' has resumed, ".format(session_id) +
+                        "stopping monitoring.")
+                    sys.exit(0)
+        if not foundSession:
+            sys.stdout.write(
+                "Session '{}' is no longer active ".format(session_id) +
+                "on the server, stopping monitoring.")
+            sys.exit(0)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Killing Plex streams from Tautulli.")
@@ -197,6 +253,10 @@ if __name__ == "__main__":
     parser.add_argument('--notify', type=int,
                         help='Notification Agent ID number to Agent to send ' +
                              'notification.')
+    parser.add_argument('--limit', type=int, default=(20 * 60),  # 20 minutes
+                        help='The time session is allowed to remain paused.')
+    parser.add_argument('--interval', type=int, default=30,
+                        help='The seconds between paused session checks.')
     parser.add_argument('--killMessage', nargs='+',
                         help='Message to send to user whose stream is killed.')
 
@@ -213,3 +273,6 @@ if __name__ == "__main__":
         streams = get_user_session_ids(opts.userId)
         for session_id in streams:
             terminate_session(session_id, message, opts.notify, opts.username)
+    elif opts.jbop == 'paused':
+        terminate_long_pause(opts.sessionId, message, opts.limit,
+                             opts.interval, opts.notify)
