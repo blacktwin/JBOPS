@@ -3,21 +3,23 @@ Description: Use conditions to kill a stream
 Author: Blacktwin
 Requires: requests
 
-Enabling Scripts in Tautulli:
-Taultulli > Settings > Notification Agents > Add a Notification Agent > Script
+Adding the script to Tautulli:
+Taultulli > Settings > Notification Agents > Add a new notification agent >
+ Script
 
 Configuration:
 Taultulli > Settings > Notification Agents > New Script > Configuration:
 
- Script Name: kill_stream
- Set Script Timeout: {timeout}
+ Script Folder: /path/to/your/scripts
+ Script File: ./kill_stream.py (Should be selectable in a dropdown list)
+ Script Timeout: {timeout}
  Description: Kill stream(s)
  Save
 
 Triggers:
 Taultulli > Settings > Notification Agents > New Script > Triggers:
 
- Check: {trigger}
+ Check: Playback Start and/or Playback Pause
  Save
 
 Conditions:
@@ -37,6 +39,40 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
 
  Save
  Close
+
+Examples:
+
+Kill any transcoding streams
+Script Timeout: 30 (default)
+Triggers: Playback Start
+Conditions: Transcode Decision is transcode
+Arguments (Playback Start): --jbop stream --sessionId {session_id}
+  --username {username}
+  --killMessage Transcoding streams are not allowed on this server.
+
+Kill all streams started by a specific user
+Script Timeout: 30 (default)
+Triggers: Playback Start
+Conditions: Username is Bob
+Arguments (Playback Start): --jbop allStreams --userId {user_id}
+  --username {username}
+  --killMessage Hey Bob, we need to talk!
+
+Kill all WAN streams paused longer than 20 minutes, checking every 30 seconds
+Script Timeout: 0
+Triggers: Playback Pause
+Conditions: Stream Location is not LAN
+Arguments (Playback Start): --jbop paused --sessionId {session_id}
+  --limit 1200 --interval 30
+  --killMessage Your stream was paused for over 20 minutes and has been
+  automatically stopped for you.
+
+Notes:
+* Any of these can have "--notify X" added to them, where X is the
+ID shown in Tautulli for a Notification agent, if specified it will send a
+message there when a stream is terminated.
+* Arguments should all be on one line in Tautulli, they are split here for
+easier reading.
 
 """
 
