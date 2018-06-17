@@ -120,8 +120,8 @@ def get_activity():
         pass
 
 
-def get_user_activity(user_id):
-    """Get current sessions for a specific user.
+def get_user_session_ids(user_id):
+    """Get current session IDs for a specific user.
 
     Parameters
     ----------
@@ -131,7 +131,7 @@ def get_user_activity(user_id):
     Returns
     -------
     list
-        The active sessions for the specific user ID.
+        The active session IDs for the specific user ID.
 
     """
     sessions = get_activity()
@@ -189,7 +189,7 @@ if __name__ == "__main__":
     if opts.jbop == 'stream':
         terminate_session(opts.sessionId, message)
     elif opts.jbop == 'allStreams':
-        streams = get_user_activity(opts.userId)
+        streams = get_user_session_ids(opts.userId)
         for session_id in streams:
             terminate_session(session_id, message)
 
