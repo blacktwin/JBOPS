@@ -242,17 +242,17 @@ def terminate_long_pause(session_id, message, limit, interval, notify=None):
         stream.
     """
     start = datetime.now()
-    fudgeFactor = 100  # Keep checking this long after the defined limit
-    pausedTime = 0
-    checkLimit = limit + interval + fudgeFactor
+    fudge_factor = 100  # Keep checking this long after the defined limit
+    paused_time = 0
+    check_limit = limit + interval + fudge_factor
 
-    while pausedTime < checkLimit:
+    while paused_time < check_limit:
         sessions = get_activity()
-        foundSession = False
+        found_session = False
 
         for session in sessions:
             if session['session_id'] == session_id:
-                foundSession = True
+                found_session = True
                 state = session['state']
 
                 if state == 'paused':
@@ -269,7 +269,7 @@ def terminate_long_pause(session_id, message, limit, interval, notify=None):
                         "Session '{}' has resumed, ".format(session_id) +
                         "stopping monitoring.")
                     sys.exit(0)
-        if not foundSession:
+        if not found_session:
             sys.stdout.write(
                 "Session '{}' is no longer active ".format(session_id) +
                 "on the server, stopping monitoring.")
