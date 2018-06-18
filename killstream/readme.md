@@ -14,6 +14,31 @@ Arguments:
 --jbop stream --username {username} --sessionId {session_id} --killMessage Transcoding streams are not allowed.
 ```
 
+### Kill non-local streams paused for a long time
+
+_The default values will kill anything paused for over 20 minutes, checking every 30 seconds._
+
+Script Timeout: 0 _**Important!**_  
+Triggers: Playback Paused  
+Conditions: \[ `Stream Local` | `is not` | `1` \]
+
+Arguments:
+```
+--jbop paused --sessionId {session_id} --killMessage Your stream was paused for over 20 minutes and has been automatically stopped for you.
+```
+
+### Kill streams paused for a custom time
+
+_This is an example of customizing the paused stream monitoring to check every 15 seconds, and kill any stream paused for over 5 minutes._
+
+Script Timeout: 0 _**Important!**_  
+Triggers: Playback Paused  
+
+Arguments:
+```
+--jbop paused --interval 15 --limit 300 --sessionId {session_id} --killMessage Your stream was paused for over 5 minutes and has been automatically stopped for you.
+```
+
 ### Kill paused transcodes
 
 Triggers: Playback Paused  
@@ -92,7 +117,7 @@ Arguments:
 
 ### Kill by hours of the day
 
-Kills any streams during 9 AM to 10 AM
+_Kills any streams during 9 AM to 10 AM._
 
 Triggers: Playback Start  
 Conditions: \[ `Timestamp` | `begins with` | `09 or 10` \]  

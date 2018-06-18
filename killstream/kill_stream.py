@@ -39,25 +39,6 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
 
  Save
  Close
-
-Examples:
-
-Kill all WAN streams paused longer than 20 minutes, checking every 30 seconds
-Script Timeout: 0
-Triggers: Playback Pause
-Conditions: Stream Location is not LAN
-Arguments (Playback Start): --jbop paused --sessionId {session_id}
-  --limit 1200 --interval 30
-  --killMessage Your stream was paused for over 20 minutes and has been
-  automatically stopped for you.
-
-Notes:
-* Any of these can have "--notify X" added to them, where X is the
-ID shown in Tautulli for a Notification agent, if specified it will send a
-message there when a stream is terminated.
-* Arguments should all be on one line in Tautulli, they are split here for
-easier reading.
-
 """
 
 import requests
