@@ -242,11 +242,12 @@ def terminate_long_pause(session_id, message, limit, interval, notify=None):
         stream.
     """
     start = datetime.now()
-    fudge_factor = 100  # Keep checking this long after the defined limit
-    paused_time = 0
-    check_limit = limit + interval + fudge_factor
+    checked_time = 0
+    # Continue checking 2 intervals past the allowed limit in order to
+    # account for system variances.
+    check_limit = limit + (interval * 2)
 
-    while paused_time < check_limit:
+    while checked_time < check_limit:
         sessions = get_activity()
         found_session = False
 
@@ -254,12 +255,11 @@ def terminate_long_pause(session_id, message, limit, interval, notify=None):
             if session['session_id'] == session_id:
                 found_session = True
                 state = session['state']
+                now = datetime.now()
+                checked_time = (now - start).total_seconds()
 
                 if state == 'paused':
-                    now = datetime.now()
-                    diff = now - start
-
-                    if diff.total_seconds() >= limit:
+                    if checked_time >= limit:
                         terminate_session(session_id, message, notify)
                         sys.exit(0)
                     else:
