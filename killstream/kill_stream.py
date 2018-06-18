@@ -1,6 +1,6 @@
 """
 Description: Use conditions to kill a stream
-Author: Blacktwin
+Author: Blacktwin, Arcanemagus, samwiseg00
 Requires: requests
 
 Adding the script to Tautulli:
