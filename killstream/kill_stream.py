@@ -210,7 +210,8 @@ def terminate_session(session_id, message, notifier=None, username=None):
                 "Successfully killed Plex session: {0}.".format(session_id))
             if notifier:
                 if username:
-                    body = BODY_TEXT.format(user=username, message=message)
+                    body = BODY_TEXT_USER.format(user=username,
+                                                 message=message)
                 else:
                     body = BODY_TEXT.format(id=session_id, message=message)
                 send_notification(SUBJECT_TEXT, body, notifier)
