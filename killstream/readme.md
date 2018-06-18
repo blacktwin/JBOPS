@@ -74,6 +74,4 @@ Kill by hours of the day:
 Kill non local streams:
 
     Set Trigger: Playback Start
-    Set Conditions: [ {Stream location} | {is} | {wan} ]
-    or
     Set Conditions: [ {Stream location} | {is not} | {lan} ]
