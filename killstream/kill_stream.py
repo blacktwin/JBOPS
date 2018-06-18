@@ -42,22 +42,6 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
 
 Examples:
 
-Kill any transcoding streams
-Script Timeout: 30 (default)
-Triggers: Playback Start
-Conditions: Transcode Decision is transcode
-Arguments (Playback Start): --jbop stream --sessionId {session_id}
-  --username {username}
-  --killMessage Transcoding streams are not allowed on this server.
-
-Kill all streams started by a specific user
-Script Timeout: 30 (default)
-Triggers: Playback Start
-Conditions: Username is Bob
-Arguments (Playback Start): --jbop allStreams --userId {user_id}
-  --username {username}
-  --killMessage Hey Bob, we need to talk!
-
 Kill all WAN streams paused longer than 20 minutes, checking every 30 seconds
 Script Timeout: 0
 Triggers: Playback Pause
