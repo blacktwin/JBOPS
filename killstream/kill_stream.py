@@ -261,19 +261,19 @@ def terminate_long_pause(session_id, message, limit, interval, notify=None):
                 if state == 'paused':
                     if checked_time >= limit:
                         terminate_session(session_id, message, notify)
-                        sys.exit(0)
+                        return
                     else:
                         sleep(interval)
                 elif state == 'playing' or state == 'buffering':
                     sys.stdout.write(
                         "Session '{}' has resumed, ".format(session_id) +
                         "stopping monitoring.")
-                    sys.exit(0)
+                    return
         if not found_session:
             sys.stdout.write(
                 "Session '{}' is no longer active ".format(session_id) +
                 "on the server, stopping monitoring.")
-            sys.exit(0)
+            return
 
 
 if __name__ == "__main__":
