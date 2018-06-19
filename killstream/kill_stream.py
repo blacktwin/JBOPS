@@ -94,12 +94,12 @@ def send_notification(subject_text, body_text, notifier_id):
         response = r.json()
 
         if response['response']['result'] == 'success':
-            sys.stdout.write("Successfully sent Tautulli notification.")
+            sys.stdout.write("Successfully sent Tautulli notification.\n")
         else:
             raise Exception(response['response']['message'])
     except Exception as e:
         sys.stderr.write(
-            "Tautulli API 'notify' request failed: {0}.".format(e))
+            "Tautulli API 'notify' request failed: {0}.\n".format(e))
         return None
 
 
@@ -123,7 +123,7 @@ def get_activity():
 
     except Exception as e:
         sys.stderr.write(
-            "Tautulli API 'get_activity' request failed: {0}.".format(e))
+            "Tautulli API 'get_activity' request failed: {0}.\n".format(e))
         pass
 
 
@@ -172,7 +172,7 @@ def terminate_session(session_id, message, notifier=None, username=None):
 
         if response['response']['result'] == 'success':
             sys.stdout.write(
-                "Successfully killed Plex session: {0}.".format(session_id))
+                "Successfully killed Plex session: {0}.\n".format(session_id))
             if notifier:
                 if username:
                     body = BODY_TEXT_USER.format(user=username,
@@ -232,12 +232,12 @@ def terminate_long_pause(session_id, message, limit, interval, notify=None):
                 elif state == 'playing' or state == 'buffering':
                     sys.stdout.write(
                         "Session '{}' has resumed, ".format(session_id) +
-                        "stopping monitoring.")
+                        "stopping monitoring.\n")
                     return
         if not found_session:
             sys.stdout.write(
                 "Session '{}' is no longer active ".format(session_id) +
-                "on the server, stopping monitoring.")
+                "on the server, stopping monitoring.\n")
             return
 
 
