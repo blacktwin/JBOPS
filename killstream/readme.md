@@ -20,7 +20,9 @@ _The default values will kill anything paused for over 20 minutes, checking ever
 
 Script Timeout: 0 _**Important!**_  
 Triggers: Playback Paused  
-Conditions: \[ `Stream Local` | `is not` | `1` \]
+Conditions:
+* \[ `Stream Local` | `is not` | `1` \]
+* \[ `Synced Version` | `is not` | `1` \]
 
 Arguments:
 ```
