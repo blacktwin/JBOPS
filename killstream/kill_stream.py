@@ -264,6 +264,10 @@ if __name__ == "__main__":
 
     opts = parser.parse_args()
 
+    if not opts.sessionId:
+        sys.stderr.write("No sessionId provided! Is this synced content?\n")
+        sys.exit(1)
+
     if opts.killMessage:
         message = ' '.join(opts.killMessage)
     else:
