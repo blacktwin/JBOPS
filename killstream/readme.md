@@ -11,7 +11,7 @@ Conditions: \[ `Transcode Decision` | `is` | `transcode` \]
 
 Arguments:
 ```
---jbop stream --username {username} --sessionId {session_id} --killMessage Transcoding streams are not allowed.
+--jbop stream --username {username} --sessionId {session_id} --killMessage 'Transcoding streams are not allowed.'
 ```
 
 ### Kill non-local streams paused for a long time
@@ -24,7 +24,7 @@ Conditions: \[ `Stream Local` | `is not` | `1` \]
 
 Arguments:
 ```
---jbop paused --sessionId {session_id} --killMessage Your stream was paused for over 20 minutes and has been automatically stopped for you.
+--jbop paused --sessionId {session_id} --killMessage 'Your stream was paused for over 20 minutes and has been automatically stopped for you.'
 ```
 
 ### Kill streams paused for a custom time
@@ -36,7 +36,7 @@ Triggers: Playback Paused
 
 Arguments:
 ```
---jbop paused --interval 15 --limit 300 --sessionId {session_id} --killMessage Your stream was paused for over 5 minutes and has been automatically stopped for you.
+--jbop paused --interval 15 --limit 300 --sessionId {session_id} --killMessage 'Your stream was paused for over 5 minutes and has been automatically stopped for you.'
 ```
 
 ### Kill paused transcodes
@@ -46,7 +46,7 @@ Conditions: \[ `Transcode Decision` | `is` | `transcode` \]
 
 Arguments:
 ```
---jbop stream --username {username} --sessionId {session_id} --killMessage Paused streams are automatically stopped.
+--jbop stream --username {username} --sessionId {session_id} --killMessage 'Paused streams are automatically stopped.'
 ```
 
 ### Limit User stream count, kill last stream
@@ -56,7 +56,7 @@ Conditions: \[ `User Streams` | `is greater than` | `3` \]
 
 Arguments:
 ```
---jbop stream --username {username} --sessionId {session_id} --killMessage You are only allowed 3 streams.
+--jbop stream --username {username} --sessionId {session_id} --killMessage 'You are only allowed 3 streams.'
 ```
 
 ### IP Whitelist
@@ -66,7 +66,7 @@ Conditions: \[ `IP Address` | `is not` | `192.168.0.100 or 192.168.0.101` \]
 
 Arguments:
 ```
---jbop stream --username {username} --sessionId {session_id} --killMessage {ip_address} is not allowed to access {server_name}.
+--jbop stream --username {username} --sessionId {session_id} --killMessage '{ip_address} is not allowed to access {server_name}.'
 ```
 
 ### Kill by platform
@@ -76,7 +76,7 @@ Conditions: \[ `Platform` | `is` | `Roku or Android` \]
 
 Arguments:
 ```
---jbop stream --username {username} --sessionId {session_id} --killMessage {platform} is not allowed on {server_name}.
+--jbop stream --username {username} --sessionId {session_id} --killMessage '{platform} is not allowed on {server_name}.'
 ```
 
 ### Kill transcode by library
@@ -88,7 +88,7 @@ Conditions:
 
 Arguments:
 ```
---jbop stream --username {username} --sessionId {session_id} --killMessage Transcoding streams are not allowed from the 4K Movies library.
+--jbop stream --username {username} --sessionId {session_id} --killMessage 'Transcoding streams are not allowed from the 4K Movies library.'
 ```
 
 ### Kill transcode by original resolution
@@ -100,7 +100,7 @@ Conditions:
 
 Arguments:
 ```
---jbop stream --username {username} --sessionId {session_id} --killMessage Transcoding streams are not allowed for {stream_video_resolution}p streams.
+--jbop stream --username {username} --sessionId {session_id} --killMessage 'Transcoding streams are not allowed for {stream_video_resolution}p streams.'
 ```
 
 ### Kill transcode by bitrate
@@ -112,7 +112,7 @@ Conditions:
 
 Arguments:
 ```
---jbop stream --username {username} --sessionId {session_id} --killMessage Transcoding streams are not allowed from over 4 Mbps (Yours: {stream_bitrate}).
+--jbop stream --username {username} --sessionId {session_id} --killMessage 'Transcoding streams are not allowed from over 4 Mbps (Yours: {stream_bitrate}).'
 ```
 
 ### Kill by hours of the day
@@ -123,7 +123,7 @@ Triggers: Playback Start
 Conditions: \[ `Timestamp` | `begins with` | `09 or 10` \]  
 Arguments:
 ```
---jbop stream --username {username} --sessionId {session_id} --killMessage {server_name} is unavailable between 9 and 10 AM.
+--jbop stream --username {username} --sessionId {session_id} --killMessage '{server_name} is unavailable between 9 and 10 AM.'
 ```
 
 ### Kill non local streams
@@ -132,7 +132,7 @@ Triggers: Playback Start
 Conditions: \[ `Stream Local` | `is not` | `1` \]  
 Arguments:
 ```
---jbop stream --username {username} --sessionId {session_id} --killMessage {server_name} only allows local streams.
+--jbop stream --username {username} --sessionId {session_id} --killMessage '{server_name} only allows local streams.'
 ```
 
 ### Kill transcodes and send a notification to agent 1
@@ -142,7 +142,7 @@ Conditions: \[ `Transcode Decision` | `is` | `transcode` \]
 
 Arguments:
 ```
---jbop stream --username {username} --sessionId {session_id} --notify 1 --killMessage Transcoding streams are not allowed.
+--jbop stream --username {username} --sessionId {session_id} --notify 1 --killMessage 'Transcoding streams are not allowed.'
 ```
 
 ### Kill transcodes using the default message
@@ -162,5 +162,5 @@ Conditions: \[ `Username` | `is` | `Bob` \]
 
 Arguments:
 ```
---jbop allStreams --userId {user_id} --notify 1 --killMessage Hey Bob, we need to talk!
+--jbop allStreams --userId {user_id} --notify 1 --killMessage 'Hey Bob, we need to talk!'
 ```
