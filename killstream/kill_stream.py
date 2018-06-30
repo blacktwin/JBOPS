@@ -125,7 +125,7 @@ def get_activity():
     except Exception as e:
         sys.stderr.write(
             "Tautulli API 'get_activity' request failed: {0}.\n".format(e))
-        pass
+        return []
 
 
 def get_user_session_ids(user_id):
