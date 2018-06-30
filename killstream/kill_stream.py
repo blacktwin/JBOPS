@@ -243,7 +243,7 @@ def terminate_long_pause(session_id, message, limit, interval, notify=None):
 
 
 def arg_decoding(arg):
-    return arg.decode(TAUTULLI_ENCODING)
+    return arg.decode(TAUTULLI_ENCODING).encode('UTF-8')
 
 
 if __name__ == "__main__":
