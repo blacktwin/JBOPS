@@ -14,7 +14,7 @@ print(plexapi.CONFIG_PATH)
 ```
 
 ### Contact 
-[![PM](https://img.shields.io/badge/Discord-Scripts-lightgrey.svg?colorB=7289da)](https://discord.gg/tQcWEUp) [![PM](https://img.shields.io/badge/Reddit-Message-lightgrey.svg)](https://www.reddit.com/user/Blacktwin/)  [![PM](https://img.shields.io/badge/Plex-Message-orange.svg)](https://forums.plex.tv/profile/discussions/Blacktwin) [![Issue](https://img.shields.io/badge/Submit-Issue-red.svg)](https://github.com/blacktwin/JBOPS/issues/new) 
+[![PM](https://img.shields.io/badge/Discord-Scripts-lightgrey.svg?colorB=7289da)](https://discord.gg/tQcWEUp) [![PM](https://img.shields.io/badge/Reddit-Message-lightgrey.svg)](https://www.reddit.com/user/Blacktwin/)  [![PM](https://img.shields.io/badge/Plex-Message-orange.svg)](https://forums.plex.tv/u/blacktwin) [![Issue](https://img.shields.io/badge/Submit-Issue-red.svg)](https://github.com/blacktwin/JBOPS/issues/new) 
 
 ### Donation
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4J6RPWZ9J9YML)
