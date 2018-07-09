@@ -1,7 +1,6 @@
 
 # JBOPS - Just a Bunch Of Plex Scripts
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4J6RPWZ9J9YML)  [![PM](https://img.shields.io/badge/Discord-Scripts-lightgrey.svg?colorB=7289da)](https://discord.gg/tQcWEUp) [![PM](https://img.shields.io/badge/Reddit-Message-lightgrey.svg)](https://www.reddit.com/user/Blacktwin/)  [![PM](https://img.shields.io/badge/Plex-Message-orange.svg)](https://forums.plex.tv/profile/discussions/Blacktwin) [![Issue](https://img.shields.io/badge/Submit-Issue-red.svg)](https://github.com/blacktwin/JBOPS/issues/new) 
 
 Most of these scripts utilize a combination of [Tautulli](https://github.com/Tautulli/Tautulli), [python-plexapi](https://github.com/pkkid/python-plexapi), and [requests](http://docs.python-requests.org/en/master/user/install/#install).
 
@@ -14,8 +13,35 @@ import plexapi
 print(plexapi.CONFIG_PATH)
 ```
 
-## Notice:
-Updated for Tautulli. Use plexpy-branch if you are still using PlexPy.
+### Contact 
+[![PM](https://img.shields.io/badge/Discord-Scripts-lightgrey.svg?colorB=7289da)](https://discord.gg/tQcWEUp) [![PM](https://img.shields.io/badge/Reddit-Message-lightgrey.svg)](https://www.reddit.com/user/Blacktwin/)  [![PM](https://img.shields.io/badge/Plex-Message-orange.svg)](https://forums.plex.tv/profile/discussions/Blacktwin) [![Issue](https://img.shields.io/badge/Submit-Issue-red.svg)](https://github.com/blacktwin/JBOPS/issues/new) 
+
+### Donation
+[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4J6RPWZ9J9YML)
+
+  
+<details>
+<summary>Coins?</summary>
+   <details>
+    <summary>BTC:</summary>
+     FCb4F3bv1hHCJxq6HJMQiAMn883v3okdh
+    </details> 
+	
+   <details>
+    <summary>BCH:</summary> 
+    qr758vkn7nv6hx0ur9m2tlv8q4qjrvg6pg3yw4kzwq 
+   </details>
+    
+   <details>
+    <summary>ETH:</summary> 
+    0xa76c8EB9A4955023F0dAABfb32FCD2b460910F2b 
+   </details>
+    
+   <details>
+    <summary>LTC:</summary> 
+    MCw3r6rC8jNCcUvSMSu9EqQyyvEDp8EpEf 
+   </details>
+</details>
 
 ## Scripts List
 [![Gist](https://img.shields.io/badge/gist-Blacktwin-green.svg)](https://gist.github.com/blacktwin)   
@@ -66,10 +92,15 @@ Scripts pulled from my gist profile.
 
 
 <details>
-<summary><a href="https://github.com/blacktwin/JBOPS/tree/master/killstream">Kill stream</a></summary>
+<summary><a href="https://github.com/blacktwin/JBOPS/tree/master/killstream">Kill stream</a>
+<br>
+</br>
+<b>
+Killing streams is a Plex Pass feature. These scripts will only work for Plex Pass users.
+</b>
+</summary>
 
 <table>
-Killing streams is a Plex Pass only feature. So these scripts will only work for Plex Pass users.
   <tr>
     <th>Gist</th>
     <th>File</th>
@@ -77,18 +108,9 @@ Killing streams is a Plex Pass only feature. So these scripts will only work for
   </tr>
   <tr>
     <td></td>
-    <td><a href="../master/killstream/wait_kill_pause_notify_main.py">wait_kill_pause_notify_main</a></td>
-    <td>
-	Receive session_key from Tautulli when paused. Use sub-script <a href="../master/killstream/wait_kill_pause_notify_sub.py">wait_kill_pause_notify_sub</a>
-	to wait for X time then check if still paused. If so, kill. Toggle whether you'd like to be notified through a Tautulli notification agent.
-	</td>
-  </tr>
-  <tr>
-    <td></td>
     <td><a href="../master/killstream/watch_limit.py">watch_limit</a></td>
     <td>Kill streams if user has watched too much Plex Today.</td>
   </tr>
-  <tr>
   <tr>
     <td></td>
     <td><a href="../master/killstream/play_limit.py">play_limit</a></td>
@@ -99,56 +121,13 @@ Killing streams is a Plex Pass only feature. So these scripts will only work for
     <td><a href="../master/killstream/kill_time.py">kill_time</a></td>
     <td>Limit number of plays of TV Show episodes during time of day. Idea is to reduce continuous plays while sleeping.</td>
   </tr>
-   <tr>
-    <td></td>
-    <td><a href="../master/killstream/kill_trans_pause_notify.py">kill_trans_pause_notify</a></td>
-    <td>Kill Plex paused video transcoding streams and receive notification.</td>
-  </tr>
   <tr>
     <td></td>
-    <td><a href="../master/killstream/ip_whitelist.py">ip_whitelist</a></td>
-    <td>Receive session_key and IP from Tautulli when playback starts. Use IP to check against whitelist. If not in whitelist use session_key to determine stream and kill.</td>
+    <td><a href="../master/killstream/kill_stream.py">kill_stream</a></td>
+    <td>Use Conditions, Arguements, and Parameters to kill a Plex stream.
+        See killsteam section <a href="../master/killstream/readme.md">readme.md</a></td>
   </tr>
-  <tr>
-    <td><a href="https://gist.github.com/blacktwin/88fce565c8ecf56839641f22f4c5c422"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
-    <td><a href="../master/killstream/kill_all_more_than.py">kill_all_more_than</a></td>
-    <td>If user has 2 or more concurrent streams kill all streams</td>
-  </tr>
-  <tr>
-    <td><a href="https://gist.github.com/blacktwin/d47d3ada86d02a494f9dc33e50dd15b5"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
-    <td><a href="../master/killstream/kill_else_if_buffering.py">kill_else_if_buffering</a></td>
-    <td>Kill concurrent transcode streams of other users if Admin user is experiencing buffering warnings from Tautulli.</td>
-  </tr>
-  <tr>
-    <td><a href="https://gist.github.com/blacktwin/6d08b94ca3e80d3ed0bb3c7172fae21d"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
-    <td><a href="../master/killstream/kill_more_than.py">kill_more_than</a></td>
-    <td>If user has 2 or more concurrent streams and the IP of the 2nd stream differs from 1st kill 2nd. If 2nd stream IP is the same as 1st stream don't kill.</td>
-  </tr>
-  <tr>
-    <td><a href="https://gist.github.com/blacktwin/eee23eeb95f1285fbb495c5a8592b242"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
-    <td><a href="../master/killstream/kill_outsider_stream.py">kill_outsider_stream</a></td>
-    <td>Kill stream if user is outside of local network.</td>
-  </tr>
-  <tr>
-    <td><a href="https://gist.github.com/blacktwin/8b174165cfc5e5e80c6698a1494fc9ee"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
-    <td><a href="../master/killstream/kill_plex_streams.py">kill_plex_streams</a></td>
-    <td>Kill all Plex streams for whatever reason you want.</td>
-  </tr>
-  <tr>
-    <td><a href="https://gist.github.com/blacktwin/77f6f1be32621ed71655ca27406ef772"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
-    <td><a href="../master/killstream/kill_session_bitrate.py">kill_session_bitrate</a></td>
-    <td>Kill stream if bitrate is greater than 4 Mbps</td>
-  </tr>
-  <tr>
-    <td><a href="https://gist.github.com/blacktwin/0e6207346acfaaca602eb7dce80226a0"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
-    <td><a href="../master/killstream/kill_trans_exp_audio.py">kill_trans_exp_audio</a></td>
-    <td>Kill Plex video transcoding streams only. All audio streams are left alone. Kill message based on platform.</td>
-  </tr>
-  <tr>
-    <td><a href="https://gist.github.com/blacktwin/14d400a0f442da465389164fa046647a"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
-    <td><a href="../master/killstream/kill_trans_pause.py">kill_trans_pause</a></td>
-    <td>Kill Plex paused video transcoding streams using Tautulli.</td>
-  </tr>
+  
 </table>
 </details>
 
