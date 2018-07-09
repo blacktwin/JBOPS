@@ -52,6 +52,7 @@ TAUTULLI_URL = ''
 TAUTULLI_APIKEY = ''
 TAUTULLI_URL = os.getenv('TAUTULLI_URL', TAUTULLI_URL)
 TAUTULLI_APIKEY = os.getenv('TAUTULLI_APIKEY', TAUTULLI_APIKEY)
+TAUTULLI_ENCODING = os.getenv('TAUTULLI_ENCODING', 'UTF-8')
 
 SUBJECT_TEXT = "Tautulli has killed a stream."
 BODY_TEXT = "Killed session ID '{id}'. Reason: {message}"
@@ -124,7 +125,7 @@ def get_activity():
     except Exception as e:
         sys.stderr.write(
             "Tautulli API 'get_activity' request failed: {0}.\n".format(e))
-        pass
+        return []
 
 
 def get_user_session_ids(user_id):
@@ -241,6 +242,10 @@ def terminate_long_pause(session_id, message, limit, interval, notify=None):
             return
 
 
+def arg_decoding(arg):
+    return arg.decode(TAUTULLI_ENCODING).encode('UTF-8')
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Killing Plex streams from Tautulli.")
@@ -248,7 +253,7 @@ if __name__ == "__main__":
                         help='Kill selector.\nChoices: (%(choices)s)')
     parser.add_argument('--userId', type=int,
                         help='The unique identifier for the user.')
-    parser.add_argument('--username',
+    parser.add_argument('--username', type=arg_decoding,
                         help='The username of the person streaming.')
     parser.add_argument('--sessionId', required=True,
                         help='The unique identifier for the stream.')
@@ -259,7 +264,7 @@ if __name__ == "__main__":
                         help='The time session is allowed to remain paused.')
     parser.add_argument('--interval', type=int, default=30,
                         help='The seconds between paused session checks.')
-    parser.add_argument('--killMessage', nargs='+',
+    parser.add_argument('--killMessage', nargs='+', type=arg_decoding,
                         help='Message to send to user whose stream is killed.')
 
     opts = parser.parse_args()
