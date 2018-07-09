@@ -93,13 +93,10 @@ Scripts pulled from my gist profile.
 
 <details>
 <summary><a href="https://github.com/blacktwin/JBOPS/tree/master/killstream">Kill stream</a>
-<br>
-</br>
+</summary>
 <b>
 Killing streams is a Plex Pass feature. These scripts will only work for Plex Pass users.
 </b>
-</summary>
-
 <table>
   <tr>
     <th>Gist</th>
