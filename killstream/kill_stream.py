@@ -35,7 +35,7 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
  Arguments: --jbop SELECTOR --userId {user_id} --username {username}
             --sessionId {session_id} --notify notifierID
             --interval 30 --limit 1200
-            --killMessage Your message here. No quotes.
+            --killMessage 'Your message here.'
 
  Save
  Close
