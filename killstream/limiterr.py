@@ -1,0 +1,371 @@
+"""
+Description: Limiting Plex users by plays, watches, or total time from Tautulli.
+Author: Blacktwin, Arcanemagus
+Requires: requests
+
+Adding the script to Tautulli:
+Taultulli > Settings > Notification Agents > Add a new notification agent >
+ Script
+
+Configuration:
+Taultulli > Settings > Notification Agents > New Script > Configuration:
+
+ Script Folder: /path/to/your/scripts
+ Script File: ./limiterr.py (Should be selectable in a dropdown list)
+ Script Timeout: {timeout}
+ Description: Kill stream(s)
+ Save
+
+Triggers:
+Taultulli > Settings > Notification Agents > New Script > Triggers:
+
+ Check: Playback Start
+ Save
+
+Conditions:
+Taultulli > Settings > Notification Agents > New Script > Conditions:
+
+ Set Conditions: [{condition} | {operator} | {value} ]
+ Save
+
+Script Arguments:
+Taultulli > Settings > Notification Agents > New Script > Script Arguments:
+
+ Select: Playback Start, Playback Pause
+ Arguments: --jbop SELECTOR --username {username}
+            --sessionId {session_id} --notify notifierID
+            --grandparent_rating_key {grandparent_rating_key}
+            --datestamp {datestamp} --unixtime {unixtime}
+            --limit plays=3 --delay 60
+            --killMessage 'Your message here.'
+
+ Save
+ Close
+"""
+
+import requests
+import argparse
+import sys
+from plexapi.server import PlexServer, CONFIG
+
+TAUTULLI_URL = ''
+TAUTULLI_APIKEY = ''
+PLEX_URL = ''
+PLEX_TOKEN = ''
+
+# Environmental Variables
+#PLEX_URL = os.getenv('PLEX_URL', PLEX_URL)
+#PLEX_TOKEN = os.getenv('PLEX_TOKEN', PLEX_TOKEN)
+#TAUTULLI_URL = os.getenv('TAUTULLI_URL', TAUTULLI_URL)
+#TAUTULLI_APIKEY = os.getenv('TAUTULLI_APIKEY', TAUTULLI_APIKEY)
+
+# Using CONFIG file
+PLEX_URL = CONFIG.data['auth'].get('server_baseurl', PLEX_URL)
+PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
+TAUTULLI_URL = CONFIG.data['auth'].get('tautulli_baseurl', TAUTULLI_URL)
+TAUTULLI_APIKEY = CONFIG.data['auth'].get('tautulli_apikey', TAUTULLI_APIKEY)
+
+SUBJECT_TEXT = "Tautulli has killed a stream."
+BODY_TEXT = "Killed session ID '{id}'. Reason: {message}"
+BODY_TEXT_USER = "Killed {user}'s stream. Reason: {message}."
+LIMIT_MESSAGE = 'Are you still watching or are you asleep? ' \
+                'If not please wait ~{delay} seconds and try again.'
+
+sess = requests.Session()
+# Ignore verifying the SSL certificate
+sess.verify = False  # '/path/to/certfile'
+# If verify is set to a path to a directory,
+# the directory must have been processed using the c_rehash utility supplied
+# with OpenSSL.
+if sess.verify is False:
+    # Disable the warning that the request is insecure, we know that...
+    import urllib3
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
+lib_dict = {x.title : x.key for x in plex.library.sections()}
+
+
+SELECTOR = ['watch', 'plays', 'time', 'limit']
+
+
+def send_notification(subject_text, body_text, notifier_id):
+    """Send a notification through Tautulli
+
+    Parameters
+    ----------
+    subject_text : str
+        The text to use for the subject line of the message.
+    body_text : str
+        The text to use for the body of the notification.
+    notifier_id : int
+        Tautulli Notification Agent ID to send the notification to.
+    """
+    payload = {'apikey': TAUTULLI_APIKEY,
+               'cmd': 'notify',
+               'notifier_id': notifier_id,
+               'subject': subject_text,
+               'body': body_text}
+
+    try:
+        req = sess.post(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
+        response = req.json()
+
+        if response['response']['result'] == 'success':
+            sys.stdout.write("Successfully sent Tautulli notification.\n")
+        else:
+            raise Exception(response['response']['message'])
+    except Exception as e:
+        sys.stderr.write(
+            "Tautulli API 'notify' request failed: {0}.\n".format(e))
+        return None
+
+
+def get_activity():
+    """Get the current activity on the PMS.
+
+    Returns
+    -------
+    list
+        The current active sessions on the Plex server.
+    """
+    payload = {'apikey': TAUTULLI_APIKEY,
+               'cmd': 'get_activity'}
+
+    try:
+        req = sess.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
+        response = req.json()
+
+        res_data = response['response']['data']['sessions']
+        return res_data
+
+    except Exception as e:
+        sys.stderr.write(
+            "Tautulli API 'get_activity' request failed: {0}.\n".format(e))
+        pass
+
+
+def get_history(username, start_date=None, section_id=None):
+    """Get the Tautulli history.
+
+    Parameters
+    ----------
+    username : str
+        The username to gather history from.
+
+    Optional
+    ----------
+    start_date : str "YYYY-MM-DD"
+        The date in history to search.
+    section_id : int
+        The libraries numeric identifier
+
+    Returns
+    -------
+    list
+        The total number of watches, plays, or total playtime.
+    """
+    payload = {'apikey': TAUTULLI_APIKEY,
+               'cmd': 'get_history',
+               'user': username}
+
+    if start_date:
+        payload['start_date'] = start_date
+
+    if section_id:
+        payload['section_id '] = section_id
+
+    try:
+        req = sess.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
+        response = req.json()
+
+        res_data = response['response']['data']
+        return res_data
+
+    except Exception as e:
+        sys.stderr.write("Tautulli API 'get_history' request failed: {0}.".format(e))
+
+
+def get_user_session_ids(user_id):
+    """Get current session IDs for a specific user.
+
+    Parameters
+    ----------
+    user_id : int
+        The ID of the user to grab sessions for.
+
+    Returns
+    -------
+    list
+        The active session IDs for the specific user ID.
+
+    """
+    sessions = get_activity()
+    user_streams = [s['session_id']
+                    for s in sessions if s['user_id'] == user_id]
+    return user_streams
+
+
+def terminate_session(session_id, message, notifier=None, username=None):
+    """Stop a streaming session.
+
+    Parameters
+    ----------
+    session_id : str
+        The session ID of the stream to terminate.
+    message : str
+        The message to display to the user when terminating a stream.
+    notifier : int
+        Notification agent ID to send a message to (the default is None).
+    username : str
+        The username for the terminated session (the default is None).
+    """
+    payload = {'apikey': TAUTULLI_APIKEY,
+               'cmd': 'terminate_session',
+               'session_id': session_id,
+               'message': message}
+
+    try:
+        req = sess.post(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
+        response = req.json()
+
+        print(response)
+        if response['response']['result'] == 'success':
+            sys.stdout.write(
+                "Successfully killed Plex session: {0}.\n".format(session_id))
+            if notifier:
+                if username:
+                    body = BODY_TEXT_USER.format(user=username,
+                                                 message=message)
+                else:
+                    body = BODY_TEXT.format(id=session_id, message=message)
+                send_notification(SUBJECT_TEXT, body, notifier)
+        else:
+            raise Exception(response['response']['message'])
+    except Exception as e:
+        sys.stderr.write(
+            "Tautulli API 'terminate_session' request failed: {0}.".format(e))
+        return None
+
+
+def unshare(user):
+    print('{user} has reached their limit. Unsharing...'.format(user=user))
+    plex.myPlexAccount().updateFriend(user=user, server=plex, removeSections=True, sections='2')
+    print('Unshared all libraries from {user}.'.format(user=user))
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Limiting Plex users by plays, watches, or total time from Tautulli.")
+    parser.add_argument('--jbop', required=True, choices=SELECTOR,
+                        help='Limit selector.\nChoices: (%(choices)s)')
+    parser.add_argument('--username', required=True,
+                        help='The username of the person streaming.')
+    parser.add_argument('--sessionId', required=True,
+                        help='The unique identifier for the stream.')
+    parser.add_argument('--notify', type=int,
+                        help='Notification Agent ID number to Agent to send '
+                             'notification.')
+    parser.add_argument('--limit', action='append', type=lambda kv: kv.split("="),
+                        help='The limit related to the limit selector chosen.')
+    parser.add_argument('--datestamp',
+                        help='The date (in date format) when the notification is '
+                             'triggered. Most for narrowing to Today\'s history.')
+    parser.add_argument('--grandparent_rating_key', type=int,
+                        help='The unique identifier for the TV show or artist.')
+    parser.add_argument('--unixtime', type=int,
+                        help='The unix timestamp when the notification is '
+                             'triggered.')
+    parser.add_argument('--delay', type=int, default=60,
+                        help='The seconds to wait in order to deem user is active.')
+    parser.add_argument('--killMessage', nargs='+',
+                        help='Message to send to user whose stream is killed.')
+    parser.add_argument('--section', default=False, choices=lib_dict.keys(), metavar='',
+                        help='Space separated list of case sensitive names to process. Allowed names are: \n'
+                             '(choices: %(choices)s)')
+
+    opts = parser.parse_args()
+
+    total_limit = 0
+    total_jbop = 0
+
+    if opts.limit:
+        limit = dict(opts.limit)
+
+        for key, value in limit.items():
+            if key == 'days':
+                total_limit += int(value) * (24 * 60 * 60)
+            elif key == 'hours':
+                total_limit += int(value) * (60 * 60)
+            elif key == 'minutes':
+                total_limit += int(value) * 60
+            elif key == 'plays':
+                total_limit = int(value)
+
+    if not opts.sessionId:
+        sys.stderr.write("No sessionId provided! Is this synced content?\n")
+        sys.exit(1)
+
+    if opts.killMessage:
+        message = ' '.join(opts.killMessage)
+    else:
+        message = ''
+
+    if opts.datestamp:
+        if opts.section:
+            section_id = lib_dict[opts.section]
+            history = get_history(username=opts.username, start_date=opts.datestamp,
+                                  section_id=section_id)
+        else:
+            history = get_history(username=opts.username, start_date=opts.datestamp)
+    else:
+        if opts.section:
+            section_id = lib_dict[opts.section]
+            history = get_history(username=opts.username, section_id=section_id)
+        else:
+            history = get_history(username=opts.username)
+
+    if opts.jbop == 'watch':
+        total_jbop = sum([data['watched_status'] for data in history['data']])
+    if opts.jbop == 'time':
+        total_jbop = sum([data['duration'] for data in history['data']])
+    if opts.jbop == 'plays':
+        total_jbop = history['recordsFiltered']
+
+    if total_jbop:
+        if total_jbop > total_limit:
+            print('Total {} ({}) is greater than limit ({}).'
+                  .format(opts.jbop, total_jbop, total_limit))
+            terminate_session(opts.sessionId, message, opts.notify, opts.username)
+        else:
+            print('Total {} ({}) is less than limit ({}).'
+                  .format(opts.jbop, total_jbop, total_limit))
+
+    if opts.jbop == 'limit' and opts.grandparent_rating_key:
+        message = LIMIT_MESSAGE.format(delay=opts.delay)
+        ep_watched = [data['watched_status'] for data in history['data']
+                      if data['grandparent_rating_key'] == opts.grandparent_rating_key
+                      and data['watched_status'] == 1]
+        if not ep_watched:
+            ep_watched = 0
+        else:
+            ep_watched = sum(ep_watched)
+
+        stopped_time = [data['stopped'] for data in history['data']
+                        if data['grandparent_rating_key'] == opts.grandparent_rating_key
+                        and data['watched_status'] == 1]
+        if not stopped_time:
+            stopped_time = opts.unixtime
+        else:
+            stopped_time = stopped_time[0]
+
+        if abs(stopped_time - opts.unixtime) > opts.delay:
+            print('{} is awake!'.format(opts.username))
+            sys.exit(1)
+
+        if ep_watched >= total_limit:
+            terminate_session(opts.sessionId, message, opts.notify, opts.username)
+        else:
+            print("{}'s limit is {} but has only watched {} episodes of this show today."
+                .format(opts.username, total_limit, ep_watched))
+
