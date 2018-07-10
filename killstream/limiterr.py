@@ -46,6 +46,7 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
 import requests
 import argparse
 import sys
+import os
 from plexapi.server import PlexServer, CONFIG
 
 TAUTULLI_URL = ''
@@ -54,16 +55,17 @@ PLEX_URL = ''
 PLEX_TOKEN = ''
 
 # Environmental Variables
-#PLEX_URL = os.getenv('PLEX_URL', PLEX_URL)
-#PLEX_TOKEN = os.getenv('PLEX_TOKEN', PLEX_TOKEN)
-#TAUTULLI_URL = os.getenv('TAUTULLI_URL', TAUTULLI_URL)
-#TAUTULLI_APIKEY = os.getenv('TAUTULLI_APIKEY', TAUTULLI_APIKEY)
+PLEX_URL = os.getenv('PLEX_URL', PLEX_URL)
+PLEX_TOKEN = os.getenv('PLEX_TOKEN', PLEX_TOKEN)
+TAUTULLI_URL = os.getenv('TAUTULLI_URL', TAUTULLI_URL)
+TAUTULLI_APIKEY = os.getenv('TAUTULLI_APIKEY', TAUTULLI_APIKEY)
+TAUTULLI_ENCODING = os.getenv('TAUTULLI_ENCODING', 'UTF-8')
 
 # Using CONFIG file
-PLEX_URL = CONFIG.data['auth'].get('server_baseurl', PLEX_URL)
-PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
-TAUTULLI_URL = CONFIG.data['auth'].get('tautulli_baseurl', TAUTULLI_URL)
-TAUTULLI_APIKEY = CONFIG.data['auth'].get('tautulli_apikey', TAUTULLI_APIKEY)
+# PLEX_URL = CONFIG.data['auth'].get('server_baseurl', PLEX_URL)
+# PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
+# TAUTULLI_URL = CONFIG.data['auth'].get('tautulli_baseurl', TAUTULLI_URL)
+# TAUTULLI_APIKEY = CONFIG.data['auth'].get('tautulli_apikey', TAUTULLI_APIKEY)
 
 SUBJECT_TEXT = "Tautulli has killed a stream."
 BODY_TEXT = "Killed session ID '{id}'. Reason: {message}"
@@ -246,6 +248,10 @@ def terminate_session(session_id, message, notifier=None, username=None):
         sys.stderr.write(
             "Tautulli API 'terminate_session' request failed: {0}.".format(e))
         return None
+
+
+def arg_decoding(arg):
+    return arg.decode(TAUTULLI_ENCODING).encode('UTF-8')
 
 
 def unshare(user):
