@@ -35,7 +35,6 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
  Arguments: --jbop SELECTOR --username {username}
             --sessionId {session_id} --notify notifierID
             --grandparent_rating_key {grandparent_rating_key}
-            --unixtime {unixtime}
             --limit plays=3 --delay 60
             --killMessage 'Your message here.'
 
@@ -49,6 +48,7 @@ from datetime import datetime
 import sys
 import os
 from plexapi.server import PlexServer, CONFIG
+from time import time as ttime
 
 TAUTULLI_URL = ''
 TAUTULLI_APIKEY = ''
@@ -91,6 +91,7 @@ lib_dict = {x.title : x.key for x in plex.library.sections()}
 
 SELECTOR = ['watch', 'plays', 'time', 'limit']
 TODAY = datetime.today().strftime('%Y-%m-%d')
+unix_time = int(ttime())
 
 
 def send_notification(subject_text, body_text, notifier_id):
@@ -278,9 +279,6 @@ if __name__ == "__main__":
                         help='The limit related to the limit selector chosen.')
     parser.add_argument('--grandparent_rating_key', type=int,
                         help='The unique identifier for the TV show or artist.')
-    parser.add_argument('--unixtime', type=int,
-                        help='The unix timestamp when the notification is '
-                             'triggered.')
     parser.add_argument('--delay', type=int, default=60,
                         help='The seconds to wait in order to deem user is active.')
     parser.add_argument('--killMessage', nargs='+',
@@ -353,11 +351,11 @@ if __name__ == "__main__":
                         if data['grandparent_rating_key'] == opts.grandparent_rating_key
                         and data['watched_status'] == 1]
         if not stopped_time:
-            stopped_time = opts.unixtime
+            stopped_time = unix_time
         else:
             stopped_time = stopped_time[0]
 
-        if abs(stopped_time - opts.unixtime) > opts.delay:
+        if abs(stopped_time - unix_time) > opts.delay:
             print('{} is awake!'.format(opts.username))
             sys.exit(1)
 
