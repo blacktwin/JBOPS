@@ -35,7 +35,7 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
  Arguments: --jbop SELECTOR --username {username}
             --sessionId {session_id} --notify notifierID
             --grandparent_rating_key {grandparent_rating_key}
-            --datestamp {datestamp} --unixtime {unixtime}
+            --unixtime {unixtime}
             --limit plays=3 --delay 60
             --killMessage 'Your message here.'
 
@@ -45,6 +45,7 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
 
 import requests
 import argparse
+from datetime import datetime
 import sys
 import os
 from plexapi.server import PlexServer, CONFIG
@@ -89,6 +90,7 @@ lib_dict = {x.title : x.key for x in plex.library.sections()}
 
 
 SELECTOR = ['watch', 'plays', 'time', 'limit']
+TODAY = datetime.today().strftime('%Y-%m-%d')
 
 
 def send_notification(subject_text, body_text, notifier_id):
@@ -172,7 +174,7 @@ def get_history(username, start_date=None, section_id=None):
                'user': username}
 
     if start_date:
-        payload['start_date'] = start_date
+        payload['start_date'] = TODAY
 
     if section_id:
         payload['section_id '] = section_id
@@ -274,9 +276,6 @@ if __name__ == "__main__":
                              'notification.')
     parser.add_argument('--limit', action='append', type=lambda kv: kv.split("="),
                         help='The limit related to the limit selector chosen.')
-    parser.add_argument('--datestamp',
-                        help='The date (in date format) when the notification is '
-                             'triggered. Most for narrowing to Today\'s history.')
     parser.add_argument('--grandparent_rating_key', type=int,
                         help='The unique identifier for the TV show or artist.')
     parser.add_argument('--unixtime', type=int,
@@ -317,19 +316,11 @@ if __name__ == "__main__":
     else:
         message = ''
 
-    if opts.datestamp:
-        if opts.section:
-            section_id = lib_dict[opts.section]
-            history = get_history(username=opts.username, start_date=opts.datestamp,
-                                  section_id=section_id)
-        else:
-            history = get_history(username=opts.username, start_date=opts.datestamp)
+    if opts.section:
+        section_id = lib_dict[opts.section]
+        history = get_history(username=opts.username, section_id=section_id)
     else:
-        if opts.section:
-            section_id = lib_dict[opts.section]
-            history = get_history(username=opts.username, section_id=section_id)
-        else:
-            history = get_history(username=opts.username)
+        history = get_history(username=opts.username)
 
     if opts.jbop == 'watch':
         total_jbop = sum([data['watched_status'] for data in history['data']])
@@ -348,6 +339,7 @@ if __name__ == "__main__":
                   .format(opts.jbop, total_jbop, total_limit))
 
     if opts.jbop == 'limit' and opts.grandparent_rating_key:
+        history = get_history(username=opts.username, start_date=True)
         message = LIMIT_MESSAGE.format(delay=opts.delay)
         ep_watched = [data['watched_status'] for data in history['data']
                       if data['grandparent_rating_key'] == opts.grandparent_rating_key
