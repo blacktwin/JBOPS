@@ -52,14 +52,13 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
 """
 import requests
 import argparse
-import os
-from plexapi.server import PlexServer
+from plexapi.server import PlexServer, CONFIG
 
-PLEX_OVERRIDE_URL = ''
-PLEX_URL = PLEX_OVERRIDE_URL or os.getenv('PLEX_URL')
-
-PLEX_OVERRIDE_TOKEN = ''
-PLEX_TOKEN = PLEX_OVERRIDE_TOKEN or os.getenv('PLEX_TOKEN')
+# Using CONFIG file
+PLEX_URL = ''
+PLEX_TOKEN = ''
+PLEX_URL = CONFIG.data['auth'].get('server_baseurl', PLEX_URL)
+PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
 
 
 sess = requests.Session()
@@ -82,6 +81,22 @@ def get_account(user):
     return server
 
 
+def mark_watached(sectionFrom, accountTo, userTo):
+    # Check sections for watched items
+    for item in sectionFrom.search(unwatched=False):
+        title = item.title.encode('utf-8')
+        # Check movie media type
+        if item.type == 'movie':
+            accountTo.fetchItem(item.key).markWatched()
+            print('Synced watch status of {} to {}\'s account.'.format(title, userTo))
+        # Check show media type
+        elif item.type == 'show':
+            for episode in sectionFrom.searchEpisodes(unwatched=False, title=title):
+                ep_title = episode.title.encode('utf-8')
+                accountTo.fetchItem(episode.key).markWatched()
+                print('Synced watch status of {} - {} to {}\'s account.'.format(title, ep_title, userTo))
+
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Sync watch status from one user to others.",
@@ -94,7 +109,7 @@ if __name__ == '__main__':
                         help='Select all libraries.')
     parser.add_argument('--ratingKey', nargs=1,
                         help='Rating key of item whose watch status is to be synced.')
-    requiredNamed.add_argument('--userFrom', nargs=None, choices=user_lst, metavar='username', required=True,
+    requiredNamed.add_argument('--userFrom', choices=user_lst, metavar='username', required=True,
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
                              '(choices: %(choices)s)')
     requiredNamed.add_argument('--userTo', nargs='*', choices=user_lst, metavar='usernames', required=True,
@@ -129,23 +144,8 @@ if __name__ == '__main__':
                 try:
                     print('Checking library: {}'.format(library))
                     # Check library for watched items
-                    section = plexFrom.library.section(library).search(unwatched=False)
-                    for item in section:
-                        title = item.title.encode('utf-8')
-                        # Check movie media type
-                        if item.type == 'movie':
-                            plexTo.fetchItem(item.key).markWatched()
-                            print('Synced watch status of {} to {}\'s account.'.format(title, user))
-                        # Check show media type
-                        elif item.type == 'show':
-                            # If one episode is watched, series is flagged as watched
-                            for child in item.episodes():
-                                # Check each episode
-                                if child.isWatched:
-                                    ep_title = child.title.encode('utf-8')
-                                    plexTo.fetchItem(child.key).markWatched()
-                                    print('Synced watch status of {} - {} to {}\'s account.'
-                                          .format(title, ep_title, user))
+                    section = plexFrom.library.section(library)
+                    mark_watached(section, plexTo, user)
                 except Exception as e:
                     if str(e).startswith('Unknown'):
                         print('Library ({}) does not have a watch status.'.format(library))
