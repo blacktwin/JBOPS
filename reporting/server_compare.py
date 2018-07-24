@@ -61,12 +61,13 @@ def find_things(server):
     for section in server.library.sections():
         if section.title not in IGNORE_LST and section.type in ['movie', 'show']:
             for item in server.library.section(section.title).all():
-                dict_tt[section.type].append(item.title)
+                dict_tt[section.type].append(server.fetchItem(item.ratingKey))
 
     return dict_tt
 
 
 def org_diff(main_key, friend_key, diff):
+
     if diff == 'mine':
         return list(set(main_key) - set(friend_key))
     elif diff == 'missing':
@@ -76,26 +77,25 @@ def org_diff(main_key, friend_key, diff):
 
 
 def diff_things(main_dict, friend_dict):
-    for key in main_dict.keys():
-        mine = org_diff(main_dict[key], friend_dict[key], 'mine')
-        missing = org_diff(main_dict[key], friend_dict[key], 'missing')
-        shared = set(main_dict[key] + friend_dict[key])
 
+    for key in main_dict.keys():
+        main_titles = [x.title for x in main_dict[key]]
+        friend_titles = [x.title for x in friend_dict[key]]
+
+        mine = org_diff(main_titles, friend_titles, 'mine')
+        missing = org_diff(main_titles, friend_titles, 'missing')
+        shared = set(main_titles + friend_titles)
         print('... combining {}s'.format(key))
-        main_dict['{}_combined'.format(key)] = org_diff(main_dict[key], friend_dict[key], 'combined')
+        main_dict['{}_combined'.format(key)] = org_diff(main_titles, friend_titles, 'combined')
 
         print('... comparing {}s'.format(key))
-
         print('... finding what is mine')
         main_dict['{}_mine'.format(key)] = mine
-
         print('... finding what is missing')
         main_dict['{}_missing'.format(key)] = missing
-
         print('... finding what is shared')
         ddiff = set(mine + missing)
         shared_lst = list(shared.union(ddiff) - shared.intersection(ddiff))
-
         main_dict['{}_shared'.format(key)] = shared_lst
 
     return main_dict
@@ -135,7 +135,10 @@ if __name__ == "__main__":
         print('Comparing findings from {} and {}'.format(
             main_server.friendlyName, server_connected.friendlyName))
         main_dict = diff_things(main_section_dict, their_section_dict)
-
+        # pop main keys
+        main_dict.pop('movie', None)
+        main_dict.pop('show', None)
         filename = 'diff_{}_{}_servers.json'.format(opts.server[0], server)
+
         with open(filename, 'w') as fp:
             json.dump(main_dict, fp, indent=4, sort_keys=True)
