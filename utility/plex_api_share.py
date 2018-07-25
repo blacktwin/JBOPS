@@ -120,11 +120,13 @@ def find_shares(user):
     shared_lst = []
     account = plex.myPlexAccount()
     user_acct = account.user(user)
-    shared_sections = user_acct.servers[0]
-
-    for section in shared_sections.sections():
-        if section.shared == True:
-            shared_lst.append(section.title)
+    try:
+        shared_sections = user_acct.servers[0]
+        for section in shared_sections.sections():
+            if section.shared == True:
+                shared_lst.append(section.title)
+    except IndexError:
+        print('{} has no servers listed.'.format(user))
 
     return shared_lst
 
@@ -256,12 +258,12 @@ if __name__ == "__main__":
             if opts.share:
                 share(user, libraries, opts.sync, opts.camera, opts.channels, filterMovies, filterTelevision,
                       filterMusic)
-            if opts.add:
+            if opts.add and shared:
                 libraries = libraries + shared
                 libraries = list(set(libraries))
                 share(user, libraries, opts.sync, opts.camera, opts.channels, filterMovies, filterTelevision,
                       filterMusic)
-            if opts.remove:
+            if opts.remove and shared:
                 libraries = [sect for sect in shared if sect not in libraries]
                 share(user, libraries, opts.sync, opts.camera, opts.channels, filterMovies, filterTelevision,
                       filterMusic)
