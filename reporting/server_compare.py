@@ -78,6 +78,7 @@ def org_diff(main_key, friend_key, diff):
 
 
 def diff_things(main_dict, friend_dict):
+    diff_dict = {}
 
     for key in main_dict.keys():
         main_titles = [x.title for x in main_dict[key]]
@@ -86,28 +87,28 @@ def diff_things(main_dict, friend_dict):
 
         mine = org_diff(main_titles, friend_titles, 'mine')
         missing = org_diff(main_titles, friend_titles, 'missing')
-        # todo move below into org_diff
+        # todo move below into org_diff?
         shared = set(main_titles + friend_titles)
         print('... combining {}s'.format(key))
         combined = org_diff(main_titles, friend_titles, 'combined')
-        main_dict['{}_combined'.format(key)] = {'list': combined,
+        diff_dict['{}_combined'.format(key)] = {'list': combined,
                                                 'total': len(combined)}
 
         print('... comparing {}s'.format(key))
         print('... finding what is mine')
-        main_dict['{}_mine'.format(key)] = {'list': mine,
-                                                'total': len(mine)}
+        diff_dict['{}_mine'.format(key)] = {'list': mine,
+                                            'total': len(mine)}
         print('... finding what is missing')
-        main_dict['{}_missing'.format(key)] = {'list': missing,
-                                                'total': len(missing)}
+        diff_dict['{}_missing'.format(key)] = {'list': missing,
+                                               'total': len(missing)}
         print('... finding what is shared')
         ddiff = set(mine + missing)
         shared_lst = list(shared.union(ddiff) - shared.intersection(ddiff))
-        main_dict['{}_shared'.format(key)] = {'list': shared_lst,
+        diff_dict['{}_shared'.format(key)] = {'list': shared_lst,
                                                 'total': len(shared_lst)}
-    # todo-me check back to obj for rating and bitrate weights
+    # todo-me check back to obj in main/friend for rating and bitrate weights
 
-    return main_dict
+    return diff_dict
 
 
 if __name__ == "__main__":
@@ -152,10 +153,8 @@ if __name__ == "__main__":
         print('Comparing findings from {} and {}'.format(
             main_server.friendlyName, connection.friendlyName))
         main_dict = diff_things(main_section_dict, their_section_dict)
-        # pop main keys
-        main_dict.pop('movie', None)
-        main_dict.pop('show', None)
-        filename = 'diff_{}_{}_servers.json'.format(opts.server[0], connection)
+        filename = 'diff_{}_{}_servers.json'.format(opts.server[0],
+                                                    connection.friendlyName)
 
         with open(filename, 'w') as fp:
             json.dump(main_dict, fp, indent=4, sort_keys=True)
