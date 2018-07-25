@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Description: Comparing content between two or more Plex servers.
               Creates .json file in script directory of server compared.
@@ -81,9 +82,11 @@ def diff_things(main_dict, friend_dict):
     for key in main_dict.keys():
         main_titles = [x.title for x in main_dict[key]]
         friend_titles = [x.title for x in friend_dict[key]]
+        # todo-me guid double check?
 
         mine = org_diff(main_titles, friend_titles, 'mine')
         missing = org_diff(main_titles, friend_titles, 'missing')
+        # todo move below into org_diff
         shared = set(main_titles + friend_titles)
         print('... combining {}s'.format(key))
         combined = org_diff(main_titles, friend_titles, 'combined')
@@ -102,6 +105,7 @@ def diff_things(main_dict, friend_dict):
         shared_lst = list(shared.union(ddiff) - shared.intersection(ddiff))
         main_dict['{}_shared'.format(key)] = {'list': shared_lst,
                                                 'total': len(shared_lst)}
+    # todo-me check back to obj for rating and bitrate weights
 
     return main_dict
 
@@ -114,6 +118,7 @@ if __name__ == "__main__":
                         action='append', nargs='?', metavar='',
                         help='Choose servers to connect to and compare.'
                              '\nChoices: (%(choices)s)')
+    # todo-me add media_type, library_ignore, media filters (genre, etc.)
 
     opts = parser.parse_args()
 
