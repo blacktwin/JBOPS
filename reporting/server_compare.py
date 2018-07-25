@@ -53,7 +53,7 @@ SERVER_DICT = {server.name: server for server in
                if 'server' in server.provides.split(',')}
 
 shared_lst = []
-
+server_lst = []
 
 def find_things(server):
     dict_tt = {'movie': [], 'show': []}
@@ -131,19 +131,26 @@ if __name__ == "__main__":
             server_connected = other_server.connect()
             print('Connected to {} server.'.format(
                 server_connected.friendlyName))
+            server_lst.append(server_connected)
         except Exception as e:
-            sys.stderr.write("Error: {}".format(e))
-            sys.exit(1)
+            sys.stderr.write("Error: {}.\nSkipping...\n".format(e))
+            pass
 
-        main_section_dict = find_things(main_server)
-        their_section_dict = find_things(server_connected)
+    if len(server_lst) == 0:
+        sys.stderr.write("Need more than one server to compare.\n")
+        sys.exit(1)
+
+    main_section_dict = find_things(main_server)
+
+    for connection in server_lst:
+        their_section_dict = find_things(connection)
         print('Comparing findings from {} and {}'.format(
-            main_server.friendlyName, server_connected.friendlyName))
+            main_server.friendlyName, connection.friendlyName))
         main_dict = diff_things(main_section_dict, their_section_dict)
         # pop main keys
         main_dict.pop('movie', None)
         main_dict.pop('show', None)
-        filename = 'diff_{}_{}_servers.json'.format(opts.server[0], server)
+        filename = 'diff_{}_{}_servers.json'.format(opts.server[0], connection)
 
         with open(filename, 'w') as fp:
             json.dump(main_dict, fp, indent=4, sort_keys=True)
