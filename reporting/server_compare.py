@@ -86,17 +86,22 @@ def diff_things(main_dict, friend_dict):
         missing = org_diff(main_titles, friend_titles, 'missing')
         shared = set(main_titles + friend_titles)
         print('... combining {}s'.format(key))
-        main_dict['{}_combined'.format(key)] = org_diff(main_titles, friend_titles, 'combined')
+        combined = org_diff(main_titles, friend_titles, 'combined')
+        main_dict['{}_combined'.format(key)] = {'list': combined,
+                                                'total': len(combined)}
 
         print('... comparing {}s'.format(key))
         print('... finding what is mine')
-        main_dict['{}_mine'.format(key)] = mine
+        main_dict['{}_mine'.format(key)] = {'list': mine,
+                                                'total': len(mine)}
         print('... finding what is missing')
-        main_dict['{}_missing'.format(key)] = missing
+        main_dict['{}_missing'.format(key)] = {'list': missing,
+                                                'total': len(missing)}
         print('... finding what is shared')
         ddiff = set(mine + missing)
         shared_lst = list(shared.union(ddiff) - shared.intersection(ddiff))
-        main_dict['{}_shared'.format(key)] = shared_lst
+        main_dict['{}_shared'.format(key)] = {'list': shared_lst,
+                                                'total': len(shared_lst)}
 
     return main_dict
 
