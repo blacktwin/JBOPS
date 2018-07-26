@@ -56,56 +56,54 @@ SERVER_DICT = {server.name: server for server in
 shared_lst = []
 server_lst = []
 
-def find_things(server):
-    dict_tt = {'movie': [], 'show': []}
+def find_things(server, media_type):
+    dict_tt = {}
     print('Finding items from {}.'.format(server.friendlyName))
     for section in server.library.sections():
-        if section.title not in IGNORE_LST and section.type in ['movie', 'show']:
+        if section.title not in IGNORE_LST and section.type in media_type:
+            dict_tt[section.type] = []
             for item in server.library.section(section.title).all():
                 dict_tt[section.type].append(server.fetchItem(item.ratingKey))
 
     return dict_tt
 
 
-def org_diff(main_key, friend_key, diff):
+def org_diff(main, friend, key):
+    diff_dict = {}
 
-    if diff == 'mine':
-        return list(set(main_key) - set(friend_key))
-    elif diff == 'missing':
-        return list(set(friend_key) - set(main_key))
-    elif diff == 'combined':
-        return list(set(friend_key + main_key))
+    shared = set(main + friend)
+    print('... combining {}s'.format(key))
+
+    mine = list(set(main) - set(friend))
+    missing = list(set(friend) - set(main))
+    combined = list(set(friend + main))
+    diff_dict['{}_combined'.format(key)] = {'list': combined,
+                                            'total': len(combined)}
+
+    print('... comparing {}s'.format(key))
+    print('... finding what is mine')
+    diff_dict['{}_mine'.format(key)] = {'list': mine,
+                                        'total': len(mine)}
+    print('... finding what is missing')
+    diff_dict['{}_missing'.format(key)] = {'list': missing,
+                                           'total': len(missing)}
+    print('... finding what is shared')
+    ddiff = set(mine + missing)
+    shared_lst = list(shared.union(ddiff) - shared.intersection(ddiff))
+    diff_dict['{}_shared'.format(key)] = {'list': shared_lst,
+                                          'total': len(shared_lst)}
+
+    return diff_dict
 
 
 def diff_things(main_dict, friend_dict):
     diff_dict = {}
-
     for key in main_dict.keys():
         main_titles = [x.title for x in main_dict[key]]
         friend_titles = [x.title for x in friend_dict[key]]
+        diff_dict[key] = org_diff(main_titles, friend_titles, key)
         # todo-me guid double check?
 
-        mine = org_diff(main_titles, friend_titles, 'mine')
-        missing = org_diff(main_titles, friend_titles, 'missing')
-        # todo move below into org_diff?
-        shared = set(main_titles + friend_titles)
-        print('... combining {}s'.format(key))
-        combined = org_diff(main_titles, friend_titles, 'combined')
-        diff_dict['{}_combined'.format(key)] = {'list': combined,
-                                                'total': len(combined)}
-
-        print('... comparing {}s'.format(key))
-        print('... finding what is mine')
-        diff_dict['{}_mine'.format(key)] = {'list': mine,
-                                            'total': len(mine)}
-        print('... finding what is missing')
-        diff_dict['{}_missing'.format(key)] = {'list': missing,
-                                               'total': len(missing)}
-        print('... finding what is shared')
-        ddiff = set(mine + missing)
-        shared_lst = list(shared.union(ddiff) - shared.intersection(ddiff))
-        diff_dict['{}_shared'.format(key)] = {'list': shared_lst,
-                                                'total': len(shared_lst)}
     # todo-me check back to obj in main/friend for rating and bitrate weights
 
     return diff_dict
@@ -114,12 +112,18 @@ def diff_things(main_dict, friend_dict):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
-        description="Comparing content between two or more Plex servers.")
+        description="Comparing content between two or more Plex servers.",
+        formatter_class = argparse.RawTextHelpFormatter)
     parser.add_argument('--server', required=True, choices=SERVER_DICT.keys(),
                         action='append', nargs='?', metavar='',
-                        help='Choose servers to connect to and compare.'
+                        help='Choose servers to connect to and compare.\n'
+                             'Choices: (%(choices)s)')
+    parser.add_argument('--media_type', required=True, choices=['movie', 'show', 'artist'],
+                        nargs='+', metavar='', default=['movie', 'show'],
+                        help='Choose media type(s) to compare.'
+                             '\nDefault: (%(default)s)'
                              '\nChoices: (%(choices)s)')
-    # todo-me add media_type, library_ignore, media filters (genre, etc.)
+    # todo-me add media_type [x], library_ignore[], media filters (genre, etc.) []
 
     opts = parser.parse_args()
 
@@ -146,10 +150,10 @@ if __name__ == "__main__":
         sys.stderr.write("Need more than one server to compare.\n")
         sys.exit(1)
 
-    main_section_dict = find_things(main_server)
+    main_section_dict = find_things(main_server, opts.media_type)
 
     for connection in server_lst:
-        their_section_dict = find_things(connection)
+        their_section_dict = find_things(connection, opts.media_type)
         print('Comparing findings from {} and {}'.format(
             main_server.friendlyName, connection.friendlyName))
         main_dict = diff_things(main_section_dict, their_section_dict)
