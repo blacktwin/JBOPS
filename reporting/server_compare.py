@@ -68,16 +68,42 @@ def find_things(server, media_type):
     return dict_tt
 
 
+def get_meta(main, friend, item, media_type):
+    meta = main.get(item)
+    if not meta:
+        meta = friend.get(item)
+
+    if media_type == 'movie':
+        meta_dict = {'title': item,
+                     'rating': meta.rating,
+                     'bitrate': meta.bitrate,
+                     'genres': [x.tag for x in meta.genres]
+                    }
+    else:
+        meta_dict = {'title': item,
+                     'rating': meta.rating,
+                     'genres': [x.tag for x in meta.genres]
+                    }
+
+    return meta_dict
+
+
 def org_diff(main, friend, key):
     diff_dict = {}
-
-    shared = set(main + friend)
+    meta_lst = []
+    mtitles = main.keys()
+    ftitles = friend.keys()
+    shared = set(mtitles + ftitles)
     print('... combining {}s'.format(key))
 
-    mine = list(set(main) - set(friend))
-    missing = list(set(friend) - set(main))
-    combined = list(set(friend + main))
-    diff_dict['{}_combined'.format(key)] = {'list': combined,
+    mine = list(set(mtitles) - set(ftitles))
+    missing = list(set(ftitles) - set(mtitles))
+    combined = list(set(ftitles + mtitles))
+
+    for item in combined:
+        meta_lst.append(get_meta(main, friend, item, key))
+
+    diff_dict['{}_combined'.format(key)] = {'list': meta_lst,
                                             'total': len(combined)}
 
     print('... comparing {}s'.format(key))
@@ -99,8 +125,8 @@ def org_diff(main, friend, key):
 def diff_things(main_dict, friend_dict):
     diff_dict = {}
     for key in main_dict.keys():
-        main_titles = [x.title for x in main_dict[key]]
-        friend_titles = [x.title for x in friend_dict[key]]
+        main_titles = {x.title: x for x in main_dict[key]}
+        friend_titles = {x.title: x for x in friend_dict[key]}
         diff_dict[key] = org_diff(main_titles, friend_titles, key)
         # todo-me guid double check?
 
