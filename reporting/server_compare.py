@@ -57,11 +57,10 @@ shared_lst = []
 server_lst = []
 
 def find_things(server, media_type):
-    dict_tt = {}
+    dict_tt = {name: [] for name in media_type}
     print('Finding items from {}.'.format(server.friendlyName))
     for section in server.library.sections():
         if section.title not in IGNORE_LST and section.type in media_type:
-            dict_tt[section.type] = []
             for item in server.library.section(section.title).all():
                 dict_tt[section.type].append(server.fetchItem(item.ratingKey))
 
@@ -90,33 +89,46 @@ def get_meta(main, friend, item, media_type):
 
 def org_diff(main, friend, key):
     diff_dict = {}
-    meta_lst = []
+
     mtitles = main.keys()
     ftitles = friend.keys()
-    shared = set(mtitles + ftitles)
+
     print('... combining {}s'.format(key))
-
-    mine = list(set(mtitles) - set(ftitles))
-    missing = list(set(ftitles) - set(mtitles))
-    combined = list(set(ftitles + mtitles))
-
-    for item in combined:
+    comb_set = set(mtitles + ftitles)
+    comb_lst = list(comb_set)
+    meta_lst = []
+    for item in comb_lst:
         meta_lst.append(get_meta(main, friend, item, key))
-
     diff_dict['{}_combined'.format(key)] = {'list': meta_lst,
-                                            'total': len(combined)}
+                                            'total': len(comb_lst)}
 
     print('... comparing {}s'.format(key))
+
     print('... finding what is mine')
-    diff_dict['{}_mine'.format(key)] = {'list': mine,
+    mine = list(set(mtitles) - set(ftitles))
+    meta_lst = []
+    for item in mine:
+        meta_lst.append(get_meta(main, friend, item, key))
+    diff_dict['{}_mine'.format(key)] = {'list': meta_lst,
                                         'total': len(mine)}
+
     print('... finding what is missing')
-    diff_dict['{}_missing'.format(key)] = {'list': missing,
+    missing = list(set(ftitles) - set(mtitles))
+    meta_lst = []
+    for item in missing:
+        meta_lst.append(get_meta(main, friend, item, key))
+    diff_dict['{}_missing'.format(key)] = {'list': meta_lst,
                                            'total': len(missing)}
+
     print('... finding what is shared')
-    ddiff = set(mine + missing)
-    shared_lst = list(shared.union(ddiff) - shared.intersection(ddiff))
-    diff_dict['{}_shared'.format(key)] = {'list': shared_lst,
+    main_set = set(mtitles)
+    friend_set = set(ftitles)
+    shared_lst = list(main_set.intersection(friend_set))
+    meta_lst = []
+    for item in shared_lst:
+        print(item)
+        meta_lst.append(get_meta(main, friend, item, key))
+    diff_dict['{}_shared'.format(key)] = {'list': meta_lst,
                                           'total': len(shared_lst)}
 
     return diff_dict
@@ -129,8 +141,6 @@ def diff_things(main_dict, friend_dict):
         friend_titles = {x.title: x for x in friend_dict[key]}
         diff_dict[key] = org_diff(main_titles, friend_titles, key)
         # todo-me guid double check?
-
-    # todo-me check back to obj in main/friend for rating and bitrate weights
 
     return diff_dict
 
