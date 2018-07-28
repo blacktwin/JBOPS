@@ -99,6 +99,8 @@ def org_diff(main, friend, key):
     meta_lst = []
     for item in comb_lst:
         meta_lst.append(get_meta(main, friend, item, key))
+    meta_lst = sorted(meta_lst, key=lambda d: d['rating'],
+                      reverse=True)
     diff_dict['{}_combined'.format(key)] = {'list': meta_lst,
                                             'total': len(comb_lst)}
 
@@ -109,6 +111,8 @@ def org_diff(main, friend, key):
     meta_lst = []
     for item in mine:
         meta_lst.append(get_meta(main, friend, item, key))
+    meta_lst = sorted(meta_lst, key=lambda d: d['rating'],
+                      reverse=True)
     diff_dict['{}_mine'.format(key)] = {'list': meta_lst,
                                         'total': len(mine)}
 
@@ -117,6 +121,8 @@ def org_diff(main, friend, key):
     meta_lst = []
     for item in missing:
         meta_lst.append(get_meta(main, friend, item, key))
+    meta_lst = sorted(meta_lst, key=lambda d: d['rating'],
+                      reverse=True)
     diff_dict['{}_missing'.format(key)] = {'list': meta_lst,
                                            'total': len(missing)}
 
@@ -126,8 +132,9 @@ def org_diff(main, friend, key):
     shared_lst = list(main_set.intersection(friend_set))
     meta_lst = []
     for item in shared_lst:
-        print(item)
         meta_lst.append(get_meta(main, friend, item, key))
+    meta_lst = sorted(meta_lst, key=lambda d: d['rating'],
+                      reverse=True)
     diff_dict['{}_shared'.format(key)] = {'list': meta_lst,
                                           'total': len(shared_lst)}
 
