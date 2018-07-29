@@ -56,6 +56,7 @@ SERVER_DICT = {server.name: server for server in
 shared_lst = []
 server_lst = []
 
+
 def find_things(server, media_type):
     dict_tt = {name: [] for name in media_type}
     print('Finding items from {}.'.format(server.friendlyName))
@@ -68,6 +69,7 @@ def find_things(server, media_type):
 
 
 def get_meta(main, friend, item, media_type):
+
     meta = main.get(item)
     if not meta:
         meta = friend.get(item)
@@ -75,7 +77,7 @@ def get_meta(main, friend, item, media_type):
     if media_type == 'movie':
         meta_dict = {'title': item,
                      'rating': meta.rating,
-                     'bitrate': meta.bitrate,
+                     'bitrate': meta.media[0].bitrate,
                      'genres': [x.tag for x in meta.genres]
                     }
     else:
@@ -83,6 +85,11 @@ def get_meta(main, friend, item, media_type):
                      'rating': meta.rating,
                      'genres': [x.tag for x in meta.genres]
                     }
+    if meta.guid:
+        agent = meta.guid
+        source_name = agent.split('://')[0].split('.')[-1]
+        source_id = agent.split('://')[1].split('?')[0]
+        meta_dict[source_name] = source_id
 
     return meta_dict
 
@@ -161,7 +168,7 @@ if __name__ == "__main__":
                         action='append', nargs='?', metavar='',
                         help='Choose servers to connect to and compare.\n'
                              'Choices: (%(choices)s)')
-    parser.add_argument('--media_type', required=True, choices=['movie', 'show', 'artist'],
+    parser.add_argument('--media_type', choices=['movie', 'show', 'artist'],
                         nargs='+', metavar='', default=['movie', 'show'],
                         help='Choose media type(s) to compare.'
                              '\nDefault: (%(default)s)'
