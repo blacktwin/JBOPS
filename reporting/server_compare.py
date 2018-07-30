@@ -68,23 +68,16 @@ def find_things(server, media_type):
     return dict_tt
 
 
-def get_meta(main, friend, item, media_type):
+def get_meta(main, friend, item):
 
     meta = main.get(item)
     if not meta:
         meta = friend.get(item)
 
-    if media_type == 'movie':
-        meta_dict = {'title': item,
-                     'rating': meta.rating,
-                     'bitrate': meta.media[0].bitrate,
-                     'genres': [x.tag for x in meta.genres]
-                    }
-    else:
-        meta_dict = {'title': item,
-                     'rating': meta.rating,
-                     'genres': [x.tag for x in meta.genres]
-                    }
+    meta_dict = {'title': item,
+                 'rating': meta.rating,
+                 'genres': [x.tag for x in meta.genres]
+                }
     if meta.guid:
         agent = meta.guid
         source_name = agent.split('://')[0].split('.')[-1]
@@ -105,7 +98,7 @@ def org_diff(main, friend, key):
     comb_lst = list(comb_set)
     meta_lst = []
     for item in comb_lst:
-        meta_lst.append(get_meta(main, friend, item, key))
+        meta_lst.append(get_meta(main, friend, item))
     meta_lst = sorted(meta_lst, key=lambda d: d['rating'],
                       reverse=True)
     diff_dict['{}_combined'.format(key)] = {'list': meta_lst,
@@ -117,7 +110,7 @@ def org_diff(main, friend, key):
     mine = list(set(mtitles) - set(ftitles))
     meta_lst = []
     for item in mine:
-        meta_lst.append(get_meta(main, friend, item, key))
+        meta_lst.append(get_meta(main, friend, item))
     meta_lst = sorted(meta_lst, key=lambda d: d['rating'],
                       reverse=True)
     diff_dict['{}_mine'.format(key)] = {'list': meta_lst,
@@ -127,7 +120,7 @@ def org_diff(main, friend, key):
     missing = list(set(ftitles) - set(mtitles))
     meta_lst = []
     for item in missing:
-        meta_lst.append(get_meta(main, friend, item, key))
+        meta_lst.append(get_meta(main, friend, item))
     meta_lst = sorted(meta_lst, key=lambda d: d['rating'],
                       reverse=True)
     diff_dict['{}_missing'.format(key)] = {'list': meta_lst,
@@ -139,7 +132,7 @@ def org_diff(main, friend, key):
     shared_lst = list(main_set.intersection(friend_set))
     meta_lst = []
     for item in shared_lst:
-        meta_lst.append(get_meta(main, friend, item, key))
+        meta_lst.append(get_meta(main, friend, item))
     meta_lst = sorted(meta_lst, key=lambda d: d['rating'],
                       reverse=True)
     diff_dict['{}_shared'.format(key)] = {'list': meta_lst,
