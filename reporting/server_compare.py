@@ -68,15 +68,12 @@ def find_things(server, media_type):
     return dict_tt
 
 
-def get_meta(main, friend, item):
+def get_meta(meta):
 
-    meta = main.get(item)
-    if not meta:
-        meta = friend.get(item)
-
-    meta_dict = {'title': item,
+    meta_dict = {'title': meta.title,
                  'rating': meta.rating,
-                 'genres': [x.tag for x in meta.genres]
+                 'genres': [x.tag for x in meta.genres],
+                 'server': [meta._server.friendlyName]
                 }
     if meta.guid:
         agent = meta.guid
@@ -87,67 +84,56 @@ def get_meta(main, friend, item):
     return meta_dict
 
 
-def org_diff(main, friend, key):
+def org_diff(lst_dicts, media_type, main_server):
+
     diff_dict = {}
+    for mtype in media_type:
+        meta_lst = []
+        print('...combining {}s'.format(mtype))
+        for servers in lst_dicts:
+            for item in servers[mtype]:
+                meta_lst.append(get_meta(item))
+            meta_lst = sorted(meta_lst, key=lambda d: d['rating'],
+                              reverse=True)
 
-    mtitles = main.keys()
-    ftitles = friend.keys()
+        combined = meta_lst
+        seen = {}
+        dupes = []
+        idx = []
+        for x in combined:
+            if x['title'] not in seen:
+                seen[x['title']] = 1
+            else:
+                dupes += x['server']
+                seen[x['title']] += 1
+                idx.append(combined.index(x))
 
-    print('... combining {}s'.format(key))
-    comb_set = set(mtitles + ftitles)
-    comb_lst = list(comb_set)
-    meta_lst = []
-    for item in comb_lst:
-        meta_lst.append(get_meta(main, friend, item))
-    meta_lst = sorted(meta_lst, key=lambda d: d['rating'],
-                      reverse=True)
-    diff_dict['{}_combined'.format(key)] = {'list': meta_lst,
-                                            'total': len(comb_lst)}
+        titles = []
+        for title, v in seen.items():
+            if v > 1:
+                titles.append(title)
 
-    print('... comparing {}s'.format(key))
+        for x in combined:
+            if x['title'] in titles:
+                for z in dupes:
+                    if z not in x['server']:
+                        x['server'].append(z)
 
-    print('... finding what is mine')
-    mine = list(set(mtitles) - set(ftitles))
-    meta_lst = []
-    for item in mine:
-        meta_lst.append(get_meta(main, friend, item))
-    meta_lst = sorted(meta_lst, key=lambda d: d['rating'],
-                      reverse=True)
-    diff_dict['{}_mine'.format(key)] = {'list': meta_lst,
-                                        'total': len(mine)}
+        for x in sorted(idx, reverse=True):
+            combined.pop(x)
 
-    print('... finding what is missing')
-    missing = list(set(ftitles) - set(mtitles))
-    meta_lst = []
-    for item in missing:
-        meta_lst.append(get_meta(main, friend, item))
-    meta_lst = sorted(meta_lst, key=lambda d: d['rating'],
-                      reverse=True)
-    diff_dict['{}_missing'.format(key)] = {'list': meta_lst,
-                                           'total': len(missing)}
+        missing = []
+        print('...finding {}s missing from {}'.format(
+            mtype, main_server))
+        for x in combined:
+            if main_server not in x['server']:
+                missing.append(x)
 
-    print('... finding what is shared')
-    main_set = set(mtitles)
-    friend_set = set(ftitles)
-    shared_lst = list(main_set.intersection(friend_set))
-    meta_lst = []
-    for item in shared_lst:
-        meta_lst.append(get_meta(main, friend, item))
-    meta_lst = sorted(meta_lst, key=lambda d: d['rating'],
-                      reverse=True)
-    diff_dict['{}_shared'.format(key)] = {'list': meta_lst,
-                                          'total': len(shared_lst)}
+        diff_dict[mtype] = {'missing': {'count': len(missing),
+                                                 'list': missing}}
 
-    return diff_dict
-
-
-def diff_things(main_dict, friend_dict):
-    diff_dict = {}
-    for key in main_dict.keys():
-        main_titles = {x.title: x for x in main_dict[key]}
-        friend_titles = {x.title: x for x in friend_dict[key]}
-        diff_dict[key] = org_diff(main_titles, friend_titles, key)
-        # todo-me guid double check?
+        diff_dict[mtype].update({'combined': {'count': len(combined),
+                                         'list': combined}})
 
     return diff_dict
 
@@ -169,6 +155,7 @@ if __name__ == "__main__":
     # todo-me add media_type [x], library_ignore[], media filters (genre, etc.) []
 
     opts = parser.parse_args()
+    combined_lst = []
 
     if len(opts.server) < 2:
         sys.stderr.write("Need more than one server to compare.\n")
@@ -193,15 +180,19 @@ if __name__ == "__main__":
         sys.stderr.write("Need more than one server to compare.\n")
         sys.exit(1)
 
-    main_section_dict = find_things(main_server, opts.media_type)
+    combined_lst.append(find_things(main_server, opts.media_type))
+
+    servers = [server.friendlyName for server in server_lst]
 
     for connection in server_lst:
-        their_section_dict = find_things(connection, opts.media_type)
-        print('Comparing findings from {} and {}'.format(
-            main_server.friendlyName, connection.friendlyName))
-        main_dict = diff_things(main_section_dict, their_section_dict)
-        filename = 'diff_{}_{}_servers.json'.format(opts.server[0],
-                                                    connection.friendlyName)
+        combined_lst.append(find_things(connection, opts.media_type))
 
-        with open(filename, 'w') as fp:
-            json.dump(main_dict, fp, indent=4, sort_keys=True)
+    print('Combining findings from {} and {}'.format(
+        main_server.friendlyName, ' and '.join(servers)))
+
+    main_dict = org_diff(combined_lst, opts.media_type, main_server.friendlyName)
+
+    filename = 'diff_{}_{}_servers.json'.format(opts.server[0],'_'.join(servers))
+
+    with open(filename, 'w') as fp:
+        json.dump(main_dict, fp, indent=4, sort_keys=True)
