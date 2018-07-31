@@ -123,17 +123,23 @@ def org_diff(lst_dicts, media_type, main_server):
             combined.pop(x)
 
         missing = []
+        unique = []
         print('...finding {}s missing from {}'.format(
             mtype, main_server))
         for x in combined:
             if main_server not in x['server']:
                 missing.append(x)
+            elif main_server in x['server'] and len(x['server']) == 1:
+                unique.append(x)
 
         diff_dict[mtype] = {'missing': {'count': len(missing),
-                                                 'list': missing}}
-
+                                        'list': missing}}
         diff_dict[mtype].update({'combined': {'count': len(combined),
                                          'list': combined}})
+        print('...finding {}s unique to {}'.format(
+            mtype, main_server))
+        diff_dict[mtype].update({'unique': {'count': len(unique),
+                                         'list': unique}})
 
     return diff_dict
 
