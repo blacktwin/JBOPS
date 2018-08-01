@@ -87,55 +87,42 @@ def get_meta(meta):
 def org_diff(lst_dicts, media_type, main_server):
 
     diff_dict = {}
+    seen = {}
+    dupes = []
+    missing = []
+    unique = []
+
     for mtype in media_type:
         meta_lst = []
         print('...combining {}s'.format(mtype))
-        for servers in lst_dicts:
-            for item in servers[mtype]:
-                meta_lst.append(get_meta(item))
-            meta_lst = sorted(meta_lst, key=lambda d: d['rating'],
-                              reverse=True)
+        for server_lst in lst_dicts:
+            for item in server_lst[mtype]:
+                if item.title not in seen:
+                    seen[item.title] = 1
+                    meta_lst.append(get_meta(item))
+                else:
+                    if seen[item.title] == 1:
+                        dupes.append(item.title)
+                        for meta in meta_lst:
+                            if meta['title'] == item.title:
+                                meta['server'].append(item._server.friendlyName)
+                    seen[item.title] += 1
 
-        combined = meta_lst
-        seen = {}
-        dupes = []
-        idx = []
-        for x in combined:
-            if x['title'] not in seen:
-                seen[x['title']] = 1
-            else:
-                dupes += x['server']
-                seen[x['title']] += 1
-                idx.append(combined.index(x))
+        meta_lst = sorted(meta_lst, key=lambda d: d['rating'],
+                          reverse=True)
+        diff_dict[mtype] = {'combined': {'count': len(meta_lst),
+                                              'list': meta_lst}}
 
-        titles = []
-        for title, v in seen.items():
-            if v > 1:
-                titles.append(title)
-
-        for x in combined:
-            if x['title'] in titles:
-                for z in dupes:
-                    if z not in x['server']:
-                        x['server'].append(z)
-
-        for x in sorted(idx, reverse=True):
-            combined.pop(x)
-
-        missing = []
-        unique = []
         print('...finding {}s missing from {}'.format(
             mtype, main_server))
-        for x in combined:
-            if main_server not in x['server']:
-                missing.append(x)
-            elif main_server in x['server'] and len(x['server']) == 1:
-                unique.append(x)
+        for item in meta_lst:
+            if main_server not in item['server']:
+                missing.append(item)
+            elif main_server in item['server'] and len(item['server']) == 1:
+                unique.append(item)
+        diff_dict[mtype].update({'missing': {'count': len(missing),
+                                        'list': missing}})
 
-        diff_dict[mtype] = {'missing': {'count': len(missing),
-                                        'list': missing}}
-        diff_dict[mtype].update({'combined': {'count': len(combined),
-                                         'list': combined}})
         print('...finding {}s unique to {}'.format(
             mtype, main_server))
         diff_dict[mtype].update({'unique': {'count': len(unique),
