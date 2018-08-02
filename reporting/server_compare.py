@@ -81,6 +81,8 @@ def get_meta(meta):
         source_id = agent.split('://')[1].split('?')[0]
         meta_dict[source_name] = source_id
 
+    if meta.type == 'movie':
+        meta_dict['title'] = u'{} ({})'.format(meta.title, meta.year)
     return meta_dict
 
 
@@ -97,16 +99,20 @@ def org_diff(lst_dicts, media_type, main_server):
         print('...combining {}s'.format(mtype))
         for server_lst in lst_dicts:
             for item in server_lst[mtype]:
-                if item.title not in seen:
-                    seen[item.title] = 1
+                if mtype == 'movie':
+                    title = u'{} ({})'.format(item.title, item.year)
+                else:
+                    title = item.title
+                if title not in seen:
+                    seen[title] = 1
                     meta_lst.append(get_meta(item))
                 else:
-                    if seen[item.title] == 1:
-                        dupes.append(item.title)
+                    if seen[title] >= 1:
+                        dupes.append([title,item._server.friendlyName])
                         for meta in meta_lst:
-                            if meta['title'] == item.title:
+                            if meta['title'] == title:
                                 meta['server'].append(item._server.friendlyName)
-                    seen[item.title] += 1
+                    seen[title] += 1
 
         meta_lst = sorted(meta_lst, key=lambda d: d['rating'],
                           reverse=True)
