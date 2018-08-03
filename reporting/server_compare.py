@@ -2,11 +2,11 @@
 """
 Description: Comparing content between two or more Plex servers.
               Creates .json file in script directory of server compared.
-              .json file contents include list items by media types (movie, show)
-              type combined between server 1 and server 2
-              type missing (_mine) from s2 but found in s1
-              type missing (_missing) from s1 but found in s2
-              type shared (_shared) between s1 and s2
+              .json file contents include:
+                  items by media types (movie, show)
+                      items found in server 1, server 2, etc
+                      items unique to server 1
+                      items missing from server 1
 Author: Blacktwin
 Requires: requests, plexapi
 
@@ -58,6 +58,22 @@ server_lst = []
 
 
 def find_things(server, media_type):
+    """Get all items based on media type
+
+    Parameters
+    ----------
+    server: Object
+        plexServerObject
+    media_type: list
+        ['movie', 'show', ..]
+
+    Returns
+    -------
+    dictionary
+        {media_type:[plexObject, ..]}
+
+    """
+
     dict_tt = {name: [] for name in media_type}
     print('Finding items from {}.'.format(server.friendlyName))
     for section in server.library.sections():
@@ -69,6 +85,22 @@ def find_things(server, media_type):
 
 
 def get_meta(meta):
+    """Get metadata from Plex item.
+    Parameters
+    ----------
+    meta: Object
+        plexObject
+    Returns
+    -------
+    dictionary
+        {
+        "genres": [],
+        "imdb": "tt5158522",
+        "rating": float,
+        "server": ["Plex Server Name"],
+        "title": "Title"
+        }
+    """
 
     meta_dict = {'title': meta.title,
                  'rating': meta.rating,
@@ -76,18 +108,50 @@ def get_meta(meta):
                  'server': [meta._server.friendlyName]
                 }
     if meta.guid:
+        # guid will return (com.plexapp.agents.imdb://tt4302938?lang=en)
+        # Agents will differ between servers.
         agent = meta.guid
         source_name = agent.split('://')[0].split('.')[-1]
         source_id = agent.split('://')[1].split('?')[0]
         meta_dict[source_name] = source_id
 
     if meta.type == 'movie':
+        # For movies with same titles
         meta_dict['title'] = u'{} ({})'.format(meta.title, meta.year)
     return meta_dict
 
 
-def org_diff(lst_dicts, media_type, main_server):
+def org_diff(media_type, lst_dicts, main_server):
+    """Organizing the items from each server
 
+    Parameters
+    ----------
+    media_type: list
+        ['movie', 'show',..]
+    lst_dicts: list
+        [{media_type:[plexObject, ..]}, {media_type: [..]}]
+    main_server: str
+        'Plex Server Name'
+
+    Returns
+    -------
+    nested dictionary
+        media_type: {combined :{
+                                list: [
+                                {
+                                    "genres": [],
+                                    "imdb": "tt2313197",
+                                    "rating": float,
+                                    "server": ["Plex Server Name"],
+                                    "title": ""
+                                    },
+                                ],
+                                count: int
+                                },
+                    missing: {..}
+                    unique: {..}
+                    }
+    """
     diff_dict = {}
     seen = {}
     dupes = []
@@ -103,17 +167,22 @@ def org_diff(lst_dicts, media_type, main_server):
                     title = u'{} ({})'.format(item.title, item.year)
                 else:
                     title = item.title
+                # Look for duplicate titles
                 if title not in seen:
                     seen[title] = 1
                     meta_lst.append(get_meta(item))
                 else:
+                    # Duplicate found
                     if seen[title] >= 1:
                         dupes.append([title,item._server.friendlyName])
+                        # Go back through list to find original
                         for meta in meta_lst:
                             if meta['title'] == title:
+                                # Append the duplicate server's name
                                 meta['server'].append(item._server.friendlyName)
                     seen[title] += 1
-
+        # Sort item list by Plex rating
+        # Duplicates will use originals rating
         meta_lst = sorted(meta_lst, key=lambda d: d['rating'],
                           reverse=True)
         diff_dict[mtype] = {'combined': {'count': len(meta_lst),
@@ -122,8 +191,10 @@ def org_diff(lst_dicts, media_type, main_server):
         print('...finding {}s missing from {}'.format(
             mtype, main_server))
         for item in meta_lst:
+            # Main Server name is alone in items server list
             if main_server not in item['server']:
                 missing.append(item)
+            # Main Server name is absent in items server list
             elif main_server in item['server'] and len(item['server']) == 1:
                 unique.append(item)
         diff_dict[mtype].update({'missing': {'count': len(missing),
@@ -161,11 +232,13 @@ if __name__ == "__main__":
         sys.exit(1)
 
     server_compare = SERVER_DICT[opts.server[0]]
+    # First server in args is main server.
     main_server = server_compare.connect()
     print('Connected to {} server.'.format(main_server.friendlyName))
 
     for server in opts.server[1:]:
         other_server = SERVER_DICT[server]
+        # Attempt to connect to other servers
         try:
             server_connected = other_server.connect()
             print('Connected to {} server.'.format(
