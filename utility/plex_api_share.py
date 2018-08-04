@@ -5,7 +5,7 @@ Share or unshare libraries.
 optional arguments:
   -h, --help            show this help message and exit
   --share               To share libraries.
-  --shared              Display user's shared libraries.
+  --shared              Display user's share settings.
   --unshare             To unshare all libraries.
   --kill                Kill user's current stream(s). Include message to override default message
   --add                 Add additional libraries.
@@ -26,6 +26,10 @@ optional arguments:
   --tvRatings           Add rating restrictions to show library types
   --tvLabels            Add label restrictions to show library types
   --musicLabels         Add label restrictions to music library types
+  --backup              Backup share settings from json file
+  --restore             Restore share settings from json file
+                        Filename of json file to use.
+                        (choices: %(json files found in cwd)s)
 
 Usage:
 
@@ -73,6 +77,7 @@ from plexapi.server import PlexServer, CONFIG
 from time import sleep
 import argparse
 import requests
+import os
 import json
 
 PLEX_URL = ''
@@ -110,25 +115,47 @@ def get_ratings_lst(section_id):
     content = requests.get("{}/library/sections/{}/contentRating".format(PLEX_URL, section_id),
                            headers=headers, params=params)
 
-    # print(json.dumps(content.json(), indent=4, sort_keys=True))
     ratings_keys = content.json()['MediaContainer']['Directory']
     ratings_lst = [x['title'] for x in ratings_keys]
     return ratings_lst
 
 
+def filter_clean(filter_type):
+    clean = ''
+    try:
+        clean = dict(item.split("=") for item in filter_type.split("|"))
+        for k, v in clean.items():
+            labels = v.replace('%20', ' ')
+            labels = labels.split('%2C')
+            clean[k] = labels
+    except Exception as e:
+        pass
+    return clean
+
+
 def find_shares(user):
-    shared_lst = []
+    user_shares_lst = []
     account = plex.myPlexAccount()
     user_acct = account.user(user)
     try:
-        shared_sections = user_acct.servers[0]
-        for section in shared_sections.sections():
+        user_shares_sections = user_acct.servers[0]
+        for section in user_shares_sections.sections():
             if section.shared == True:
-                shared_lst.append(section.title)
+                user_shares_lst.append(section.title)
     except IndexError:
         print('{} has no servers listed.'.format(user))
 
-    return shared_lst
+    user_shares = {'user': user_acct.title,
+                   'sections': user_shares_lst,
+                   'allowSync': user_acct.allowSync,
+                   'camera': user_acct.allowCameraUpload,
+                   'channels': user_acct.allowChannels,
+                   'filterMovies': filter_clean(user_acct.filterMovies),
+                   'filterTelevision': filter_clean(user_acct.filterTelevision),
+                   'filterMusic': filter_clean(user_acct.filterMusic)
+                   }
+
+    return user_shares
 
 
 def kill_session(user, message):
@@ -153,7 +180,7 @@ def share(user, sections, allowSync, camera, channels, filterMovies, filterTelev
 
 def unshare(user, sections):
     plex.myPlexAccount().updateFriend(user=user, server=plex, removeSections=True, sections=sections)
-    print('Unshared all libraries from {user}.'.format(user=user))
+    print('Unuser_shares all libraries from {user}.'.format(user=user))
 
 
 if __name__ == "__main__":
@@ -164,6 +191,9 @@ if __name__ == "__main__":
         movie_ratings += get_ratings_lst(movie)
     for show in show_keys:
         show_ratings += get_ratings_lst(show)
+
+    json_check = sorted([f for f in os.listdir('.') if os.path.isfile(f) and f.endswith(".json")],
+                        key=os.path.getmtime)
 
     parser = argparse.ArgumentParser(description="Share or unshare libraries.",
                                      formatter_class=argparse.RawTextHelpFormatter)
@@ -210,6 +240,13 @@ if __name__ == "__main__":
     parser.add_argument('--musicLabels', nargs='+', metavar='',
                         help='Use to add label restrictions for music library types.')
 
+    parser.add_argument('--backup', default=False, action='store_true',
+                        help='Backup share settings from json file.')
+    parser.add_argument('--restore', type = str, choices = json_check,
+                        help='Restore share settings from json file.\n'
+                             'Filename of json file to use.\n'
+                             '(choices: %(choices)s)')
+
     opts = parser.parse_args()
     users = ''
     libraries = ''
@@ -253,22 +290,23 @@ if __name__ == "__main__":
 
     # Share, Unshare, Kill, Add, or Remove
     for user in users:
-        shared = find_shares(user)
+        user_shares = find_shares(user)
         if libraries:
             if opts.share:
                 share(user, libraries, opts.sync, opts.camera, opts.channels, filterMovies, filterTelevision,
                       filterMusic)
-            if opts.add and shared:
-                libraries = libraries + shared
+            if opts.add and user_shares['sections']:
+                libraries = libraries + user_shares['sections']
                 libraries = list(set(libraries))
                 share(user, libraries, opts.sync, opts.camera, opts.channels, filterMovies, filterTelevision,
                       filterMusic)
-            if opts.remove and shared:
-                libraries = [sect for sect in shared if sect not in libraries]
+            if opts.remove and user_shares['sections']:
+                libraries = [sect for sect in user_shares['sections'] if sect not in libraries]
                 share(user, libraries, opts.sync, opts.camera, opts.channels, filterMovies, filterTelevision,
                       filterMusic)
         if opts.shared:
-            print('Current shares for {}: {}'.format(user, shared))
+            user_json = json.dumps(user_shares, indent=4, sort_keys=True)
+            print('Current share settings for {}: {}'.format(user, user_json))
         if opts.unshare and opts.kill:
             kill_session(user, opts.kill)
             sleep(3)
