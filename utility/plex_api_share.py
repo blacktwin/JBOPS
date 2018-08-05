@@ -164,7 +164,8 @@ def find_shares(user):
                 if section.shared == True:
                     sections.append(section.title)
             user_backup['servers'].append({'serverName': server.name,
-                                           'sections': sections})
+                                           'sections': sections,
+                                           'sectionCount': len(sections)})
 
     return user_backup
 
@@ -187,6 +188,8 @@ def share(user, sections, allowSync, camera, channels, filterMovies, filterTelev
                                       allowCameraUpload=camera, allowChannels=channels, filterMovies=filterMovies,
                                       filterTelevision=filterTelevision, filterMusic=filterMusic)
     print('Shared libraries: {sections} with {user}.'.format(sections=sections, user=user))
+    print('Settings: Sync: {}, Camer Upload: {}, Channels: {}, Movie Filters: {}, TV Filters: {}, Music Filter: {}'.
+          format(allowSync, camera, channels, filterMovies, filterTelevision, filterMusic))
 
 
 def unshare(user, sections):
@@ -335,3 +338,22 @@ if __name__ == "__main__":
         json_file = 'Plex_share_backup_{}.json'.format(timestr)
         with open(json_file, 'w') as fp:
             json.dump(users_shares, fp, indent=4, sort_keys=True)
+
+    if opts.restore:
+        print('Using existing .json to restore Plex shares.')
+        with open(''.join(opts.restore)) as json_data:
+            shares_file = json.load(json_data)
+        for user in shares_file:
+            for server in user['servers']:
+                # If user arg is defined then abide, else restore all
+                if users:
+                    if user['title'] in users:
+                        print('Restoring user {}\'s shares and settings...'.format(user['title']))
+                        share(user['title'], server['sections'], user['allowSync'], user['camera'],
+                              user['channels'], user['filterMovies'], user['filterTelevision'],
+                              user['filterMusic'])
+                else:
+                    print('Restoring user {}\'s shares and settings...'.format(user['title']))
+                    share(user['title'], server['sections'], user['allowSync'], user['camera'],
+                          user['channels'], user['filterMovies'], user['filterTelevision'],
+                          user['filterMusic'])
