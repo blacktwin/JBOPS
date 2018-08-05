@@ -74,7 +74,7 @@ Usage:
 '''
 
 from plexapi.server import PlexServer, CONFIG
-from time import sleep
+import time
 import argparse
 import requests
 import os
@@ -87,6 +87,8 @@ PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
 
 DEFAULT_MESSAGE = "Steam is being killed by admin."
 
+json_check = sorted([f for f in os.listdir('.') if os.path.isfile(f) and
+                     f.endswith(".json")], key=os.path.getmtime)
 
 sess = requests.Session()
 # Ignore verifying the SSL certificate
@@ -102,11 +104,16 @@ if sess.verify is False:
 
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
-
 user_lst = [x.title for x in plex.myPlexAccount().users()]
 sections_lst = [x.title for x in plex.library.sections()]
 movies_keys = [x.key for x in plex.library.sections() if x.type == 'movie']
 show_keys = [x.key for x in plex.library.sections() if x.type == 'show']
+
+my_server_names = []
+# Find all owners server names. For owners with multiple servers.
+for res in plex.myPlexAccount().resources():
+    if res.provides == 'server' and res.owned == True:
+        my_server_names.append(res.name)
 
 
 def get_ratings_lst(section_id):
@@ -134,28 +141,29 @@ def filter_clean(filter_type):
 
 
 def find_shares(user):
-    user_shares_lst = []
     account = plex.myPlexAccount()
     user_acct = account.user(user)
-    try:
-        user_shares_sections = user_acct.servers[0]
-        for section in user_shares_sections.sections():
-            if section.shared == True:
-                user_shares_lst.append(section.title)
-    except IndexError:
-        print('{} has no servers listed.'.format(user))
 
-    user_shares = {'user': user_acct.title,
-                   'sections': user_shares_lst,
-                   'allowSync': user_acct.allowSync,
-                   'camera': user_acct.allowCameraUpload,
-                   'channels': user_acct.allowChannels,
-                   'filterMovies': filter_clean(user_acct.filterMovies),
-                   'filterTelevision': filter_clean(user_acct.filterTelevision),
-                   'filterMusic': filter_clean(user_acct.filterMusic)
-                   }
+    user_backup = {
+        'user': user_acct.title,
+        'allowSync': user_acct.allowSync,
+        'camera': user_acct.allowCameraUpload,
+        'channels': user_acct.allowChannels,
+        'filterMovies': filter_clean(user_acct.filterMovies),
+        'filterTelevision': filter_clean(user_acct.filterTelevision),
+        'filterMusic': filter_clean(user_acct.filterMusic),
+        'servers': []}
 
-    return user_shares
+    for server in user_acct.servers:
+        if server.name in my_server_names:
+            sections = []
+            for section in server.sections():
+                if section.shared == True:
+                    sections.append(section.title)
+            user_backup['servers'].append({'serverName': server.name,
+                                           'sections': sections})
+
+    return user_backup
 
 
 def kill_session(user, message):
@@ -192,8 +200,7 @@ if __name__ == "__main__":
     for show in show_keys:
         show_ratings += get_ratings_lst(show)
 
-    json_check = sorted([f for f in os.listdir('.') if os.path.isfile(f) and f.endswith(".json")],
-                        key=os.path.getmtime)
+    timestr = time.strftime("%Y%m%d-%H%M%S")
 
     parser = argparse.ArgumentParser(description="Share or unshare libraries.",
                                      formatter_class=argparse.RawTextHelpFormatter)
@@ -309,9 +316,19 @@ if __name__ == "__main__":
             print('Current share settings for {}: {}'.format(user, user_json))
         if opts.unshare and opts.kill:
             kill_session(user, opts.kill)
-            sleep(3)
+            time.sleep(3)
             unshare(user, sections_lst)
         elif opts.unshare:
             unshare(user, sections_lst)
         elif opts.kill:
             kill_session(user, opts.kill)
+
+    if opts.backup:
+        print('Backing up share information...')
+        users_shares = []
+        for user in user_lst:
+            # print('...Found {}'.format(user))
+            users_shares.append(find_shares(user))
+        json_file = 'Plex_share_backup_{}.json'.format(timestr)
+        with open(json_file, 'w') as fp:
+            json.dump(users_shares, fp, indent=4, sort_keys=True)
