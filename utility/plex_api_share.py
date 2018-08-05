@@ -145,7 +145,10 @@ def find_shares(user):
     user_acct = account.user(user)
 
     user_backup = {
-        'user': user_acct.title,
+        'title': user_acct.title,
+        'username': user_acct.username,
+        'email': user_acct.email,
+        'userID': user_acct.id,
         'allowSync': user_acct.allowSync,
         'camera': user_acct.allowCameraUpload,
         'channels': user_acct.allowChannels,
