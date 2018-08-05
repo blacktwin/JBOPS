@@ -60,6 +60,16 @@ Usage:
        - Unshared all libraries with USER.
        - USER is still exists as a Friend or Home User
 
+   plex_api_share.py --backup
+       - Backup all user shares to a json file
+
+   plex_api_share.py --restore
+       - Only restore all Plex user's shares and settings from backup json file
+
+   plex_api_share.py --restore --user USER
+       - Only restore USER's Plex shares and settings from backup json file
+
+
    Excluding;
 
    --user becomes excluded if --allUsers is set
