@@ -7,7 +7,6 @@ optional arguments:
   --share               To share libraries.
   --shared              Display user's share settings.
   --unshare             To unshare all libraries.
-  --kill                Kill user's current stream(s). Include message to override default message
   --add                 Add additional libraries.
   --remove              Remove existing libraries.
   --user  [ ...]        Space separated list of case sensitive names to process. Allowed names are:
@@ -18,6 +17,13 @@ optional arguments:
                         (choices: All library names)
                         (default: All Libraries)
   --allLibraries        Select all libraries.
+  --backup              Backup share settings from json file
+  --restore             Restore share settings from json file
+                        Filename of json file to use.
+                        (choices: %(json files found in cwd)s)
+
+  # Plex Pass member only settings:
+  --kill                Kill user's current stream(s). Include message to override default message
   --sync                Allow user to sync content
   --camera              Allow user to upload photos
   --channel             Allow user to utilize installed channels
@@ -26,10 +32,6 @@ optional arguments:
   --tvRatings           Add rating restrictions to show library types
   --tvLabels            Add label restrictions to show library types
   --musicLabels         Add label restrictions to music library types
-  --backup              Backup share settings from json file
-  --restore             Restore share settings from json file
-                        Filename of json file to use.
-                        (choices: %(json files found in cwd)s)
 
 Usage:
 
@@ -95,7 +97,7 @@ PLEX_TOKEN = ''
 PLEX_URL = CONFIG.data['auth'].get('server_baseurl', PLEX_URL)
 PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
 
-DEFAULT_MESSAGE = "Steam is being killed by admin."
+DEFAULT_MESSAGE = "Stream is being killed by admin."
 
 json_check = sorted([f for f in os.listdir('.') if os.path.isfile(f) and
                      f.endswith(".json")], key=os.path.getmtime)
