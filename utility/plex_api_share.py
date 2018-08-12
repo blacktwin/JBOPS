@@ -4,11 +4,11 @@ Share or unshare libraries.
 
 optional arguments:
   -h, --help            show this help message and exit
-  --share               To share libraries.
+  --share               To share libraries to user.
   --shared              Display user's share settings.
-  --unshare             To unshare all libraries.
-  --add                 Add additional libraries.
-  --remove              Remove existing libraries.
+  --unshare             To unshare all libraries from user.
+  --add                 Add additional libraries to user.
+  --remove              Remove shared libraries from user.
   --user  [ ...]        Space separated list of case sensitive names to process. Allowed names are:
                         (choices: All users names)
   --allUsers            Select all users.
@@ -239,7 +239,7 @@ if __name__ == "__main__":
                         help='Select all libraries.')
     parser.add_argument('--backup', default=False, action='store_true',
                         help='Backup share settings from json file.')
-    parser.add_argument('--restore', type = str, choices = json_check,
+    parser.add_argument('--restore', type=str, choices=json_check,
                         help='Restore share settings from json file.\n'
                              'Filename of json file to use.\n'
                              '(choices: %(choices)s)')
@@ -252,13 +252,13 @@ if __name__ == "__main__":
             movie_ratings += get_ratings_lst(movie)
         for show in show_keys:
             show_ratings += get_ratings_lst(show)
-        parser.add_argument('--kill', default=False, nargs='?',
+        parser.add_argument('--kill', default=None, nargs='?',
                             help='Kill user\'s current stream(s). Include message to override default message.')
-        parser.add_argument('--sync', default=False, action='store_true',
+        parser.add_argument('--sync', default=None, action='store_true',
                             help='Use to allow user to sync content.')
-        parser.add_argument('--camera', default=False, action='store_true',
+        parser.add_argument('--camera', default=None, action='store_true',
                             help='Use to allow user to upload photos.')
-        parser.add_argument('--channels', default=False, action='store_true',
+        parser.add_argument('--channels', default=None, action='store_true',
                             help='Use to allow user to utilize installed channels.')
         parser.add_argument('--movieRatings', nargs='+', choices=list(set(movie_ratings)), metavar='',
                             help='Use to add rating restrictions to movie library types.\n'
@@ -280,10 +280,10 @@ if __name__ == "__main__":
     libraries = ''
 
     # Plex Pass additional share options
-    kill = False
-    sync = False
-    camera = False
-    channels = False
+    kill = None
+    sync = None
+    camera = None
+    channels = None
     filterMovies = {}
     filterTelevision = {}
     filterMusic = {}
@@ -333,22 +333,33 @@ if __name__ == "__main__":
 
     # Share, Unshare, Kill, Add, or Remove
     for user in users:
-        user_shares = find_shares(user)
+        user_shares_dict = find_shares(user)
+        user_shares_lst = [server['sections'] for server in user_shares_dict['servers']
+                           if server['serverName'] == plex.friendlyName]
+        if user_shares_lst:
+            user_shares_lst = user_shares_lst[0]
+        #for server in opts.servers:
         if libraries:
             if opts.share:
                 share(user, libraries, sync, camera, channels, filterMovies, filterTelevision,
                       filterMusic)
-            if opts.add and user_shares['sections']:
-                libraries = libraries + user_shares['sections']
+            if opts.add and user_shares_lst:
+                libraries = libraries + user_shares_lst
                 libraries = list(set(libraries))
                 share(user, libraries, sync, camera, channels, filterMovies, filterTelevision,
                       filterMusic)
-            if opts.remove and user_shares['sections']:
-                libraries = [sect for sect in user_shares['sections'] if sect not in libraries]
+            if opts.remove and user_shares_lst:
+                libraries = [sect for sect in user_shares_lst if sect not in libraries]
                 share(user, libraries, sync, camera, channels, filterMovies, filterTelevision,
                       filterMusic)
+        else:
+            if opts.add:
+                libraries = user_shares_lst
+                share(user, libraries, sync, camera, channels, filterMovies, filterTelevision,
+                      filterMusic)
+
         if opts.shared:
-            user_json = json.dumps(user_shares, indent=4, sort_keys=True)
+            user_json = json.dumps(user_shares_dict, indent=4, sort_keys=True)
             print('Current share settings for {}: {}'.format(user, user_json))
         if opts.unshare and kill:
             kill_session(user, kill)
