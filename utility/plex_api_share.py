@@ -131,7 +131,7 @@ for res in plex.myPlexAccount().resources():
 def get_ratings_lst(section_id):
     headers = {'Accept': 'application/json'}
     params = {'X-Plex-Token': PLEX_TOKEN}
-    content = requests.get("{}/library/sections/{}/contentRating".format(PLEX_URL, section_id),
+    content = sess.get("{}/library/sections/{}/contentRating".format(PLEX_URL, section_id),
                            headers=headers, params=params)
 
     ratings_keys = content.json()['MediaContainer']['Directory']
