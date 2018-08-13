@@ -3,12 +3,12 @@
 Share or unshare libraries.
 
 optional arguments:
-  -h, --help            show this help message and exit
+  -h, --help            Show this help message and exit
   --share               To share libraries to user.
   --shared              Display user's share settings.
   --unshare             To unshare all libraries from user.
-  --add                 Add additional libraries to user.
-  --remove              Remove shared libraries from user.
+  --add                 Share additional libraries or enable settings to user.
+  --remove              Remove shared libraries or disable settings from user.
   --user  [ ...]        Space separated list of case sensitive names to process. Allowed names are:
                         (choices: All users names)
   --allUsers            Select all users.
@@ -70,6 +70,12 @@ Usage:
 
    plex_api_share.py --restore --user USER
        - Only restore USER's Plex shares and settings from backup json file
+
+   plex_api_share.py --user USER --add --sync
+       - Enable sync feature for USER
+
+   plex_api_share.py --user USER --remove --sync
+       - Disable sync feature for USER
 
 
    Excluding;
@@ -197,21 +203,32 @@ def share(user, sections, allowSync, camera, channels, filterMovies, filterTelev
     plex.myPlexAccount().updateFriend(user=user, server=plex, sections=sections, allowSync=allowSync,
                                       allowCameraUpload=camera, allowChannels=channels, filterMovies=filterMovies,
                                       filterTelevision=filterTelevision, filterMusic=filterMusic)
-    print('Shared libraries: {sections} with {user}.'.format(sections=sections, user=user))
-    if plex.myPlexSubscription == True:
-        _sync = 'Sync: {} '.format(allowSync)
-        _camera = 'Camera Upload: {} '.format(camera)
-        _channels = 'Channels: {} '.format(channels)
-        _filterMovies = 'Movie Filters: {} '.format(filterMovies)
-        _filterTelevision = 'TV Filters: {} '.format(filterTelevision)
-        _filterMusic = 'Music Filter: {} '.format(filterMusic)
-        print('Settings: {}{}{}{}{}{}'.
-              format(_sync if allowSync else None,
-                     _camera if camera else None,
-                     _channels if channels else None,
-                     _filterMovies if filterMovies else None,
-                     _filterTelevision if filterTelevision else None,
-                     _filterMusic if filterMusic else None))
+    if sections:
+        print('{user}\'s updated shared libraries: \n{sections}'.format(sections=sections, user=user))
+    if allowSync == True:
+        print('Sync: Enabled')
+    if allowSync == False:
+        print('Sync: Disabled')
+    if camera == True:
+        print('Camera Upload: Enabled')
+    if camera == False:
+        print('Camera Upload: Disabled')
+    if channels == True:
+        print('Plugins: Enabled')
+    if channels == False:
+        print('Plugins: Disabled')
+    if filterMovies:
+        print('Movie Filters: {}'.format(filterMovies))
+    if filterMovies == {}:
+        print('Movie Filters:')
+    if filterTelevision:
+        print('Show Filters: {}'.format(filterTelevision))
+    if filterTelevision == {}:
+        print('Show Filters:')
+    if filterMusic:
+        print('Music Filters: {}'.format(filterMusic))
+    if filterMusic == {} and filterMusic != None:
+        print('Music Filters:')
 
 
 def unshare(user, sections):
@@ -232,9 +249,9 @@ if __name__ == "__main__":
     parser.add_argument('--unshare', default=False, action='store_true',
                         help='To unshare all libraries.')
     parser.add_argument('--add', default=False, action='store_true',
-                        help='Add additional libraries.')
+                        help='Share additional libraries or enable settings to user..')
     parser.add_argument('--remove', default=False, action='store_true',
-                        help='Remove existing libraries.')
+                        help='Remove shared libraries or disable settings from user.')
     parser.add_argument('--user', nargs='+', choices=user_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
                              '(choices: %(choices)s)')
@@ -292,9 +309,9 @@ if __name__ == "__main__":
     sync = None
     camera = None
     channels = None
-    filterMovies = {}
-    filterTelevision = {}
-    filterMusic = {}
+    filterMovies = None
+    filterTelevision = None
+    filterMusic = None
     try:
         if opts.kill:
             kill = opts.kill
@@ -304,15 +321,20 @@ if __name__ == "__main__":
             camera = opts.camera
         if opts.channels:
             channels = opts.channels
+        if opts.movieLabels or opts.movieRatings:
+            filterMovies = {}
         if opts.movieLabels:
             filterMovies['label'] = opts.movieLabels
         if opts.movieRatings:
             filterMovies['contentRating'] = opts.movieRatings
+        if opts.tvLabels or opts.tvRatings:
+            filterTelevision = {}
         if opts.tvLabels:
             filterTelevision['label'] = opts.tvLabels
         if opts.tvRatings:
             filterTelevision['contentRating'] = opts.tvRatings
         if opts.musicLabels:
+            filterMusic = {}
             filterMusic['label'] = opts.musicLabels
     except AttributeError:
         print('No Plex Pass moving on...')
