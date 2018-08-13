@@ -409,16 +409,15 @@ if __name__ == "__main__":
         with open(''.join(opts.restore)) as json_data:
             shares_file = json.load(json_data)
         for user in shares_file:
-            for server in user['servers']:
-                # If user arg is defined then abide, else restore all
-                if users:
-                    if user['title'] in users:
-                        print('Restoring user {}\'s shares and settings...'.format(user['title']))
-                        share(user['title'], server['sections'], user['allowSync'], user['camera'],
-                              user['channels'], user['filterMovies'], user['filterTelevision'],
-                              user['filterMusic'])
-                else:
+            # If user arg is defined then abide, else restore all
+            if users:
+                if user['title'] in users:
                     print('Restoring user {}\'s shares and settings...'.format(user['title']))
-                    share(user['title'], server['sections'], user['allowSync'], user['camera'],
+                    share(user['title'], user['sections'], user['allowSync'], user['camera'],
                           user['channels'], user['filterMovies'], user['filterTelevision'],
                           user['filterMusic'])
+            else:
+                print('Restoring user {}\'s shares and settings...'.format(user['title']))
+                share(user['title'], user['sections'], user['allowSync'], user['camera'],
+                      user['channels'], user['filterMovies'], user['filterTelevision'],
+                      user['filterMusic'])
