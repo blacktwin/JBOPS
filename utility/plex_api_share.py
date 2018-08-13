@@ -105,9 +105,6 @@ PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
 
 DEFAULT_MESSAGE = "Stream is being killed by admin."
 
-json_check = sorted([f for f in os.listdir('.') if os.path.isfile(f) and
-                     f.endswith(".json")], key=os.path.getmtime)
-
 sess = requests.Session()
 # Ignore verifying the SSL certificate
 sess.verify = False  # '/path/to/certfile'
@@ -126,6 +123,10 @@ user_lst = [x.title for x in plex.myPlexAccount().users()]
 sections_lst = [x.title for x in plex.library.sections()]
 movies_keys = [x.key for x in plex.library.sections() if x.type == 'movie']
 show_keys = [x.key for x in plex.library.sections() if x.type == 'show']
+
+json_check = sorted([f for f in os.listdir('.') if os.path.isfile(f) and
+                     f.endswith(".json") and f.startswith(plex.friendlyName)],
+                    key=os.path.getmtime)
 
 my_server_names = []
 # Find all owners server names. For owners with multiple servers.
@@ -173,7 +174,7 @@ def find_shares(user):
         'filterMovies': filter_clean(user_acct.filterMovies),
         'filterTelevision': filter_clean(user_acct.filterTelevision),
         'filterMusic': filter_clean(user_acct.filterMusic),
-        'server': plex.friendlyName}
+        'serverName': plex.friendlyName}
 
     for server in user_acct.servers:
         if server.name == plex.friendlyName:
@@ -264,7 +265,7 @@ if __name__ == "__main__":
                         help='Select all libraries.')
     parser.add_argument('--backup', default=False, action='store_true',
                         help='Backup share settings from json file.')
-    parser.add_argument('--restore', type=str, choices=json_check,
+    parser.add_argument('--restore', type=str, choices=json_check, metavar='',
                         help='Restore share settings from json file.\n'
                              'Filename of json file to use.\n'
                              '(choices: %(choices)s)')
@@ -422,7 +423,7 @@ if __name__ == "__main__":
         for user in user_lst:
             # print('...Found {}'.format(user))
             users_shares.append(find_shares(user))
-        json_file = 'Plex_share_backup_{}.json'.format(timestr)
+        json_file = '{}_Plex_share_backup_{}.json'.format(plex.friendlyName, timestr)
         with open(json_file, 'w') as fp:
             json.dump(users_shares, fp, indent=4, sort_keys=True)
 
