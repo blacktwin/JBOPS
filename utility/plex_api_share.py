@@ -167,17 +167,15 @@ def find_shares(user):
         'filterMovies': filter_clean(user_acct.filterMovies),
         'filterTelevision': filter_clean(user_acct.filterTelevision),
         'filterMusic': filter_clean(user_acct.filterMusic),
-        'servers': []}
+        'server': plex.friendlyName}
 
     for server in user_acct.servers:
-        if server.name in my_server_names:
+        if server.name == plex.friendlyName:
             sections = []
             for section in server.sections():
                 if section.shared == True:
                     sections.append(section.title)
-            user_backup['servers'].append({'serverName': server.name,
-                                           'sections': sections,
-                                           'sectionCount': len(sections)})
+            user_backup['sections'] = sections
 
     return user_backup
 
@@ -201,9 +199,19 @@ def share(user, sections, allowSync, camera, channels, filterMovies, filterTelev
                                       filterTelevision=filterTelevision, filterMusic=filterMusic)
     print('Shared libraries: {sections} with {user}.'.format(sections=sections, user=user))
     if plex.myPlexSubscription == True:
-        print('Settings: Sync: {}, Camer Upload: {}, Channels: {}, '
-              'Movie Filters: {}, TV Filters: {}, Music Filter: {}'.
-              format(allowSync, camera, channels, filterMovies, filterTelevision, filterMusic))
+        _sync = 'Sync: {} '.format(allowSync)
+        _camera = 'Camera Upload: {} '.format(camera)
+        _channels = 'Channels: {} '.format(channels)
+        _filterMovies = 'Movie Filters: {} '.format(filterMovies)
+        _filterTelevision = 'TV Filters: {} '.format(filterTelevision)
+        _filterMusic = 'Music Filter: {} '.format(filterMusic)
+        print('Settings: {}{}{}{}{}{}'.
+              format(_sync if allowSync else None,
+                     _camera if camera else None,
+                     _channels if channels else None,
+                     _filterMovies if filterMovies else None,
+                     _filterTelevision if filterTelevision else None,
+                     _filterMusic if filterMusic else None))
 
 
 def unshare(user, sections):
@@ -333,12 +341,8 @@ if __name__ == "__main__":
 
     # Share, Unshare, Kill, Add, or Remove
     for user in users:
-        user_shares_dict = find_shares(user)
-        user_shares_lst = [server['sections'] for server in user_shares_dict['servers']
-                           if server['serverName'] == plex.friendlyName]
-        if user_shares_lst:
-            user_shares_lst = user_shares_lst[0]
-        #for server in opts.servers:
+        user_shares = find_shares(user)
+        user_shares_lst = user_shares['sections']
         if libraries:
             if opts.share:
                 share(user, libraries, sync, camera, channels, filterMovies, filterTelevision,
@@ -354,12 +358,32 @@ if __name__ == "__main__":
                       filterMusic)
         else:
             if opts.add:
+                # Add/Enable settings independently of libraries
                 libraries = user_shares_lst
+                share(user, libraries, sync, camera, channels, filterMovies, filterTelevision,
+                      filterMusic)
+            if opts.remove:
+                # Remove/Disable settings independently of libraries
+                # If remove and setting arg is True then flip setting to false to disable
+                if sync:
+                    sync = False
+                if camera:
+                    camera = False
+                if channels:
+                    channels = False
+                # Filters are cleared
+                # todo-me clear completely or pop arg values?
+                if filterMovies:
+                    filterMovies = {}
+                if filterTelevision:
+                    filterTelevision = {}
+                if filterMusic:
+                    filterMusic = {}
                 share(user, libraries, sync, camera, channels, filterMovies, filterTelevision,
                       filterMusic)
 
         if opts.shared:
-            user_json = json.dumps(user_shares_dict, indent=4, sort_keys=True)
+            user_json = json.dumps(user_shares, indent=4, sort_keys=True)
             print('Current share settings for {}: {}'.format(user, user_json))
         if opts.unshare and kill:
             kill_session(user, kill)
