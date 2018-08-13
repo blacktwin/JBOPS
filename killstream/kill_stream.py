@@ -269,7 +269,7 @@ if __name__ == "__main__":
 
     opts = parser.parse_args()
 
-    if not opts.sessionId:
+    if not opts.sessionId and opts.jbop != 'allStreams':
         sys.stderr.write("No sessionId provided! Is this synced content?\n")
         sys.exit(1)
 
