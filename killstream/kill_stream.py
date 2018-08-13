@@ -255,7 +255,7 @@ if __name__ == "__main__":
                         help='The unique identifier for the user.')
     parser.add_argument('--username', type=arg_decoding,
                         help='The username of the person streaming.')
-    parser.add_argument('--sessionId', required=True,
+    parser.add_argument('--sessionId',
                         help='The unique identifier for the stream.')
     parser.add_argument('--notify', type=int,
                         help='Notification Agent ID number to Agent to send ' +
