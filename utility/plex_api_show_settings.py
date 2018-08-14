@@ -41,7 +41,7 @@ plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 sections_lst = [x.title for x in plex.library.sections() if x.type == 'show']
 
 
-def set(rating_key, action, number):
+def set_show(rating_key, action, number):
 
     path = '{}/prefs'.format(rating_key)
     try:
@@ -83,4 +83,4 @@ if __name__ == '__main__':
         shows = plex.library.section(libary).all()
 
         for show in shows:
-            set(show.key, setting, number)
+            set_show(show.key, setting, number)
