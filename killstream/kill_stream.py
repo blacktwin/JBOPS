@@ -189,7 +189,7 @@ def terminate_session(session_id, message, notifier=None, username=None):
         return None
 
 
-def terminate_long_pause(session_id, message, limit, interval, notify=None):
+def terminate_long_pause(session_id, message, limit, interval, notify=None, username=None):
     """Kills the session if it is paused for longer than <limit> seconds.
 
     Parameters
@@ -226,7 +226,7 @@ def terminate_long_pause(session_id, message, limit, interval, notify=None):
 
                 if state == 'paused':
                     if checked_time >= limit:
-                        terminate_session(session_id, message, notify)
+                        terminate_session(session_id, message, notify, username)
                         return
                     else:
                         sleep(interval)
@@ -286,4 +286,4 @@ if __name__ == "__main__":
             terminate_session(session_id, message, opts.notify, opts.username)
     elif opts.jbop == 'paused':
         terminate_long_pause(opts.sessionId, message, opts.limit,
-                             opts.interval, opts.notify)
+                             opts.interval, opts.notify, opts.username)
