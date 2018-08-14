@@ -23,11 +23,12 @@ python plex_api_show_settings.py --libraries "TV Shows" --unwatched -7
 """
 import argparse
 import requests
-from plexapi.server import PlexServer
+from plexapi.server import PlexServer, CONFIG
 
-
-PLEX_URL = 'http://localhost:32400'
-PLEX_TOKEN = 'xxxxx'
+PLEX_URL = ''
+PLEX_TOKEN = ''
+PLEX_URL = CONFIG.data['auth'].get('server_baseurl', PLEX_URL)
+PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
 
 # Allowed days/episodes to keep or delete
 WATCHED_LST = [0, 1, 7]
