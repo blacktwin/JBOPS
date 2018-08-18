@@ -51,11 +51,12 @@ Choose which map type you'd like by using the `-l` argument:
 
 ### Feature updates:
 
-- [ ] Add arg for legend (best, none, axes)
+- [ ] Add arg for legend (best, none, axes, top_left, top_center, etc.)
+- [ ] UI, toggles, interactive mode
+- [ ] Add arg to group legend items by city and/or region
 - [ ] Find server's external IP, geolocation. Allow custom location to override
 - [ ] Add arg for tracert visualization from server to client
 - [ ] Animate tracert visualization? gif?
-- [ ] UI, toggles, interactive mode
 
 
 
