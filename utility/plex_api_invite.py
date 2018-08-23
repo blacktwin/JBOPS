@@ -67,7 +67,19 @@ def invite(user, sections, allowSync, camera, channels, filterMovies, filterTele
     plex.myPlexAccount().inviteFriend(user=user, server=plex, sections=sections, allowSync=allowSync,
                                       allowCameraUpload=camera, allowChannels=channels, filterMovies=filterMovies,
                                       filterTelevision=filterTelevision, filterMusic=filterMusic)
-    print('Invited {user} to share libraries: {libraries}.'.format(libraries=sections, user=user))
+    print('Invited {user} to share libraries: \n{sections}'.format(sections=sections, user=user))
+    if allowSync == True:
+        print('Sync: Enabled')
+    if camera == True:
+        print('Camera Upload: Enabled')
+    if channels == True:
+        print('Plugins: Enabled')
+    if filterMovies:
+        print('Movie Filters: {}'.format(filterMovies))
+    if filterTelevision:
+        print('Show Filters: {}'.format(filterTelevision))
+    if filterMusic:
+        print('Music Filters: {}'.format(filterMusic))
 
 
 if __name__ == "__main__":
@@ -87,7 +99,6 @@ if __name__ == "__main__":
                         help='Use to allow user to upload photos.')
     parser.add_argument('--channels', default=None, action='store_true',
                         help='Use to allow user to utilize installed channels.')
-    """
     parser.add_argument('--movieRatings', nargs='+', choices=ratings_lst, metavar='',
                         help='Use to add rating restrictions to movie library types.')
     parser.add_argument('--movieLabels', nargs='+',
@@ -98,28 +109,53 @@ if __name__ == "__main__":
                         help='Use to add label restrictions for show library types.')
     parser.add_argument('--musicLabels', nargs='+',
                         help='Use to add label restrictions for music library types.')
-    """
+
     opts = parser.parse_args()
+    libraries = ''
 
-    filterMovies = {}
-    filterTelevision = {}
-    filterMusic = {}
+    # Plex Pass additional share options
+    sync = None
+    camera = None
+    channels = None
+    filterMovies = None
+    filterTelevision = None
+    filterMusic = None
+    try:
+        if opts.sync:
+            sync = opts.sync
+        if opts.camera:
+            camera = opts.camera
+        if opts.channels:
+            channels = opts.channels
+        if opts.movieLabels or opts.movieRatings:
+            filterMovies = {}
+        if opts.movieLabels:
+            filterMovies['label'] = opts.movieLabels
+        if opts.movieRatings:
+            filterMovies['contentRating'] = opts.movieRatings
+        if opts.tvLabels or opts.tvRatings:
+            filterTelevision = {}
+        if opts.tvLabels:
+            filterTelevision['label'] = opts.tvLabels
+        if opts.tvRatings:
+            filterTelevision['contentRating'] = opts.tvRatings
+        if opts.musicLabels:
+            filterMusic = {}
+            filterMusic['label'] = opts.musicLabels
+    except AttributeError:
+        print('No Plex Pass moving on...')
 
-    if opts.movieLabels:
-        filterMovies['label'] = opts.movieLabels
-    if opts.movieRatings:
-        filterMovies['contentRating'] = opts.movieRatings
-    if opts.tvLabels:
-        filterTelevision['label'] = opts.tvLabels
-    if opts.tvRatings:
-        filterTelevision['contentRating'] = opts.tvRatings
-    if opts.musicLabels:
-        filterMusic['label'] = opts.musicLabels
+    # Defining libraries
+    if opts.allLibraries and not opts.libraries:
+        libraries = sections_lst
+    elif not opts.allLibraries and opts.libraries:
+        libraries = opts.libraries
+    elif opts.allLibraries and opts.libraries:
+        # If allLibraries is used then any libraries listed will be excluded
+        for library in opts.libraries:
+            sections_lst.remove(library)
+            libraries = sections_lst
 
     for user in opts.user:
-        if opts.share == 'share':
-            invite(user, opts.libraries, opts.sync, opts.camera, opts.channels,
-                   filterMovies, filterTelevision, filterMusic)
-        elif opts.share == 'share_all':
-            invite(user, sections_lst, opts.sync, opts.camera, opts.channels,
+        invite(user, libraries, sync, camera, channels,
                    filterMovies, filterTelevision, filterMusic)
