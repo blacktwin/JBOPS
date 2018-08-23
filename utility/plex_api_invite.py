@@ -74,22 +74,20 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Invite new users to share Plex libraries.",
                                      formatter_class=argparse.RawTextHelpFormatter)
-
-    parser.add_argument('-s', '--share', nargs='?', type=str, required=True,
-                        choices=['share', 'share_all'], metavar='',
-                        help='Share specific libraries or share all libraries.: \n (choices: %(choices)s)')
-    parser.add_argument('-u', '--user', nargs='+', type=str, required=True, metavar='',
+    parser.add_argument('--user', nargs='+', required=True,
                         help='Enter a valid username(s) or email address(s) for user to be invited.')
-    parser.add_argument('-l', '--libraries', nargs='+', default='', choices=sections_lst, metavar='',
+    parser.add_argument('--libraries', nargs='+', default=False, choices=sections_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
                              '(choices: %(choices)s')
-
-    parser.add_argument('--sync', default=False, action='store_true',
+    parser.add_argument('--allLibraries', default=False, action='store_true',
+                        help='Select all libraries.')
+    parser.add_argument('--sync', default=None, action='store_true',
                         help='Use to allow user to sync content.')
-    parser.add_argument('--camera', default=False, action='store_true',
+    parser.add_argument('--camera', default=None, action='store_true',
                         help='Use to allow user to upload photos.')
-    parser.add_argument('--channels', default=False, action='store_true',
+    parser.add_argument('--channels', default=None, action='store_true',
                         help='Use to allow user to utilize installed channels.')
+    """
     parser.add_argument('--movieRatings', nargs='+', choices=ratings_lst, metavar='',
                         help='Use to add rating restrictions to movie library types.')
     parser.add_argument('--movieLabels', nargs='+',
@@ -100,7 +98,7 @@ if __name__ == "__main__":
                         help='Use to add label restrictions for show library types.')
     parser.add_argument('--musicLabels', nargs='+',
                         help='Use to add label restrictions for music library types.')
-
+    """
     opts = parser.parse_args()
 
     filterMovies = {}
