@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Invite new users to share Plex libraries.
 
