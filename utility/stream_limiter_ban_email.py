@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Share functions from https://gist.github.com/JonnyWong16/f8139216e2748cb367558070c1448636
 
@@ -120,12 +121,14 @@ class Activity(object):
         self.transcode_key = d['transcode_key']
         self.state = d['state']
 
+
 class Users(object):
     def __init__(self, data=None):
         d = data or {}
         self.email = d['email']
         self.user_id = d['user_id']
         self.friendly_name = d['friendly_name']
+
 
 def get_user(user_id):
     # Get the user list from Tautulli.
@@ -165,6 +168,7 @@ def get_history(user_id, bankey):
     except Exception as e:
         sys.stderr.write("Tautulli API 'get_history' request failed: {0}.".format(e))
 
+
 def share(user_id, ban):
 
     headers = {"X-Plex-Token": PLEX_TOKEN,
@@ -197,6 +201,7 @@ def share(user_id, ban):
         return
 
     return
+
 
 def unshare(user_id):
 
@@ -235,6 +240,7 @@ def unshare(user_id):
             print("No libraries shared with user %s" % str(user_id))
 
     return
+
 
 def get_activity():
     # Get the user IP list from Tautulli
