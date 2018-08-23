@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Refresh the next episode of show once current episode is watched.
 Check Tautulli's Watched Percent in Tautulli > Settings > General
