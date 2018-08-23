@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Use Tautulli to pull last IP address from user and add to List of IP addresses and networks that are allowed without auth in Plex.
 
