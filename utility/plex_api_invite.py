@@ -35,12 +35,15 @@ Usage:
 
 '''
 
-from plexapi.server import PlexServer
+from plexapi.server import PlexServer, CONFIG
 import argparse
 import requests
 
-PLEX_URL = 'http://localhost:32400'
-PLEX_TOKEN = 'xxxxxx'
+PLEX_URL = ''
+PLEX_TOKEN = ''
+PLEX_URL = CONFIG.data['auth'].get('server_baseurl', PLEX_URL)
+PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
+
 
 sess = requests.Session()
 sess.verify = False
