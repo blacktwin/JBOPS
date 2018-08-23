@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Pull poster images from Imgur and places them inside Shows root folder.
     /path/to/show/Show.jpg
@@ -28,12 +29,14 @@ class IMGURINFO(object):
         self.link = d['link']
         self.description = d['description']
 
+
 def get_imgur():
     url = "https://api.imgur.com/3/album/{ALBUM_ID}/images".format(ALBUM_ID=ALBUM_ID)
     headers = {'authorization': 'Client-ID {}'.format(CLIENT_ID)}
     r = requests.get(url, headers=headers)
     imgur_dump = r.json()
     return[IMGURINFO(data=d) for d in imgur_dump['data']]
+
 
 for x in get_imgur():
     # Check if Show directory exists
