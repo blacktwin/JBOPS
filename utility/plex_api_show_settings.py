@@ -36,7 +36,17 @@ WATCHED_LST = [0, 1, 7]
 UNWATCHED_LST = [0, 5, 3, 1, -3, -7,-30]
 
 sess = requests.Session()
-sess.verify = False
+# Ignore verifying the SSL certificate
+sess.verify = False  # '/path/to/certfile'
+# If verify is set to a path to a directory,
+# the directory must have been processed using the c_rehash utility supplied
+# with OpenSSL.
+if sess.verify is False:
+    # Disable the warning that the request is insecure, we know that...
+    import urllib3
+
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 sections_lst = [x.title for x in plex.library.sections() if x.type == 'show']
