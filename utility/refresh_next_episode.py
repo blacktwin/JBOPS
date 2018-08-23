@@ -14,14 +14,30 @@ Check Tautulli's Watched Percent in Tautulli > Settings > General
 
 '''
 
+import requests
 import sys
-from plexapi.server import PlexServer
+from plexapi.server import PlexServer, CONFIG
 # pip install plexapi
 
 
-baseurl = 'http://localhost:32400'
-token = 'XXXXXX'  # Plex Token
-plex = PlexServer(baseurl, token)
+PLEX_URL = ''
+PLEX_TOKEN = ''
+PLEX_URL = CONFIG.data['auth'].get('server_baseurl', PLEX_URL)
+PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
+
+sess = requests.Session()
+# Ignore verifying the SSL certificate
+sess.verify = False  # '/path/to/certfile'
+# If verify is set to a path to a directory,
+# the directory must have been processed using the c_rehash utility supplied
+# with OpenSSL.
+if sess.verify is False:
+    # Disable the warning that the request is insecure, we know that...
+    import urllib3
+
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 show_name = sys.argv[1]
 next_ep_num = int(sys.argv[2])
