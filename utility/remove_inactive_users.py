@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Unshare or Remove users who have been inactive for X days. Prints out last seen for all users.
 
