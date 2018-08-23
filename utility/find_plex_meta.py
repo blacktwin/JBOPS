@@ -10,16 +10,19 @@ find_plex_meta.py -s adventure -m movie
 '''
 
 
-from plexapi.server import PlexServer
+from plexapi.server import PlexServer, CONFIG
 # pip install plexapi
 import os
 import re
 import hashlib
 import argparse
+import requests
 
 ## Edit ##
-PLEX_URL = 'http://localhost:32400'
-PLEX_TOKEN = 'xxxx'
+PLEX_URL = ''
+PLEX_TOKEN = ''
+PLEX_URL = CONFIG.data['auth'].get('server_baseurl', PLEX_URL)
+PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
 # Change directory based on your os see:
 # https://support.plex.tv/hc/en-us/articles/202915258-Where-is-the-Plex-Media-Server-data-directory-located-
 PLEX_LOCAL_TV_PATH = os.path.join(os.getenv('LOCALAPPDATA'), 'Plex Media Server\Metadata\TV Shows')
@@ -27,7 +30,19 @@ PLEX_LOCAL_MOVIE_PATH = os.path.join(os.getenv('LOCALAPPDATA'), 'Plex Media Serv
 PLEX_LOCAL_ALBUM_PATH = os.path.join(os.getenv('LOCALAPPDATA'), 'Plex Media Server\Metadata\Albums')
 ## /Edit ##
 
-plex = PlexServer(PLEX_URL, PLEX_TOKEN)
+sess = requests.Session()
+# Ignore verifying the SSL certificate
+sess.verify = False  # '/path/to/certfile'
+# If verify is set to a path to a directory,
+# the directory must have been processed using the c_rehash utility supplied
+# with OpenSSL.
+if sess.verify is False:
+    # Disable the warning that the request is insecure, we know that...
+    import urllib3
+
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 def hash_to_path(hash_str, path, title, media_type, artist=None):
     full_hash = hashlib.sha1(hash_str).hexdigest()
