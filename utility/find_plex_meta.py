@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Find location of Plex metadata.
 
