@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Description: Sync the watch status from one user to another. Either by user or user/libraries
 Author: Blacktwin
