@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Description: Purge Tautulli users that no longer exist as a friend in Plex
 Author: DirtyCajunRice
@@ -12,12 +13,6 @@ TAUTULLI_API_KEY = ''
 
 PLEX_USERNAME = ''
 PLEX_PASSWORD = ''
-
-# Do you want to back up the database before deleting?
-BACKUP_DB = True
-
-# Do you want to back up the database before deleting?
-BACKUP_DB = True
 
 # Do you want to back up the database before deleting?
 BACKUP_DB = True
