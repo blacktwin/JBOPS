@@ -3,12 +3,11 @@ Invite new users to share Plex libraries.
 
 optional arguments:
   -h, --help            show this help message and exit
-  -s [], --share []     Share specific libraries or share all libraries.
-                        (choices: share, share_all)
-  -u [], --user []      Enter a valid username(s) or email address(s) for user to be invited.
-  -l  [ ...], --libraries  [ ...]
+  --user []             Enter a valid username(s) or email address(s) for user to be invited.
+  --libraries  [ ...]
                         Space separated list of case sensitive names to process. Allowed names are:
                         (choices: All library names)
+  --allLibraries        Select all libraries.
   --sync                Allow user to sync content
   --camera              Allow user to upload photos
   --channel             Allow user to utilize installed channels
@@ -20,17 +19,17 @@ optional arguments:
 
 Usage:
 
-   plex_api_invite.py -s share -u USER -l Movies
+   plex_api_invite.py --user USER --libraries Movies
        - Shared libraries: ['Movies'] with USER
 
-   plex_api_invite.py -s share -u USER -l Movies "TV Shows"
+   plex_api_invite.py --user USER --libraries Movies "TV Shows"
        - Shared libraries: ['Movies', 'TV Shows'] with USER
           * Double Quote libraries with spaces
 
-   plex_api_invite.py -s share_all -u USER
+   plex_api_invite.py --allLibraries --user USER
        - Shared all libraries with USER.
 
-   plex_api_invite.py -s share Movies -u USER --movieRatings G, PG-13
+   plex_api_invite.py --libraries Movies --user USER --movieRatings G, PG-13
        - Share Movie library with USER but restrict them to only G and PG-13 titles.
 
 '''
