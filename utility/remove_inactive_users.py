@@ -10,15 +10,19 @@ Comment out `remove_friend(username)` and `unshare(username)` to test.
 import requests
 import datetime
 import time
-from plexapi.server import PlexServer
+from plexapi.server import PlexServer, CONFIG
 
 
 ## EDIT THESE SETTINGS ##
-TAUTULLI_APIKEY = 'xxxx'  # Your Tautulli API key
-TAUTULLI_URL = 'http://localhost:8182/'  # Your Tautulli URL
+TAUTULLI_URL = ''
+TAUTULLI_APIKEY = ''
+TAUTULLI_URL = CONFIG.data['auth'].get('tautulli_baseurl', TAUTULLI_URL)
+TAUTULLI_APIKEY = CONFIG.data['auth'].get('tautulli_apikey', TAUTULLI_APIKEY)
 
-PLEX_TOKEN = 'xxxx'
-PLEX_URL = 'http://localhost:32400'
+PLEX_URL = ''
+PLEX_TOKEN = ''
+PLEX_URL = CONFIG.data['auth'].get('server_baseurl', PLEX_URL)
+PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
 
 REMOVE_LIMIT = 30 # days
 UNSHARE_LIMIT = 15 # days
@@ -27,7 +31,17 @@ USER_IGNORE = ('user1')
 ##/EDIT THESE SETTINGS ##
 
 sess = requests.Session()
-sess.verify = False
+# Ignore verifying the SSL certificate
+sess.verify = False  # '/path/to/certfile'
+# If verify is set to a path to a directory,
+# the directory must have been processed using the c_rehash utility supplied
+# with OpenSSL.
+if sess.verify is False:
+    # Disable the warning that the request is insecure, we know that...
+    import urllib3
+
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 sections_lst = [x.title for x in plex.library.sections()]
