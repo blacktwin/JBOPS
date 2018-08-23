@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Download theme songs from Plex TV Shows. Theme songs are mp3 and named by shows as displayed by Plex.
 Songs are saved in a 'Theme Songs' directory located in script's path.
