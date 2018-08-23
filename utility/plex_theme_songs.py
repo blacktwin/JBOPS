@@ -6,19 +6,35 @@ Songs are saved in a 'Theme Songs' directory located in script's path.
 '''
 
 
-from plexapi.server import PlexServer
+from plexapi.server import PlexServer, CONFIG
 # pip install plexapi
 import os
 import re
 import urllib
+import requests
 
 ## Edit ##
-PLEX_URL = 'http://localhost:32400'
-PLEX_TOKEN = 'xxxxx'
+PLEX_URL = ''
+PLEX_TOKEN = ''
+PLEX_URL = CONFIG.data['auth'].get('server_baseurl', PLEX_URL)
+PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
+
 TV_LIBRARY = 'TV Shows' # Name of your TV Show library
 ## /Edit ##
 
-plex = PlexServer(PLEX_URL, PLEX_TOKEN)
+sess = requests.Session()
+# Ignore verifying the SSL certificate
+sess.verify = False  # '/path/to/certfile'
+# If verify is set to a path to a directory,
+# the directory must have been processed using the c_rehash utility supplied
+# with OpenSSL.
+if sess.verify is False:
+    # Disable the warning that the request is insecure, we know that...
+    import urllib3
+
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 # Theme Songs url
 themes_url = 'http://tvthemes.plexapp.com/{}.mp3'
