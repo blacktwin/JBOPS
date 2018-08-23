@@ -9,18 +9,32 @@ Requires: plexapi
 
 """
 
-
-from plexapi.server import PlexServer
+from plexapi.server import PlexServer, CONFIG
+import requests
 import re
 import os
 import urllib
 
-
-PLEX_URL = 'http://localhost:32400'
-PLEX_TOKEN = ''
-plex = PlexServer(PLEX_URL, PLEX_TOKEN)
-
 library_name = ['Movies','TV Shows'] # You library names
+
+PLEX_URL = ''
+PLEX_TOKEN = ''
+PLEX_URL = CONFIG.data['auth'].get('server_baseurl', PLEX_URL)
+PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
+
+sess = requests.Session()
+# Ignore verifying the SSL certificate
+sess.verify = False  # '/path/to/certfile'
+# If verify is set to a path to a directory,
+# the directory must have been processed using the c_rehash utility supplied
+# with OpenSSL.
+if sess.verify is False:
+    # Disable the warning that the request is insecure, we know that...
+    import urllib3
+
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 # Create paths for Movies and TV Shows inside current directory
 movie_path = '{}/Movies'.format(os.path.dirname(__file__))
