@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Description: Pull Movie and TV Show poster images from Plex.  Save to Movie and TV Show directories in scripts working directory.
 Author: Blacktwin
