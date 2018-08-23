@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Set as cron or task for times of allowing and not allowing user access to server.
 Unsharing will kill any current stream from user before unsharing.
