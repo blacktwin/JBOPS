@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Change show deletion settings by library.
 
