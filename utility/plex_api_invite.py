@@ -41,9 +41,12 @@ import requests
 
 PLEX_URL = ''
 PLEX_TOKEN = ''
-PLEX_URL = CONFIG.data['auth'].get('server_baseurl', PLEX_URL)
-PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
 
+if not PLEX_URL:
+    PLEX_URL = CONFIG.data['auth'].get('server_baseurl', '')
+
+if not PLEX_TOKEN:
+    PLEX_TOKEN = CONFIG.data['auth'].get('server_token', '')
 
 sess = requests.Session()
 # Ignore verifying the SSL certificate
