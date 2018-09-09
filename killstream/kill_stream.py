@@ -1,6 +1,7 @@
 """
 Description: Use conditions to kill a stream
-Author: Blacktwin, Arcanemagus, samwiseg00
+Author: Blacktwin, Arcanemagus, samwiseg00, WikiZell
+Version: 2 (WikiZell)
 Requires: requests
 
 Adding the script to Tautulli:
@@ -47,6 +48,12 @@ import sys
 import os
 from time import sleep
 from datetime import datetime
+#from configparser import ConfigParser
+try:
+    # Python 3.0+
+    from configparser import SafeConfigParser
+except ImportError:
+    from ConfigParser import SafeConfigParser
 
 TAUTULLI_URL = ''
 TAUTULLI_APIKEY = ''
@@ -69,8 +76,10 @@ if sess.verify is False:
     import urllib3
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-SELECTOR = ['stream', 'allStreams', 'paused']
+SELECTOR = ['stream', 'allStreams', 'paused', 'streamAllowed','configUser']
 
+config = SafeConfigParser(allow_no_value=True)
+configPath = os.path.dirname(os.path.abspath(__file__)) + os.sep + 'userConfig.ini'
 
 def send_notification(subject_text, body_text, notifier_id):
     """Send a notification through Tautulli
@@ -147,6 +156,94 @@ def get_user_session_ids(user_id):
                     for s in sessions if s['user_id'] == user_id]
     return user_streams
 
+def get_user_names():
+    """Get a list of all user and user ids.
+
+    Returns
+    -------
+    json
+        Get a list of all user and user ids.
+    """
+    payload = {'apikey': TAUTULLI_APIKEY,
+               'cmd': 'get_users'}
+
+    try:
+                                                  # api/v2?apikey=$apikey&cmd=$command
+        req = sess.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
+        response = req.json()
+
+        res_data = response['response']['data']
+        #extra var
+        for u in res_data:u['user_slot'] = '1'
+
+        return res_data
+
+    except Exception as e:
+        sys.stderr.write(
+            "Tautulli API 'get_user_names' request failed: {0}.\n".format(e))
+        return []
+
+def configUser():
+    users = get_user_names()
+    if not os.path.exists(configPath):
+        #Config file not exists -> Create and populate with basic info
+        for u in users:
+          config[str(u['user_id'])] = u #{'username': u['username'], 'user_id': str(u['user_id']), 'user_slot': '1', 'email': u['email'] }
+          with open(configPath, 'w') as fp:
+               config.write(fp)
+    else:
+     #Update if new user_slot
+     config.read(configPath)
+     sections = []
+     for section in config.sections():sections.append(section)
+     s = set(sections)
+     for u in users:
+         if not str(u['user_id']) in s:
+             config[str(u['user_id'])] = u
+             with open(configPath, 'w') as fp:
+                  config.write(fp)
+    config.read(configPath)
+    pass
+
+    sections = []
+    for section in config.sections():sections.append(str(section))
+
+    serverSections = []
+    for uss in users:serverSections.append(str(uss['user_id']))
+
+    s = set(serverSections)
+    for sectionToRemove in sections:
+        if not str(sectionToRemove) in s:
+           #section to remove
+            removeSection(sectionToRemove)
+
+def removeSection(sectionToRemove):
+    config.read(configPath)
+    config.remove_section(sectionToRemove)
+    with open(configPath, 'w') as fp:
+         config.write(fp)
+
+def check_session(streamCount, userId, session_id, notifier=None, username=None):
+
+    configUser()
+
+    config.read(configPath)
+    try:
+        slotsAllowed = config.get(userId,'user_slot')
+    except:
+        slotsAllowed = "1"
+    pass
+
+    if int(streamCount) > int(slotsAllowed):
+        #kill stream: too many concurrent streams
+        message = 'No stream slot available! You can use a total of '+ slotsAllowed +' stream slots.'
+        sys.stdout.write('Detected: too many concurrent streams\n')
+        sys.stdout.write('Stream Count: '+streamCount+' Streams Allowed: '+slotsAllowed+'\n')
+        sys.stdout.write('Executing terminate_session..\n')
+        terminate_session(session_id, message, notifier=None, username=None)
+    else:
+        sys.stdout.write('Concurrent stream status: '+streamCount+' of '+slotsAllowed+'\n')
+    return None
 
 def terminate_session(session_id, message, notifier=None, username=None):
     """Stop a streaming session.
@@ -251,7 +348,7 @@ if __name__ == "__main__":
         description="Killing Plex streams from Tautulli.")
     parser.add_argument('--jbop', required=True, choices=SELECTOR,
                         help='Kill selector.\nChoices: (%(choices)s)')
-    parser.add_argument('--userId', type=int,
+    parser.add_argument('--userId',
                         help='The unique identifier for the user.')
     parser.add_argument('--username', type=arg_decoding,
                         help='The username of the person streaming.')
@@ -266,8 +363,16 @@ if __name__ == "__main__":
                         help='The seconds between paused session checks.')
     parser.add_argument('--killMessage', nargs='+', type=arg_decoding,
                         help='Message to send to user whose stream is killed.')
+    parser.add_argument('--streamCount',
+                        help='Concurrent streams count.')
 
     opts = parser.parse_args()
+
+    if opts.jbop == 'configUser':
+        configUser()
+        sys.stderr.write("User config done....ok\n")
+        sys.stderr.write("Config path: "+configPath+"\n")
+        sys.exit(0)
 
     if not opts.sessionId and opts.jbop != 'allStreams':
         sys.stderr.write("No sessionId provided! Is this synced content?\n")
@@ -287,3 +392,5 @@ if __name__ == "__main__":
     elif opts.jbop == 'paused':
         terminate_long_pause(opts.sessionId, message, opts.limit,
                              opts.interval, opts.notify, opts.username)
+    elif opts.jbop == 'streamAllowed':
+        check_session(opts.streamCount, opts.userId, opts.sessionId, opts.notify, opts.username)
