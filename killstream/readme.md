@@ -164,3 +164,31 @@ Arguments:
 ```
 --jbop allStreams --userId {user_id} --notify 1 --killMessage 'Hey Bob, we need to talk!'
 ```
+
+### Rich Notifications (Discord or Slack)
+The following can be added to any of the above examples.
+
+**Limitations:**
+* Due to [size](https://api.slack.com/docs/message-attachments#thumb_url) limitations by slack. A thumbnail may not appear with every notification when using `--posterUrl {poster_url}`.
+* `allStreams` will not have poster images in the notifications.
+
+**Required:**
+
+`--notify notifierID --richMessage discord`
+or
+`--richMessage slack`
+
+**_Note: The notifier must be a Webhook in Tautulli_**
+
+**Optional:**
+```
+--serverName {server_name} --plexUrl {plex_url} --posterUrl {poster_url} --richColor '#E5A00D'
+```
+**Debug:**
+
+Add `--debug` to enable debug logging.
+
+<p>
+<img width="420" src="https://i.imgur.com/9iQZsq4.png">
+<img width="420" src="https://i.imgur.com/VvivqCX.png">
+</p>
