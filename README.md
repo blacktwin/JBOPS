@@ -17,9 +17,9 @@ print(plexapi.CONFIG_PATH)
 [![PM](https://img.shields.io/badge/Discord-Scripts-lightgrey.svg?colorB=7289da)](https://discord.gg/tQcWEUp) [![PM](https://img.shields.io/badge/Reddit-Message-lightgrey.svg)](https://www.reddit.com/user/Blacktwin/)  [![PM](https://img.shields.io/badge/Plex-Message-orange.svg)](https://forums.plex.tv/u/blacktwin) [![Issue](https://img.shields.io/badge/Submit-Issue-red.svg)](https://github.com/blacktwin/JBOPS/issues/new) 
 
 ### Donation
-[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4J6RPWZ9J9YML)
-
-  
+<a href="https://www.paypal.me/Adam581/1" target=blank><img src=http://imgur.com/WSVZSTW.png alt="Buy Me a Coffee" height=50 width=100 align='center'>
+</a> &nbsp;&nbsp; or &nbsp;&nbsp; <a href="https://www.paypal.me/Adam581/3" target=blank><img src=http://imgur.com/gnvlm6n.jpg alt="Buy Me a Beer" height=50 width=100 align='center'></a>
+ 
 <details>
 <summary>Coins?</summary>
    <details>
