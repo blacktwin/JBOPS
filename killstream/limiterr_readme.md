@@ -23,6 +23,15 @@ Arguments:
 --jbop watch --username {username} --sessionId {session_id} --limit plays=3 --notify 1 --killMessage 'You have met your limit of 3 watches.' 
 ```
 
+### Limit user to total Plays/Watches in a specific library (Movies)
+_Completed play sessions_ \
+Triggers: Playback Start  
+
+Arguments:
+```
+--jbop watch --username {username} --sessionId {session_id} --limit plays=3 --section Movies --killMessage 'You have met your limit of 3 watches.' 
+```
+
 ### Limit user to total time watching
 
 Triggers: Playback Start  
