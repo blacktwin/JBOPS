@@ -360,6 +360,8 @@ if __name__ == "__main__":
             sys.exit(1)
 
         if ep_watched >= total_limit:
+            print("{}'s limit is {} and has watched {} episodes of this show today."
+                .format(opts.username, total_limit, ep_watched))
             terminate_session(opts.sessionId, message, opts.notify, opts.username)
         else:
             print("{}'s limit is {} but has only watched {} episodes of this show today."
