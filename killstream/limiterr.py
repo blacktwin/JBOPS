@@ -167,7 +167,7 @@ def get_history(username, start_date=None, section_id=None):
 
     Returns
     -------
-    list
+    dict
         The total number of watches, plays, or total playtime.
     """
     payload = {'apikey': TAUTULLI_APIKEY,
@@ -364,4 +364,3 @@ if __name__ == "__main__":
         else:
             print("{}'s limit is {} but has only watched {} episodes of this show today."
                 .format(opts.username, total_limit, ep_watched))
-
