@@ -257,12 +257,6 @@ def arg_decoding(arg):
     return arg.decode(TAUTULLI_ENCODING).encode('UTF-8')
 
 
-def unshare(user):
-    print('{user} has reached their limit. Unsharing...'.format(user=user))
-    plex.myPlexAccount().updateFriend(user=user, server=plex, removeSections=True, sections='2')
-    print('Unshared all libraries from {user}.'.format(user=user))
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Limiting Plex users by plays, watches, or total time from Tautulli.")
