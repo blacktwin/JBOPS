@@ -99,7 +99,7 @@ if sess.verify is False:
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 account = plex.myPlexAccount()
 
-user_lst = [x.title for x in plex.myPlexAccount().users()] + [plex.myPlexAccount().title]
+user_lst = [x.title for x in plex.myPlexAccount().users()]
 section_lst = [x.title for x in plex.library.sections()]
 today = datetime.datetime.now().date()
 
