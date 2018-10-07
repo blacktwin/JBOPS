@@ -168,39 +168,38 @@ Arguments:
 ### Rich Notifications (Discord or Slack)
 The following can be added to any of the above examples.
 
-**How it Works:**
+#### How it Works
 
 Tautulli > Script Agent > Script > Tautulli > Webhook Agent > Discord/Slack
 
 1. Tautulli's script agent is executed
 1. Script executes
-1. The script sends the json data to the webhook agent
+1. The script sends the JSON data to the webhook agent
 1. Webhook agent passes the information to Discord/Slack
 
-**Limitations:**
-* Due to [size](https://api.slack.com/docs/message-attachments#thumb_url) limitations by slack. A thumbnail may not appear with every notification when using `--posterUrl {poster_url}`.
+#### Limitations
+* Due to [size](https://api.slack.com/docs/message-attachments#thumb_url) limitations by Slack. A thumbnail may not appear with every notification when using `--posterUrl {poster_url}`.
 * `allStreams` will not have poster images in the notifications.
 
-**Required:**
+#### Required arguments
 
-`--notify notifierID --richMessage discord`
-or
-`--richMessage slack`
+* Discord: `--notify notifierID --richMessage discord`
+* Slack: `--notify notifierID --richMessage slack`
 
 **_Note: The notifierID must be a Webhook in Tautulli_**
 
-**Optional:**
+#### Optional arguments
 
 ```log
 --serverName {server_name} --plexUrl {plex_url} --posterUrl {poster_url} --richColor '#E5A00D'
 ```
 
-**Webhook Setup:**
+#### Webhook Setup
 1. Settings ->  Notification Agents -> Add a new notification agent -> Webhook
-1. For the **Webhook URL** enter your slack or discord webhook URL. </br>
-Some examples:
-  * Discord: [Intro to Webhooks](https://support.discordapp.com/hc/en-us/articles/228383668-Intro-to-Webhooks)
-  * Slack: [Incoming Webhooks](https://api.slack.com/incoming-webhooks)  
+1. For the **Webhook URL** enter your Slack or Discord webhook URL. </br>
+   Some examples:
+    * Discord: [Intro to Webhooks](https://support.discordapp.com/hc/en-us/articles/228383668-Intro-to-Webhooks)
+    * Slack: [Incoming Webhooks](https://api.slack.com/incoming-webhooks)  
 1. **Webhook Method** - `POST`
 1. No triggers or any other configuration is needed. The script will pass the notifier the data to send to Discord/Slack.
 
