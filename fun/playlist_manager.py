@@ -259,7 +259,7 @@ if __name__ == "__main__":
     parser.add_argument('--action', required=True, choices=ACTIONS,
                         help='Action selector.\n'
                              'Choices: (%(choices)s)')
-    parser.add_argument('--users', required=True, nargs='+', choices=user_lst,
+    parser.add_argument('--users', nargs='+', choices=user_lst,
                         help='The Plex usernames to create/share to or delete from. Allowed names are: \n'
                              'Choices: %(choices)s')
     parser.add_argument('--libraries', nargs='+', choices=section_lst, metavar='',
