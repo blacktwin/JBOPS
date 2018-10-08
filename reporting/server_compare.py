@@ -121,7 +121,7 @@ def get_meta(meta):
     return meta_dict
 
 
-def org_diff(media_type, lst_dicts, main_server):
+def org_diff(lst_dicts, media_type, main_server):
     """Organizing the items from each server
 
     Parameters
@@ -157,6 +157,7 @@ def org_diff(media_type, lst_dicts, main_server):
     dupes = []
     missing = []
     unique = []
+    # todo-me pull posters from connected servers
 
     for mtype in media_type:
         meta_lst = []
@@ -167,6 +168,7 @@ def org_diff(media_type, lst_dicts, main_server):
                     title = u'{} ({})'.format(item.title, item.year)
                 else:
                     title = item.title
+
                 # Look for duplicate titles
                 if title not in seen:
                     seen[title] = 1
@@ -174,7 +176,7 @@ def org_diff(media_type, lst_dicts, main_server):
                 else:
                     # Duplicate found
                     if seen[title] >= 1:
-                        dupes.append([title,item._server.friendlyName])
+                        dupes.append([title, item._server.friendlyName])
                         # Go back through list to find original
                         for meta in meta_lst:
                             if meta['title'] == title:
@@ -183,8 +185,7 @@ def org_diff(media_type, lst_dicts, main_server):
                     seen[title] += 1
         # Sort item list by Plex rating
         # Duplicates will use originals rating
-        meta_lst = sorted(meta_lst, key=lambda d: d['rating'],
-                          reverse=True)
+        meta_lst = sorted(meta_lst, key=lambda d: d['rating'], reverse=True)
         diff_dict[mtype] = {'combined': {'count': len(meta_lst),
                                               'list': meta_lst}}
 
