@@ -103,7 +103,8 @@ def get_meta(meta):
     """
 
     meta_dict = {'title': meta.title,
-                 'rating': meta.rating,
+                 'rating': meta.rating if
+                                meta.rating != None else 0.0,
                  'genres': [x.tag for x in meta.genres],
                  'server': [meta._server.friendlyName]
                 }
