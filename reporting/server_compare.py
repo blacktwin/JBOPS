@@ -101,12 +101,15 @@ def get_meta(meta):
         "title": "Title"
         }
     """
-
+    thumb_url = '{}{}?X-Plex-Token={}'.format(
+        meta._server._baseurl, meta.thumb, meta._server._token)
+    
     meta_dict = {'title': meta.title,
                  'rating': meta.rating if
                                 meta.rating != None else 0.0,
                  'genres': [x.tag for x in meta.genres],
-                 'server': [meta._server.friendlyName]
+                 'server': [meta._server.friendlyName],
+                 'thumb': [thumb_url]
                 }
     if meta.guid:
         # guid will return (com.plexapp.agents.imdb://tt4302938?lang=en)
@@ -183,6 +186,9 @@ def org_diff(lst_dicts, media_type, main_server):
                             if meta['title'] == title:
                                 # Append the duplicate server's name
                                 meta['server'].append(item._server.friendlyName)
+                                thumb_url = '{}{}?X-Plex-Token={}'.format(
+                                    item._server._baseurl, item.thumb, item._server._token)
+                                meta['thumb'].append(thumb_url)
                     seen[title] += 1
         # Sort item list by Plex rating
         # Duplicates will use originals rating
