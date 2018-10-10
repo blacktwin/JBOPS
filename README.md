@@ -322,6 +322,11 @@ Killing streams is a Plex Pass feature. These scripts will only work for Plex Pa
 <details>
 <summary>Setting Up Tautulli for Custom Scripts</summary>
 
+#### Enable API in Tautulli:
+
+Tautullli > Settings > Web Interface > API > Enable API
+
+
 #### Enabling Scripts in Tautulli:
 
 Taultulli > Settings > Notification Agents > Add a Notification Agent > Script
