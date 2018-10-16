@@ -105,18 +105,9 @@ Killing streams is a Plex Pass feature. These scripts will only work for Plex Pa
   </tr>
   <tr>
     <td></td>
-    <td><a href="../master/killstream/watch_limit.py">watch_limit</a></td>
-    <td>Kill streams if user has watched too much Plex Today.</td>
-  </tr>
-  <tr>
-    <td></td>
-    <td><a href="../master/killstream/play_limit.py">play_limit</a></td>
-    <td>Kill streams if user has played too much Plex Today.</td>
-  </tr>
-  <tr>
-    <td></td>
-    <td><a href="../master/killstream/kill_time.py">kill_time</a></td>
-    <td>Limit number of plays of TV Show episodes during time of day. Idea is to reduce continuous plays while sleeping.</td>
+    <td><a href="../master/killstream/limiterr.py">limiterr</a></td>
+    <td>Limiting Plex users by plays, watches, or total time from Tautulli..
+        See killsteam section <a href="../master/killstream/limiterr_readme.md">limiterr_readme.md</a></td>
   </tr>
   <tr>
     <td></td>
