@@ -280,7 +280,9 @@ if __name__ == "__main__":
     parser.add_argument('--section', default=False, choices=lib_dict.keys(), metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
                              '(choices: %(choices)s)')
-
+    parser.add_argument('--today', default=False, action='store_true',
+                        help='Search history only for today. \n'
+                             'Default: %(default)s')
     opts = parser.parse_args()
 
     total_limit = 0
@@ -310,9 +312,9 @@ if __name__ == "__main__":
 
     if opts.section:
         section_id = lib_dict[opts.section]
-        history = get_history(username=opts.username, section_id=section_id)
+        history = get_history(username=opts.username, section_id=section_id, start_date=opts.today)
     else:
-        history = get_history(username=opts.username)
+        history = get_history(username=opts.username, start_date=opts.today)
 
     if opts.jbop == 'watch':
         total_jbop = sum([data['watched_status'] for data in history['data']])
@@ -329,7 +331,8 @@ if __name__ == "__main__":
         else:
             print('Total {} ({}) is less than limit ({}).'
                   .format(opts.jbop, total_jbop, total_limit))
-
+    # todo-me need more flexibility for pulling history
+    # limit work requires gp_rating_key only? Needs more options.
     if opts.jbop == 'limit' and opts.grandparent_rating_key:
         history = get_history(username=opts.username, start_date=True)
         message = LIMIT_MESSAGE.format(delay=opts.delay)
