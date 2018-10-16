@@ -243,11 +243,6 @@ Killing streams is a Plex Pass feature. These scripts will only work for Plex Pa
     <td>Delete all playlists from Plex using PlexAPI.    </td>
   </tr>
   <tr>
-    <td><a href="https://gist.github.com/blacktwin/df58032de3e6f4d29f7ea562aeaebbab"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
-    <td><a href="../master/utility/plexapi_search_file.py">plexapi_search_file</a></td>
-    <td>Find full path for Plex items.    </td>
-  </tr>
-  <tr>
     <td><a href="https://gist.github.com/blacktwin/3752a76fa0b3fc6d19e842af7b812184"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/utility/refresh_next_episode.py">refresh_next_episode</a></td>
     <td>Refresh the next episode of show once current episode is watched.    </td>
