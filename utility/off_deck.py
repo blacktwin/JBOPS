@@ -108,7 +108,7 @@ if __name__ == '__main__':
     if opts.shows and not opts.playlist:
         to_remove = opts.shows
     elif not opts.shows and opts.playlist:
-        to_remove = [x.title for x in plex_server.playlist(opts.playlist).items()]
+        to_remove = [x.grandparentTitle for x in plex_server.playlist(opts.playlist).items()]
 
     if not to_remove:
         print('Nothing to remove...')
