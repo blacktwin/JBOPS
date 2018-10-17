@@ -44,7 +44,7 @@ optional arguments:
     python playlist_manager.py --jbop mostPopularTv --action add --users bob "Black Twin"
 
  Create 10 Most Popular Movies (60 days) Playlist and share to users bob and Black Twin
-    python playlist_manager.py --jbop mostPopularTv --action add --users bob "Black Twin" --days 60 --top 10
+    python playlist_manager.py --jbop mostPopularMovies --action add --users bob "Black Twin" --days 60 --top 10
 """
 
 import sys
