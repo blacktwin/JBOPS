@@ -92,7 +92,7 @@ if __name__ == '__main__':
     parser.add_argument('--user', nargs='?',
                         help='User whose On Deck will be modified.')
     parser.add_argument('--playlist', nargs='?',
-                        help='Items in playlist to be removed from On Deck')
+                        help='Shows in playlist to be removed from On Deck')
 
     opts = parser.parse_args()
 
