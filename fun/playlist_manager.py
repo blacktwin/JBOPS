@@ -82,8 +82,15 @@ MOVIE_PLAYLIST = 'Most Popular Movies ({days} days)'
 TV_PLAYLIST = 'Most Popular TV Shows ({days} days)'
 
 SELECTOR = ['todayInHistory', 'mostPopularTv', 'mostPopularMovies']
-ACTIONS = ['add', 'remove', 'update', 'show']
 
+ACTIONS = ['add', 'remove', 'update', 'show', 'share']
+"""
+add - create new playlist for admin or users
+remove - remove playlist type or name from admin or users
+update - remove playlist type and create new playlist type for admin or users
+show - show contents of playlist type
+share - share existing playlist by title from admin to users
+"""
 
 sess = requests.Session()
 # Ignore verifying the SSL certificate
