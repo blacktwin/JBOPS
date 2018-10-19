@@ -83,15 +83,6 @@ TV_PLAYLIST = 'Most Popular TV Shows ({days} days)'
 
 SELECTOR = ['todayInHistory', 'mostPopularTv', 'mostPopularMovies']
 
-ACTIONS = ['add', 'remove', 'update', 'show', 'share']
-"""
-add - create new playlist for admin or users
-remove - remove playlist type or name from admin or users
-update - remove playlist type and create new playlist type for admin or users
-show - show contents of playlist type or admin or users current playlists
-share - share existing playlist by title from admin to users
-"""
-
 sess = requests.Session()
 # Ignore verifying the SSL certificate
 sess.verify = False  # '/path/to/certfile'
@@ -110,6 +101,17 @@ user_lst = [x.title for x in plex.myPlexAccount().users()]
 section_lst = [x.title for x in plex.library.sections()]
 playlist_lst = [x.title for x in plex.playlists()]
 today = datetime.datetime.now().date()
+
+
+def actions():
+    """
+    add - create new playlist for admin or users
+    remove - remove playlist type or name from admin or users
+    update - remove playlist type and create new playlist type for admin or users
+    show - show contents of playlist type or admin or users current playlists
+    share - share existing playlist by title from admin to users
+    """
+    return ['add', 'remove', 'update', 'show', 'share']
 
 
 def get_home_stats(time_range, stats_count):
@@ -312,13 +314,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create, share, and clean Playlists for users.",
                                      formatter_class = argparse.RawTextHelpFormatter)
     # todo-me use parser grouping instead of choices for action and jbop?
-    parser.add_argument('--jbop', choices=SELECTOR,
+    parser.add_argument('--jbop', choices=SELECTOR, metavar='',
                         help='Playlist selector.\n'
                              'Choices: (%(choices)s)')
-    parser.add_argument('--action', required=True, choices=ACTIONS,
-                        help='Action selector.\n'
-                             'Choices: (%(choices)s)')
-    parser.add_argument('--user', nargs='+', choices=user_lst,
+    parser.add_argument('--action', required=True, choices=actions(),
+                        help='Action selector.'
+                             '{}'.format(actions.__doc__))
+    parser.add_argument('--user', nargs='+', choices=user_lst, metavar='',
                         help='The Plex usernames to create/share to or delete from. Allowed names are: \n'
                              'Choices: %(choices)s')
     parser.add_argument('--allUsers', default=False, action='store_true',
