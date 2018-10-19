@@ -262,15 +262,22 @@ def create_playlist(playlist_title, playlist_keys, server, user):
     """
     playlist_list = []
     for key in playlist_keys:
-        plex_obj = server.fetchItem(key)
+        try:
+            plex_obj = server.fetchItem(key)
+        except Exception as e:
+            obj = plex.fetchItem(key)
+            print("{} may not have permission to this title: {}".format(user, obj.title))
+            # print("Error: {}".format(e))
+            break
         if plex_obj.type == 'show':
             for episode in plex_obj.episodes():
                 playlist_list.append(episode)
         else:
             playlist_list.append(plex_obj)
 
-    server.createPlaylist(playlist_title, playlist_list)
-    print("...Added {title} playlist to '{user}'.".format(title=playlist_title, user=user))
+    if playlist_list:
+        server.createPlaylist(playlist_title, playlist_list)
+        print("...Added {title} playlist to '{user}'.".format(title=playlist_title, user=user))
 
 
 def delete_playlist(server, user, jbop):
@@ -385,7 +392,7 @@ if __name__ == "__main__":
                 keys_list = get_all_content(opts.libraries)
             except TypeError as e:
                 print("Libraries are not defined for {}. Use --libraries.".format(opts.jbop))
-                exit(e)
+                exit("Error: {}".format(e))
             title = TODAY_PLAY_TITLE.format(month=today.month, day=today.day)
 
         if opts.jbop == 'mostPopularTv':
