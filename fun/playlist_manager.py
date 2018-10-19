@@ -10,8 +10,14 @@ optional arguments:
   -h, --help            show this help message and exit
   --jbop                Playlist selector.
                         Choices: (todayInHistory, mostPopularTv, mostPopularMovies)
-  --action              Action selector.
-                        Choices: (add, remove, update)
+  --action {add,remove,update,show,share}
+                        Action selector.
+                            add - create new playlist for admin or users
+                            remove - remove playlist type or name from admin or users
+                            update - remove playlist type and create new playlist type for admin or users
+                            show - show contents of playlist type or admin or users current playlists
+                            share - share existing playlist by title from admin to users
+
   --users {]            The Plex usernames to create/share to or delete from.
                         Choices:  (USERNAMES)
   --libraries  [ ...]   Space separated list of case sensitive names to
@@ -23,6 +29,9 @@ optional arguments:
                         Default: 30
   --top TOP             The number of top items to list.
                         Default: 5
+   --playlists          Space separated list of case sensitive names to
+                        process. Allowed names are:
+                        Choices: (PLAYLISTS)
 
 
  Example:
@@ -45,6 +54,21 @@ optional arguments:
 
  Create 10 Most Popular Movies (60 days) Playlist and share to users bob and Black Twin
     python playlist_manager.py --jbop mostPopularMovies --action add --users bob "Black Twin" --days 60 --top 10
+    
+ Show 5 Most Popular TV Shows (30 days) Playlist
+    python playlist_manager.py --jbop mostPopularTv --action show
+    
+ Show all users current playlists
+    python playlist_manager.py --action show --allUsers
+    
+ Share existing admin Playlists "My Custom Playlist" and "Another Playlist" with all users
+    python playlist_manager.py --action share --allUsers --playlists "My Custom Playlist" "Another Playlist"
+ Excluding;
+
+ --user becomes excluded if --allUsers is set
+   python playlist_manager.py --action show --allUsers --user USER
+       - Show all users current Playlists... all users but USER
+
 """
 
 import sys
@@ -344,8 +368,9 @@ if __name__ == "__main__":
     parser.add_argument('--top', type=str, default=TOP,
                         help='The number of top items to list. \n'
                              'Default: %(default)s')
-    parser.add_argument('--playlists', nargs='+', choices=playlist_lst,
-                        help='Shows in playlist to be removed from On Deck')
+    parser.add_argument('--playlists', nargs='+', choices=playlist_lst, metavar='',
+                        help='Space separated list of case sensitive names to process. Allowed names are: \n'
+                             'Choices: %(choices)s')
     
     opts = parser.parse_args()
     # print(opts)
