@@ -44,7 +44,7 @@ optional arguments:
     python playlist_manager.py --jbop mostPopularTv --action add --users bob "Black Twin"
 
  Create 10 Most Popular Movies (60 days) Playlist and share to users bob and Black Twin
-    python playlist_manager.py --jbop mostPopularTv --action add --users bob "Black Twin" --days 60 --top 10
+    python playlist_manager.py --jbop mostPopularMovies --action add --users bob "Black Twin" --days 60 --top 10
 """
 
 import sys
@@ -82,7 +82,7 @@ MOVIE_PLAYLIST = 'Most Popular Movies ({days} days)'
 TV_PLAYLIST = 'Most Popular TV Shows ({days} days)'
 
 SELECTOR = ['todayInHistory', 'mostPopularTv', 'mostPopularMovies']
-ACTIONS = ['add', 'remove', 'update']
+ACTIONS = ['add', 'remove', 'update', 'show']
 
 
 sess = requests.Session()
@@ -256,7 +256,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Create, share, and clean Playlists for users.",
                                      formatter_class = argparse.RawTextHelpFormatter)
-    parser.add_argument('--jbop', required=True, choices=SELECTOR,
+    parser.add_argument('--jbop', choices=SELECTOR,
                         help='Playlist selector.\n'
                              'Choices: (%(choices)s)')
     parser.add_argument('--action', required=True, choices=ACTIONS,
@@ -296,6 +296,13 @@ if __name__ == "__main__":
         plex_servers.append({'server': plex,
                             'user': 'admin'})
 
+    if opts.action == 'show':
+        print("Displaying the user's playlist(s)...")
+        for x in plex_servers:
+            user = x['user']
+            playlist = [y.title for y in x['server'].playlists()]
+            print("{}'s current playlist(s): {}".format(user, ', '.join(playlist)))
+            
     if opts.action == 'remove':
         print("Deleting the playlist(s)...")
         for x in plex_servers:
