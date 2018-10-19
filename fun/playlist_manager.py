@@ -108,6 +108,7 @@ account = plex.myPlexAccount()
 
 user_lst = [x.title for x in plex.myPlexAccount().users()]
 section_lst = [x.title for x in plex.library.sections()]
+playlist_lst = [x.title for x in plex.playlists()]
 today = datetime.datetime.now().date()
 
 
@@ -194,6 +195,26 @@ def get_all_content(library_name):
     play_lst = [x[0] for x in aired_lst]
 
     return play_lst
+
+
+def share_playlists(playlist_titles, users):
+    """
+
+    Parameters
+    ----------
+    playlist_titles
+    users
+
+    Returns
+    -------
+
+    """
+    for user in users:
+        for title in playlist_titles:
+            print("...Shared {title} playlist to '{user}'.".format(title=title, user=user))
+            plex.playlist(title).copyToUser(user)
+
+    exit()
 
 
 def show_playlist(playlist_title, playlist_keys):
@@ -290,6 +311,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Create, share, and clean Playlists for users.",
                                      formatter_class = argparse.RawTextHelpFormatter)
+    # todo-me use parser grouping instead of choices for action and jbop?
     parser.add_argument('--jbop', choices=SELECTOR,
                         help='Playlist selector.\n'
                              'Choices: (%(choices)s)')
@@ -313,7 +335,9 @@ if __name__ == "__main__":
     parser.add_argument('--top', type=str, default=TOP,
                         help='The number of top items to list. \n'
                              'Default: %(default)s')
-
+    parser.add_argument('--playlists', nargs='+', choices=playlist_lst,
+                        help='Shows in playlist to be removed from On Deck')
+    
     opts = parser.parse_args()
     # print(opts)
 
@@ -333,6 +357,9 @@ if __name__ == "__main__":
             
     if users:
         for user in users:
+            if opts.action == 'share':
+                print("Sharing playlist(s)...")
+                share_playlists(opts.playlists, users)
             user_acct = account.user(user)
             plex_servers.append({
                 'server': PlexServer(PLEX_URL, user_acct.get_token(plex.machineIdentifier)),
@@ -372,8 +399,8 @@ if __name__ == "__main__":
                 if stat['stat_id'] == 'popular_movies':
                     keys_list = [x['rating_key'] for x in stat['rows']]
                     title = MOVIE_PLAYLIST.format(days=opts.days)
-        
-        if opts.action == 'show':
+
+        if opts.jbop and opts.action == 'show':
             show_playlist(title, keys_list)
 
     if opts.action == 'update':
