@@ -178,7 +178,8 @@ def find_shares(user):
         'filterMovies': filter_clean(user_acct.filterMovies),
         'filterTelevision': filter_clean(user_acct.filterTelevision),
         'filterMusic': filter_clean(user_acct.filterMusic),
-        'serverName': plex.friendlyName}
+        'serverName': plex.friendlyName,
+        'sections': ""}
 
     for server in user_acct.servers:
         if server.name == plex.friendlyName:
