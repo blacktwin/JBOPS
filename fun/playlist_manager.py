@@ -189,6 +189,33 @@ def get_all_content(library_name):
     return play_lst
 
 
+def show_playlist(playlist_title, playlist_keys):
+    """
+
+    Parameters
+    ----------
+    playlist_keys
+
+    Returns
+    -------
+
+    """
+    playlist_list = []
+    for key in playlist_keys:
+        plex_obj = plex.fetchItem(key)
+        if plex_obj.type == 'show':
+            for episode in plex_obj.episodes():
+                title = "{}".format(episode._prettyfilename())
+                playlist_list.append(title)
+        else:
+            title = "{} ({})".format(plex_obj.title, plex_obj.year)
+            playlist_list.append(title)
+
+    print("Contents of Playlist {title}:\n{playlist}".format(title=playlist_title,
+                                                             playlist=', '.join(playlist_list)))
+    exit()
+    
+    
 def create_playlist(playlist_title, playlist_keys, server, user):
     """
 
@@ -281,11 +308,11 @@ if __name__ == "__main__":
                              'Default: %(default)s')
 
     opts = parser.parse_args()
-    users = ''
     # print(opts)
 
+    users = ''
     plex_servers = []
-    # todo-me add allUsers and exclusions
+
     # Defining users
     if opts.allUsers and not opts.user:
         users = user_lst
@@ -309,13 +336,6 @@ if __name__ == "__main__":
     else:
         plex_servers.append({'server': plex,
                             'user': 'admin'})
-
-    if opts.action == 'show':
-        print("Displaying the user's playlist(s)...")
-        for x in plex_servers:
-            user = x['user']
-            playlist = [y.title for y in x['server'].playlists()]
-            print("{}'s current playlist(s): {}".format(user, ', '.join(playlist)))
             
     if opts.action == 'remove':
         print("Deleting the playlist(s)...")
@@ -325,7 +345,11 @@ if __name__ == "__main__":
     else:
         # todo-me add more playlist types
         if opts.jbop == 'todayInHistory':
-            keys_list = get_all_content(opts.libraries)
+            try:
+                keys_list = get_all_content(opts.libraries)
+            except TypeError as e:
+                print("Libraries are not defined for {}. Use --libraries.".format(opts.jbop))
+                exit(e)
             title = TODAY_PLAY_TITLE.format(month=today.month, day=today.day)
 
         if opts.jbop == 'mostPopularTv':
@@ -341,6 +365,9 @@ if __name__ == "__main__":
                 if stat['stat_id'] == 'popular_movies':
                     keys_list = [x['rating_key'] for x in stat['rows']]
                     title = MOVIE_PLAYLIST.format(days=opts.days)
+        
+        if opts.action == 'show':
+            show_playlist(title, keys_list)
 
     if opts.action == 'update':
         print("Deleting the playlist(s)...")
@@ -357,5 +384,12 @@ if __name__ == "__main__":
         print('Creating playlist(s)...')
         for x in plex_servers:
             create_playlist(title, keys_list, x['server'], x['user'])
+
+    if opts.action == 'show':
+        print("Displaying the user's playlist(s)...")
+        for x in plex_servers:
+            user = x['user']
+            playlist = [y.title for y in x['server'].playlists()]
+            print("{}'s current playlist(s): {}".format(user, ', '.join(playlist)))
 
     print("Done.")
