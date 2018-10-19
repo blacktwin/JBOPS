@@ -262,9 +262,11 @@ if __name__ == "__main__":
     parser.add_argument('--action', required=True, choices=ACTIONS,
                         help='Action selector.\n'
                              'Choices: (%(choices)s)')
-    parser.add_argument('--users', nargs='+', choices=user_lst,
+    parser.add_argument('--user', nargs='+', choices=user_lst,
                         help='The Plex usernames to create/share to or delete from. Allowed names are: \n'
                              'Choices: %(choices)s')
+    parser.add_argument('--allUsers', default=False, action='store_true',
+                        help='Select all users.')
     parser.add_argument('--libraries', nargs='+', choices=section_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
                              'Choices: %(choices)s')
@@ -279,12 +281,24 @@ if __name__ == "__main__":
                              'Default: %(default)s')
 
     opts = parser.parse_args()
+    users = ''
     # print(opts)
 
     plex_servers = []
-    # todo-me add allUsers and exclusions 
-    if opts.users:
-        for user in opts.users:
+    # todo-me add allUsers and exclusions
+    # Defining users
+    if opts.allUsers and not opts.user:
+        users = user_lst
+    elif not opts.allUsers and opts.user:
+        users = opts.user
+    elif opts.allUsers and opts.user:
+        # If allUsers is used then any users listed will be excluded
+        for user in opts.user:
+            user_lst.remove(user)
+            users = user_lst
+            
+    if users:
+        for user in users:
             user_acct = account.user(user)
             plex_servers.append({
                 'server': PlexServer(PLEX_URL, user_acct.get_token(plex.machineIdentifier)),
