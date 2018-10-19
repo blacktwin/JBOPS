@@ -88,7 +88,7 @@ ACTIONS = ['add', 'remove', 'update', 'show', 'share']
 add - create new playlist for admin or users
 remove - remove playlist type or name from admin or users
 update - remove playlist type and create new playlist type for admin or users
-show - show contents of playlist type
+show - show contents of playlist type or admin or users current playlists
 share - share existing playlist by title from admin to users
 """
 
