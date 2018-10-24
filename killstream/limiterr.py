@@ -37,6 +37,7 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
             --grandparent_rating_key {grandparent_rating_key}
             --limit plays=3 --delay 60
             --killMessage 'Your message here.'
+            --today
 
  Save
  Close
