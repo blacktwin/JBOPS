@@ -42,11 +42,11 @@ Arguments:
 ```
 
 
-### Limit user to total play sessions
+### Limit user to total play sessions for the day
 
 Triggers: Playback Start  
 
 Arguments:
 ```
---jbop plays --username {username} --sessionId {session_id} --limit plays=3 --killMessage 'You have met your limit of 3 play sessions.'
+--jbop plays --username {username} --sessionId {session_id} --today --limit plays=3 --killMessage 'You have met your limit of 3 play sessions.'
 ```
