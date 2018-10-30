@@ -156,8 +156,8 @@ def get_home_stats(time_range, stats_count):
         sys.stderr.write("Tautulli API 'get_home_stats' request failed: {0}.".format(e))
 
 
-def find_air_dates(video):
-    """Find what aired with today's month-day
+def sort_by_dates(video):
+    """Find air dates of content
 
     Parameters
     ----------
@@ -172,10 +172,13 @@ def find_air_dates(video):
     """
 
     try:
-        ad_month = str(video.originallyAvailableAt.month)
-        ad_day = str(video.originallyAvailableAt.day)
+        ad_year = video.originallyAvailableAt.year
+        ad_month = video.originallyAvailableAt.month
+        ad_day = video.originallyAvailableAt.day
+        ad_week = int(datetime.date(ad_year, ad_month, ad_day).strftime("%V"))
 
-        if ad_month == str(today.month) and ad_day == str(today.day):
+        if ad_month == today.month and ad_day == today.day:
+            # todo-me return object
             return [[video.ratingKey] + [str(video.originallyAvailableAt)]]
     except Exception as e:
         # print(e)
@@ -203,18 +206,19 @@ def get_all_content(library_name):
     for library in library_name:
         for child in plex.library.section(library).all():
             if child.type == 'movie':
-                if find_air_dates(child):
-                    item_date = find_air_dates(child)
+                if sort_by_dates(child):
+                    item_date = sort_by_dates(child)
                     child_lst += item_date
             elif child.type == 'show':
                 for episode in child.episodes():
-                    if find_air_dates(episode):
-                        item_date = find_air_dates(episode)
+                    if sort_by_dates(episode):
+                        item_date = sort_by_dates(episode)
                         child_lst += item_date
             else:
                 pass
 
     # Sort by original air date, oldest first
+    # todo-me move sorting and add more sorting options
     aired_lst = sorted(child_lst, key=operator.itemgetter(1))
 
     # Remove date used for sorting
@@ -290,6 +294,8 @@ def create_playlist(playlist_title, playlist_keys, server, user):
             plex_obj = server.fetchItem(key)
         except Exception as e:
             obj = plex.fetchItem(key)
+            # This may fail as well if the key has been deleted or modified and trash hasn't
+            # been emptied, Check rating_key that throws error.
             print("{} may not have permission to this title: {}".format(user, obj.title))
             # print("Error: {}".format(e))
             break
