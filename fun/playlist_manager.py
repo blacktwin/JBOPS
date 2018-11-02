@@ -292,18 +292,20 @@ def create_playlist(playlist_title, playlist_keys, server, user):
     for key in playlist_keys:
         try:
             plex_obj = server.fetchItem(key)
+            if plex_obj.type == 'show':
+                for episode in plex_obj.episodes():
+                    playlist_list.append(episode)
+            else:
+                playlist_list.append(plex_obj)
         except Exception as e:
-            obj = plex.fetchItem(key)
-            # This may fail as well if the key has been deleted or modified and trash hasn't
-            # been emptied, Check rating_key that throws error.
-            print("{} may not have permission to this title: {}".format(user, obj.title))
-            # print("Error: {}".format(e))
-            break
-        if plex_obj.type == 'show':
-            for episode in plex_obj.episodes():
-                playlist_list.append(episode)
-        else:
-            playlist_list.append(plex_obj)
+            try:
+                obj = plex.fetchItem(key)
+                print("{} may not have permission to this title: {}".format(user, obj.title))
+                # print("Error: {}".format(e))
+                pass
+            except Exception as e:
+                print('Rating Key: {}, may have been deleted or moved.'.format(key))
+                # print("Error: {}".format(e))
 
     if playlist_list:
         server.createPlaylist(playlist_title, playlist_list)
@@ -377,7 +379,8 @@ if __name__ == "__main__":
     parser.add_argument('--playlists', nargs='+', choices=playlist_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
                              'Choices: %(choices)s')
-    
+    # todo-me custom naming for playlists --name?
+    # todo-me custom limits to playlist --limit?
     opts = parser.parse_args()
     # print(opts)
 
@@ -418,6 +421,8 @@ if __name__ == "__main__":
 
     else:
         # todo-me add more playlist types
+        # todo-me random, genre, rating, unwatched, studio, network (shows),
+        # todo-me labels, collections, country, writer, director,
         if opts.jbop == 'todayInHistory':
             try:
                 keys_list = get_all_content(opts.libraries)
