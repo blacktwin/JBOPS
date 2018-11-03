@@ -66,7 +66,7 @@ Usage:
        - Backup all user shares to a json file
 
    plex_api_share.py --restore
-       - Only restore all Plex user's shares and settings from backup json file
+       - Restore all Plex user's shares and settings from backup json file
 
    plex_api_share.py --restore --user USER
        - Only restore USER's Plex shares and settings from backup json file
