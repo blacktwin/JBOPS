@@ -312,19 +312,24 @@ def create_playlist(playlist_title, playlist_keys, server, user):
         print("...Added {title} playlist to '{user}'.".format(title=playlist_title, user=user))
 
 
-def delete_playlist(server, user, jbop):
+def delete_playlist(playlist_dict):
     """
 
     Parameters
     ----------
-    user_lst
+    playlist_dict
 
     Returns
     -------
 
     """
 
-    # Delete the old playlist
+    server = playlist_dict['server']
+    jbop = playlist_dict['jbop']
+    user = playlist_dict['user']
+    pop_movie = playlist_dict['pop_movie']
+    pop_tv = playlist_dict['pop_tv']
+    
     try:
         for playlist in server.playlists():
             if jbop == 'todayInHistory':
@@ -333,12 +338,12 @@ def delete_playlist(server, user, jbop):
                     print("...Deleted {playlist.title} for '{user}'."
                           .format(playlist=playlist, user=user))
             elif jbop == 'mostPopularMovies':
-                if playlist.title.startswith('Most Popular Movies'):
+                if playlist.title == pop_movie:
                     playlist.delete()
                     print("...Deleted {playlist.title} for '{user}'."
                           .format(playlist=playlist, user=user))
             elif jbop == 'mostPopularTv':
-                if playlist.title.startswith('Most Popular TV'):
+                if playlist.title == pop_tv:
                     playlist.delete()
                     print("...Deleted {playlist.title} for '{user}'."
                           .format(playlist=playlist, user=user))
@@ -379,6 +384,10 @@ if __name__ == "__main__":
     parser.add_argument('--playlists', nargs='+', choices=playlist_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
                              'Choices: %(choices)s')
+    parser.add_argument('--name', type=str,
+                        help='Custom name for playlist.')
+    parser.add_argument('--limit', type=int, default=False,
+                        help='Limit the amount items to be added to a playlist.')
     # todo-me custom naming for playlists --name?
     # todo-me custom limits to playlist --limit?
     opts = parser.parse_args()
@@ -386,6 +395,12 @@ if __name__ == "__main__":
 
     users = ''
     plex_servers = []
+    pop_movie_title = MOVIE_PLAYLIST.format(days=opts.days)
+    pop_tv_title = TV_PLAYLIST.format(days=opts.days)
+    
+    playlist_dict = {'jbop': opts.jbop,
+                     'pop_tv': pop_tv_title,
+                     'pop_movie': pop_movie_title}
 
     # Defining users
     if opts.allUsers and not opts.user:
@@ -417,7 +432,9 @@ if __name__ == "__main__":
     if opts.action == 'remove':
         print("Deleting the playlist(s)...")
         for x in plex_servers:
-            delete_playlist(x['server'], x['user'], opts.jbop)
+            playlist_dict['server'] = x['server']
+            playlist_dict['user'] = x['user']
+            delete_playlist(playlist_dict)
 
     else:
         # todo-me add more playlist types
@@ -436,14 +453,15 @@ if __name__ == "__main__":
             for stat in home_stats:
                 if stat['stat_id'] == 'popular_tv':
                     keys_list = [x['rating_key'] for x in stat['rows']]
-                    title = TV_PLAYLIST.format(days=opts.days)
+                    title = pop_tv_title
+
 
         if opts.jbop == 'mostPopularMovies':
             home_stats = get_home_stats(opts.days, opts.top)
             for stat in home_stats:
                 if stat['stat_id'] == 'popular_movies':
                     keys_list = [x['rating_key'] for x in stat['rows']]
-                    title = MOVIE_PLAYLIST.format(days=opts.days)
+                    title = pop_movie_title
 
         if opts.jbop and opts.action == 'show':
             show_playlist(title, keys_list)
@@ -451,7 +469,9 @@ if __name__ == "__main__":
     if opts.action == 'update':
         print("Deleting the playlist(s)...")
         for x in plex_servers:
-            delete_playlist(x['server'], x['user'], opts.jbop)
+            playlist_dict['server'] = x['server']
+            playlist_dict['user'] = x['user']
+            delete_playlist(playlist_dict)
         print('Creating playlist(s)...')
         for x in plex_servers:
             create_playlist(title, keys_list, x['server'], x['user'])
