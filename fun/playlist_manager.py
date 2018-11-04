@@ -9,7 +9,7 @@ Create, share, and clean Playlists for users.
 optional arguments:
   -h, --help            show this help message and exit
   --jbop                Playlist selector.
-                        Choices: (todayInHistory, mostPopularTv, mostPopularMovies)
+                        Choices: (history, popularTv, popularMovies)
   --action {add,remove,update,show,share}
                         Action selector.
                             add - create new playlist for admin or users
@@ -38,25 +38,25 @@ optional arguments:
     Use with cron or task to schedule runs
     
  Create Aired Today Playlist from Movies and TV Shows libraries for admin user
-    python playlist_manager.py --jbop todayInHistory --libraries Movies "TV Shows" --action add
+    python playlist_manager.py --jbop history --libraries Movies "TV Shows" --action add
 
  Create Aired Today Playlist from Movies and TV Shows libraries and share to users bob, Black Twin and admin user
-    python playlist_manager.py --jbop todayInHistory --libraries Movies "TV Shows" --action add --users bob "Black Twin" --self
+    python playlist_manager.py --jbop history --libraries Movies "TV Shows" --action add --users bob "Black Twin" --self
 
  Update previous Aired Today Playlist(s) from Movies and TV Shows libraries and share to users bob and Black Twin
-    python playlist_manager.py --jbop todayInHistory --libraries Movies "TV Shows" --action update --users bob "Black Twin"
+    python playlist_manager.py --jbop history --libraries Movies "TV Shows" --action update --users bob "Black Twin"
 
  Delete all previous Aired Today Playlist(s) from users bob and Black Twin
-    python playlist_manager.py --jbop todayInHistory --action remove --users bob "Black Twin"
+    python playlist_manager.py --jbop history --action remove --users bob "Black Twin"
 
  Create 5 Most Popular TV Shows (30 days) Playlist and share to users bob and Black Twin
-    python playlist_manager.py --jbop mostPopularTv --action add --users bob "Black Twin"
+    python playlist_manager.py --jbop popularTv --action add --users bob "Black Twin"
 
  Create 10 Most Popular Movies (60 days) Playlist and share to users bob and Black Twin
-    python playlist_manager.py --jbop mostPopularMovies --action add --users bob "Black Twin" --days 60 --top 10
+    python playlist_manager.py --jbop popularMovies --action add --users bob "Black Twin" --days 60 --top 10
     
  Show 5 Most Popular TV Shows (30 days) Playlist
-    python playlist_manager.py --jbop mostPopularTv --action show
+    python playlist_manager.py --jbop popularTv --action show
     
  Show all users current playlists
     python playlist_manager.py --action show --allUsers
@@ -100,13 +100,6 @@ if not TAUTULLI_APIKEY:
 DAYS = 30
 TOP = 5
 
-# Playlist Titles
-TODAY_PLAY_TITLE = 'Aired Today {month}-{day}'
-MOVIE_PLAYLIST = 'Most Popular Movies ({days} days)'
-TV_PLAYLIST = 'Most Popular TV Shows ({days} days)'
-
-SELECTOR = ['todayInHistory', 'mostPopularTv', 'mostPopularMovies']
-
 sess = requests.Session()
 # Ignore verifying the SSL certificate
 sess.verify = False  # '/path/to/certfile'
@@ -137,6 +130,25 @@ def actions():
     """
     return ['add', 'remove', 'update', 'show', 'share']
 
+
+def selectors():
+    """Playlist selections and titles
+    """
+    selections = {'history': 'Aired Today {month}-{day}',
+                  'popularTv': 'Most Popular Movies ({days} days)',
+                  'popularMovies': 'Most Popular TV Shows ({days} days)',
+                  'genre': '{title} Playlist',
+                  'random': '{count} Random Playlist',
+                  'studio': 'Studio: {title} Playlist',
+                  'network': 'Network: {title} Playlist',
+                  'labels': 'Labels: {title} Playlist',
+                  'collections': 'Collections: {title} Playlist',
+                  'country': 'Country: {title} Playlist',
+                  'writer': 'Writer: {title} Playlist',
+                  'director': 'Director: {title} Playlist',
+                  'actor': 'Actor: {title} Playlist'}
+    
+    return selections
 
 def get_home_stats(time_range, stats_count):
     # Get the homepage watch statistics.
@@ -332,17 +344,17 @@ def delete_playlist(playlist_dict):
     
     try:
         for playlist in server.playlists():
-            if jbop == 'todayInHistory':
+            if jbop == 'history':
                 if playlist.title.startswith('Aired Today'):
                     playlist.delete()
                     print("...Deleted {playlist.title} for '{user}'."
                           .format(playlist=playlist, user=user))
-            elif jbop == 'mostPopularMovies':
+            elif jbop == 'popularMovies':
                 if playlist.title == pop_movie:
                     playlist.delete()
                     print("...Deleted {playlist.title} for '{user}'."
                           .format(playlist=playlist, user=user))
-            elif jbop == 'mostPopularTv':
+            elif jbop == 'popularTv':
                 if playlist.title == pop_tv:
                     playlist.delete()
                     print("...Deleted {playlist.title} for '{user}'."
@@ -358,7 +370,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create, share, and clean Playlists for users.",
                                      formatter_class = argparse.RawTextHelpFormatter)
     # todo-me use parser grouping instead of choices for action and jbop?
-    parser.add_argument('--jbop', choices=SELECTOR, metavar='',
+    parser.add_argument('--jbop', choices=selectors().keys(), metavar='',
                         help='Playlist selector.\n'
                              'Choices: (%(choices)s)')
     parser.add_argument('--action', required=True, choices=actions(),
@@ -395,8 +407,8 @@ if __name__ == "__main__":
 
     users = ''
     plex_servers = []
-    pop_movie_title = MOVIE_PLAYLIST.format(days=opts.days)
-    pop_tv_title = TV_PLAYLIST.format(days=opts.days)
+    pop_movie_title = selectors()['popularMovies'].format(days=opts.days)
+    pop_tv_title = selectors()['popularTv'].format(days=opts.days)
     
     playlist_dict = {'jbop': opts.jbop,
                      'pop_tv': pop_tv_title,
@@ -437,26 +449,22 @@ if __name__ == "__main__":
             delete_playlist(playlist_dict)
 
     else:
-        # todo-me add more playlist types
-        # todo-me random, genre, rating, unwatched, studio, network (shows),
-        # todo-me labels, collections, country, writer, director,
-        if opts.jbop == 'todayInHistory':
+        if opts.jbop == 'history':
             try:
                 keys_list = get_all_content(opts.libraries)
             except TypeError as e:
                 print("Libraries are not defined for {}. Use --libraries.".format(opts.jbop))
                 exit("Error: {}".format(e))
-            title = TODAY_PLAY_TITLE.format(month=today.month, day=today.day)
+            title =  selectors()['history'].format(month=today.month, day=today.day)
 
-        if opts.jbop == 'mostPopularTv':
+        if opts.jbop == 'popularTv':
             home_stats = get_home_stats(opts.days, opts.top)
             for stat in home_stats:
                 if stat['stat_id'] == 'popular_tv':
                     keys_list = [x['rating_key'] for x in stat['rows']]
                     title = pop_tv_title
 
-
-        if opts.jbop == 'mostPopularMovies':
+        if opts.jbop == 'popularMovies':
             home_stats = get_home_stats(opts.days, opts.top)
             for stat in home_stats:
                 if stat['stat_id'] == 'popular_movies':
