@@ -7,6 +7,7 @@ Find what was added TFRAME ago and not watched using Tautulli.
 import requests
 import sys
 import time
+import os
 
 TFRAME = 1.577e+7 # ~ 6 months in seconds
 TODAY = time.time()
