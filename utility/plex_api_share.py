@@ -239,7 +239,7 @@ def share(user, sections, allowSync, camera, channels, filterMovies, filterTelev
 
 def unshare(user, sections):
     plex.myPlexAccount().updateFriend(user=user, server=plex, removeSections=True, sections=sections)
-    print('Unuser_shares all libraries from {user}.'.format(user=user))
+    print('Unshared all libraries from {user}.'.format(user=user))
 
 
 if __name__ == "__main__":
