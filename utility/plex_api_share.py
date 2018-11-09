@@ -64,6 +64,9 @@ Usage:
 
    plex_api_share.py --backup
        - Backup all user shares to a json file
+       
+   plex_api_share.py --backup --user USER
+       - Backup USER shares to a json file
 
    plex_api_share.py --restore
        - Only restore all Plex user's shares and settings from backup json file
@@ -425,7 +428,10 @@ if __name__ == "__main__":
     if opts.backup:
         print('Backing up share information...')
         users_shares = []
-        for user in user_lst:
+        # If user arg is defined then abide, else backup all
+        if not users:
+            users = user_lst
+        for user in users:
             # print('...Found {}'.format(user))
             users_shares.append(find_shares(user))
         json_file = '{}_Plex_share_backup_{}.json'.format(plex.friendlyName, timestr)
