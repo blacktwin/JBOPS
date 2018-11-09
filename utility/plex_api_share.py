@@ -123,7 +123,7 @@ if sess.verify is False:
 
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
-user_lst = [x.title for x in plex.myPlexAccount().users()]
+user_lst = [x.title for x in plex.myPlexAccount().users() if x.title]
 sections_lst = [x.title for x in plex.library.sections()]
 movies_keys = [x.key for x in plex.library.sections() if x.type == 'movie']
 show_keys = [x.key for x in plex.library.sections() if x.type == 'show']
