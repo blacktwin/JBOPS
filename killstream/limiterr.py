@@ -71,7 +71,7 @@ TAUTULLI_ENCODING = os.getenv('TAUTULLI_ENCODING', 'UTF-8')
 
 SUBJECT_TEXT = "Tautulli has killed a stream."
 BODY_TEXT = "Killed session ID '{id}'. Reason: {message}"
-BODY_TEXT_USER = "Killed {user}'s stream. Reason: {message}."
+BODY_TEXT_USER = "Killed {user}'s stream. Reason: {message}"
 LIMIT_MESSAGE = 'Are you still watching or are you asleep? ' \
                 'If not please wait ~{delay} seconds and try again.'
 

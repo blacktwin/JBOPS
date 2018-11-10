@@ -70,7 +70,7 @@ else:
 
 SUBJECT_TEXT = "Tautulli has killed a stream."
 BODY_TEXT = "Killed session ID '{id}'. Reason: {message}"
-BODY_TEXT_USER = "Killed {user}'s stream. Reason: {message}."
+BODY_TEXT_USER = "Killed {user}'s stream. Reason: {message}"
 
 
 SELECTOR = ['stream', 'allStreams', 'paused']
