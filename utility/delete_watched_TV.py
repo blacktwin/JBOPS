@@ -21,7 +21,9 @@ class METAINFO(object):
     def __init__(self, data=None):
         d = data or {}
         self.title = d['title']
-        self.file = d['file']
+        media_info = d['media_info'][0]
+        parts = media_info['parts'][0]
+        self.file = parts['file']
         self.media_type = d['media_type']
         self.grandparent_title = d['grandparent_title']
 
@@ -37,7 +39,7 @@ def get_metadata(rating_key):
         r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
 
-        res_data = response['response']['data']['metadata']
+        res_data = response['response']['data']
         return METAINFO(data=res_data)
 
     except Exception as e:
