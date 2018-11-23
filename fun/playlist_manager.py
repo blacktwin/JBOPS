@@ -135,8 +135,8 @@ def selectors():
     """Playlist selections and titles
     """
     selections = {'history': 'Aired Today {month}-{day}',
-                  'popularTv': 'Most Popular Movies ({days} days)',
-                  'popularMovies': 'Most Popular TV Shows ({days} days)',
+                  'popularTv': 'Most Popular TV Shows ({days} days)',
+                  'popularMovies': 'Most Popular Movies ({days} days)',
                   'genre': '{title} Playlist',
                   'random': '{count} Random Playlist',
                   'studio': 'Studio: {title} Playlist',
