@@ -328,7 +328,7 @@ if __name__ == '__main__':
 
     # Gather all users email addresses
     if opts.users == ['all']:
-        [to.append(x['email']) for x in get_users() if x['email'] != '' and x['email'] not in to
+        [to.append(x['email']) for x in get_users() if x['email'] is not None and x['email'] not in to
          and x['username'] not in opts.ignore]
     elif opts.users != ['all'] and opts.users != 'self':
         for get_users in get_users():
