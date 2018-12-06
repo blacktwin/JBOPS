@@ -7,7 +7,7 @@ Killing streams is a Plex Pass only feature. So these scripts will **only** work
 ### Limit user to an amount of Plays of a show during a time of day
 _For users falling asleep while autoplaying a show_ :sleeping:\
 Triggers: Playback Start  
-Conditions: \[ `Current Hour` | `is` | `22 or 23 or 24 or 1` \]
+Conditions: \[ `Current Hour` | `is` | `22 or 23 or 0 or 1` \]
 
 Arguments:
 ```
