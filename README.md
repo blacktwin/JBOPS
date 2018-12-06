@@ -78,9 +78,9 @@ Scripts pulled from my gist profile.
     <th>Description</th>
   </tr>
   <tr>
-    <td><a href="https://gist.github.com/blacktwin/397f07724abebd1223ba6ea644ea1669"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
-    <td><a href="../master/fun/aired_today_playlist.py">aired_today_playlist</a></td>
-    <td>Create a Plex Playlist with what was aired on this today's month-day, sort by oldest first. If Playlist from yesterday exists delete and create today's. If today's Playlist exists exit.</td>
+    <td></td>
+    <td><a href="../master/fun/playlist_manager.py">playlist_manager</a></td>
+    <td>Create and share playlists based on Most Popular TV/Movies from Tautulli and Aired this day in history.</td>
   </tr>
     <tr>
     <td><a href="https://gist.github.com/blacktwin/4ccb79c7d01a95176b8e88bf4890cd2b"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
