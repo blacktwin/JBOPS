@@ -69,7 +69,7 @@ def get_users_table():
         return [data for data in res_data if data['last_seen']]
 
     except Exception as e:
-        print("Tautulli API 'get_history' request failed: {0}.".format(e))
+        print("Tautulli API 'get_users_table' request failed: {0}.".format(e))
 
 
 def unshare(user):
