@@ -129,7 +129,7 @@ def main():
                 print('{} was last seen {} days ago. Removing.'.format(username, last_seen))
                 remove_friend(username)
             elif last_seen > UNSHARE_LIMIT:
-                print('{} was last seen {} days ago. Unshsring.'.format(username, last_seen))
+                print('{} was last seen {} days ago. Unsharing.'.format(username, last_seen))
                 unshare(username)
             else:
                 last_entry(last_seen, username)
