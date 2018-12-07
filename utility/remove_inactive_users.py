@@ -122,6 +122,7 @@ def main():
             except KeyError:
                 print('User: {} has records in Tautulli but does not exist in Plex.'.format(username))
                 last_entry(last_seen, username)
+                continue
         else:
             # Only users that still exist in Plex will continue
             if username not in USER_IGNORE:
