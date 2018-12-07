@@ -51,6 +51,9 @@ if sess.verify is False:
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 sections_lst = [x.title for x in plex.library.sections()]
+admin = {plex.myPlexAccount().id: plex.myPlexAccount().title}
+users_dict = {x.id: x.title for x in plex.myPlexAccount().users()}
+users_dict.update(admin)
 today = time.mktime(datetime.datetime.today().timetuple())
 
 
@@ -70,6 +73,22 @@ def get_users_table():
 
     except Exception as e:
         print("Tautulli API 'get_users_table' request failed: {0}.".format(e))
+
+
+def last_entry(last_seen, username):
+    # Display user's last history entry
+    if last_seen > 1:
+        print('{} was last seen {} days ago.'.format(username, last_seen))
+    elif int(last_seen) == 1:
+        print('{} was last seen yesterday.'.format(username))
+    else:
+        hours_ago = last_seen * 24
+        if int(hours_ago) != 0:
+            hours_ago = int(hours_ago)
+            print('{} was last seen {} hours ago.'.format(username, hours_ago))
+        else:
+            minutes_ago = int(hours_ago * 60)
+            print('{} was last seen {} minutes ago.'.format(username, minutes_ago))
 
 
 def unshare(user):
@@ -94,25 +113,26 @@ def main():
             last_seen = int(last_seen)
 
         username = user['friendly_name']
-        if username not in USER_IGNORE:
-            if last_seen > REMOVE_LIMIT:
-                print('{} was last seen {} days ago. Removing.'.format(username, last_seen))
-                remove_friend(username)
-            elif last_seen > UNSHARE_LIMIT:
-                print('{} was last seen {} days ago. Unshsring.'.format(username, last_seen))
-                unshare(username)
-            elif last_seen > 1:
-                print('{} was last seen {} days ago.'.format(username, last_seen))
-            elif int(last_seen) == 1:
-                print('{} was last seen yesterday.'.format(username))
-            else:
-                hours_ago = last_seen * 24
-                if int(hours_ago) != 0:
-                    hours_ago = int(hours_ago)
-                    print('{} was last seen {} hours ago.'.format(username, hours_ago))
+        user_id = user['user_id']
+        
+        # Check if friendly username from Tautulli does not exist in Plex
+        if username not in users_dict.values():
+            try:
+                username = users_dict[user_id]
+            except KeyError:
+                print('User: {} has records in Tautulli but does not exist in Plex.'.format(username))
+                last_entry(last_seen, username)
+        else:
+            # Only users that still exist in Plex will continue
+            if username not in USER_IGNORE:
+                if last_seen > REMOVE_LIMIT:
+                    print('{} was last seen {} days ago. Removing.'.format(username, last_seen))
+                    remove_friend(username)
+                elif last_seen > UNSHARE_LIMIT:
+                    print('{} was last seen {} days ago. Unshsring.'.format(username, last_seen))
+                    unshare(username)
                 else:
-                    minutes_ago = int(hours_ago * 60)
-                    print('{} was last seen {} minutes ago.'.format(username, minutes_ago))
+                    last_entry(last_seen, username)
 
 
 if __name__ == '__main__':
