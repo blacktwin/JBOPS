@@ -123,17 +123,16 @@ def main():
                 print('User: {} has records in Tautulli but does not exist in Plex.'.format(username))
                 last_entry(last_seen, username)
                 continue
-        else:
-            # Only users that still exist in Plex will continue
-            if username not in USER_IGNORE:
-                if last_seen > REMOVE_LIMIT:
-                    print('{} was last seen {} days ago. Removing.'.format(username, last_seen))
-                    remove_friend(username)
-                elif last_seen > UNSHARE_LIMIT:
-                    print('{} was last seen {} days ago. Unshsring.'.format(username, last_seen))
-                    unshare(username)
-                else:
-                    last_entry(last_seen, username)
+        # Only users that still exist in Plex will continue
+        if username not in USER_IGNORE:
+            if last_seen > REMOVE_LIMIT:
+                print('{} was last seen {} days ago. Removing.'.format(username, last_seen))
+                remove_friend(username)
+            elif last_seen > UNSHARE_LIMIT:
+                print('{} was last seen {} days ago. Unshsring.'.format(username, last_seen))
+                unshare(username)
+            else:
+                last_entry(last_seen, username)
 
 
 if __name__ == '__main__':
