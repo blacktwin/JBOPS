@@ -14,21 +14,27 @@ from plexapi.server import PlexServer, CONFIG
 
 
 ## EDIT THESE SETTINGS ##
-TAUTULLI_URL = ''
-TAUTULLI_APIKEY = ''
-TAUTULLI_URL = CONFIG.data['auth'].get('tautulli_baseurl', TAUTULLI_URL)
-TAUTULLI_APIKEY = CONFIG.data['auth'].get('tautulli_apikey', TAUTULLI_APIKEY)
-
 PLEX_URL = ''
 PLEX_TOKEN = ''
-PLEX_URL = CONFIG.data['auth'].get('server_baseurl', PLEX_URL)
-PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
+TAUTULLI_URL = ''
+TAUTULLI_APIKEY = ''
 
 REMOVE_LIMIT = 30 # days
 UNSHARE_LIMIT = 15 # days
 
 USER_IGNORE = ('user1')
 ##/EDIT THESE SETTINGS ##
+
+## CODE BELOW ##
+
+if not PLEX_URL:
+    PLEX_URL = CONFIG.data['auth'].get('server_baseurl')
+if not PLEX_TOKEN:
+    PLEX_TOKEN = CONFIG.data['auth'].get('server_token')
+if not TAUTULLI_URL:
+    TAUTULLI_URL = CONFIG.data['auth'].get('tautulli_baseurl')
+if not TAUTULLI_APIKEY:
+    TAUTULLI_APIKEY = CONFIG.data['auth'].get('tautulli_apikey')
 
 sess = requests.Session()
 # Ignore verifying the SSL certificate
