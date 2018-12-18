@@ -136,7 +136,7 @@ def get_on_deck(server, off_deck=None):
     watched_statuses = {}
     on_deck = []
     for item in server.library.onDeck():
-        if off_deck and item.type == 'episode':
+        if off_deck and item.type == 'episode' and item.viewOffset == 0:
             if item.grandparentTitle in off_deck:
                 grandparent = server.fetchItem(item.grandparentRatingKey)
                 watched_statuses['grandparent'] = grandparent
