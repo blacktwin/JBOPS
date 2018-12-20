@@ -314,6 +314,7 @@ class Tautulli:
 class Stream:
     def __init__(self, session_id=None, user_id=None, username=None, tautulli=None, session=None):
         self.state = None
+        self.ip_address = None
         self.session_id = session_id
         self.user_id = user_id
         self.username = username
