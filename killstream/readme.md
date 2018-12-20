@@ -6,7 +6,10 @@ Killing streams is a Plex Pass only feature. So these scripts will **only** work
 
 ### Kill transcodes
 
-Triggers: Playback Start, Transcode Decision Change  
+Triggers:
+* Playback Start
+* Transcode Decision Change
+
 Conditions: \[ `Transcode Decision` | `is` | `transcode` \]
 
 Arguments:
@@ -81,7 +84,10 @@ Arguments:
 
 ### Kill transcode by library
 
-Triggers: Playback Start, Transcode Decision Change  
+Triggers:
+* Playback Start
+* Transcode Decision Change
+
 Conditions:
 * \[ `Transcode Decision` | `is` | `transcode` \]
 * \[ `Library Name` | `is` | `4K Movies` \]
@@ -93,7 +99,10 @@ Arguments:
 
 ### Kill transcode by original resolution
 
-Triggers: Playback Start, Transcode Decision Change  
+Triggers:
+* Playback Start
+* Transcode Decision Change
+
 Conditions:
 * \[ `Transcode Decision` | `is` | `transcode` \]
 * \[ `Video Resolution` | `is` | `1080 or 720`\]
@@ -105,7 +114,10 @@ Arguments:
 
 ### Kill transcode by bitrate
 
-Triggers: Playback Start, Transcode Decision Change  
+Triggers:
+* Playback Start
+* Transcode Decision Change
+
 Conditions:
 * \[ `Transcode Decision` | `is` | `transcode` \]
 * \[ `Bitrate` | `is greater than` | `4000` \]
@@ -137,7 +149,10 @@ Arguments:
 
 ### Kill transcodes and send a notification to agent 1
 
-Triggers: Playback Start, Transcode Decision Change  
+Triggers:
+* Playback Start
+* Transcode Decision Change
+
 Conditions: \[ `Transcode Decision` | `is` | `transcode` \]
 
 Arguments:
@@ -147,7 +162,10 @@ Arguments:
 
 ### Kill transcodes using the default message
 
-Triggers: Playback Start, Transcode Decision Change  
+Triggers:
+* Playback Start
+* Transcode Decision Change
+
 Conditions: \[ `Transcode Decision` | `is` | `transcode` \]
 
 Arguments:
