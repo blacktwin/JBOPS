@@ -75,7 +75,7 @@ BODY_TEXT = "Killed session ID '{id}'. Reason: {message}"
 BODY_TEXT_USER = "Killed {user}'s stream. Reason: {message}."
 
 
-SELECTOR = ['stream', 'allStreams', 'paused']
+SELECTOR = ['stream', 'allStreams', 'multiIpStreams', 'paused']
 
 RICH_TYPE = ['discord', 'slack']
 
@@ -620,6 +620,16 @@ if __name__ == "__main__":
             tautulli_server.terminate_session(session_id=a_stream.session_id, message=kill_message)
             notify(opts, kill_message, 'All Streams', a_stream, tautulli_server)
 
+    elif opts.jbop == 'multiIpStreams':
+        if not (opts.notify and opts.richMessage):
+            tautulli_stream.get_all_stream_info()
+        user_streams = get_all_streams(tautulli_server, opts.userId)
+        for a_stream in user_streams:
+            if a_stream.ip_address != tautulli_stream.ip_address:
+                tautulli_stream.terminate(kill_message)
+                notify(opts, kill_message, 'Multiple IP Streams', tautulli_stream, tautulli_server)
+                
+            
     elif opts.jbop == 'paused':
         killed_stream = tautulli_stream.terminate_long_pause(kill_message, opts.limit, opts.interval)
         if killed_stream:

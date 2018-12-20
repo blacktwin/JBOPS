@@ -62,6 +62,15 @@ Arguments:
 --jbop stream --username {username} --sessionId {session_id} --killMessage 'You are only allowed 3 streams.'
 ```
 
+### Limit User streams to one IP
+
+Triggers: Playback Start  
+
+Arguments:
+```
+--jbop multiIpStreams --userId {user_id} --username {username} --sessionId {session_id} --killMessage 'You are only allowed to stream from one location at a time.'
+```
+
 ### IP Whitelist
 
 Triggers: Playback Start  
