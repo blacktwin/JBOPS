@@ -62,9 +62,29 @@ Arguments:
 --jbop stream --username {username} --sessionId {session_id} --killMessage 'You are only allowed 3 streams.'
 ```
 
-### Limit User streams to one IP
+### Limit User streams to one unique IP
 
 Triggers: Playback Start  
+
+Arguments:
+```
+--jbop multiIpStreams --userId {user_id} --username {username} --sessionId {session_id} --killMessage 'You are only allowed to stream from one location at a time.'
+```
+
+### Limit User streams to one unique IP excluding house account
+
+Triggers: Playback Start  
+Conditions: \[ `Username` | `is not` | `Bob` \]  
+
+Arguments:
+```
+--jbop multiIpStreams --userId {user_id} --username {username} --sessionId {session_id} --killMessage 'You are only allowed to stream from one location at a time.'
+```
+
+### Limit User streams to 3 unique IPs
+
+Triggers: Playback Start  
+Conditions: \[ `User Streams` | `is greater than` | `3` \]  
 
 Arguments:
 ```

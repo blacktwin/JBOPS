@@ -1,6 +1,6 @@
 """
 Description: Use conditions to kill a stream
-Author: Blacktwin, Arcanemagus, Samwiseg0, JonnyWong16
+Author: Blacktwin, Arcanemagus, Samwiseg0, JonnyWong16, DirtyCajunRice
 
 Adding the script to Tautulli:
 Tautulli > Settings > Notification Agents > Add a new notification agent >
