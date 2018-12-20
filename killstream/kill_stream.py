@@ -629,6 +629,7 @@ if __name__ == "__main__":
             if a_stream.ip_address != tautulli_stream.ip_address:
                 tautulli_stream.terminate(kill_message)
                 notify(opts, kill_message, 'Multiple IP Streams', tautulli_stream, tautulli_server)
+                exit(0)
 
     elif opts.jbop == 'paused':
         killed_stream = tautulli_stream.terminate_long_pause(kill_message, opts.limit, opts.interval)
