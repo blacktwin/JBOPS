@@ -1,13 +1,13 @@
 """
 Description: Use conditions to kill a stream
-Author: Blacktwin, Arcanemagus, Samwiseg00, JonnyWong16
+Author: Blacktwin, Arcanemagus, Samwiseg0, JonnyWong16
 
 Adding the script to Tautulli:
-Taultulli > Settings > Notification Agents > Add a new notification agent >
+Tautulli > Settings > Notification Agents > Add a new notification agent >
  Script
 
 Configuration:
-Taultulli > Settings > Notification Agents > New Script > Configuration:
+Tautulli > Settings > Notification Agents > New Script > Configuration:
 
  Script Folder: /path/to/your/scripts
  Script File: ./kill_stream.py (Should be selectable in a dropdown list)
@@ -16,19 +16,19 @@ Taultulli > Settings > Notification Agents > New Script > Configuration:
  Save
 
 Triggers:
-Taultulli > Settings > Notification Agents > New Script > Triggers:
+Tautulli > Settings > Notification Agents > New Script > Triggers:
 
  Check: Playback Start and/or Playback Pause
  Save
 
 Conditions:
-Taultulli > Settings > Notification Agents > New Script > Conditions:
+Tautulli > Settings > Notification Agents > New Script > Conditions:
 
  Set Conditions: [{condition} | {operator} | {value} ]
  Save
 
 Script Arguments:
-Taultulli > Settings > Notification Agents > New Script > Script Arguments:
+Tautulli > Settings > Notification Agents > New Script > Script Arguments:
 
  Select: Playback Start, Playback Pause
  Arguments: --jbop SELECTOR --userId {user_id} --username {username}
@@ -169,15 +169,15 @@ def rich_notify(notifier_id, rich_type, color=None, kill_type=None, server_name=
     if server_name is None:
         server_name = 'Plex Server'
 
-    # Set a defult color if none is provided
+    # Set a default color if none is provided
     if color is None:
         color = '#E5A00D'
 
-    # Set a defult plexUrl if none is provided
+    # Set a default plexUrl if none is provided
     if plex_url is None:
         plex_url = 'https://app.plex.tv'
 
-    # Set a defult posterUrl if none is provided
+    # Set a default posterUrl if none is provided
     if poster_url is None:
         poster_url = TAUTULLI_ICON
 
@@ -579,9 +579,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if opts.debug:
-        # Import traceback to get more deatiled information
+        # Import traceback to get more detailed information
         import traceback
-        # Dump the ENVs passed from tatutulli
+        # Dump the ENVs passed from tautulli
         debug_dump_vars()
 
     # Create a Tautulli instance
@@ -594,7 +594,7 @@ if __name__ == "__main__":
     if opts.notify and opts.richMessage:
         stream.get_all_stream_info()
 
-    # Set a defult message if none is provided
+    # Set a default message if none is provided
     if opts.killMessage:
         message = ' '.join(opts.killMessage)
     else:
