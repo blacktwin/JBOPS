@@ -622,7 +622,7 @@ if __name__ == "__main__":
             notify(opts, kill_message, 'All Streams', a_stream, tautulli_server)
 
     elif opts.jbop == 'multiIpStreams':
-        if not (opts.notify and opts.richMessage):
+        if not opts.richMessage:
             tautulli_stream.get_all_stream_info()
         user_streams = get_all_streams(tautulli_server, opts.userId)
         for a_stream in user_streams:
