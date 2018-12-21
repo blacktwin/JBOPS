@@ -9,7 +9,7 @@ Create, share, and clean Playlists for users.
 optional arguments:
   -h, --help            show this help message and exit
   --jbop                Playlist selector.
-                        Choices: (history, popularTv, popularMovies)
+                        Choices: (historyToday, historyWeek, historyMonth, popularTv, popularMovies)
   --action {add,remove,update,show,share}
                         Action selector.
                             add - create new playlist for admin or users
@@ -38,16 +38,16 @@ optional arguments:
     Use with cron or task to schedule runs
     
  Create Aired Today Playlist from Movies and TV Shows libraries for admin user
-    python playlist_manager.py --jbop history --libraries Movies "TV Shows" --action add
+    python playlist_manager.py --jbop historyToday --libraries Movies "TV Shows" --action add
 
  Create Aired Today Playlist from Movies and TV Shows libraries and share to users bob, Black Twin and admin user
-    python playlist_manager.py --jbop history --libraries Movies "TV Shows" --action add --users bob "Black Twin" --self
+    python playlist_manager.py --jbop historyToday --libraries Movies "TV Shows" --action add --users bob "Black Twin" --self
 
  Update previous Aired Today Playlist(s) from Movies and TV Shows libraries and share to users bob and Black Twin
-    python playlist_manager.py --jbop history --libraries Movies "TV Shows" --action update --users bob "Black Twin"
+    python playlist_manager.py --jbop historyToday --libraries Movies "TV Shows" --action update --users bob "Black Twin"
 
  Delete all previous Aired Today Playlist(s) from users bob and Black Twin
-    python playlist_manager.py --jbop history --action remove --users bob "Black Twin"
+    python playlist_manager.py --jbop historyToday --action remove --users bob "Black Twin"
 
  Create 5 Most Popular TV Shows (30 days) Playlist and share to users bob and Black Twin
     python playlist_manager.py --jbop popularTv --action add --users bob "Black Twin"
