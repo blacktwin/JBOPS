@@ -212,7 +212,7 @@ def get_all_content(library_name):
         aired on today's date.
 
     """
-
+    # todo-me expand function for keyword searching
     child_lst = []
 
     for library in library_name:
@@ -377,24 +377,24 @@ if __name__ == "__main__":
                         help='Action selector.'
                              '{}'.format(actions.__doc__))
     parser.add_argument('--user', nargs='+', choices=user_lst, metavar='',
-                        help='The Plex usernames to create/share to or delete from. Allowed names are: \n'
+                        help='The Plex usernames to create/share to or delete from. Allowed names are:\n'
                              'Choices: %(choices)s')
     parser.add_argument('--allUsers', default=False, action='store_true',
                         help='Select all users.')
     parser.add_argument('--libraries', nargs='+', choices=section_lst, metavar='',
-                        help='Space separated list of case sensitive names to process. Allowed names are: \n'
+                        help='Space separated list of case sensitive names to process. Allowed names are:\n'
                              'Choices: %(choices)s')
     parser.add_argument('--self', default=False, action='store_true',
-                        help='Create playlist for admin. \n'
+                        help='Create playlist for admin.\n'
                              'Default: %(default)s')
     parser.add_argument('--days', type=str, default=DAYS,
-                        help='The time range to calculate statistics. \n'
+                        help='The time range to calculate statistics.\n'
                              'Default: %(default)s')
     parser.add_argument('--top', type=str, default=TOP,
-                        help='The number of top items to list. \n'
+                        help='The number of top items to list.\n'
                              'Default: %(default)s')
     parser.add_argument('--playlists', nargs='+', choices=playlist_lst, metavar='',
-                        help='Space separated list of case sensitive names to process. Allowed names are: \n'
+                        help='Space separated list of case sensitive names to process. Allowed names are:\n'
                              'Choices: %(choices)s')
     parser.add_argument('--name', type=str,
                         help='Custom name for playlist.')
@@ -424,7 +424,8 @@ if __name__ == "__main__":
         for user in opts.user:
             user_lst.remove(user)
             users = user_lst
-            
+    
+    # Create user server objects
     if users:
         for user in users:
             if opts.action == 'share':
@@ -484,9 +485,6 @@ if __name__ == "__main__":
         for x in plex_servers:
             create_playlist(title, keys_list, x['server'], x['user'])
             
-    # todo-me allow for update or another action to remove watched items
-    # todo-me use Tautulli to imitate Smart Playlist
-
     if opts.action == 'add':
         print('Creating playlist(s)...')
         for x in plex_servers:
