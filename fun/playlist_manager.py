@@ -233,7 +233,7 @@ def get_content(library_name, jbop, search=None):
         else:
             searchable = False
             keyword = {key + '__icontains': value for key, value in search.items()}
-            
+
         for library in library_name:
             plex_library = plex.library.section(library)
             library_type = plex_library.type
@@ -243,13 +243,13 @@ def get_content(library_name, jbop, search=None):
                 else:
                     child_lst = [x.ratingKey for x in plex_library.all(**keyword)]
             elif library_type == 'show':
-                child = plex.library.section(library).all()
                 if searchable:
-                    for episode in child.search(**keyword):
-                        child_lst += episode.ratingKey
+                    for child in plex_library.search(**keyword):
+                        child_lst += [child.ratingKey]
                 else:
+                    child = plex_library.all()
                     for episode in child.episodes(**keyword):
-                        child_lst += episode.ratingKey
+                        child_lst += [episode.ratingKey]
             else:
                 pass
         play_lst = child_lst
