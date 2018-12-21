@@ -182,7 +182,6 @@ def sort_by_dates(video, date_type):
     -------
     list
         list of rating key and date aired
-
     """
 
     try:
@@ -249,6 +248,62 @@ def get_content(library_name, search, term):
 
     return play_lst
 
+
+def build_playlist(jbop, libraries=None, days=None, top=None):
+    """
+    Parameters
+    ----------
+    jbop: str
+    libraries: list
+    days: int
+    top: int
+
+    Returns
+    -------
+    key_list, title
+
+    """
+    keys_list = []
+    title = ''
+    if jbop == 'historyToday':
+        try:
+            keys_list = get_content(libraries, jbop, '')
+        except TypeError as e:
+            print("Libraries are not defined for {}. Use --libraries.".format(jbop))
+            exit("Error: {}".format(e))
+        title = selectors()['historyToday'].format(month=today.month, day=today.day)
+    
+    elif jbop == 'historyWeek':
+        try:
+            keys_list = get_content(libraries, jbop, '')
+        except TypeError as e:
+            print("Libraries are not defined for {}. Use --libraries.".format(jbop))
+            exit("Error: {}".format(e))
+        title = selectors()['historyWeek'].format(week=weeknum)
+
+    elif jbop == 'historyMonth':
+        try:
+            keys_list = get_content(libraries, jbop, '')
+        except TypeError as e:
+            print("Libraries are not defined for {}. Use --libraries.".format(jbop))
+            exit("Error: {}".format(e))
+        title = selectors()['historyMonth'].format(month=today.strftime("%B"))
+    
+    elif jbop == 'popularTv':
+        home_stats = get_home_stats(days, top)
+        for stat in home_stats:
+            if stat['stat_id'] == 'popular_tv':
+                keys_list = [x['rating_key'] for x in stat['rows']]
+                title = pop_tv_title
+    
+    elif jbop == 'popularMovies':
+        home_stats = get_home_stats(days, top)
+        for stat in home_stats:
+            if stat['stat_id'] == 'popular_movies':
+                keys_list = [x['rating_key'] for x in stat['rows']]
+                title = pop_movie_title
+
+    return keys_list, title
 
 def share_playlists(playlist_titles, users):
     """
@@ -408,6 +463,10 @@ if __name__ == "__main__":
                         help='Limit the amount items to be added to a playlist.')
     # todo-me custom naming for playlists --name?
     # todo-me custom limits to playlist --limit?
+    parser.add_argument('--search', action='append', type=lambda kv: kv.split("="),
+                        help='Search filter for finding keywords in title, summary or '
+                             'filter types (genre, actors, director, studio, etc.')
+    
     opts = parser.parse_args()
     # print(opts)
 
@@ -458,46 +517,10 @@ if __name__ == "__main__":
             delete_playlist(playlist_dict)
 
     else:
-        if opts.jbop == 'historyToday':
-            try:
-                keys_list = get_content(opts.libraries, opts.jbop, '')
-            except TypeError as e:
-                print("Libraries are not defined for {}. Use --libraries.".format(opts.jbop))
-                exit("Error: {}".format(e))
-            title =  selectors()['historyToday'].format(month=today.month, day=today.day)
-            
-        if opts.jbop == 'historyWeek':
-            try:
-                keys_list = get_content(opts.libraries, opts.jbop, '')
-            except TypeError as e:
-                print("Libraries are not defined for {}. Use --libraries.".format(opts.jbop))
-                exit("Error: {}".format(e))
-            title =  selectors()['historyWeek'].format(week=weeknum)
-            
-        if opts.jbop == 'historyMonth':
-            try:
-                keys_list = get_content(opts.libraries, opts.jbop, '')
-            except TypeError as e:
-                print("Libraries are not defined for {}. Use --libraries.".format(opts.jbop))
-                exit("Error: {}".format(e))
-            title =  selectors()['historyMonth'].format(month=today.strftime("%B"))
-
-        if opts.jbop == 'popularTv':
-            home_stats = get_home_stats(opts.days, opts.top)
-            for stat in home_stats:
-                if stat['stat_id'] == 'popular_tv':
-                    keys_list = [x['rating_key'] for x in stat['rows']]
-                    title = pop_tv_title
-
-        if opts.jbop == 'popularMovies':
-            home_stats = get_home_stats(opts.days, opts.top)
-            for stat in home_stats:
-                if stat['stat_id'] == 'popular_movies':
-                    keys_list = [x['rating_key'] for x in stat['rows']]
-                    title = pop_movie_title
-
-        if opts.jbop and opts.action == 'show':
-            show_playlist(title, keys_list)
+        keys_list, title = build_playlist(opts.jbop, opts.libraries, opts.days, opts.top)
+        
+    if opts.jbop and opts.action == 'show':
+        show_playlist(title, keys_list)
 
     if opts.action == 'update':
         print("Deleting the playlist(s)...")
