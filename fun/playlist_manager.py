@@ -515,6 +515,7 @@ if __name__ == "__main__":
     opts = parser.parse_args()
 
     users = ''
+    search = ''
     plex_servers = []
     pop_movie_title = selectors()['popularMovies'].format(days=opts.days)
     pop_tv_title = selectors()['popularTv'].format(days=opts.days)
