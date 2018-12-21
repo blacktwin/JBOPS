@@ -118,7 +118,7 @@ user_lst = [x.title for x in plex.myPlexAccount().users()]
 section_lst = [x.title for x in plex.library.sections()]
 playlist_lst = [x.title for x in plex.playlists()]
 today = datetime.datetime.now().date()
-
+weeknum = datetime.date(today.year, today.month, today.day).isocalendar()[1]
 
 def actions():
     """
@@ -134,7 +134,9 @@ def actions():
 def selectors():
     """Playlist selections and titles
     """
-    selections = {'history': 'Aired Today {month}-{day}',
+    selections = {'historyToday':'Aired Today {month}-{day} in History',
+                  'historyWeek': 'Aired This Week ({week}) in History',
+                  'historyMonth': 'Aired in {month}',
                   'popularTv': 'Most Popular TV Shows ({days} days)',
                   'popularMovies': 'Most Popular Movies ({days} days)',
                   'genre': '{title} Playlist',
@@ -168,7 +170,7 @@ def get_home_stats(time_range, stats_count):
         sys.stderr.write("Tautulli API 'get_home_stats' request failed: {0}.".format(e))
 
 
-def sort_by_dates(video):
+def sort_by_dates(video, date_type):
     """Find air dates of content
 
     Parameters
@@ -187,30 +189,39 @@ def sort_by_dates(video):
         ad_year = video.originallyAvailableAt.year
         ad_month = video.originallyAvailableAt.month
         ad_day = video.originallyAvailableAt.day
-        ad_week = int(datetime.date(ad_year, ad_month, ad_day).strftime("%V"))
+        ad_week = int(datetime.date(ad_year, ad_month, ad_day).isocalendar()[1])
 
-        if ad_month == today.month and ad_day == today.day:
-            # todo-me return object
-            return [[video.ratingKey] + [str(video.originallyAvailableAt)]]
+        if date_type == 'historyToday':
+            if ad_month == today.month and ad_day == today.day:
+                return [[video.ratingKey] + [str(video.originallyAvailableAt)]]
+        if date_type == 'historyWeek':
+            if ad_week == weeknum:
+                return [[video.ratingKey] + [str(video.originallyAvailableAt)]]
+        if date_type == 'historyMonth':
+            if ad_month == today.month:
+                return [[video.ratingKey] + [str(video.originallyAvailableAt)]]
+
+    # todo-me return object
     except Exception as e:
         # print(e)
         return
 
 
-def get_all_content(library_name):
+def get_content(library_name, search, term):
     """Get all movies or episodes from LIBRARY_NAME
 
     Parameters
     ----------
     library_name: list
         list of library objects
+    search: str
+        jbop value for searching
 
     Returns
     -------
     list
         Sorted list of Movie and episodes that
         aired on today's date.
-
     """
     # todo-me expand function for keyword searching
     child_lst = []
@@ -218,13 +229,13 @@ def get_all_content(library_name):
     for library in library_name:
         for child in plex.library.section(library).all():
             if child.type == 'movie':
-                if sort_by_dates(child):
-                    item_date = sort_by_dates(child)
+                if sort_by_dates(child, search):
+                    item_date = sort_by_dates(child, search)
                     child_lst += item_date
             elif child.type == 'show':
                 for episode in child.episodes():
-                    if sort_by_dates(episode):
-                        item_date = sort_by_dates(episode)
+                    if sort_by_dates(episode, search):
+                        item_date = sort_by_dates(episode, search)
                         child_lst += item_date
             else:
                 pass
@@ -261,14 +272,9 @@ def share_playlists(playlist_titles, users):
 
 def show_playlist(playlist_title, playlist_keys):
     """
-
     Parameters
     ----------
     playlist_keys
-
-    Returns
-    -------
-
     """
     playlist_list = []
     for key in playlist_keys:
@@ -278,27 +284,22 @@ def show_playlist(playlist_title, playlist_keys):
                 title = "{}".format(episode._prettyfilename())
                 playlist_list.append(title)
         else:
-            title = "{} ({})".format(plex_obj.title, plex_obj.year)
+            title = u"{} ({})".format(plex_obj._prettyfilename(), plex_obj.year)
             playlist_list.append(title)
 
-    print("Contents of Playlist {title}:\n{playlist}".format(title=playlist_title,
+    print(u"Contents of Playlist {title}:\n{playlist}".format(title=playlist_title,
                                                              playlist=', '.join(playlist_list)))
     exit()
     
     
 def create_playlist(playlist_title, playlist_keys, server, user):
     """
-
     Parameters
     ----------
     playlist_title
     playlist_keys
     server
     user
-
-    Returns
-    -------
-
     """
     playlist_list = []
     for key in playlist_keys:
@@ -326,14 +327,9 @@ def create_playlist(playlist_title, playlist_keys, server, user):
 
 def delete_playlist(playlist_dict):
     """
-
     Parameters
     ----------
     playlist_dict
-
-    Returns
-    -------
-
     """
 
     server = playlist_dict['server']
@@ -344,8 +340,18 @@ def delete_playlist(playlist_dict):
     
     try:
         for playlist in server.playlists():
-            if jbop == 'history':
+            if jbop == 'historyToday':
                 if playlist.title.startswith('Aired Today'):
+                    playlist.delete()
+                    print("...Deleted {playlist.title} for '{user}'."
+                          .format(playlist=playlist, user=user))
+            elif jbop == 'historyWeek':
+                if playlist.title.startswith('Aired This Week'):
+                    playlist.delete()
+                    print("...Deleted {playlist.title} for '{user}'."
+                          .format(playlist=playlist, user=user))
+            elif jbop == 'historyMonth':
+                if playlist.title.startswith('Aired in'):
                     playlist.delete()
                     print("...Deleted {playlist.title} for '{user}'."
                           .format(playlist=playlist, user=user))
@@ -411,8 +417,10 @@ if __name__ == "__main__":
     pop_tv_title = selectors()['popularTv'].format(days=opts.days)
     
     playlist_dict = {'jbop': opts.jbop,
+                     'custom': opts.name,
                      'pop_tv': pop_tv_title,
-                     'pop_movie': pop_movie_title}
+                     'pop_movie': pop_movie_title,
+                     'limit': opts.limit}
 
     # Defining users
     if opts.allUsers and not opts.user:
@@ -450,13 +458,29 @@ if __name__ == "__main__":
             delete_playlist(playlist_dict)
 
     else:
-        if opts.jbop == 'history':
+        if opts.jbop == 'historyToday':
             try:
-                keys_list = get_all_content(opts.libraries)
+                keys_list = get_content(opts.libraries, opts.jbop, '')
             except TypeError as e:
                 print("Libraries are not defined for {}. Use --libraries.".format(opts.jbop))
                 exit("Error: {}".format(e))
-            title =  selectors()['history'].format(month=today.month, day=today.day)
+            title =  selectors()['historyToday'].format(month=today.month, day=today.day)
+            
+        if opts.jbop == 'historyWeek':
+            try:
+                keys_list = get_content(opts.libraries, opts.jbop, '')
+            except TypeError as e:
+                print("Libraries are not defined for {}. Use --libraries.".format(opts.jbop))
+                exit("Error: {}".format(e))
+            title =  selectors()['historyWeek'].format(week=weeknum)
+            
+        if opts.jbop == 'historyMonth':
+            try:
+                keys_list = get_content(opts.libraries, opts.jbop, '')
+            except TypeError as e:
+                print("Libraries are not defined for {}. Use --libraries.".format(opts.jbop))
+                exit("Error: {}".format(e))
+            title =  selectors()['historyMonth'].format(month=today.strftime("%B"))
 
         if opts.jbop == 'popularTv':
             home_stats = get_home_stats(opts.days, opts.top)
