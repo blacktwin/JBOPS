@@ -133,7 +133,7 @@ def actions():
 
 
 def selectors():
-    """Playlist selections and titles
+    """Predefined Playlist selections and titles
     """
     selections = {'historyToday':'Aired Today {month}-{day} in History',
                   'historyWeek': 'Aired This Week ({week}) in History',
@@ -141,18 +141,27 @@ def selectors():
                   'popularTv': 'Most Popular TV Shows ({days} days)',
                   'popularMovies': 'Most Popular Movies ({days} days)',
                   'keyword':'{keyword} Playlist',
-                  'genre': '{title} Playlist',
-                  'random': '{count} Random Playlist',
-                  'studio': 'Studio: {title} Playlist',
-                  'network': 'Network: {title} Playlist',
-                  'labels': 'Labels: {title} Playlist',
-                  'collections': 'Collections: {title} Playlist',
-                  'country': 'Country: {title} Playlist',
-                  'writer': 'Writer: {title} Playlist',
-                  'director': 'Director: {title} Playlist',
-                  'actor': 'Actor: {title} Playlist'}
+                  'random': '{count} Random Playlist'
+                  }
     
     return selections
+
+
+def filters():
+    """Predefined Playlist filters and titles
+    """
+    filters = {'genre': '{title} Playlist',
+               'studio': 'Studio: {title} Playlist',
+               'network': 'Network: {title} Playlist',
+               'labels': 'Labels: {title} Playlist',
+               'collections': 'Collections: {title} Playlist',
+               'country': 'Country: {title} Playlist',
+               'writer': 'Writer: {title} Playlist',
+               'director': 'Director: {title} Playlist',
+               'actor': 'Actor: {title} Playlist'
+               }
+    
+    return filters
 
 def get_home_stats(time_range, stats_count):
     # Get the homepage watch statistics.
@@ -508,9 +517,11 @@ if __name__ == "__main__":
                         help='Limit the amount items to be added to a playlist.')
     # todo-me custom naming for playlists --name?
     # todo-me custom limits to playlist --limit?
-    parser.add_argument('--search', action='append', type=lambda kv: kv.split("="),
-                        help='Search filter for finding keywords in title, summary or '
-                             'filter types (genre, actors, director, studio, etc.')
+    parser.add_argument('--filter', action='append', type=lambda kv: kv.split("="),
+                        help='Search filtered metadata fields (genre, actors, director, studio, etc.')
+    parser.add_argument('--search', type=lambda kv: kv.split("="),
+                        help='Search non-filtered metadata fields for keywords '
+                             'in title, summary, etc.')
     
     opts = parser.parse_args()
 
