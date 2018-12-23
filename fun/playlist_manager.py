@@ -160,22 +160,6 @@ def selectors():
     return selections
 
 
-def filters():
-    """Predefined Playlist filters and titles
-    """
-    filters = {'genre': '{title} Playlist',
-               'studio': 'Studio: {title} Playlist',
-               'network': 'Network: {title} Playlist',
-               'labels': 'Labels: {title} Playlist',
-               'collections': 'Collections: {title} Playlist',
-               'country': 'Country: {title} Playlist',
-               'writer': 'Writer: {title} Playlist',
-               'director': 'Director: {title} Playlist',
-               'actor': 'Actor: {title} Playlist'
-               }
-    
-    return filters
-
 def get_home_stats(time_range, stats_count):
     # Get the homepage watch statistics.
     payload = {'apikey': TAUTULLI_APIKEY,
@@ -533,7 +517,8 @@ if __name__ == "__main__":
     # todo-me custom naming for playlists --name?
     # todo-me custom limits to playlist --limit?
     parser.add_argument('--filter', action='append', type=lambda kv: kv.split("="),
-                        help='Search filtered metadata fields (genre, actors, director, studio, etc.')
+                        help='Search filtered metadata fields.\n'
+                             'Filters: ({}).'.format(', '.join(filter_lst)))
     parser.add_argument('--search', type=lambda kv: kv.split("="),
                         help='Search non-filtered metadata fields for keywords '
                              'in title, summary, etc.')
