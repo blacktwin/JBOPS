@@ -10,28 +10,34 @@ optional arguments:
   -h, --help            show this help message and exit
   --jbop                Playlist selector.
                         Choices: (historyToday, historyWeek, historyMonth, popularTv, popularMovies)
-  --action {add,remove,update,show,share}
-                        Action selector.
-                            add - create new playlist for admin or users
-                            remove - remove playlist type or name from admin or users
-                            update - remove playlist type and create new playlist type for admin or users
-                            show - show contents of playlist type or admin or users current playlists
-                            share - share existing playlist by title from admin to users
+  --action              Action selector.
+                        add - create new playlist for admin or users
+                        remove - remove playlist type or name from admin or users
+                        update - remove playlist type and create new playlist type for admin or users
+                        show - show contents of playlist type or admin or users current playlists
+                        share - share existing playlist by title from admin to users
 
   --users {]            The Plex usernames to create/share to or delete from.
                         Choices:  (USERNAMES)
   --libraries  [ ...]   Space separated list of case sensitive names to
                         process. Allowed names are:
                         Choices: (LIBRARIES)
+  --allLibraries        Select all libraries.
   --self                Create playlist for admin.
                         Default: False
   --days DAYS           The time range to calculate statistics.
                         Default: 30
   --top TOP             The number of top items to list.
                         Default: 5
-   --playlists          Space separated list of case sensitive names to
+  --playlists           Space separated list of case sensitive names to
                         process. Allowed names are:
                         Choices: (PLAYLISTS)
+  --name NAME           Custom name for playlist.
+  --limit LIMIT         Limit the amount items to be added to a playlist.
+  --filter FILTER       Search filtered metadata fields
+                        Filters: (mood unwatched country contentRating collection label director duplicate
+                        studio actor year genre guid resolution decade network).
+  --search SEARCH       Search non-filtered metadata fields for keywords in title, summary, etc.
 
 
  Example:
@@ -63,11 +69,16 @@ optional arguments:
     
  Share existing admin Playlists "My Custom Playlist" and "Another Playlist" with all users
     python playlist_manager.py --action share --allUsers --playlists "My Custom Playlist" "Another Playlist"
+    
  Excluding;
 
  --user becomes excluded if --allUsers is set
    python playlist_manager.py --action show --allUsers --user USER
        - Show all users current Playlists... all users but USER
+
+ --libraries becomes excluded if --allLibraries is set
+   python playlist_manager.py --jbop historyToday --allLibraries --libraries Movies --action add
+       - Create Aired Today Playlist from every library by Movies for admin user
 
 """
 
@@ -116,7 +127,9 @@ plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 account = plex.myPlexAccount()
 
 user_lst = [x.title for x in plex.myPlexAccount().users()]
-section_lst = [x.title for x in plex.library.sections()]
+sections = plex.library.sections()
+sections_lst = [x.title for x in sections]
+filter_lst = list(set([y for x in sections if x.type != 'photo' for y in x.ALLOWED_FILTERS]))
 playlist_lst = [x.title for x in plex.playlists()]
 today = datetime.datetime.now().date()
 weeknum = datetime.date(today.year, today.month, today.day).isocalendar()[1]
@@ -496,9 +509,11 @@ if __name__ == "__main__":
                              'Choices: %(choices)s')
     parser.add_argument('--allUsers', default=False, action='store_true',
                         help='Select all users.')
-    parser.add_argument('--libraries', nargs='+', choices=section_lst, metavar='',
+    parser.add_argument('--libraries', nargs='+', choices=sections_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are:\n'
                              'Choices: %(choices)s')
+    parser.add_argument('--allLibraries', default=False, action='store_true',
+                        help='Select all libraries.')
     parser.add_argument('--self', default=False, action='store_true',
                         help='Create playlist for admin.\n'
                              'Default: %(default)s')
@@ -549,6 +564,17 @@ if __name__ == "__main__":
         for user in opts.user:
             user_lst.remove(user)
             users = user_lst
+            
+    # Defining libraries
+    if opts.allLibraries and not opts.libraries:
+        libraries = sections_lst
+    elif not opts.allLibraries and opts.libraries:
+        libraries = opts.libraries
+    elif opts.allLibraries and opts.libraries:
+        # If allLibraries is used then any libraries listed will be excluded
+        for library in opts.libraries:
+            sections_lst.remove(library)
+            libraries = sections_lst
     
     # Create user server objects
     if users:
@@ -575,7 +601,7 @@ if __name__ == "__main__":
             delete_playlist(playlist_dict)
 
     else:
-        keys_list, title = build_playlist(opts.jbop, opts.libraries, opts.days, opts.top, search)
+        keys_list, title = build_playlist(opts.jbop, libraries, opts.days, opts.top, search)
         
     if opts.jbop and opts.action == 'show':
         show_playlist(title.title(), keys_list)
