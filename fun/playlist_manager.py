@@ -153,7 +153,7 @@ def selectors():
                   'historyMonth': 'Aired in {month}',
                   'popularTv': 'Most Popular TV Shows ({days} days)',
                   'popularMovies': 'Most Popular Movies ({days} days)',
-                  'keyword':'{keyword} Playlist',
+                  'custom':'{custom} Playlist',
                   'random': '{count} Random Playlist'
                   }
     
@@ -214,7 +214,7 @@ def sort_by_dates(video, date_type):
         return
 
 
-def get_content(library_name, jbop, search=None):
+def get_content(library_name, jbop, filters=None, search=None):
     """Get all movies or episodes from LIBRARY_NAME
 
     Parameters
@@ -230,34 +230,42 @@ def get_content(library_name, jbop, search=None):
         Sorted list of Movie and episodes that
         aired on today's date.
     """
-    # todo-me expand function for keyword searching
     child_lst = []
-    if search and jbop == 'keyword':
-        if search.keys()[0] in selectors().keys():
-            searchable = True
-            keyword = search
-        else:
-            searchable = False
+    filter_lst = []
+    search_lst = []
+    
+    if search or filters:
+        if search:
+            # todo-me replace with documentation showing the available search operators
             keyword = {key + '__icontains': value for key, value in search.items()}
+            # Loop through each library
+            for library in library_name:
+                plex_library = plex.library.section(library)
+                library_type = plex_library.type
+                # Find media type, if show then search/filter episodes
+                if library_type == 'movie':
+                    # Decisions to stack filter and search
+                    if keyword:
+                        search_lst = [x.ratingKey for x in plex_library.all(**keyword)]
+                        child_lst = search_lst
+                    if filters:
+                        filter_lst = [x.ratingKey for x in plex_library.search(**filters)]
+                        child_lst = filter_lst
+                    if keyword and filters:
+                        child_lst = list(set(filter_lst) & set(search_lst))
+                elif library_type == 'show':
+                    if keyword:
+                        for child in plex_library.all(**keyword):
+                            search_lst += [child.ratingKey]
+                        child_lst = search_lst
+                    if filters:
+                        filter_lst = [x.ratingKey for x in plex_library.search(**filters)]
+                        child_lst = filter_lst
+                    if keyword and filters:
+                        child_lst = list(set(filter_lst) & set(search_lst))
+                else:
+                    pass
 
-        for library in library_name:
-            plex_library = plex.library.section(library)
-            library_type = plex_library.type
-            if library_type == 'movie':
-                if searchable:
-                    child_lst = [x.ratingKey for x in plex_library.search(**keyword)]
-                else:
-                    child_lst = [x.ratingKey for x in plex_library.all(**keyword)]
-            elif library_type == 'show':
-                if searchable:
-                    for child in plex_library.search(**keyword):
-                        child_lst += [child.ratingKey]
-                else:
-                    child = plex_library.all()
-                    for episode in child.episodes(**keyword):
-                        child_lst += [episode.ratingKey]
-            else:
-                pass
         play_lst = child_lst
 
     else:
@@ -285,7 +293,7 @@ def get_content(library_name, jbop, search=None):
     return play_lst
 
 
-def build_playlist(jbop, libraries=None, days=None, top=None, search=None):
+def build_playlist(jbop, libraries=None, days=None, top=None, filters=None, search=None):
     """
     Parameters
     ----------
@@ -307,7 +315,7 @@ def build_playlist(jbop, libraries=None, days=None, top=None, search=None):
     title = ''
     if jbop == 'historyToday':
         try:
-            keys_list = get_content(libraries, jbop)
+            keys_list = get_content(libraries, jbop, filters, search)
         except TypeError as e:
             print("Libraries are not defined for {}. Use --libraries.".format(jbop))
             exit("Error: {}".format(e))
@@ -315,7 +323,7 @@ def build_playlist(jbop, libraries=None, days=None, top=None, search=None):
     
     elif jbop == 'historyWeek':
         try:
-            keys_list = get_content(libraries, jbop)
+            keys_list = get_content(libraries, jbop, filters, search)
         except TypeError as e:
             print("Libraries are not defined for {}. Use --libraries.".format(jbop))
             exit("Error: {}".format(e))
@@ -323,19 +331,27 @@ def build_playlist(jbop, libraries=None, days=None, top=None, search=None):
 
     elif jbop == 'historyMonth':
         try:
-            keys_list = get_content(libraries, jbop)
+            keys_list = get_content(libraries, jbop, filters, search)
         except TypeError as e:
             print("Libraries are not defined for {}. Use --libraries.".format(jbop))
             exit("Error: {}".format(e))
         title = selectors()['historyMonth'].format(month=today.strftime("%B"))
         
-    elif jbop == 'keyword':
+    elif jbop == 'custom':
         try:
-            keys_list = get_content(libraries, jbop, search)
+            keys_list = get_content(libraries, jbop, filters, search)
         except TypeError as e:
             print("Libraries are not defined for {}. Use --libraries.".format(jbop))
             exit("Error: {}".format(e))
-        title = selectors()['keyword'].format(keyword=' '.join(search.values()).capitalize())
+        if search and not filters:
+            title = ' '.join(search.values()).capitalize()
+        elif filters and not search:
+            title = ' '.join(filters.values()).capitalize()
+        elif search and filters:
+            search_title = ' '.join(search.values()).capitalize()
+            filters_title = ' '.join(filters.values()).capitalize()
+            title = filters_title + ' ' + search_title
+        title = selectors()['custom'].format(custom=title)
     
     elif jbop == 'popularTv':
         home_stats = get_home_stats(days, top)
@@ -526,7 +542,11 @@ if __name__ == "__main__":
     opts = parser.parse_args()
 
     users = ''
+    title = ''
     search = ''
+    filters = ''
+    libraries = ''
+    keys_list = []
     plex_servers = []
     pop_movie_title = selectors()['popularMovies'].format(days=opts.days)
     pop_tv_title = selectors()['popularTv'].format(days=opts.days)
@@ -537,7 +557,9 @@ if __name__ == "__main__":
                      'pop_movie': pop_movie_title,
                      'limit': opts.limit}
     if opts.search:
-        search = dict(opts.search)
+        search = dict([opts.search])
+    if opts.filter:
+        filters = dict(opts.filter)
 
     # Defining users
     if opts.allUsers and not opts.user:
@@ -586,7 +608,7 @@ if __name__ == "__main__":
             delete_playlist(playlist_dict)
 
     else:
-        keys_list, title = build_playlist(opts.jbop, libraries, opts.days, opts.top, search)
+        keys_list, title = build_playlist(opts.jbop, libraries, opts.days, opts.top, filters, search)
         
     if opts.jbop and opts.action == 'show':
         show_playlist(title.title(), keys_list)
