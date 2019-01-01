@@ -253,7 +253,7 @@ def get_content(library_name, jbop, filters=None, search=None):
                     filter_lst = [movie.ratingKey for movie in plex_library.search(**filters)]
                     child_lst += filter_lst
                 if keyword and filters:
-                    child_lst = list(set(filter_lst) & set(search_lst))
+                    child_lst += list(set(filter_lst) & set(search_lst))
                     
             elif library_type == 'show':
                 if keyword:
@@ -267,7 +267,7 @@ def get_content(library_name, jbop, filters=None, search=None):
                             filter_lst += [episode.ratingKey]
                     child_lst += filter_lst
                 if keyword and filters:
-                    child_lst = list(set(filter_lst) & set(search_lst))
+                    child_lst += list(set(filter_lst) & set(search_lst))
             else:
                 pass
 
