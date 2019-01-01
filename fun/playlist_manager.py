@@ -248,10 +248,10 @@ def get_content(library_name, jbop, filters=None, search=None):
                 # Decisions to stack filter and search
                 if keyword:
                     search_lst = [movie.ratingKey for movie in plex_library.all(**keyword)]
-                    child_lst = search_lst
+                    child_lst += search_lst
                 if filters:
                     filter_lst = [movie.ratingKey for movie in plex_library.search(**filters)]
-                    child_lst = filter_lst
+                    child_lst += filter_lst
                 if keyword and filters:
                     child_lst = list(set(filter_lst) & set(search_lst))
                     
@@ -260,12 +260,12 @@ def get_content(library_name, jbop, filters=None, search=None):
                     for show in plex_library.all():
                         for episode in show.episodes(**keyword):
                             search_lst += [episode.ratingKey]
-                    child_lst = search_lst
+                    child_lst += search_lst
                 if filters:
                     for show in plex_library.search(**filters):
                         for episode in show.episodes():
                             filter_lst += [episode.ratingKey]
-                    child_lst = filter_lst
+                    child_lst += filter_lst
                 if keyword and filters:
                     child_lst = list(set(filter_lst) & set(search_lst))
             else:
