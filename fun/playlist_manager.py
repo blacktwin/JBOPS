@@ -233,38 +233,43 @@ def get_content(library_name, jbop, filters=None, search=None):
     child_lst = []
     filter_lst = []
     search_lst = []
-    
+    keyword = ''
+
     if search or filters:
         if search:
             # todo-me replace with documentation showing the available search operators
             keyword = {key + '__icontains': value for key, value in search.items()}
-            # Loop through each library
-            for library in library_name:
-                plex_library = plex.library.section(library)
-                library_type = plex_library.type
-                # Find media type, if show then search/filter episodes
-                if library_type == 'movie':
-                    # Decisions to stack filter and search
-                    if keyword:
-                        search_lst = [x.ratingKey for x in plex_library.all(**keyword)]
-                        child_lst = search_lst
-                    if filters:
-                        filter_lst = [x.ratingKey for x in plex_library.search(**filters)]
-                        child_lst = filter_lst
-                    if keyword and filters:
-                        child_lst = list(set(filter_lst) & set(search_lst))
-                elif library_type == 'show':
-                    if keyword:
-                        for child in plex_library.all(**keyword):
-                            search_lst += [child.ratingKey]
-                        child_lst = search_lst
-                    if filters:
-                        filter_lst = [x.ratingKey for x in plex_library.search(**filters)]
-                        child_lst = filter_lst
-                    if keyword and filters:
-                        child_lst = list(set(filter_lst) & set(search_lst))
-                else:
-                    pass
+        # Loop through each library
+        for library in library_name:
+            plex_library = plex.library.section(library)
+            library_type = plex_library.type
+            # Find media type, if show then search/filter episodes
+            if library_type == 'movie':
+                # Decisions to stack filter and search
+                if keyword:
+                    search_lst = [movie.ratingKey for movie in plex_library.all(**keyword)]
+                    child_lst = search_lst
+                if filters:
+                    filter_lst = [movie.ratingKey for movie in plex_library.search(**filters)]
+                    child_lst = filter_lst
+                if keyword and filters:
+                    child_lst = list(set(filter_lst) & set(search_lst))
+                    
+            elif library_type == 'show':
+                if keyword:
+                    for show in plex_library.all():
+                        for episode in show.episodes(**keyword):
+                            search_lst += [episode.ratingKey]
+                    child_lst = search_lst
+                if filters:
+                    for show in plex_library.search(**filters):
+                        for episode in show.episodes():
+                            filter_lst += [episode.ratingKey]
+                    child_lst = filter_lst
+                if keyword and filters:
+                    child_lst = list(set(filter_lst) & set(search_lst))
+            else:
+                pass
 
         play_lst = child_lst
 
@@ -401,7 +406,7 @@ def show_playlist(playlist_title, playlist_keys):
         plex_obj = plex.fetchItem(key)
         if plex_obj.type == 'show':
             for episode in plex_obj.episodes():
-                title = "{}".format(episode._prettyfilename())
+                title = u"{}".format(episode._prettyfilename())
                 title = unicodedata.normalize('NFKD', title).encode('ascii', 'ignore').translate(None, "'")
                 playlist_list.append(title)
         else:
