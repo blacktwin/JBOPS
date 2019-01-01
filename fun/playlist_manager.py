@@ -561,10 +561,16 @@ if __name__ == "__main__":
                      'pop_tv': pop_tv_title,
                      'pop_movie': pop_movie_title,
                      'limit': opts.limit}
+    
     if opts.search:
         search = dict([opts.search])
     if opts.filter:
         filters = dict(opts.filter)
+        # Check if provided filter exist, exit if it doesn't exist
+        if not (set(filters.keys()) & set(filter_lst)):
+            print('({}) was not found in filters list: [{}]'
+                  .format(' '.join(filters.keys()), ', '.join(filter_lst)))
+            exit()
 
     # Defining users
     if opts.allUsers and not opts.user:
@@ -615,8 +621,16 @@ if __name__ == "__main__":
     else:
         keys_list, title = build_playlist(opts.jbop, libraries, opts.days, opts.top, filters, search)
         
+    if len(keys_list) > opts.limit:
+        keys_list = keys_list[:opts.limit]
+        
+    if opts.name:
+        title = opts.name
+    else:
+        title = title.title()
+        
     if opts.jbop and opts.action == 'show':
-        show_playlist(title.title(), keys_list)
+        show_playlist(title, keys_list)
 
     if opts.action == 'update':
         print("Deleting the playlist(s)...")
@@ -626,12 +640,12 @@ if __name__ == "__main__":
             delete_playlist(playlist_dict)
         print('Creating playlist(s)...')
         for x in plex_servers:
-            create_playlist(title.title(), keys_list, x['server'], x['user'])
+            create_playlist(title, keys_list, x['server'], x['user'])
             
     if opts.action == 'add':
         print('Creating playlist(s)...')
         for x in plex_servers:
-            create_playlist(title.title(), keys_list, x['server'], x['user'])
+            create_playlist(title, keys_list, x['server'], x['user'])
 
     if opts.action == 'show':
         print("Displaying the user's playlist(s)...")
