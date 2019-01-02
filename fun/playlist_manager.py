@@ -620,8 +620,9 @@ if __name__ == "__main__":
 
     else:
         keys_list, title = build_playlist(opts.jbop, libraries, opts.days, opts.top, filters, search)
-        
-    if len(keys_list) > opts.limit:
+    
+    # Check if limit exist and if it's greater than the pulled list of rating keys
+    if opts.limit and len(keys_list) > int(opts.limit):
         keys_list = keys_list[:opts.limit]
         
     if opts.name:
