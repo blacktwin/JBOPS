@@ -6,7 +6,10 @@ Killing streams is a Plex Pass only feature. So these scripts will **only** work
 
 ### Kill transcodes
 
-Triggers: Playback Start  
+Triggers:
+* Playback Start
+* Transcode Decision Change
+
 Conditions: \[ `Transcode Decision` | `is` | `transcode` \]
 
 Arguments:
@@ -59,6 +62,18 @@ Arguments:
 --jbop stream --username {username} --sessionId {session_id} --killMessage 'You are only allowed 3 streams.'
 ```
 
+### Limit User streams to one unique IP
+
+Triggers: Playback Start  
+Settings:
+* Notifications & Newsletters > Show Advanced > `User Concurrent Streams Notifications by IP Address` | `Checked`
+* Notifications & Newsletters > `User Concurrent Stream Threshold` | `2`
+
+Arguments:
+```
+--jbop stream --username {username} --sessionId {session_id} --killMessage 'You are only allowed to stream from one location at a time.'
+```
+
 ### IP Whitelist
 
 Triggers: Playback Start  
@@ -81,7 +96,10 @@ Arguments:
 
 ### Kill transcode by library
 
-Triggers: Playback Start  
+Triggers:
+* Playback Start
+* Transcode Decision Change
+
 Conditions:
 * \[ `Transcode Decision` | `is` | `transcode` \]
 * \[ `Library Name` | `is` | `4K Movies` \]
@@ -93,7 +111,10 @@ Arguments:
 
 ### Kill transcode by original resolution
 
-Triggers: Playback Start  
+Triggers:
+* Playback Start
+* Transcode Decision Change
+
 Conditions:
 * \[ `Transcode Decision` | `is` | `transcode` \]
 * \[ `Video Resolution` | `is` | `1080 or 720`\]
@@ -105,7 +126,10 @@ Arguments:
 
 ### Kill transcode by bitrate
 
-Triggers: Playback Start  
+Triggers:
+* Playback Start
+* Transcode Decision Change
+
 Conditions:
 * \[ `Transcode Decision` | `is` | `transcode` \]
 * \[ `Bitrate` | `is greater than` | `4000` \]
@@ -137,7 +161,10 @@ Arguments:
 
 ### Kill transcodes and send a notification to agent 1
 
-Triggers: Playback Start  
+Triggers:
+* Playback Start
+* Transcode Decision Change
+
 Conditions: \[ `Transcode Decision` | `is` | `transcode` \]
 
 Arguments:
@@ -147,7 +174,10 @@ Arguments:
 
 ### Kill transcodes using the default message
 
-Triggers: Playback Start  
+Triggers:
+* Playback Start
+* Transcode Decision Change
+
 Conditions: \[ `Transcode Decision` | `is` | `transcode` \]
 
 Arguments:
@@ -211,3 +241,11 @@ Tautulli > Script Agent > Script > Tautulli > Webhook Agent > Discord/Slack
 ### Debug
 
 Add `--debug` to enable debug logging.
+
+### Conditions considerations
+
+#### Kill transcode variants
+
+All examples use \[ `Transcode Decision` | `is` | `transcode` \] which will kill any variant of transcoding.
+If you want to allow audio or container transcoding and only drop video transcodes, your condition would change to
+\[ `Video Decision` | `is` | `transcode` \]
