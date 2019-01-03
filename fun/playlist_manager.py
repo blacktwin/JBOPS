@@ -128,7 +128,7 @@ account = plex.myPlexAccount()
 
 user_lst = [x.title for x in plex.myPlexAccount().users()]
 sections = plex.library.sections()
-sections_lst = [x.title for x in sections]
+sections_dict = {x.key: x.title for x in sections}
 filter_lst = list(set([y for x in sections if x.type != 'photo' for y in x.ALLOWED_FILTERS]))
 playlist_lst = [x.title for x in plex.playlists()]
 today = datetime.datetime.now().date()
@@ -214,13 +214,13 @@ def sort_by_dates(video, date_type):
         return
 
 
-def get_content(library_name, jbop, filters=None, search=None):
+def get_content(libraries, jbop, filters=None, search=None):
     """Get all movies or episodes from LIBRARY_NAME
 
     Parameters
     ----------
-    library_name: list
-        list of library objects
+    libraries: dict
+        dict of libraries key and name
     jbop: str
         jbop value for searching
 
@@ -240,8 +240,8 @@ def get_content(library_name, jbop, filters=None, search=None):
             # todo-me replace with documentation showing the available search operators
             keyword = {key + '__icontains': value for key, value in search.items()}
         # Loop through each library
-        for library in library_name:
-            plex_library = plex.library.section(library)
+        for library in libraries.keys():
+            plex_library = plex.library.sectionByID(library)
             library_type = plex_library.type
             # Find media type, if show then search/filter episodes
             if library_type == 'movie':
@@ -274,8 +274,8 @@ def get_content(library_name, jbop, filters=None, search=None):
         play_lst = child_lst
 
     else:
-        for library in library_name:
-            for child in plex.library.section(library).all():
+        for library in libraries.keys():
+            for child in plex.library.sectionByID(library).all():
                 if child.type == 'movie':
                     if sort_by_dates(child, jbop):
                         item_date = sort_by_dates(child, jbop)
@@ -304,7 +304,8 @@ def build_playlist(jbop, libraries=None, days=None, top=None, filters=None, sear
     ----------
     jbop: str
         The predefined Playlist type
-    libraries: list
+    libraries: dict
+        {key: name}
         Libraries to use to build Playlist
     days: int
         Days to search for Top Movies/Tv Shows
@@ -362,15 +363,23 @@ def build_playlist(jbop, libraries=None, days=None, top=None, filters=None, sear
         home_stats = get_home_stats(days, top)
         for stat in home_stats:
             if stat['stat_id'] == 'popular_tv':
-                keys_list = [x['rating_key'] for x in stat['rows']]
-                title = pop_tv_title
+                if libraries:
+                    keys_list = [x['rating_key'] for x in stat['rows'] if
+                                 str(x['section_id']) in libraries.keys()]
+                else:
+                    keys_list = [x['rating_key'] for x in stat['rows']]
+                title = selectors()['popularTv'].format(days=days)
     
     elif jbop == 'popularMovies':
         home_stats = get_home_stats(days, top)
         for stat in home_stats:
             if stat['stat_id'] == 'popular_movies':
-                keys_list = [x['rating_key'] for x in stat['rows']]
-                title = pop_movie_title
+                if libraries:
+                    keys_list = [x['rating_key'] for x in stat['rows']
+                                 if str(x['section_id']) in libraries.keys()]
+                else:
+                    keys_list = [x['rating_key'] for x in stat['rows']]
+                title = selectors()['popularMovies'].format(days=days)
 
     return keys_list, title
 
@@ -403,6 +412,7 @@ def show_playlist(playlist_title, playlist_keys):
     """
     playlist_list = []
     for key in playlist_keys:
+        # todo-me add try to catch when Tautulli reports a rating key that is now missing from Plex
         plex_obj = plex.fetchItem(key)
         if plex_obj.type == 'show':
             for episode in plex_obj.episodes():
@@ -514,7 +524,7 @@ if __name__ == "__main__":
                              'Choices: %(choices)s')
     parser.add_argument('--allUsers', default=False, action='store_true',
                         help='Select all users.')
-    parser.add_argument('--libraries', nargs='+', choices=sections_lst, metavar='',
+    parser.add_argument('--libraries', nargs='+', choices=sections_dict.values(), metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are:\n'
                              'Choices: %(choices)s')
     parser.add_argument('--allLibraries', default=False, action='store_true',
@@ -550,7 +560,7 @@ if __name__ == "__main__":
     title = ''
     search = ''
     filters = ''
-    libraries = ''
+    libraries = {}
     keys_list = []
     plex_servers = []
     pop_movie_title = selectors()['popularMovies'].format(days=opts.days)
@@ -585,14 +595,16 @@ if __name__ == "__main__":
             
     # Defining libraries
     if opts.allLibraries and not opts.libraries:
-        libraries = sections_lst
+        libraries = sections_dict
     elif not opts.allLibraries and opts.libraries:
-        libraries = opts.libraries
+        for key, name in sections_dict.items():
+            if name in opts.libraries:
+                libraries[key] = name
     elif opts.allLibraries and opts.libraries:
         # If allLibraries is used then any libraries listed will be excluded
-        for library in opts.libraries:
-            sections_lst.remove(library)
-            libraries = sections_lst
+        for key, name in sections_dict.items():
+            if name not in opts.libraries:
+                libraries[key] = name
     
     # Create user server objects
     if users:
