@@ -32,6 +32,7 @@ optional arguments:
   --playlists           Space separated list of case sensitive names to
                         process. Allowed names are:
                         Choices: (PLAYLISTS)
+  --allPlaylist         Select all playlists.
   --name NAME           Custom name for playlist.
   --limit LIMIT         Limit the amount items to be added to a playlist.
   --filter FILTER       Search filtered metadata fields
@@ -462,7 +463,7 @@ def create_playlist(playlist_title, playlist_keys, server, user):
         print("...Added {title} playlist to '{user}'.".format(title=playlist_title, user=user))
 
 
-def delete_playlist(playlist_dict):
+def delete_playlist(playlist_dict, jbop):
     """
     Parameters
     ----------
@@ -470,7 +471,6 @@ def delete_playlist(playlist_dict):
     """
 
     server = playlist_dict['server']
-    jbop = playlist_dict['jbop']
     user = playlist_dict['user']
     pop_movie = playlist_dict['pop_movie']
     pop_tv = playlist_dict['pop_tv']
@@ -541,12 +541,12 @@ if __name__ == "__main__":
     parser.add_argument('--playlists', nargs='+', choices=playlist_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are:\n'
                              'Choices: %(choices)s')
+    parser.add_argument('--allPlaylists', default=False, action='store_true',
+                        help='Select all playlists.')
     parser.add_argument('--name', type=str,
                         help='Custom name for playlist.')
     parser.add_argument('--limit', type=int, default=False,
                         help='Limit the amount items to be added to a playlist.')
-    # todo-me custom naming for playlists --name?
-    # todo-me custom limits to playlist --limit?
     parser.add_argument('--filter', action='append', type=lambda kv: kv.split("="),
                         help='Search filtered metadata fields.\n'
                              'Filters: ({}).'.format(', '.join(filter_lst)))
@@ -561,16 +561,14 @@ if __name__ == "__main__":
     search = ''
     filters = ''
     libraries = {}
+    playlists = []
     keys_list = []
     plex_servers = []
     pop_movie_title = selectors()['popularMovies'].format(days=opts.days)
     pop_tv_title = selectors()['popularTv'].format(days=opts.days)
     
-    playlist_dict = {'jbop': opts.jbop,
-                     'custom': opts.name,
-                     'pop_tv': pop_tv_title,
-                     'pop_movie': pop_movie_title,
-                     'limit': opts.limit}
+    playlist_dict = {'pop_tv': pop_tv_title,
+                     'pop_movie': pop_movie_title}
     
     if opts.search:
         search = dict([opts.search])
@@ -606,12 +604,23 @@ if __name__ == "__main__":
             if name not in opts.libraries:
                 libraries[key] = name
     
+    # Defining playlist
+    if opts.allPlaylists and not opts.playlists:
+        playlists = playlist_lst
+    elif not opts.allPlaylists and opts.playlists:
+        playlists = opts.playlists
+    elif opts.allUsers and opts.user:
+        # If allPlaylists is used then any playlists listed will be excluded
+        for playlist in opts.user:
+            playlist_lst.remove(playlist)
+            playlists = playlist_lst
+    
     # Create user server objects
     if users:
         for user in users:
-            if opts.action == 'share':
+            if opts.action == 'share' and playlists:
                 print("Sharing playlist(s)...")
-                share_playlists(opts.playlists, users)
+                share_playlists(playlists, users)
             user_acct = account.user(user)
             plex_servers.append({
                 'server': PlexServer(PLEX_URL, user_acct.get_token(plex.machineIdentifier)),
@@ -622,13 +631,14 @@ if __name__ == "__main__":
     else:
         plex_servers.append({'server': plex,
                             'user': 'admin'})
-            
+    
+    # Remove or build playlists
     if opts.action == 'remove':
         print("Deleting the playlist(s)...")
         for x in plex_servers:
             playlist_dict['server'] = x['server']
             playlist_dict['user'] = x['user']
-            delete_playlist(playlist_dict)
+            delete_playlist(playlist_dict, opts.jbop)
 
     else:
         keys_list, title = build_playlist(opts.jbop, libraries, opts.days, opts.top, filters, search)
@@ -637,6 +647,7 @@ if __name__ == "__main__":
     if opts.limit and len(keys_list) > int(opts.limit):
         keys_list = keys_list[:opts.limit]
         
+    # Setting custom name if provided
     if opts.name:
         title = opts.name
     else:
@@ -650,7 +661,7 @@ if __name__ == "__main__":
         for x in plex_servers:
             playlist_dict['server'] = x['server']
             playlist_dict['user'] = x['user']
-            delete_playlist(playlist_dict)
+            delete_playlist(playlist_dict, opts.jbop)
         print('Creating playlist(s)...')
         for x in plex_servers:
             create_playlist(title, keys_list, x['server'], x['user'])
