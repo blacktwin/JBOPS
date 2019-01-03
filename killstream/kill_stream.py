@@ -1,13 +1,13 @@
 """
 Description: Use conditions to kill a stream
-Author: Blacktwin, Arcanemagus, Samwiseg00, JonnyWong16
+Author: Blacktwin, Arcanemagus, Samwiseg0, JonnyWong16, DirtyCajunRice
 
 Adding the script to Tautulli:
-Taultulli > Settings > Notification Agents > Add a new notification agent >
+Tautulli > Settings > Notification Agents > Add a new notification agent >
  Script
 
 Configuration:
-Taultulli > Settings > Notification Agents > New Script > Configuration:
+Tautulli > Settings > Notification Agents > New Script > Configuration:
 
  Script Folder: /path/to/your/scripts
  Script File: ./kill_stream.py (Should be selectable in a dropdown list)
@@ -16,19 +16,19 @@ Taultulli > Settings > Notification Agents > New Script > Configuration:
  Save
 
 Triggers:
-Taultulli > Settings > Notification Agents > New Script > Triggers:
+Tautulli > Settings > Notification Agents > New Script > Triggers:
 
  Check: Playback Start and/or Playback Pause
  Save
 
 Conditions:
-Taultulli > Settings > Notification Agents > New Script > Conditions:
+Tautulli > Settings > Notification Agents > New Script > Conditions:
 
  Set Conditions: [{condition} | {operator} | {value} ]
  Save
 
 Script Arguments:
-Taultulli > Settings > Notification Agents > New Script > Script Arguments:
+Tautulli > Settings > Notification Agents > New Script > Script Arguments:
 
  Select: Playback Start, Playback Pause
  Arguments: --jbop SELECTOR --userId {user_id} --username {username}
@@ -46,11 +46,13 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
 
 import os
 import sys
-import argparse
 import json
 import time
+import argparse
 from datetime import datetime
-import requests
+from requests import Session
+from requests.adapters import HTTPAdapter
+from requests.exceptions import RequestException
 
 
 TAUTULLI_URL = ''
@@ -109,13 +111,15 @@ def debug_dump_vars():
           .rjust(len(TAUTULLI_APIKEY), "x"))
 
 
-def get_all_streams(user_id=None):
+def get_all_streams(tautulli, user_id=None):
     """Get a list of all current streams.
 
     Parameters
     ----------
     user_id : int
         The ID of the user to grab sessions for.
+    tautulli : obj
+        Tautulli object.
     Returns
     -------
     objects
@@ -131,17 +135,17 @@ def get_all_streams(user_id=None):
     return streams
 
 
-def notify(opts, message, kill_type=None, stream=None):
+def notify(all_opts, message, kill_type=None, stream=None, tautulli=None):
     """Decides which notifier type to use"""
-    if opts.notify and opts.richMessage:
-        rich_notify(opts.notify, opts.richMessage, opts.richColor, kill_type,
-                    opts.serverName, opts.plexUrl, opts.posterUrl, message, stream)
-    elif opts.notify:
-        basic_notify(opts.notify, opts.sessionId, opts.username, message)
+    if all_opts.notify and all_opts.richMessage:
+        rich_notify(all_opts.notify, all_opts.richMessage, all_opts.richColor, kill_type,
+                    all_opts.serverName, all_opts.plexUrl, all_opts.posterUrl, message, stream, tautulli)
+    elif all_opts.notify:
+        basic_notify(all_opts.notify, all_opts.sessionId, all_opts.username, message, stream, tautulli)
 
 
 def rich_notify(notifier_id, rich_type, color=None, kill_type=None, server_name=None,
-                plex_url=None, poster_url=None, message=None, stream=None):
+                plex_url=None, poster_url=None, message=None, stream=None, tautulli=None):
     """Decides which rich notifier type to use. Set default values for empty variables
 
     Parameters
@@ -150,6 +154,8 @@ def rich_notify(notifier_id, rich_type, color=None, kill_type=None, server_name=
         The ID of the user to grab sessions for.
     rich_type : str
         Contains 'discord' or 'slack'.
+    color : Union[int, str]
+        Hex string or integer representation of color.
     kill_type : str
         The kill type used.
     server_name : str
@@ -162,22 +168,26 @@ def rich_notify(notifier_id, rich_type, color=None, kill_type=None, server_name=
         Message sent to the client.
     stream : obj
         Stream object.
+    tautulli : obj
+        Tautulli object.
     """
     notification = Notification(notifier_id, SUBJECT_TEXT, BODY_TEXT, tautulli, stream)
-
+    # Initialize Variables
+    title = ''
+    footer = ''
     # Set a default server_name if none is provided
     if server_name is None:
         server_name = 'Plex Server'
 
-    # Set a defult color if none is provided
+    # Set a default color if none is provided
     if color is None:
         color = '#E5A00D'
 
-    # Set a defult plexUrl if none is provided
+    # Set a default plexUrl if none is provided
     if plex_url is None:
         plex_url = 'https://app.plex.tv'
 
-    # Set a defult posterUrl if none is provided
+    # Set a default posterUrl if none is provided
     if poster_url is None:
         poster_url = TAUTULLI_ICON
 
@@ -207,7 +217,7 @@ def rich_notify(notifier_id, rich_type, color=None, kill_type=None, server_name=
         notification.send_slack(title, color, poster_url, plex_url, message, footer)
 
 
-def basic_notify(notifier_id, session_id, username=None, message=None):
+def basic_notify(notifier_id, session_id, username=None, message=None, stream=None, tautulli=None):
     """Basic notifier"""
     notification = Notification(notifier_id, SUBJECT_TEXT, BODY_TEXT, tautulli, stream)
 
@@ -225,11 +235,11 @@ class Tautulli:
         self.apikey = apikey
         self.debug = debug
 
-        self.session = requests.Session()
-        self.adapters = requests.adapters.HTTPAdapter(max_retries=3,
-                                                      pool_connections=1,
-                                                      pool_maxsize=1,
-                                                      pool_block=True)
+        self.session = Session()
+        self.adapters = HTTPAdapter(max_retries=3,
+                                    pool_connections=1,
+                                    pool_maxsize=1,
+                                    pool_block=True)
         self.session.mount('http://', self.adapters)
         self.session.mount('https://', self.adapters)
 
@@ -240,14 +250,14 @@ class Tautulli:
             import urllib3
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-    def _call_api(self, cmd, payload, method='GET', debug=None):
+    def _call_api(self, cmd, payload, method='GET'):
         payload['cmd'] = cmd
         payload['apikey'] = self.apikey
 
         try:
             response = self.session.request(method, self.url + '/api/v2', params=payload)
-        except:
-            print("Tautulli request failed for cmd '{}'. Invalid Tautulli URL?".format(cmd))
+        except RequestException as e:
+            print("Tautulli request failed for cmd '{}'. Invalid Tautulli URL? Error: {}".format(cmd, e))
             if self.debug:
                 traceback.print_exc()
             return
@@ -303,11 +313,12 @@ class Tautulli:
 
 class Stream:
     def __init__(self, session_id=None, user_id=None, username=None, tautulli=None, session=None):
+        self.state = None
+        self.ip_address = None
         self.session_id = session_id
         self.user_id = user_id
         self.username = username
         self.session_exists = False
-
         self.tautulli = tautulli
 
         if session is not None:
@@ -579,38 +590,38 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if opts.debug:
-        # Import traceback to get more deatiled information
+        # Import traceback to get more detailed information
         import traceback
-        # Dump the ENVs passed from tatutulli
+        # Dump the ENVs passed from tautulli
         debug_dump_vars()
 
     # Create a Tautulli instance
-    tautulli = Tautulli(TAUTULLI_URL.rstrip('/'), TAUTULLI_APIKEY, VERIFY_SSL, opts.debug)
+    tautulli_server = Tautulli(TAUTULLI_URL.rstrip('/'), TAUTULLI_APIKEY, VERIFY_SSL, opts.debug)
 
     # Create initial Stream object with basic info
-    stream = Stream(opts.sessionId, opts.userId, opts.username, tautulli)
+    tautulli_stream = Stream(opts.sessionId, opts.userId, opts.username, tautulli_server)
 
     # Only pull all stream info if using richMessage
     if opts.notify and opts.richMessage:
-        stream.get_all_stream_info()
+        tautulli_stream.get_all_stream_info()
 
-    # Set a defult message if none is provided
+    # Set a default message if none is provided
     if opts.killMessage:
-        message = ' '.join(opts.killMessage)
+        kill_message = ' '.join(opts.killMessage)
     else:
-        message = 'The server owner has ended the stream.'
+        kill_message = 'The server owner has ended the stream.'
 
     if opts.jbop == 'stream':
-        stream.terminate(message)
-        notify(opts, message, 'Stream', stream)
+        tautulli_stream.terminate(kill_message)
+        notify(opts, kill_message, 'Stream', tautulli_stream, tautulli_server)
 
     elif opts.jbop == 'allStreams':
-        streams = get_all_streams(opts.userId)
-        for stream in streams:
-            tautulli.terminate_session(session_id=stream.session_id, message=message)
-            notify(opts, message, 'All Streams', stream)
+        all_streams = get_all_streams(tautulli_server, opts.userId)
+        for a_stream in all_streams:
+            tautulli_server.terminate_session(session_id=a_stream.session_id, message=kill_message)
+            notify(opts, kill_message, 'All Streams', a_stream, tautulli_server)
 
     elif opts.jbop == 'paused':
-        killed_stream = stream.terminate_long_pause(message, opts.limit, opts.interval)
+        killed_stream = tautulli_stream.terminate_long_pause(kill_message, opts.limit, opts.interval)
         if killed_stream:
-            notify(opts, message, 'Paused', stream)
+            notify(opts, kill_message, 'Paused', tautulli_stream, tautulli_server)
