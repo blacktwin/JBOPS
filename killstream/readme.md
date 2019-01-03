@@ -64,7 +64,7 @@ Arguments:
 
 ### Limit User streams to one unique IP
 
-Triggers: Playback Start  
+Triggers: User Concurrent Streams  
 Settings:
 * Notifications & Newsletters > Show Advanced > `User Concurrent Streams Notifications by IP Address` | `Checked`
 * Notifications & Newsletters > `User Concurrent Stream Threshold` | `2`
