@@ -650,8 +650,6 @@ if __name__ == "__main__":
     # Setting custom name if provided
     if opts.name:
         title = opts.name
-    else:
-        title = title.title()
         
     if opts.jbop and opts.action == 'show':
         show_playlist(title, keys_list)
