@@ -474,34 +474,41 @@ def delete_playlist(playlist_dict, jbop):
     user = playlist_dict['user']
     pop_movie = playlist_dict['pop_movie']
     pop_tv = playlist_dict['pop_tv']
+    playlist_names = playlist_dict['playlist_name']
     
     try:
+        # todo-me this needs improvement
         for playlist in server.playlists():
             if jbop == 'historyToday':
                 if playlist.title.startswith('Aired Today'):
                     playlist.delete()
-                    print("...Deleted {playlist.title} for '{user}'."
+                    print("...Deleted Playlist: {playlist.title} for '{user}'."
                           .format(playlist=playlist, user=user))
             elif jbop == 'historyWeek':
                 if playlist.title.startswith('Aired This Week'):
                     playlist.delete()
-                    print("...Deleted {playlist.title} for '{user}'."
+                    print("...Deleted Playlist: {playlist.title} for '{user}'."
                           .format(playlist=playlist, user=user))
             elif jbop == 'historyMonth':
                 if playlist.title.startswith('Aired in'):
                     playlist.delete()
-                    print("...Deleted {playlist.title} for '{user}'."
+                    print("...Deleted Playlist: {playlist.title} for '{user}'."
                           .format(playlist=playlist, user=user))
             elif jbop == 'popularMovies':
                 if playlist.title == pop_movie:
                     playlist.delete()
-                    print("...Deleted {playlist.title} for '{user}'."
+                    print("...Deleted Playlist: {playlist.title} for '{user}'."
                           .format(playlist=playlist, user=user))
             elif jbop == 'popularTv':
                 if playlist.title == pop_tv:
                     playlist.delete()
-                    print("...Deleted {playlist.title} for '{user}'."
+                    print("...Deleted Playlist: {playlist.title} for '{user}'."
                           .format(playlist=playlist, user=user))
+            elif playlist.title in playlist_names:
+                playlist.delete()
+                print("...Deleted Playlist: {playlist.title} for '{user}'."
+                      .format(playlist=playlist, user=user))
+                
 
     except:
         # print("Playlist not found on '{user}' account".format(user=user))
@@ -538,9 +545,8 @@ if __name__ == "__main__":
     parser.add_argument('--top', type=str, default=TOP,
                         help='The number of top items to list.\n'
                              'Default: %(default)s')
-    parser.add_argument('--playlists', nargs='+', choices=playlist_lst, metavar='',
-                        help='Space separated list of case sensitive names to process. Allowed names are:\n'
-                             'Choices: %(choices)s')
+    parser.add_argument('--playlists', nargs='+', metavar='',
+                        help='Enter Playlist name to be managed.')
     parser.add_argument('--allPlaylists', default=False, action='store_true',
                         help='Select all playlists.')
     parser.add_argument('--name', type=str,
@@ -615,6 +621,7 @@ if __name__ == "__main__":
             playlist_lst.remove(playlist)
             playlists = playlist_lst
     
+    playlist_dict['playlist_name'] = playlists
     # Create user server objects
     if users:
         for user in users:
