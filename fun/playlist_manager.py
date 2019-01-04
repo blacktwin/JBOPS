@@ -493,7 +493,7 @@ def create_playlist(playlist_title, playlist_keys, server, user):
 
     if playlist_list:
         server.createPlaylist(playlist_title, playlist_list)
-        print("...Added {title} playlist to '{user}'.".format(title=playlist_title, user=user))
+        print("...Added Playlist: {title} to '{user}'.".format(title=playlist_title, user=user))
 
 
 def delete_playlist(playlist_dict, jbop):
