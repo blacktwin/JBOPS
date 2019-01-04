@@ -542,7 +542,6 @@ def delete_playlist(playlist_dict, jbop):
                 print("...Deleted Playlist: {playlist.title} for '{user}'."
                       .format(playlist=playlist, user=user))
                 
-
     except:
         # print("Playlist not found on '{user}' account".format(user=user))
         pass
@@ -636,17 +635,19 @@ if __name__ == "__main__":
                 share_playlists(server_playlists, users)
             user_acct = account.user(user)
             user_server = PlexServer(PLEX_URL, user_acct.get_token(plex.machineIdentifier))
+            user_playlists = [pl.title for pl in user_server.playlists()]
+            user_playlists = exclusions(opts.allPlaylists, opts.playlists, user_playlists)
             plex_servers.append({
                 'server': user_server,
                 'user': user,
-                'user_playlists': [pl.title for pl in user_server.playlists()]})
+                'user_playlists': user_playlists})
         if opts.self:
             plex_servers.append({'server': plex,
                                  'user': 'admin',
                                  'user_playlists': server_playlists})
     else:
         plex_servers.append({'server': plex,
-                            'user': 'admin',
+                             'user': 'admin',
                              'user_playlists': server_playlists})
     
     # Remove or build playlists
