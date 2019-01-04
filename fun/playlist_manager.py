@@ -660,7 +660,11 @@ if __name__ == "__main__":
             delete_playlist(playlist_dict, opts.jbop)
 
     else:
-        keys_list, title = build_playlist(opts.jbop, libraries, opts.days, opts.top, filters, search)
+        if libraries:
+            keys_list, title = build_playlist(opts.jbop, libraries, opts.days, opts.top, filters, search)
+        else:
+            print('This function requires libraries to be listed.')
+            exit()
     
     # Check if limit exist and if it's greater than the pulled list of rating keys
     if opts.limit and len(keys_list) > int(opts.limit):
@@ -678,6 +682,7 @@ if __name__ == "__main__":
         for x in plex_servers:
             playlist_dict['server'] = x['server']
             playlist_dict['user'] = x['user']
+            playlist_dict['user_playlists'] = x['user_playlists']
             delete_playlist(playlist_dict, opts.jbop)
         print('Creating playlist(s)...')
         for x in plex_servers:
