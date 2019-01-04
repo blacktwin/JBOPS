@@ -162,7 +162,21 @@ def selectors():
 
 
 def exclusions(all_true, select, all_items):
-    
+    """
+    Parameters
+    ----------
+    all_true: bool
+        All of something (allLibraries, allPlaylists, allUsers)
+    select: list
+        List from arguments (user, playlists, libraries)
+    all_items: list or dict
+        List or Dictionary of all possible somethings
+
+    Returns
+    -------
+    output: list
+        List of what was included/excluded
+    """
     output = ''
     if isinstance(all_items, list):
         output = []
