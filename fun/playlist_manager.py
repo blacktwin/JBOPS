@@ -161,6 +161,39 @@ def selectors():
     return selections
 
 
+def exclusions(all_true, select, all_items):
+    
+    output = ''
+    if isinstance(all_items, list):
+        output = []
+        # Defining users
+        if all_true and not select:
+            output = all_items
+        elif not all_true and select:
+            output = select
+        elif all_true and select:
+            # If allUsers is used then any users listed will be excluded
+            for x in select:
+                all_items.remove(x)
+                output = all_items
+    elif isinstance(all_items, dict):
+        output = {}
+        # Defining libraries
+        if all_true and not select:
+            output = all_items
+        elif not all_true and select:
+            for key, value in all_items.items():
+                if value in select:
+                    output[key] = value
+        elif all_true and select:
+            # If allLibraries is used then any libraries listed will be excluded
+            for key, value in all_items.items():
+                if value not in select:
+                    output[key] = value
+    
+    return output
+
+
 def get_home_stats(time_range, stats_count):
     # Get the homepage watch statistics.
     payload = {'apikey': TAUTULLI_APIKEY,
@@ -587,28 +620,10 @@ if __name__ == "__main__":
             exit()
 
     # Defining users
-    if opts.allUsers and not opts.user:
-        users = user_lst
-    elif not opts.allUsers and opts.user:
-        users = opts.user
-    elif opts.allUsers and opts.user:
-        # If allUsers is used then any users listed will be excluded
-        for user in opts.user:
-            user_lst.remove(user)
-            users = user_lst
-            
+    users = exclusions(opts.allUsers, opts.user, user_lst)
+
     # Defining libraries
-    if opts.allLibraries and not opts.libraries:
-        libraries = sections_dict
-    elif not opts.allLibraries and opts.libraries:
-        for key, name in sections_dict.items():
-            if name in opts.libraries:
-                libraries[key] = name
-    elif opts.allLibraries and opts.libraries:
-        # If allLibraries is used then any libraries listed will be excluded
-        for key, name in sections_dict.items():
-            if name not in opts.libraries:
-                libraries[key] = name
+    libraries = exclusions(opts.allLibraries, opts.libraries, sections_dict)
     
     # Defining playlist
     if opts.allPlaylists and not opts.playlists:
