@@ -615,9 +615,9 @@ if __name__ == "__main__":
         playlists = playlist_lst
     elif not opts.allPlaylists and opts.playlists:
         playlists = opts.playlists
-    elif opts.allUsers and opts.user:
+    elif opts.allPlaylists and opts.playlists:
         # If allPlaylists is used then any playlists listed will be excluded
-        for playlist in opts.user:
+        for playlist in opts.playlists:
             playlist_lst.remove(playlist)
             playlists = playlist_lst
     
