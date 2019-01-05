@@ -663,10 +663,20 @@ if __name__ == "__main__":
                              'user': 'admin',
                              'user_playlists': server_playlists})
     
+    playlist_dict['data'] = plex_servers
+    
+    if opts.action == 'show':
+        print("Displaying the user's playlist(s)...")
+        for x in playlist_dict['data']:
+            user = x['user']
+            playlists = x['user_playlists']
+            print("{}'s current playlist(s): {}".format(user, ', '.join(playlists)))
+        exit()
+    
     # Remove or build playlists
     if opts.action == 'remove':
         print("Deleting the playlist(s)...")
-        for x in plex_servers:
+        for x in playlist_dict['data']:
             playlist_dict['server'] = x['server']
             playlist_dict['user'] = x['user']
             playlist_dict['user_playlists'] = x['user_playlists']
@@ -705,12 +715,5 @@ if __name__ == "__main__":
         print('Creating playlist(s)...')
         for x in plex_servers:
             create_playlist(title, keys_list, x['server'], x['user'])
-
-    if opts.action == 'show':
-        print("Displaying the user's playlist(s)...")
-        for x in plex_servers:
-            user = x['user']
-            playlist = [y.title for y in x['server'].playlists()]
-            print("{}'s current playlist(s): {}".format(user, ', '.join(playlist)))
 
     print("Done.")
