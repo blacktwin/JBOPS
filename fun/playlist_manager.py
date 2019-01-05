@@ -174,25 +174,23 @@ def exclusions(all_true, select, all_items):
 
     Returns
     -------
-    output: list
+    output: list or dict
         List of what was included/excluded
     """
     output = ''
     if isinstance(all_items, list):
         output = []
-        # Defining users
         if all_true and not select:
             output = all_items
         elif not all_true and select:
             output = select
         elif all_true and select:
-            # If allUsers is used then any users listed will be excluded
             for x in select:
                 all_items.remove(x)
                 output = all_items
+                
     elif isinstance(all_items, dict):
         output = {}
-        # Defining libraries
         if all_true and not select:
             output = all_items
         elif not all_true and select:
@@ -200,7 +198,6 @@ def exclusions(all_true, select, all_items):
                 if value in select:
                     output[key] = value
         elif all_true and select:
-            # If allLibraries is used then any libraries listed will be excluded
             for key, value in all_items.items():
                 if value not in select:
                     output[key] = value
@@ -434,15 +431,12 @@ def build_playlist(jbop, libraries=None, days=None, top=None, filters=None, sear
 
 def share_playlists(playlist_titles, users):
     """
-
     Parameters
     ----------
-    playlist_titles
-    users
-
-    Returns
-    -------
-
+    playlist_titles: list
+        list of playlist titles
+    users: list
+        list of user names
     """
     for user in users:
         for title in playlist_titles:
@@ -456,7 +450,10 @@ def show_playlist(playlist_title, playlist_keys):
     """
     Parameters
     ----------
-    playlist_keys
+    playlist_title: str
+        playlist's title
+    playlist_keys: list
+        list of rating keys for playlist
     """
     playlist_list = []
     for key in playlist_keys:
@@ -481,10 +478,14 @@ def create_playlist(playlist_title, playlist_keys, server, user):
     """
     Parameters
     ----------
-    playlist_title
-    playlist_keys
-    server
-    user
+    playlist_title: str
+        playlist title
+    playlist_keys: list
+        list of rating keys for playlist
+    server: class
+        server instance
+    user: str
+        users name
     """
     playlist_list = []
     for key in playlist_keys:
@@ -608,11 +609,9 @@ if __name__ == "__main__":
     
     opts = parser.parse_args()
 
-    users = ''
     title = ''
     search = ''
     filters = ''
-    libraries = {}
     playlists = []
     keys_list = []
     plex_servers = []
