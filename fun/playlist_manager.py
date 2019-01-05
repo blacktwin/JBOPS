@@ -648,12 +648,13 @@ if __name__ == "__main__":
                 share_playlists(server_playlists, users)
             user_acct = account.user(user)
             user_server = PlexServer(PLEX_URL, user_acct.get_token(plex.machineIdentifier))
-            user_playlists = [pl.title for pl in user_server.playlists()]
-            user_playlists = exclusions(opts.allPlaylists, opts.playlists, user_playlists)
+            all_playlists = [pl.title for pl in user_server.playlists()]
+            user_playlists = exclusions(opts.allPlaylists, opts.playlists, all_playlists)
             plex_servers.append({
                 'server': user_server,
                 'user': user,
-                'user_playlists': user_playlists})
+                'user_playlists': user_playlists,
+                'all_playlists': all_playlists})
         if opts.self:
             plex_servers.append({'server': plex,
                                  'user': 'admin',
@@ -669,7 +670,7 @@ if __name__ == "__main__":
         print("Displaying the user's playlist(s)...")
         for x in playlist_dict['data']:
             user = x['user']
-            playlists = x['user_playlists']
+            playlists = x['all_playlists']
             print("{}'s current playlist(s): {}".format(user, ', '.join(playlists)))
         exit()
     
