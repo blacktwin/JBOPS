@@ -522,7 +522,7 @@ def delete_playlist(playlist_dict, jbop):
     user = playlist_dict['user']
     pop_movie = playlist_dict['pop_movie']
     pop_tv = playlist_dict['pop_tv']
-    user_playlists = playlist_dict['user_playlists']
+    user_selected = playlist_dict['user_selected']
     
     try:
         # todo-me this needs improvement
@@ -552,7 +552,7 @@ def delete_playlist(playlist_dict, jbop):
                     playlist.delete()
                     print("...Deleted Playlist: {playlist.title} for '{user}'."
                           .format(playlist=playlist, user=user))
-            elif playlist.title in user_playlists:
+            elif playlist.title in user_selected:
                 playlist.delete()
                 print("...Deleted Playlist: {playlist.title} for '{user}'."
                       .format(playlist=playlist, user=user))
@@ -637,32 +637,30 @@ if __name__ == "__main__":
     # Defining libraries
     libraries = exclusions(opts.allLibraries, opts.libraries, sections_dict)
     
-    # Defining server playlist
-    server_playlists = exclusions(opts.allPlaylists, opts.playlists, playlist_lst)
+    # Defining selected playlists
+    selected_playlists = exclusions(opts.allPlaylists, opts.playlists, playlist_lst)
     
     # Create user server objects
     if users:
         for user in users:
-            if opts.action == 'share' and server_playlists:
+            if opts.action == 'share' and selected_playlists:
                 print("Sharing playlist(s)...")
-                share_playlists(server_playlists, users)
+                share_playlists(selected_playlists, users)
             user_acct = account.user(user)
             user_server = PlexServer(PLEX_URL, user_acct.get_token(plex.machineIdentifier))
             all_playlists = [pl.title for pl in user_server.playlists()]
-            user_playlists = exclusions(opts.allPlaylists, opts.playlists, all_playlists)
+            user_selected = exclusions(opts.allPlaylists, opts.playlists, all_playlists)
             plex_servers.append({
                 'server': user_server,
                 'user': user,
-                'user_playlists': user_playlists,
+                'user_selected': user_selected,
                 'all_playlists': all_playlists})
-        if opts.self:
-            plex_servers.append({'server': plex,
-                                 'user': 'admin',
-                                 'user_playlists': server_playlists})
-    else:
+            
+    if opts.self or not users:
         plex_servers.append({'server': plex,
                              'user': 'admin',
-                             'user_playlists': server_playlists})
+                             'user_selected': selected_playlists,
+                             'all_playlists': playlist_lst})
     
     playlist_dict['data'] = plex_servers
     
@@ -680,7 +678,7 @@ if __name__ == "__main__":
         for x in playlist_dict['data']:
             playlist_dict['server'] = x['server']
             playlist_dict['user'] = x['user']
-            playlist_dict['user_playlists'] = x['user_playlists']
+            playlist_dict['user_selected'] = x['user_selected']
             delete_playlist(playlist_dict, opts.jbop)
 
     else:
@@ -706,7 +704,7 @@ if __name__ == "__main__":
         for x in plex_servers:
             playlist_dict['server'] = x['server']
             playlist_dict['user'] = x['user']
-            playlist_dict['user_playlists'] = x['user_playlists']
+            playlist_dict['user_selected'] = x['user_selected']
             delete_playlist(playlist_dict, opts.jbop)
         print('Creating playlist(s)...')
         for x in plex_servers:
