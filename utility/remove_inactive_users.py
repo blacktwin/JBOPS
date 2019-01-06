@@ -45,14 +45,13 @@ sess.verify = False  # '/path/to/certfile'
 if sess.verify is False:
     # Disable the warning that the request is insecure, we know that...
     import urllib3
-
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 sections_lst = [x.title for x in plex.library.sections()]
 admin = {plex.myPlexAccount().id: plex.myPlexAccount().title}
-users_dict = {x.id: x.title for x in plex.myPlexAccount().users()}
+users_dict = {x.id: x.title for x in plex.myPlexAccount().users() if x.servers}
 users_dict.update(admin)
 today = time.mktime(datetime.datetime.today().timetuple())
 
