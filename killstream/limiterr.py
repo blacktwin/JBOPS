@@ -336,7 +336,9 @@ if __name__ == "__main__":
     # limit work requires gp_rating_key only? Needs more options.
     if opts.jbop == 'limit' and opts.grandparent_rating_key:
         history = get_history(username=opts.username, start_date=True)
-        message = LIMIT_MESSAGE.format(delay=opts.delay)
+        # If message is not already defined use default message
+        if not message:
+            message = LIMIT_MESSAGE.format(delay=opts.delay)
         ep_watched = [data['watched_status'] for data in history['data']
                       if data['grandparent_rating_key'] == opts.grandparent_rating_key
                       and data['watched_status'] == 1]
