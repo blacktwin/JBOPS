@@ -3,7 +3,7 @@ Use Tautulli draw a map connecting Server to Clients based on IP addresses.
 
 optional arguments:
   -h, --help            show this help message and exit
-  -l , --location       Map location. choices: (NA, EU, World, Geo)
+  -m , --map            Map location. choices: (NA, EU, World, Geo)
                         (default: NA)
   -c [], --count []     How many IPs to attempt to check.
                         (default: 2)
