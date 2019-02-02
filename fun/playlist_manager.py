@@ -643,6 +643,7 @@ if __name__ == "__main__":
     # Create user server objects
     if users:
         for user in users:
+            # todo-me smart playlists will have to recreated in users server instance
             if opts.action == 'share' and selected_playlists:
                 print("Sharing playlist(s)...")
                 share_playlists(selected_playlists, users)
@@ -666,19 +667,19 @@ if __name__ == "__main__":
     
     if opts.action == 'show':
         print("Displaying the user's playlist(s)...")
-        for x in playlist_dict['data']:
-            user = x['user']
-            playlists = x['all_playlists']
+        for data in playlist_dict['data']:
+            user = data['user']
+            playlists = data['all_playlists']
             print("{}'s current playlist(s): {}".format(user, ', '.join(playlists)))
         exit()
     
     # Remove or build playlists
     if opts.action == 'remove':
         print("Deleting the playlist(s)...")
-        for x in playlist_dict['data']:
-            playlist_dict['server'] = x['server']
-            playlist_dict['user'] = x['user']
-            playlist_dict['user_selected'] = x['user_selected']
+        for data in playlist_dict['data']:
+            playlist_dict['server'] = data['server']
+            playlist_dict['user'] = data['user']
+            playlist_dict['user_selected'] = data['user_selected']
             delete_playlist(playlist_dict, opts.jbop)
 
     else:
