@@ -614,12 +614,12 @@ if __name__ == "__main__":
     filters = ''
     playlists = []
     keys_list = []
-    plex_servers = []
     pop_movie_title = selectors()['popularMovies'].format(days=opts.days)
     pop_tv_title = selectors()['popularTv'].format(days=opts.days)
     
     playlist_dict = {'pop_tv': pop_tv_title,
-                     'pop_movie': pop_movie_title}
+                     'pop_movie': pop_movie_title,
+                     'data': []}
     
     if opts.search:
         search = dict([opts.search])
@@ -651,21 +651,19 @@ if __name__ == "__main__":
             user_server = PlexServer(PLEX_URL, user_acct.get_token(plex.machineIdentifier))
             all_playlists = [pl.title for pl in user_server.playlists()]
             user_selected = exclusions(opts.allPlaylists, opts.playlists, all_playlists)
-            plex_servers.append({
+            playlist_dict['data'].append({
                 'server': user_server,
                 'user': user,
                 'user_selected': user_selected,
                 'all_playlists': all_playlists})
             
     if opts.self or not users:
-        plex_servers.append({'server': plex,
+        playlist_dict['data'].append({'server': plex,
                              'user': 'admin',
                              'user_selected': selected_playlists,
                              'all_playlists': playlist_lst})
-    
-    playlist_dict['data'] = plex_servers
-    
-    if opts.action == 'show':
+
+    if not opts.jbop and opts.action == 'show':
         print("Displaying the user's playlist(s)...")
         for data in playlist_dict['data']:
             user = data['user']
@@ -677,10 +675,7 @@ if __name__ == "__main__":
     if opts.action == 'remove':
         print("Deleting the playlist(s)...")
         for data in playlist_dict['data']:
-            playlist_dict['server'] = data['server']
-            playlist_dict['user'] = data['user']
-            playlist_dict['user_selected'] = data['user_selected']
-            delete_playlist(playlist_dict, opts.jbop)
+            delete_playlist(data, opts.jbop)
 
     else:
         if libraries:
@@ -702,18 +697,15 @@ if __name__ == "__main__":
 
     if opts.action == 'update':
         print("Deleting the playlist(s)...")
-        for x in plex_servers:
-            playlist_dict['server'] = x['server']
-            playlist_dict['user'] = x['user']
-            playlist_dict['user_selected'] = x['user_selected']
-            delete_playlist(playlist_dict, opts.jbop)
+        for data in playlist_dict['data']:
+            delete_playlist(data, opts.jbop)
         print('Creating playlist(s)...')
-        for x in plex_servers:
-            create_playlist(title, keys_list, x['server'], x['user'])
+        for data in playlist_dict['data']:
+            create_playlist(title, keys_list, data['server'], data['user'])
             
     if opts.action == 'add':
         print('Creating playlist(s)...')
-        for x in plex_servers:
-            create_playlist(title, keys_list, x['server'], x['user'])
+        for data in playlist_dict['data']:
+            create_playlist(title, keys_list, data['server'], data['user'])
 
     print("Done.")
