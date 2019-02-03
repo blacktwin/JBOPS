@@ -84,6 +84,7 @@ optional arguments:
 """
 
 import sys
+import random
 import requests
 import argparse
 import operator
@@ -155,7 +156,7 @@ def selectors():
                   'popularTv': 'Most Popular TV Shows ({days} days)',
                   'popularMovies': 'Most Popular Movies ({days} days)',
                   'custom':'{custom} Playlist',
-                  'random': '{count} Random Playlist'
+                  'random': '{count} Random {libraries} Playlist'
                   }
     
     return selections
@@ -259,7 +260,7 @@ def sort_by_dates(video, date_type):
         return
 
 
-def get_content(libraries, jbop, filters=None, search=None):
+def get_content(libraries, jbop, filters=None, search=None, limit=None):
     """Get all movies or episodes from LIBRARY_NAME
 
     Parameters
@@ -301,6 +302,7 @@ def get_content(libraries, jbop, filters=None, search=None):
                     child_lst += list(set(filter_lst) & set(search_lst))
                     
             elif library_type == 'show':
+                # Decisions to stack filter and search
                 if keyword:
                     for show in plex_library.all():
                         for episode in show.episodes(**keyword):
@@ -317,33 +319,44 @@ def get_content(libraries, jbop, filters=None, search=None):
                 pass
 
         play_lst = child_lst
-
+        
     else:
         for library in libraries.keys():
-            for child in plex.library.sectionByID(library).all():
-                if child.type == 'movie':
-                    if sort_by_dates(child, jbop):
-                        item_date = sort_by_dates(child, jbop)
-                        child_lst += item_date
-                elif child.type == 'show':
-                    for episode in child.episodes():
-                        if sort_by_dates(episode, jbop):
-                            item_date = sort_by_dates(episode, jbop)
+            plex_library = plex.library.sectionByID(library)
+            library_type = plex_library.type
+            if jbop == 'random' and library_type == 'movie':
+                child_lst += [movie.ratingKey for movie in random.sample((plex_library.all()), limit)]
+            elif jbop == 'random' and library_type == 'show':
+                all_eps = [eps for show in plex_library.all() for eps in show.episodes()]
+                child_lst += [show.ratingKey for show in random.sample((all_eps), limit)]
+            else:
+                for child in plex_library.all():
+                    if child.type == 'movie':
+                        if sort_by_dates(child, jbop):
+                            item_date = sort_by_dates(child, jbop)
                             child_lst += item_date
-                else:
-                    pass
-
-        # Sort by original air date, oldest first
-        # todo-me move sorting and add more sorting options
-        aired_lst = sorted(child_lst, key=operator.itemgetter(1))
-    
-        # Remove date used for sorting
-        play_lst = [x[0] for x in aired_lst]
+                    elif child.type == 'show':
+                        for episode in child.episodes():
+                            if sort_by_dates(episode, jbop):
+                                item_date = sort_by_dates(episode, jbop)
+                                child_lst += item_date
+                    else:
+                        pass
+        # check if sort_by_dates was used
+        if isinstance(child_lst[0], list):
+            # Sort by original air date, oldest first
+            # todo-me move sorting and add more sorting options
+            aired_lst = sorted(child_lst, key=operator.itemgetter(1))
+        
+            # Remove date used for sorting
+            play_lst = [x[0] for x in aired_lst]
+        else:
+            play_lst = child_lst
 
     return play_lst
 
 
-def build_playlist(jbop, libraries=None, days=None, top=None, filters=None, search=None):
+def build_playlist(jbop, libraries=None, days=None, top=None, filters=None, search=None, limit=None):
     """
     Parameters
     ----------
@@ -403,6 +416,14 @@ def build_playlist(jbop, libraries=None, days=None, top=None, filters=None, sear
             filters_title = ' '.join(filters.values()).capitalize()
             title = filters_title + ' ' + search_title
         title = selectors()['custom'].format(custom=title)
+
+    elif jbop == 'random':
+        try:
+            keys_list = get_content(libraries, jbop, filters, search, limit)
+        except TypeError as e:
+            print("Libraries are not defined for {}. Use --libraries.".format(jbop))
+            exit("Error: {}".format(e))
+        title = selectors()['random'].format(count=limit, libraries='/'.join(libraries.values()))
     
     elif jbop == 'popularTv':
         home_stats = get_home_stats(days, top)
@@ -679,14 +700,17 @@ if __name__ == "__main__":
 
     else:
         if libraries:
-            keys_list, title = build_playlist(opts.jbop, libraries, opts.days, opts.top, filters, search)
+            keys_list, title = build_playlist(opts.jbop, libraries, opts.days, opts.top, filters, search, opts.limit)
         else:
             print('This function requires libraries to be listed.')
             exit()
     
     # Check if limit exist and if it's greater than the pulled list of rating keys
     if opts.limit and len(keys_list) > int(opts.limit):
-        keys_list = keys_list[:opts.limit]
+        if opts.jbop == 'random':
+            keys_list = random.sample((keys_list), opts.limit)
+        else:
+            keys_list = keys_list[:opts.limit]
         
     # Setting custom name if provided
     if opts.name:
