@@ -418,6 +418,9 @@ def build_playlist(jbop, libraries=None, days=None, top=None, filters=None, sear
         title = selectors()['custom'].format(custom=title)
 
     elif jbop == 'random':
+        if not limit:
+            print("Random selector needs a limit. Use --limit.")
+            exit()
         try:
             keys_list = get_content(libraries, jbop, filters, search, limit)
         except TypeError as e:
