@@ -378,35 +378,15 @@ def build_playlist(jbop, libraries=None, days=None, top=None, filters=None, sear
     keys_list = []
     title = ''
     if jbop == 'historyToday':
-        try:
-            keys_list = get_content(libraries, jbop, filters, search)
-        except TypeError as e:
-            print("Libraries are not defined for {}. Use --libraries.".format(jbop))
-            exit("Error: {}".format(e))
         title = selectors()['historyToday'].format(month=today.month, day=today.day)
     
     elif jbop == 'historyWeek':
-        try:
-            keys_list = get_content(libraries, jbop, filters, search)
-        except TypeError as e:
-            print("Libraries are not defined for {}. Use --libraries.".format(jbop))
-            exit("Error: {}".format(e))
         title = selectors()['historyWeek'].format(week=weeknum)
 
     elif jbop == 'historyMonth':
-        try:
-            keys_list = get_content(libraries, jbop, filters, search)
-        except TypeError as e:
-            print("Libraries are not defined for {}. Use --libraries.".format(jbop))
-            exit("Error: {}".format(e))
         title = selectors()['historyMonth'].format(month=today.strftime("%B"))
         
     elif jbop == 'custom':
-        try:
-            keys_list = get_content(libraries, jbop, filters, search)
-        except TypeError as e:
-            print("Libraries are not defined for {}. Use --libraries.".format(jbop))
-            exit("Error: {}".format(e))
         if search and not filters:
             title = ' '.join(search.values()).capitalize()
         elif filters and not search:
@@ -421,34 +401,24 @@ def build_playlist(jbop, libraries=None, days=None, top=None, filters=None, sear
         if not limit:
             print("Random selector needs a limit. Use --limit.")
             exit()
+        title = selectors()['random'].format(count=limit, libraries='/'.join(libraries.values()))
+    
+    if jbop in ['popularTv', 'popularMovies']:
+        if jbop == 'popularTv':
+            title = selectors()['popularTv'].format(days=days)
+        if jbop == 'popularMovies':
+            title = selectors()['popularMovies'].format(days=days)
+        home_stats = get_home_stats(days, top)
+        for stat in home_stats:
+            if stat['stat_id'] in ['popular_tv', 'popular_movies']:
+                keys_list += [x['rating_key'] for x in stat['rows'] if
+                             str(x['section_id']) in libraries.keys()]
+    else:
         try:
             keys_list = get_content(libraries, jbop, filters, search, limit)
         except TypeError as e:
             print("Libraries are not defined for {}. Use --libraries.".format(jbop))
             exit("Error: {}".format(e))
-        title = selectors()['random'].format(count=limit, libraries='/'.join(libraries.values()))
-    
-    elif jbop == 'popularTv':
-        home_stats = get_home_stats(days, top)
-        for stat in home_stats:
-            if stat['stat_id'] == 'popular_tv':
-                if libraries:
-                    keys_list = [x['rating_key'] for x in stat['rows'] if
-                                 str(x['section_id']) in libraries.keys()]
-                else:
-                    keys_list = [x['rating_key'] for x in stat['rows']]
-                title = selectors()['popularTv'].format(days=days)
-    
-    elif jbop == 'popularMovies':
-        home_stats = get_home_stats(days, top)
-        for stat in home_stats:
-            if stat['stat_id'] == 'popular_movies':
-                if libraries:
-                    keys_list = [x['rating_key'] for x in stat['rows']
-                                 if str(x['section_id']) in libraries.keys()]
-                else:
-                    keys_list = [x['rating_key'] for x in stat['rows']]
-                title = selectors()['popularMovies'].format(days=days)
 
     return keys_list, title
 
