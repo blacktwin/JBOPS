@@ -505,7 +505,7 @@ def create_playlist(playlist_title, playlist_keys, server, user):
         print("...Added Playlist: {title} to '{user}'.".format(title=playlist_title, user=user))
 
 
-def delete_playlist(playlist_dict, jbop):
+def delete_playlist(playlist_dict, jbop, libraries=None, limit=None):
     """
     Parameters
     ----------
@@ -542,6 +542,12 @@ def delete_playlist(playlist_dict, jbop):
                           .format(playlist=playlist, user=user))
             elif jbop == 'popularTv':
                 if playlist.title == pop_tv:
+                    playlist.delete()
+                    print("...Deleted Playlist: {playlist.title} for '{user}'."
+                          .format(playlist=playlist, user=user))
+            elif jbop == 'random':
+                title = selectors()['random'].format(count=limit, libraries='/'.join(libraries.values()))
+                if playlist.title == title:
                     playlist.delete()
                     print("...Deleted Playlist: {playlist.title} for '{user}'."
                           .format(playlist=playlist, user=user))
@@ -669,7 +675,7 @@ if __name__ == "__main__":
     if opts.action == 'remove':
         print("Deleting the playlist(s)...")
         for data in playlist_dict['data']:
-            delete_playlist(data, opts.jbop)
+            delete_playlist(data, opts.jbop, libraries, opts.limit)
 
     else:
         if libraries:
@@ -695,7 +701,7 @@ if __name__ == "__main__":
     if opts.action == 'update':
         print("Deleting the playlist(s)...")
         for data in playlist_dict['data']:
-            delete_playlist(data, opts.jbop)
+            delete_playlist(data, opts.jbop, libraries, opts.limit)
         print('Creating playlist(s)...')
         for data in playlist_dict['data']:
             create_playlist(title, keys_list, data['server'], data['user'])
