@@ -511,7 +511,6 @@ def delete_playlist(playlist_dict, jbop):
     ----------
     playlist_dict
     """
-
     server = playlist_dict['server']
     user = playlist_dict['user']
     pop_movie = playlist_dict['pop_movie']
@@ -608,12 +607,9 @@ if __name__ == "__main__":
     filters = ''
     playlists = []
     keys_list = []
+    playlist_dict = {'data': []}
     pop_movie_title = selectors()['popularMovies'].format(days=opts.days)
     pop_tv_title = selectors()['popularTv'].format(days=opts.days)
-    
-    playlist_dict = {'pop_tv': pop_tv_title,
-                     'pop_movie': pop_movie_title,
-                     'data': []}
     
     if opts.search:
         search = dict([opts.search])
@@ -649,13 +645,17 @@ if __name__ == "__main__":
                 'server': user_server,
                 'user': user,
                 'user_selected': user_selected,
-                'all_playlists': all_playlists})
+                'all_playlists': all_playlists,
+                'pop_tv': pop_tv_title,
+                'pop_movie': pop_movie_title})
             
     if opts.self or not users:
         playlist_dict['data'].append({'server': plex,
                              'user': 'admin',
                              'user_selected': selected_playlists,
-                             'all_playlists': playlist_lst})
+                             'all_playlists': playlist_lst,
+                             'pop_tv': pop_tv_title,
+                             'pop_movie': pop_movie_title})
 
     if not opts.jbop and opts.action == 'show':
         print("Displaying the user's playlist(s)...")
