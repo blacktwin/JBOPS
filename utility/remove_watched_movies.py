@@ -118,9 +118,8 @@ for user in USER_LST:
             pass
 
 for movie_dict in movie_lst:
-    for key, value in movie_dict.items():
-        if value == USER_LST:
-            print(u"{} has been watched by {}".format(movie_dict['title']," & ".join(USER_LST)))
-            delete_lst.append(movie_dict['file'])
+    if set(USER_LST) == set(movie_dict['watched_by']):
+        print(u"{} has been watched by {}".format(movie_dict['title']," & ".join(USER_LST)))
+        delete_lst.append(movie_dict['file'])
 
 delete_files(delete_lst)
