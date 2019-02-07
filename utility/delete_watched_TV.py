@@ -108,8 +108,9 @@ for user in USER_LST:
 
 
 for meta_dict in meta_lst:
-    print("{} {} has been watched by {}".format(meta_dict['grandparent_title'].encode('UTF-8'),
-                                                meta_dict['title'].encode('UTF-8'),
-                                                 " & ".join(USER_LST)))
-    print("Removing {}".format(meta_dict['file']))
-    os.remove(meta_dict['file'])
+    if set(USER_LST) == set(meta_dict['watched_by']):
+        print("{} {} has been watched by {}".format(meta_dict['grandparent_title'].encode('UTF-8'),
+                                                    meta_dict['title'].encode('UTF-8'),
+                                                     " & ".join(USER_LST)))
+        print("Removing {}".format(meta_dict['file']))
+        os.remove(meta_dict['file'])
