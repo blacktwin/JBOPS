@@ -372,42 +372,11 @@ def build_playlist(jbop, libraries=None, days=None, top=None, filters=None, sear
 
     Returns
     -------
-    key_list, title
+    key_list
 
     """
     keys_list = []
-    title = ''
-    if jbop == 'historyToday':
-        title = selectors()['historyToday'].format(month=today.month, day=today.day)
-    
-    elif jbop == 'historyWeek':
-        title = selectors()['historyWeek'].format(week=weeknum)
-
-    elif jbop == 'historyMonth':
-        title = selectors()['historyMonth'].format(month=today.strftime("%B"))
-        
-    elif jbop == 'custom':
-        if search and not filters:
-            title = ' '.join(search.values()).capitalize()
-        elif filters and not search:
-            title = ' '.join(filters.values()).capitalize()
-        elif search and filters:
-            search_title = ' '.join(search.values()).capitalize()
-            filters_title = ' '.join(filters.values()).capitalize()
-            title = filters_title + ' ' + search_title
-        title = selectors()['custom'].format(custom=title)
-
-    elif jbop == 'random':
-        if not limit:
-            print("Random selector needs a limit. Use --limit.")
-            exit()
-        title = selectors()['random'].format(count=limit, libraries='/'.join(libraries.values()))
-    
     if jbop in ['popularTv', 'popularMovies']:
-        if jbop == 'popularTv':
-            title = selectors()['popularTv'].format(days=days)
-        if jbop == 'popularMovies':
-            title = selectors()['popularMovies'].format(days=days)
         home_stats = get_home_stats(days, top)
         for stat in home_stats:
             if stat['stat_id'] in ['popular_tv', 'popular_movies']:
@@ -420,7 +389,7 @@ def build_playlist(jbop, libraries=None, days=None, top=None, filters=None, sear
             print("Libraries are not defined for {}. Use --libraries.".format(jbop))
             exit("Error: {}".format(e))
 
-    return keys_list, title
+    return keys_list
 
 
 def share_playlists(playlist_titles, users):
@@ -505,7 +474,7 @@ def create_playlist(playlist_title, playlist_keys, server, user):
         print("...Added Playlist: {title} to '{user}'.".format(title=playlist_title, user=user))
 
 
-def delete_playlist(playlist_dict, jbop, libraries=None, limit=None):
+def delete_playlist(playlist_dict, title):
     """
     Parameters
     ----------
@@ -513,52 +482,54 @@ def delete_playlist(playlist_dict, jbop, libraries=None, limit=None):
     """
     server = playlist_dict['server']
     user = playlist_dict['user']
-    pop_movie = playlist_dict['pop_movie']
-    pop_tv = playlist_dict['pop_tv']
-    user_selected = playlist_dict['user_selected']
     
     try:
         # todo-me this needs improvement
         for playlist in server.playlists():
-            if jbop == 'historyToday':
-                if playlist.title.startswith('Aired Today'):
-                    playlist.delete()
-                    print("...Deleted Playlist: {playlist.title} for '{user}'."
-                          .format(playlist=playlist, user=user))
-            elif jbop == 'historyWeek':
-                if playlist.title.startswith('Aired This Week'):
-                    playlist.delete()
-                    print("...Deleted Playlist: {playlist.title} for '{user}'."
-                          .format(playlist=playlist, user=user))
-            elif jbop == 'historyMonth':
-                if playlist.title.startswith('Aired in'):
-                    playlist.delete()
-                    print("...Deleted Playlist: {playlist.title} for '{user}'."
-                          .format(playlist=playlist, user=user))
-            elif jbop == 'popularMovies':
-                if playlist.title == pop_movie:
-                    playlist.delete()
-                    print("...Deleted Playlist: {playlist.title} for '{user}'."
-                          .format(playlist=playlist, user=user))
-            elif jbop == 'popularTv':
-                if playlist.title == pop_tv:
-                    playlist.delete()
-                    print("...Deleted Playlist: {playlist.title} for '{user}'."
-                          .format(playlist=playlist, user=user))
-            elif jbop == 'random':
-                title = selectors()['random'].format(count=limit, libraries='/'.join(libraries.values()))
-                if playlist.title == title:
-                    playlist.delete()
-                    print("...Deleted Playlist: {playlist.title} for '{user}'."
-                          .format(playlist=playlist, user=user))
-            elif playlist.title in user_selected:
+            if playlist.title == title:
                 playlist.delete()
                 print("...Deleted Playlist: {playlist.title} for '{user}'."
                       .format(playlist=playlist, user=user))
-                
     except:
         # print("Playlist not found on '{user}' account".format(user=user))
         pass
+
+
+def create_title(jbop, libraries, days, filters, search, limit):
+    title = ''
+    if jbop == 'historyToday':
+        title = selectors()['historyToday'].format(month=today.month, day=today.day)
+
+    elif jbop == 'historyWeek':
+        title = selectors()['historyWeek'].format(week=weeknum)
+
+    elif jbop == 'historyMonth':
+        title = selectors()['historyMonth'].format(month=today.strftime("%B"))
+
+    elif jbop == 'custom':
+        if search and not filters:
+            title = ' '.join(search.values()).capitalize()
+        elif filters and not search:
+            title = ' '.join(filters.values()).capitalize()
+        elif search and filters:
+            search_title = ' '.join(search.values()).capitalize()
+            filters_title = ' '.join(filters.values()).capitalize()
+            title = filters_title + ' ' + search_title
+        title = selectors()['custom'].format(custom=title)
+
+    elif jbop == 'random':
+        if not limit:
+            print("Random selector needs a limit. Use --limit.")
+            exit()
+        title = selectors()['random'].format(count=limit, libraries='/'.join(libraries.values()))
+
+    if jbop in ['popularTv', 'popularMovies']:
+        if jbop == 'popularTv':
+            title = selectors()['popularTv'].format(days=days)
+        if jbop == 'popularMovies':
+            title = selectors()['popularMovies'].format(days=days)
+
+    return title
 
 
 if __name__ == "__main__":
@@ -614,9 +585,7 @@ if __name__ == "__main__":
     playlists = []
     keys_list = []
     playlist_dict = {'data': []}
-    pop_movie_title = selectors()['popularMovies'].format(days=opts.days)
-    pop_tv_title = selectors()['popularTv'].format(days=opts.days)
-    
+
     if opts.search:
         search = dict([opts.search])
     if opts.filter:
@@ -651,17 +620,13 @@ if __name__ == "__main__":
                 'server': user_server,
                 'user': user,
                 'user_selected': user_selected,
-                'all_playlists': all_playlists,
-                'pop_tv': pop_tv_title,
-                'pop_movie': pop_movie_title})
+                'all_playlists': all_playlists})
             
     if opts.self or not users:
         playlist_dict['data'].append({'server': plex,
                              'user': 'admin',
                              'user_selected': selected_playlists,
-                             'all_playlists': playlist_lst,
-                             'pop_tv': pop_tv_title,
-                             'pop_movie': pop_movie_title})
+                             'all_playlists': playlist_lst})
 
     if not opts.jbop and opts.action == 'show':
         print("Displaying the user's playlist(s)...")
@@ -671,15 +636,16 @@ if __name__ == "__main__":
             print("{}'s current playlist(s): {}".format(user, ', '.join(playlists)))
         exit()
     
-    # Remove or build playlists
-    if opts.action == 'remove':
-        print("Deleting the playlist(s)...")
-        for data in playlist_dict['data']:
-            delete_playlist(data, opts.jbop, libraries, opts.limit)
+    if libraries:
+        title = create_title(opts.jbop, libraries, opts.days, filters, search, opts.limit)
 
+        keys_list = build_playlist(opts.jbop, libraries, opts.days, opts.top, filters, search, opts.limit)
     else:
-        if libraries:
-            keys_list, title = build_playlist(opts.jbop, libraries, opts.days, opts.top, filters, search, opts.limit)
+        # Remove or build playlists
+        if opts.action == 'remove':
+            print("Deleting the playlist(s)...")
+            for data in playlist_dict['data']:
+                delete_playlist(data, title)
         else:
             print('This function requires libraries to be listed.')
             exit()
@@ -701,7 +667,7 @@ if __name__ == "__main__":
     if opts.action == 'update':
         print("Deleting the playlist(s)...")
         for data in playlist_dict['data']:
-            delete_playlist(data, opts.jbop, libraries, opts.limit)
+            delete_playlist(data, title)
         print('Creating playlist(s)...')
         for data in playlist_dict['data']:
             create_playlist(title, keys_list, data['server'], data['user'])
