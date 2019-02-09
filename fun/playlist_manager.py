@@ -486,10 +486,19 @@ def delete_playlist(playlist_dict, title):
     try:
         # todo-me this needs improvement
         for playlist in server.playlists():
-            if playlist.title == title:
-                playlist.delete()
-                print("...Deleted Playlist: {playlist.title} for '{user}'."
-                      .format(playlist=playlist, user=user))
+            if isinstance(title, str):
+                # If str then updating playlist
+                if playlist.title == title:
+                    playlist.delete()
+                    print("...Deleted Playlist: {playlist.title} for '{user}'."
+                          .format(playlist=playlist, user=user))
+            if isinstance(title, list):
+                # If list then removing selected playlists
+                if playlist.title in title:
+                    playlist.delete()
+                    print("...Deleted Playlist: {playlist.title} for '{user}'."
+                          .format(playlist=playlist, user=user))
+
     except:
         # print("Playlist not found on '{user}' account".format(user=user))
         pass
@@ -638,17 +647,14 @@ if __name__ == "__main__":
     
     if libraries:
         title = create_title(opts.jbop, libraries, opts.days, filters, search, opts.limit)
-
         keys_list = build_playlist(opts.jbop, libraries, opts.days, opts.top, filters, search, opts.limit)
-    else:
-        # Remove or build playlists
-        if opts.action == 'remove':
-            print("Deleting the playlist(s)...")
-            for data in playlist_dict['data']:
-                delete_playlist(data, title)
-        else:
-            print('This function requires libraries to be listed.')
-            exit()
+
+    # Remove or build playlists
+    if opts.action == 'remove':
+        print("Deleting the playlist(s)...")
+        for data in playlist_dict['data']:
+            titles = data['user_selected']
+            delete_playlist(data, titles)
     
     # Check if limit exist and if it's greater than the pulled list of rating keys
     if opts.limit and len(keys_list) > int(opts.limit):
