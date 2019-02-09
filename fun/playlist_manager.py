@@ -478,7 +478,10 @@ def delete_playlist(playlist_dict, title):
     """
     Parameters
     ----------
-    playlist_dict
+    playlist_dict: dict
+        Server and user information
+    title: str, list
+        Playlist title(s)
     """
     server = playlist_dict['server']
     user = playlist_dict['user']
@@ -505,6 +508,27 @@ def delete_playlist(playlist_dict, title):
 
 
 def create_title(jbop, libraries, days, filters, search, limit):
+    """
+    
+    Parameters
+    ----------
+    jbop: str
+        Playlist selector
+    libraries: dict
+        Plex libraries information
+    days: int
+        Amount of days for Popular media types
+    filters: dict
+        Plex media filters
+    search: dict
+        Search terms
+    limit
+        Playlist size limit
+
+    Returns
+    -------
+    title
+    """
     title = ''
     if jbop == 'historyToday':
         title = selectors()['historyToday'].format(month=today.month, day=today.day)
