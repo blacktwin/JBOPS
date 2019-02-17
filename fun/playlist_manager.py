@@ -541,13 +541,15 @@ def create_title(jbop, libraries, days, filters, search, limit):
 
     elif jbop == 'custom':
         if search and not filters:
-            title = ' '.join(search.values()).capitalize()
+            title = ' '.join(search.values())
         elif filters and not search:
-            title = ' '.join(filters.values()).capitalize()
+            title = ' '.join(filters.values())
         elif search and filters:
-            search_title = ' '.join(search.values()).capitalize()
-            filters_title = ' '.join(filters.values()).capitalize()
+            search_title = ' '.join(search.values())
+            filters_title = ' '.join(filters.values())
             title = filters_title + ' ' + search_title
+        # Capitalize each word in title
+        title = " ".join(word.capitalize() for word in title.split())
         title = selectors()['custom'].format(custom=title)
 
     elif jbop == 'random':
