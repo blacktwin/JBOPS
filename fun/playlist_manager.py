@@ -317,7 +317,10 @@ def get_content(libraries, jbop, filters=None, search=None, limit=None):
                     child_lst += list(set(filter_lst) & set(search_lst))
             else:
                 pass
-
+        # Keep only results found from both search and filters
+        if keyword and filters:
+            child_lst = list(set(i for i in child_lst if child_lst.count(i) > 1))
+            
         play_lst = child_lst
         
     else:
