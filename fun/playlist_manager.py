@@ -610,7 +610,7 @@ if __name__ == "__main__":
     parser.add_argument('--filter', action='append', type=lambda kv: kv.split("="),
                         help='Search filtered metadata fields.\n'
                              'Filters: ({}).'.format(', '.join(filter_lst)))
-    parser.add_argument('--search', action='append',type=lambda kv: kv.split("="),
+    parser.add_argument('--search', action='append', type=lambda kv: kv.split("="),
                         help='Search non-filtered metadata fields for keywords '
                              'in title, summary, etc.')
     
