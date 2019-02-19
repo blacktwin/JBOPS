@@ -82,18 +82,21 @@ plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 sections_lst = [x.title for x in plex.library.sections()]
 user_lst = [x.title for x in plex.myPlexAccount().users()]
+servers_dict = {acct.name: acct for acct in plex.myPlexAccount().resources()
+               if 'server' in [acct.provides] and acct.ownerid == 0}
 # Adding admin account name to list
 user_lst.append(plex.myPlexAccount().title)
 
+
 def get_account(user):
     if user == plex.myPlexAccount().title:
-        server = plex
+        account = plex
     else:
         # Access Plex User's Account
         userAccount = plex.myPlexAccount().user(user)
         token = userAccount.get_token(plex.machineIdentifier)
-        server = PlexServer(PLEX_URL, token)
-    return server
+        account = PlexServer(PLEX_URL, token)
+    return account
 
 
 def mark_watached(sectionFrom, accountTo, userTo):
@@ -122,6 +125,9 @@ if __name__ == '__main__':
                              '(choices: %(choices)s)')
     parser.add_argument('--allLibraries', action='store_true',
                         help='Select all libraries.')
+    parser.add_argument('--servers', nargs='*', choices=servers_dict.keys(),
+                        help='Space separated list of case sensitive names to process. Allowed names are: \n'
+                             '(choices: %(choices)s)')
     parser.add_argument('--ratingKey', nargs=1,
                         help='Rating key of item whose watch status is to be synced.')
     requiredNamed.add_argument('--userFrom', choices=user_lst, metavar='username', required=True,
