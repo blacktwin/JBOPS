@@ -561,11 +561,10 @@ def create_title(jbop, libraries, days, filters, search, limit):
             exit()
         title = selectors()['random'].format(count=limit, libraries='/'.join(libraries.values()))
 
-    if jbop in ['popularTv', 'popularMovies']:
-        if jbop == 'popularTv':
-            title = selectors()['popularTv'].format(days=days)
-        if jbop == 'popularMovies':
-            title = selectors()['popularMovies'].format(days=days)
+    elif jbop == 'popularTv':
+        title = selectors()['popularTv'].format(days=days)
+    elif jbop == 'popularMovies':
+        title = selectors()['popularMovies'].format(days=days)
 
     return title
 
