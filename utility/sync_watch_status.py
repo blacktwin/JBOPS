@@ -51,6 +51,7 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
        - Shared [all libraries but Movies] with USER.
 
 """
+import sys
 import requests
 import argparse
 from plexapi.myplex import MyPlexAccount
@@ -59,9 +60,15 @@ from plexapi.server import PlexServer, CONFIG
 
 # Using CONFIG file
 PLEX_TOKEN = ''
+TAUTULLI_URL = ''
+TAUTULLI_APIKEY = ''
 
 if not PLEX_TOKEN:
     PLEX_TOKEN = CONFIG.data['auth'].get('server_token', '')
+if not TAUTULLI_URL:
+    TAUTULLI_URL = CONFIG.data['auth'].get('tautulli_baseurl')
+if not TAUTULLI_APIKEY:
+    TAUTULLI_APIKEY = CONFIG.data['auth'].get('tautulli_apikey')
 
 
 sess = requests.Session()
@@ -78,6 +85,7 @@ if sess.verify is False:
 
 account = MyPlexAccount(PLEX_TOKEN)
 
+# todo-me This is cleaned up. Should only connect to servers that are selected
 sections_lst = []
 user_servers = {}
 admin_servers = {}
@@ -109,6 +117,22 @@ for user in server_users:
             if not user_data.get(user.title):
                 user_data[user.title] =  {'account': user,
                                           'servers': user_servers}
+
+# todo-me Add Tautulli history for syncing watch statuses from Tautulli to Plex
+def get_history(user_id, media_type):
+    # Get the user history from Tautulli.
+    payload = {'apikey': TAUTULLI_APIKEY,
+               'cmd': 'get_history',
+               'user_id': user_id,
+               'media_type': media_type}
+
+    try:
+        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
+        response = r.json()
+        res_data = response['response']['data']['data']
+
+    except Exception as e:
+        sys.stderr.write("Tautulli API 'get_history' request failed: {0}.".format(e))
 
 
 def get_account(user, server):
