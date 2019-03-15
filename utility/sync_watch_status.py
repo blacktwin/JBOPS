@@ -300,11 +300,12 @@ def connect_to_server(server_obj, user_account):
     return user_connection.server
 
 
-def check_users_access(user, server_name, libraries=None):
+def check_users_access(access, user, server_name, libraries=None):
     """
     Parameters
     ----------
-    user: str
+    access: dict
+    user: dict
     server_name: str
     libraries: list
 
@@ -313,7 +314,7 @@ def check_users_access(user, server_name, libraries=None):
     server_connection: class
     """
     try:
-        _user = plex_admin.users_access().get(user)
+        _user = access.get(user)
         for access in _user['access']:
             server = access.get("server")
             # Check user access to server
@@ -405,6 +406,7 @@ if __name__ == '__main__':
     count = 25
     start = 0
     plex_admin = Plex(PLEX_TOKEN)
+    plex_access = plex_admin.users_access()
     
     userFrom, serverFrom = opts.userFrom
     
@@ -423,43 +425,30 @@ if __name__ == '__main__':
             _sections[section_obj.title] = section_obj
         all_sections[serverFrom] = _sections
     elif serverFrom != "Tautulli" and opts.libraries:
-        all_sections = plex_admin.all_sections()
-    
+        admin_access = plex_access.get(plex_admin.account.title).get("access")
+        for server in admin_access:
+            if server.get("server").get(serverFrom):
+                all_sections[serverFrom] = server.get("sections")
+
     # Defining libraries
     if opts.libraries:
         for library in opts.libraries:
-            if all_sections.get(serverFrom):
-                if all_sections.get(serverFrom).get(library):
-                    libraries.append(all_sections.get(serverFrom).get(library))
-                else:
-                    print("No matching library name '{}'".format(library))
-                    exit()
-            
+            if all_sections.get(serverFrom).get(library):
+                libraries.append(all_sections.get(serverFrom).get(library))
             else:
-                print("No matching server name '{}'".format(serverFrom))
+                print("No matching library name '{}'".format(library))
                 exit()
     
-    # If userFrom is Plex Admin
-    # if userFrom == plex_admin.account.title and serverFrom != "Tautulli" and opts.libraries:
-    #     resource = plex_admin.admin_servers().get(serverFrom)
-    #     print('Connecting {} to {}...'.format(userFrom, serverFrom))
-    #     server_connection = resource.connect()
-    #     baseurl = server_connection._baseurl.split('.')
-    #     url = ''.join([baseurl[0].replace('-', '.'),
-    #                    baseurl[-1].replace('direct', '')])
-    #
-    #     token = PLEX_TOKEN
-    #     admin_connection = Plex(url=url, token=token)
-    #     watchedFrom = admin_connection.server
     if serverFrom != "Tautulli" and opts.libraries:
-        watchedFrom = check_users_access(userFrom, serverFrom, libraries)
+        print("Checking {}'s access to {}".format(userFrom, serverFrom))
+        watchedFrom = check_users_access(plex_access, userFrom, serverFrom, libraries)
     
     if libraries:
         print("Finding watched items in libraries...")
         plexTo = []
         
         for user, server_name in opts.userTo:
-            plexTo.append([user, check_users_access(user, server_name, libraries)])
+            plexTo.append([user, check_users_access(plex_access, user, server_name, libraries)])
         
         for _library in libraries:
             watched_lst = []
@@ -496,7 +485,7 @@ if __name__ == '__main__':
         
         for user, server_name in opts.userTo:
             # Check access and connect
-            plexTo.append([user, check_users_access(user, server_name, libraries)])
+            plexTo.append([user, check_users_access(plex_access, user, server_name, libraries)])
         
         for user in plexTo:
             username, server = user
