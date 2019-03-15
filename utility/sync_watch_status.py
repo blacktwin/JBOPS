@@ -476,8 +476,9 @@ if __name__ == '__main__':
                 # Check library for watched items
                 sectionFrom = watchedFrom.library.section(_library.title)
                 if _library.type == 'show':
-                    for episode in sectionFrom.searchEpisodes(unwatched=False):
-                        watched_lst.append(episode)
+                    for episode in sectionFrom.episodes():
+                        if episode.isWatched:
+                            watched_lst.append(episode)
                 else:
                     for item in sectionFrom.search(unwatched=False):
                         watched_lst.append(item)
