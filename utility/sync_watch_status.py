@@ -157,14 +157,20 @@ class Tautulli:
             print("Tautulli API cmd '{}' failed: {}".format(cmd, error_msg))
             return
     
-    def get_watched_history(self, user, section_id, start, length):
+    def get_watched_history(self, user=None, section_id=None, rating_key=None, start=None, length=None):
         """Call Tautulli's get_history api endpoint"""
-        payload = {"user": user,
-                   "section_id": section_id,
-                   'start': start,
-                   'length': length,
-                   'order_column': 'full_title',
-                   'order_dir': 'asc'}
+        payload = {"order_column": "full_title",
+                   "order_dir": "asc"}
+        if user:
+            payload["user"] = user
+        if section_id:
+            payload["section_id"] = section_id
+        if rating_key:
+            payload["rating_key"] = rating_key
+        if start:
+            payload["start"] = start
+        if length:
+            payload["lengh"] = length
         
         history = self._call_api('get_history', payload)
         
@@ -456,7 +462,8 @@ if __name__ == '__main__':
             if tautulli_server:
                 while True:
                     # Getting all watched history for userFrom
-                    tt_watched = tautulli_server.get_watched_history(userFrom, _library.key, start, count)
+                    tt_watched = tautulli_server.get_watched_history(user=userFrom, section_id=_library.key,
+                                                                     start=start, length=count)
                     if all([tt_watched]):
                         start += count
                         for item in tt_watched:
@@ -491,6 +498,25 @@ if __name__ == '__main__':
             username, server = user
             item = Metadata(tautulli_server.get_metadata(opts.ratingKey))
             sync_watch_status([item], item.libraryName, server, username)
-    
+
+    elif opts.ratingKey and userFrom != "Tautulli" and serverFrom == "Tautulli":
+        print('Request manually triggered to update watch status')
+        plexTo = []
+        watched_lst = []
+        tt_watched = tautulli_server.get_watched_history(user=userFrom, rating_key=opts.ratingKey)
+        if tt_watched:
+            watched_lst = Metadata(tautulli_server.get_metadata(opts.ratingKey))
+        else:
+            print("Rating Key {} was not reported as watched in Tautulli for user {}".format(opts.ratingKey, userFrom))
+            exit()
+            
+        for user, server_name in opts.userTo:
+            # Check access and connect
+            plexTo.append([user, check_users_access(plex_access, user, server_name, libraries)])
+
+        for user in plexTo:
+            username, server = user
+            sync_watch_status([watched_lst], watched_lst.libraryName, server, username)
+        
     else:
         print("You aren't using this script correctly... bye!")
