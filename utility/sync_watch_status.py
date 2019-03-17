@@ -230,7 +230,7 @@ class Plex:
         """
         data = {}
         servers = self.admin_servers()
-        print('Connecting to admin server(s) for section info...')
+        print("Connecting to admin server(s) for access info...")
         for name, server in servers.items():
             connect = server.connect()
             sections = {section.title: section for section in connect.library.sections()}
@@ -294,7 +294,7 @@ def connect_to_server(server_obj, user_account):
     print('Connecting {} to {}...'.format(user, server_name))
     server_connection = server_obj.connect()
     baseurl = server_connection._baseurl.split('.')
-    url = ''.join([baseurl[0].replace('-', '.'),
+    url = "".join([baseurl[0].replace('-', '.'),
                    baseurl[-1].replace('direct', '')])
     if user_account.title == Plex(PLEX_TOKEN).account.title:
         token = PLEX_TOKEN
@@ -486,38 +486,31 @@ if __name__ == '__main__':
             for user in plexTo:
                 username, server = user
                 sync_watch_status(watched_lst, _library.title, server, username)
+
+    elif opts.ratingKey and serverFrom == "Tautulli":
+        plexTo = []
+        watched_item = []
+        
+        if userFrom != "Tautulli":
+            print("Request manually triggered to update watch status")
+            tt_watched = tautulli_server.get_watched_history(user=userFrom, rating_key=opts.ratingKey)
+            if tt_watched:
+                watched_item = Metadata(tautulli_server.get_metadata(opts.ratingKey))
+            else:
+                print("Rating Key {} was not reported as watched in Tautulli for user {}".format(opts.ratingKey, userFrom))
+                exit()
+                
+        elif userFrom == "Tautulli":
+            print("Request from Tautulli notification agent to update watch status")
+            watched_item = Metadata(tautulli_server.get_metadata(opts.ratingKey))
     
-    elif opts.ratingKey and userFrom == "Tautulli" and serverFrom == "Tautulli":
-        print('Request from Tautulli notification agent to update watch status')
-        plexTo = []
-        
         for user, server_name in opts.userTo:
             # Check access and connect
             plexTo.append([user, check_users_access(plex_access, user, server_name, libraries)])
-        
+    
         for user in plexTo:
             username, server = user
-            item = Metadata(tautulli_server.get_metadata(opts.ratingKey))
-            sync_watch_status([item], item.libraryName, server, username)
-
-    elif opts.ratingKey and userFrom != "Tautulli" and serverFrom == "Tautulli":
-        print('Request manually triggered to update watch status')
-        plexTo = []
-        watched_lst = []
-        tt_watched = tautulli_server.get_watched_history(user=userFrom, rating_key=opts.ratingKey)
-        if tt_watched:
-            watched_lst = Metadata(tautulli_server.get_metadata(opts.ratingKey))
-        else:
-            print("Rating Key {} was not reported as watched in Tautulli for user {}".format(opts.ratingKey, userFrom))
-            exit()
-            
-        for user, server_name in opts.userTo:
-            # Check access and connect
-            plexTo.append([user, check_users_access(plex_access, user, server_name, libraries)])
-
-        for user in plexTo:
-            username, server = user
-            sync_watch_status([watched_lst], watched_lst.libraryName, server, username)
+            sync_watch_status([watched_item], watched_item.libraryName, server, username)
         
     else:
         print("You aren't using this script correctly... bye!")
