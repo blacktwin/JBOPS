@@ -48,6 +48,10 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
     sync_watch_status.py --userFrom USER1=Tautulli --userTo USER2=Server1 USER3=Server2 --libraries Movies "TV Shows"
        - Synced watch statuses from Tautulli {title from library} to {USER2 or USER3}'s account on selected servers.
 
+    sync_watch_status.py --userFrom USER1=Tautulli --userTo USER2=Server1 USER3=Server2 --ratingKey  1234
+       - Synced watch statuse of rating key 1234 from USER1's Tautulli history to {USER2 or USER3}'s account
+       on selected servers.
+       **Rating key must be a movie or episode. Shows and Seasons not support.... yet.
 """
 import argparse
 from plexapi.myplex import MyPlexAccount
@@ -56,10 +60,6 @@ from plexapi.server import CONFIG
 from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.exceptions import RequestException
-
-import pprint
-
-pp = pprint.PrettyPrinter(indent=4)
 
 # Using CONFIG file
 PLEX_TOKEN = ''
@@ -307,7 +307,7 @@ def connect_to_server(server_obj, user_account):
 
 
 def check_users_access(access, user, server_name, libraries=None):
-    """
+    """Check user's access to server. If allowed connect.
     Parameters
     ----------
     access: dict
