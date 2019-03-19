@@ -198,7 +198,7 @@ class Plex:
             self.server = PlexServer(baseurl=url, token=token, session=session)
     
     def admin_servers(self):
-        """
+        """All owned servers
         Returns
         -------
         data: dict
@@ -211,7 +211,7 @@ class Plex:
         return resources
     
     def all_users(self):
-        """
+        """All users
         Returns
         -------
         data: dict
@@ -223,7 +223,7 @@ class Plex:
         return users
     
     def all_sections(self):
-        """
+        """All sections from all owned servers
         Returns
         -------
         data: dict
@@ -239,7 +239,7 @@ class Plex:
         return data
     
     def users_access(self):
-        """
+        """Users access across all owned servers
         Returns
         -------
         data: dict
@@ -278,7 +278,7 @@ class Plex:
 
 
 def connect_to_server(server_obj, user_account):
-    """
+    """Find server url and connect using user token
     Parameters
     ----------
     server_obj: class
@@ -359,12 +359,10 @@ def sync_watch_status(watched, section, accountTo, userTo):
         User's server class of sync to user
 
     """
-    # Check sections for watched items
     print('Marking watched...')
     sectionTo = accountTo.library.section(section)
     for item in watched:
         try:
-            # .get retrieves a partial object
             if item.type == 'episode':
                 show_name = item.grandparentTitle
                 ep_name = item.title
@@ -374,6 +372,7 @@ def sync_watch_status(watched, section, accountTo, userTo):
             else:
                 title = item.title
                 watch_check = sectionTo.get(title)
+            # .get retrieves a partial object
             # .fetchItem retrieves a full object
             fetch_check = sectionTo.fetchItem(watch_check.key)
             # If item is already watched ignore
@@ -423,14 +422,15 @@ if __name__ == '__main__':
                                               verify_ssl=VERIFY_SSL))
     
     if serverFrom == "Tautulli" and opts.libraries:
-        _sections = {}
         # Pull all libraries from Tautulli
+        _sections = {}
         tautulli_sections = tautulli_server.get_libraries()
         for section in tautulli_sections:
             section_obj = Library(section)
             _sections[section_obj.title] = section_obj
         all_sections[serverFrom] = _sections
     elif serverFrom != "Tautulli" and opts.libraries:
+        # Pull all libraries from admin access dict
         admin_access = plex_access.get(plex_admin.account.title).get("access")
         for server in admin_access:
             if server.get("server").get(serverFrom):
@@ -445,7 +445,8 @@ if __name__ == '__main__':
                 print("No matching library name '{}'".format(library))
                 exit()
     
-    if serverFrom != "Tautulli" and opts.libraries:
+    # If server is Plex and synciing libraries, check access
+    if serverFrom != "Tautulli" and libraries:
         print("Checking {}'s access to {}".format(userFrom, serverFrom))
         watchedFrom = check_users_access(plex_access, userFrom, serverFrom, libraries)
     
