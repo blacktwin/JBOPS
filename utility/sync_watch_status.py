@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Description: Sync the watch status from one user to another across multiple servers including from Tautulli
+Description: Sync the watch status from one Plex or Tautulli user to other users across any owned server.
 Author: Blacktwin
 Requires: requests, plexapi, argparse
 
