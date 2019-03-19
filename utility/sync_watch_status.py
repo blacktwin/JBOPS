@@ -353,11 +353,11 @@ def sync_watch_status(watched, section, accountTo, userTo):
     Parameters
     ----------
     watched: list
+        List of watched items either from Tautulli or Plex
     section: class
         Section class of sync from server
     userTo: str
         User's server class of sync to user
-
     """
     print('Marking watched...')
     sectionTo = accountTo.library.section(section)
