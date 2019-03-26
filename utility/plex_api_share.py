@@ -126,7 +126,8 @@ if sess.verify is False:
 
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
-user_lst = [x.title for x in plex.myPlexAccount().users() if x.title]
+user_lst = {x.title: x.email if x.email else x.title for x in plex.myPlexAccount().users() if x.title}
+user_choices = list(set(user_lst.values() + user_lst.keys()))
 sections_lst = [x.title for x in plex.library.sections()]
 movies_keys = [x.key for x in plex.library.sections() if x.type == 'movie']
 show_keys = [x.key for x in plex.library.sections() if x.type == 'show']
@@ -261,7 +262,7 @@ if __name__ == "__main__":
                         help='Share additional libraries or enable settings to user..')
     parser.add_argument('--remove', default=False, action='store_true',
                         help='Remove shared libraries or disable settings from user.')
-    parser.add_argument('--user', nargs='+', choices=user_lst, metavar='',
+    parser.add_argument('--user', nargs='+', choices=user_choices, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
                              '(choices: %(choices)s)')
     parser.add_argument('--allUsers', default=False, action='store_true',
@@ -350,14 +351,22 @@ if __name__ == "__main__":
 
     # Defining users
     if opts.allUsers and not opts.user:
-        users = user_lst
+        users = user_lst.keys()
     elif not opts.allUsers and opts.user:
         users = opts.user
     elif opts.allUsers and opts.user:
         # If allUsers is used then any users listed will be excluded
         for user in opts.user:
-            user_lst.remove(user)
-            users = user_lst
+            # If username is used then remove
+            if user_lst.get(user):
+                del user_lst[user]
+            # Else email is used and must find it's corresponding username and remove
+            else:
+                for k, v in user_lst.items():
+                    if v == user:
+                        del user_lst[k]
+            
+        users = user_lst.keys()
 
     # Defining libraries
     if opts.allLibraries and not opts.libraries:
