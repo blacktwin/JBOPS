@@ -24,7 +24,7 @@ print(plexapi.CONFIG_PATH)
 <summary>Coins?</summary>
    <details>
     <summary>BTC:</summary>
-     FCb4F3bv1hHCJxq6HJMQiAMn883v3okdh
+     3FCb4F3bv1hHCJxq6HJMQiAMn883v3okdh
     </details> 
 	
    <details>
