@@ -34,7 +34,8 @@ except JSONDecodeError:
     exit("Error talking to Tautulli API, please check your TAUTULLI_URL")
 
 plex_friend_ids = [friend.id for friend in account.users()]
-removed_users = [user for user in tautulli_users if user['user_id'] not in plex_friend_ids]
+removed_users = [user for user in tautulli_users if user['user_id'] not in plex_friend_ids and
+                 user['friendly_name'] != 'Local' and user['user_id'] != int(account.id)]
 
 if BACKUP_DB:
     backup = session.get(formatted_url, params={'cmd': 'backup_db'})
