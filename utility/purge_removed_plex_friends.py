@@ -34,6 +34,7 @@ except JSONDecodeError:
     exit("Error talking to Tautulli API, please check your TAUTULLI_URL")
 
 plex_friend_ids = [friend.id for friend in account.users()]
+plex_friend_ids.extend((0, int(account.id)))
 removed_users = [user for user in tautulli_users if user['user_id'] not in plex_friend_ids]
 
 if BACKUP_DB:
