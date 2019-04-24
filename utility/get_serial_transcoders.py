@@ -2,7 +2,7 @@
 """
 Description: Get a list of "Serial Transcoders"
 Author: DirtyCajunRice
-Requires: requests, python3.6+
+Requires: requests, plexapi, python3.6+
 """
 from requests import Session
 from plexapi.server import CONFIG
@@ -59,5 +59,3 @@ for user, counts in USERS.items():
         PARAMS['user_id'] = user
         NAUGHTY = SESSION.get(FORMATTED_URL, params=PARAMS).json()['response']['data']
         print(f"{NAUGHTY['friendly_name']} is a serial transocde offender above the threshold at {TRANSCODE_PERCENT}%")
-
-
