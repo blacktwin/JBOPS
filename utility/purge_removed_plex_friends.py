@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Description: Purge Tautulli users that no longer exist as a friend in Plex
 Author: DirtyCajunRice
@@ -6,6 +6,7 @@ Requires: requests, plexapi, python3.6+
 """
 
 from requests import Session
+from plexapi.server import CONFIG
 from json.decoder import JSONDecodeError
 from plexapi.myplex import MyPlexAccount
 
@@ -19,6 +20,13 @@ PLEX_PASSWORD = ''
 BACKUP_DB = True
 
 # Do not edit past this line #
+
+# Grab config vars if not set in script
+TAUTULLI_URL = TAUTULLI_URL or CONFIG.data['auth'].get('tautulli_baseurl')
+TAUTULLI_API_KEY = TAUTULLI_API_KEY or CONFIG.data['auth'].get('tautulli_apikey')
+PLEX_USERNAME = PLEX_USERNAME or CONFIG.data['auth'].get('myplex_username')
+PLEX_PASSWORD = PLEX_PASSWORD or CONFIG.data['auth'].get('myplex_password')
+
 account = MyPlexAccount(PLEX_USERNAME, PLEX_PASSWORD)
 
 session = Session()
