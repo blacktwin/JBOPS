@@ -21,7 +21,7 @@ TAUTULLI_URL = TAUTULLI_URL or CONFIG.data['auth'].get('tautulli_baseurl')
 TAUTULLI_API_KEY = TAUTULLI_API_KEY or CONFIG.data['auth'].get('tautulli_apikey')
 
 TODAY = date.today()
-START_DATE = TODAY - timedelta(days=7)
+START_DATE = TODAY - timedelta(days=PAST_DAYS)
 
 SESSION = Session()
 SESSION.params = {'apikey': TAUTULLI_API_KEY}
