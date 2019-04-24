@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Description: Purge Tautulli users that no longer exist as a friend in Plex
 Author: DirtyCajunRice
