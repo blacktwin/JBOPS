@@ -50,3 +50,13 @@ Arguments:
 ```
 --jbop plays --username {username} --sessionId {session_id} --today --limit plays=3 --killMessage "You have met your limit of 3 play sessions."
 ```
+
+### Limit user to total time watching for the day, including duration of item starting
+
+Triggers: Playback Start  
+
+Arguments:
+```
+--jbop time --username {username} --sessionId {session_id} --duration {duration} --limit hours=2 --killMessage "You have met your limit of 3 days and 10 hours."
+```
+
