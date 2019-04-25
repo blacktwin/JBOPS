@@ -235,7 +235,6 @@ def terminate_session(session_id, message, notifier=None, username=None):
         req = sess.post(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = req.json()
 
-        print(response)
         if response['response']['result'] == 'success':
             sys.stdout.write(
                 "Successfully killed Plex session: {0}.\n".format(session_id))
@@ -284,6 +283,9 @@ if __name__ == "__main__":
     parser.add_argument('--today', default=False, action='store_true',
                         help='Search history only for today. \n'
                              'Default: %(default)s')
+    parser.add_argument('--duration', type=int,
+                        help='Duration of item that triggered script agent.')
+    
     opts = parser.parse_args()
 
     total_limit = 0
@@ -329,9 +331,17 @@ if __name__ == "__main__":
             print('Total {} ({}) is greater than limit ({}).'
                   .format(opts.jbop, total_jbop, total_limit))
             terminate_session(opts.sessionId, message, opts.notify, opts.username)
+        elif (opts.duration + total_jbop) > total_limit:
+            print('Total {} ({} + current item duration {}) is greater than limit ({}).'
+                  .format(opts.jbop, total_jbop, opts.duration, total_limit))
+            terminate_session(opts.sessionId, message, opts.notify, opts.username)
         else:
-            print('Total {} ({}) is less than limit ({}).'
-                  .format(opts.jbop, total_jbop, total_limit))
+            if opts.duration:
+                print('Total {} ({} + current item duration {}) is less than limit ({}).'
+                      .format(opts.jbop, total_jbop, opts.duration, total_limit))
+            else:
+                print('Total {} ({}) is less than limit ({}).'
+                      .format(opts.jbop, total_jbop, total_limit))
     # todo-me need more flexibility for pulling history
     # limit work requires gp_rating_key only? Needs more options.
     if opts.jbop == 'limit' and opts.grandparent_rating_key:
