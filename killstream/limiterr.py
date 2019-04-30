@@ -50,6 +50,7 @@ import sys
 import os
 from plexapi.server import PlexServer, CONFIG
 from time import time as ttime
+from time import sleep
 
 TAUTULLI_URL = ''
 TAUTULLI_APIKEY = ''
@@ -127,7 +128,7 @@ def send_notification(subject_text, body_text, notifier_id):
         return None
 
 
-def get_activity():
+def get_activity(session_id=None):
     """Get the current activity on the PMS.
 
     Returns
@@ -137,12 +138,17 @@ def get_activity():
     """
     payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_activity'}
+    if session_id:
+        payload['session_id'] = session_id
 
     try:
         req = sess.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = req.json()
-
-        res_data = response['response']['data']['sessions']
+        
+        if session_id:
+            res_data = response['response']['data']
+        else:
+            res_data = response['response']['data']['sessions']
         return res_data
 
     except Exception as e:
@@ -332,6 +338,16 @@ if __name__ == "__main__":
                   .format(opts.jbop, total_jbop, total_limit))
             terminate_session(opts.sessionId, message, opts.notify, opts.username)
         elif (opts.duration + total_jbop) > total_limit:
+            interval = 60
+            start = 0
+            while (start + total_jbop) < total_limit:
+                if get_activity(opts.sessionId):
+                    sleep(interval)
+                    start += interval
+                else:
+                    print('Session; {} has been dropped. Stopping monitoring of stream.'.format(opts.sessionId))
+                    exit()
+                
             print('Total {} ({} + current item duration {}) is greater than limit ({}).'
                   .format(opts.jbop, total_jbop, opts.duration, total_limit))
             terminate_session(opts.sessionId, message, opts.notify, opts.username)
