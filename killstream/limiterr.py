@@ -198,26 +198,6 @@ def get_history(username, start_date=None, section_id=None):
         sys.stderr.write("Tautulli API 'get_history' request failed: {0}.".format(e))
 
 
-def get_user_session_ids(user_id):
-    """Get current session IDs for a specific user.
-
-    Parameters
-    ----------
-    user_id : int
-        The ID of the user to grab sessions for.
-
-    Returns
-    -------
-    list
-        The active session IDs for the specific user ID.
-
-    """
-    sessions = get_activity()
-    user_streams = [s['session_id']
-                    for s in sessions if s['user_id'] == user_id]
-    return user_streams
-
-
 def terminate_session(session_id, message, notifier=None, username=None):
     """Stop a streaming session.
 
