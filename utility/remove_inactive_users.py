@@ -2,137 +2,118 @@
 """
 Unshare or Remove users who have been inactive for X days. Prints out last seen for all users.
 
-Just run. 
+Just run.
 
 Comment out `remove_friend(username)` and `unshare(username)` to test.
 """
-
-import requests
-import datetime
-import time
+from sys import exit
+from requests import Session
+from datetime import datetime
 from plexapi.server import PlexServer, CONFIG
 
 
-## EDIT THESE SETTINGS ##
+# EDIT THESE SETTINGS #
 PLEX_URL = ''
 PLEX_TOKEN = ''
 TAUTULLI_URL = ''
 TAUTULLI_APIKEY = ''
 
-REMOVE_LIMIT = 30 # days
-UNSHARE_LIMIT = 15 # days
+REMOVE_LIMIT = 30  # Days
+UNSHARE_LIMIT = 15  # Days
 
-USER_IGNORE = ('user1')
-##/EDIT THESE SETTINGS ##
+USERNAME_IGNORE = ['user1', 'username2']
+IGNORE_NEVER_SEEN = True
+DRY_RUN = True
+# EDIT THESE SETTINGS #
 
-## CODE BELOW ##
+# CODE BELOW #
 
-if not PLEX_URL:
-    PLEX_URL = CONFIG.data['auth'].get('server_baseurl')
-if not PLEX_TOKEN:
-    PLEX_TOKEN = CONFIG.data['auth'].get('server_token')
-if not TAUTULLI_URL:
-    TAUTULLI_URL = CONFIG.data['auth'].get('tautulli_baseurl')
-if not TAUTULLI_APIKEY:
-    TAUTULLI_APIKEY = CONFIG.data['auth'].get('tautulli_apikey')
-
-sess = requests.Session()
+PLEX_URL = PLEX_URL or CONFIG.data['auth'].get('server_baseurl')
+PLEX_TOKEN = PLEX_TOKEN or CONFIG.data['auth'].get('server_token')
+TAUTULLI_URL = TAUTULLI_URL or CONFIG.data['auth'].get('tautulli_baseurl')
+TAUTULLI_APIKEY = TAUTULLI_APIKEY or CONFIG.data['auth'].get('tautulli_apikey')
+USERNAME_IGNORE = [username.lower() for username in USERNAME_IGNORE]
+SESSION = Session()
 # Ignore verifying the SSL certificate
-sess.verify = False  # '/path/to/certfile'
+SESSION.verify = False  # '/path/to/certfile'
 # If verify is set to a path to a directory,
-# the directory must have been processed using the c_rehash utility supplied
-# with OpenSSL.
-if sess.verify is False:
+# the directory must have been processed using the c_rehash utility supplied with OpenSSL.
+if not SESSION.verify:
     # Disable the warning that the request is insecure, we know that...
-    import urllib3
-    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    from urllib3 import disable_warnings
+    from urllib3.exceptions import InsecureRequestWarning
+    disable_warnings(InsecureRequestWarning)
 
-plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
+SERVER = PlexServer(baseurl=PLEX_URL, token=PLEX_TOKEN, session=SESSION)
+ACCOUNT = SERVER.myPlexAccount()
+SECTIONS = [section.title for section in SERVER.library.sections()]
+PLEX_USERS = {user.id: user.title for user in ACCOUNT.users()}
+PLEX_USERS.update({int(ACCOUNT.id): ACCOUNT.title})
+IGNORED_UIDS = [uid for uid, username in PLEX_USERS.items() if username.lower() in USERNAME_IGNORE]
+IGNORED_UIDS.extend((int(ACCOUNT.id), 0))
+# Get the Tautulli history.
+PARAMS = {
+    'cmd': 'get_users_table',
+    'order_column': 'last_seen',
+    'order_dir': 'asc',
+    'length': 200,
+    'apikey': TAUTULLI_APIKEY
+}
+TAUTULLI_USERS = []
+try:
+    GET = SESSION.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=PARAMS).json()['response']['data']['data']
+    for user in GET:
+        if user['user_id'] in IGNORED_UIDS:
+            continue
+        elif IGNORE_NEVER_SEEN and not user['last_seen']:
+            continue
+        TAUTULLI_USERS.append(user)
+except Exception as e:
+    exit("Tautulli API 'get_users_table' request failed. Error: {}.".format(e))
 
-sections_lst = [x.title for x in plex.library.sections()]
-admin = {plex.myPlexAccount().id: plex.myPlexAccount().title}
-users_dict = {x.id: x.title for x in plex.myPlexAccount().users() if x.servers}
-users_dict.update(admin)
-today = time.mktime(datetime.datetime.today().timetuple())
 
-
-def get_users_table():
-    # Get the Tautulli history.
-    payload = {'apikey': TAUTULLI_APIKEY,
-               'cmd': 'get_users_table',
-               'order_column': 'last_seen',
-               'order_dir': 'asc'}
-
-    try:
-        r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
-        response = r.json()
-
-        res_data = response['response']['data']['data']
-        return [data for data in res_data if data['last_seen']]
-
-    except Exception as e:
-        print("Tautulli API 'get_users_table' request failed: {0}.".format(e))
-
-
-def last_entry(last_seen, username):
+def time_format(total_seconds):
     # Display user's last history entry
-    if last_seen > 1:
-        print('{} was last seen {} days ago.'.format(username, last_seen))
-    elif int(last_seen) == 1:
-        print('{} was last seen yesterday.'.format(username))
+    days = total_seconds // 86400
+    hours = (total_seconds - days * 86400) // 3600
+    minutes = (total_seconds - days * 86400 - hours * 3600) // 60
+    seconds = total_seconds - days * 86400 - hours * 3600 - minutes * 60
+    result = ("{} day{}, ".format(days, "s" if days != 1 else "") if days else "") + \
+             ("{} hour{}, ".format(hours, "s" if hours != 1 else "") if hours else "") + \
+             ("{} minute{}, ".format(minutes, "s" if minutes != 1 else "") if minutes else "") + \
+             ("{} second{}, ".format(seconds, "s" if seconds != 1 else "") if seconds else "")
+    return result.strip().rstrip(',')
+
+
+NOW = datetime.today()
+for user in TAUTULLI_USERS:
+    OUTPUT = []
+    USERNAME = user['friendly_name']
+    UID = user['user_id']
+    if not user['last_seen']:
+        TOTAL_SECONDS = None
+        OUTPUT = '{} has never used the server'.format(USERNAME)
     else:
-        hours_ago = last_seen * 24
-        if int(hours_ago) != 0:
-            hours_ago = int(hours_ago)
-            print('{} was last seen {} hours ago.'.format(username, hours_ago))
+        TOTAL_SECONDS = int((NOW - datetime.fromtimestamp(user['last_seen'])).total_seconds())
+        OUTPUT = '{} was last seen {} ago'.format(USERNAME, time_format(TOTAL_SECONDS))
+
+    if UID not in PLEX_USERS.keys():
+        print('{}, and exists in Tautulli but does not exist in Plex. Skipping.'.format(OUTPUT))
+        continue
+
+    TOTAL_SECONDS = TOTAL_SECONDS or 86400 * UNSHARE_LIMIT
+    if TOTAL_SECONDS >= (REMOVE_LIMIT * 86400):
+        if DRY_RUN:
+            print('{}, and would be removed.'.format(OUTPUT))
         else:
-            minutes_ago = int(hours_ago * 60)
-            print('{} was last seen {} minutes ago.'.format(username, minutes_ago))
+            print('{}, and has reached their shareless threshold. Removing.'.format(OUTPUT))
+            ACCOUNT.removeFriend(PLEX_USERS[UID])
+    elif TOTAL_SECONDS >= (UNSHARE_LIMIT * 86400):
+        if DRY_RUN:
+            print('{}, and would unshare libraries.'.format(OUTPUT))
+        else:
+            print('{}, and has reached their inactivity limit. Unsharing.'.format(OUTPUT))
+            ACCOUNT.updateFriend(PLEX_USERS[UID], SERVER, removeSections=True)
 
 
-def unshare(user):
-    print('{user} has reached inactivity limit. Unsharing.'.format(user=user))
-    plex.myPlexAccount().updateFriend(user=user, server=plex, removeSections=True, sections=sections_lst)
-    print('Unshared all libraries from {user}.'.format(user=user))
 
-
-def remove_friend(user):
-    print('{user} has reached inactivity limit. Removing.'.format(user=user))
-    plex.myPlexAccount().removeFriend(user)
-    print('Removed {user}.'.format(user=user))
-
-
-def main():
-
-    user_tables = get_users_table()
-
-    for user in user_tables:
-        last_seen = (today - user['last_seen']) / 24 / 60 / 60
-        if int(last_seen) != 0:
-            last_seen = int(last_seen)
-
-        username = user['friendly_name']
-        user_id = user['user_id']
-        
-        # Check if friendly username from Tautulli does not exist in Plex
-        if username not in users_dict.values():
-            try:
-                username = users_dict[user_id]
-            except KeyError:
-                print('User: {} has records in Tautulli but does not exist in Plex.'.format(username))
-                last_entry(last_seen, username)
-                continue
-        # Only users that still exist in Plex will continue
-        if username not in USER_IGNORE:
-            if last_seen > REMOVE_LIMIT:
-                print('{} was last seen {} days ago. Removing.'.format(username, last_seen))
-                remove_friend(username)
-            elif last_seen > UNSHARE_LIMIT:
-                print('{} was last seen {} days ago. Unsharing.'.format(username, last_seen))
-                unshare(username)
-            else:
-                last_entry(last_seen, username)
-
-
-if __name__ == '__main__':
-    main()
