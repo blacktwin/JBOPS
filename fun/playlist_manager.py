@@ -90,6 +90,7 @@ import argparse
 import operator
 import datetime
 import unicodedata
+from collections import Counter
 from plexapi.server import PlexServer, CONFIG
 
 ### EDIT SETTINGS ###
@@ -279,12 +280,12 @@ def get_content(libraries, jbop, filters=None, search=None, limit=None):
     child_lst = []
     filter_lst = []
     search_lst = []
-    keyword = ''
+    keywords = ''
 
     if search or filters:
         if search:
             # todo-me replace with documentation showing the available search operators
-            keyword = {key + '__icontains': value for key, value in search.items()}
+            keywords = {key + '__icontains': value for key, value in search.items()}
         # Loop through each library
         for library in libraries.keys():
             plex_library = plex.library.sectionByID(library)
@@ -292,20 +293,35 @@ def get_content(libraries, jbop, filters=None, search=None, limit=None):
             # Find media type, if show then search/filter episodes
             if library_type == 'movie':
                 # Decisions to stack filter and search
-                if keyword:
-                    search_lst = [movie.ratingKey for movie in plex_library.all(**keyword)]
-                    child_lst += search_lst
+                if keywords:
+                    multi_lst = []
+                    # How many keywords
+                    keyword_count = len(keywords)
+                    for key, values in keywords.items():
+                        if isinstance(values, list):
+                            keyword_count += 1
+                            for value in values:
+                                search_dict = {}
+                                search_dict[key] = value
+                                search_lst = [movie.ratingKey for movie in plex_library.all(**search_dict)]
+                                multi_lst += search_lst
+                        else:
+                            multi_lst += [movie.ratingKey for movie in plex_library.all(**{key:values})]
+                    counts = Counter(multi_lst)
+                    # Use amount of keywords to check that all keywords were found in results
+                    search_lst = [id for id in multi_lst if counts[id] == keyword_count]
+                    child_lst += list(set(search_lst))
                 if filters:
                     filter_lst = [movie.ratingKey for movie in plex_library.search(**filters)]
                     child_lst += filter_lst
-                if keyword and filters:
+                if keywords and filters:
                     child_lst += list(set(filter_lst) & set(search_lst))
                     
             elif library_type == 'show':
                 # Decisions to stack filter and search
-                if keyword:
+                if keywords:
                     for show in plex_library.all():
-                        for episode in show.episodes(**keyword):
+                        for episode in show.episodes(**keywords):
                             search_lst += [episode.ratingKey]
                     child_lst += search_lst
                 if filters:
@@ -313,12 +329,12 @@ def get_content(libraries, jbop, filters=None, search=None, limit=None):
                         for episode in show.episodes():
                             filter_lst += [episode.ratingKey]
                     child_lst += filter_lst
-                if keyword and filters:
+                if keywords and filters:
                     child_lst += list(set(filter_lst) & set(search_lst))
             else:
                 pass
         # Keep only results found from both search and filters
-        if keyword and filters:
+        if keywords and filters:
             child_lst = list(set(i for i in child_lst if child_lst.count(i) > 1))
             
         play_lst = child_lst
@@ -544,7 +560,13 @@ def create_title(jbop, libraries, days, filters, search, limit):
 
     elif jbop == 'custom':
         if search and not filters:
-            title = ' '.join(search.values())
+            title_lst = []
+            for values in search.values():
+                if isinstance(values, list):
+                    title_lst += values
+                else:
+                    title_lst += [values]
+            title = " ".join(title_lst)
         elif filters and not search:
             title = ' '.join(filters.values())
         elif search and filters:
@@ -625,6 +647,9 @@ if __name__ == "__main__":
 
     if opts.search:
         search = dict(opts.search)
+        for k, v in search.items():
+            if "," in v:
+                search[k] = v.split(",")
     if opts.filter:
         filters = dict(opts.filter)
         # Check if provided filter exist, exit if it doesn't exist
