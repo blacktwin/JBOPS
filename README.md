@@ -304,9 +304,9 @@ Killing streams is a Plex Pass feature. These scripts will only work for Plex Pa
 </details>
 
 ----
-
+### Setting Up Tautulli for Custom Scripts
 <details>
-<summary>Setting Up Tautulli for Custom Scripts</summary>
+<summary></summary>
 
 #### Enable API in Tautulli:
 
@@ -352,8 +352,7 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
 </details>
 
 ---
-<details>
-<summary>Common variables</summary>
+### Common variables
 
 <details>
 <summary>Plex</summary>
@@ -367,6 +366,4 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
 
 - [ ]  TAUTULLI_URL - Local/Remote IP to connect to Tautulli ('http://localhost:8181',  'https://x.x.x.x:8182', etc.)
 - [ ]  TAUTULLI_APIKEY - Tautulli Settings > Access Control > Enable API - API Key
-</details>
-
 </details>
