@@ -71,6 +71,19 @@ optional arguments:
  Share existing admin Playlists "My Custom Playlist" and "Another Playlist" with all users
     python playlist_manager.py --action share --allUsers --playlists "My Custom Playlist" "Another Playlist"
     
+ Search and Filter;
+ 
+ metadata_field_name = title, summary, etc.
+ 
+ --search {metadata_field_name}=value
+    search through metadata field for existence of value.
+ 
+ --search {metadata_field_name}=value1,value2,*
+    search through metadata field for existence of values.
+        *comma separated for AND (value1 AND value2 AND *)
+    
+    
+    
  Excluding;
 
  --user becomes excluded if --allUsers is set
@@ -151,12 +164,12 @@ def actions():
 def selectors():
     """Predefined Playlist selections and titles
     """
-    selections = {'historyToday':'Aired Today {month}-{day} in History',
+    selections = {'historyToday': 'Aired Today {month}-{day} in History',
                   'historyWeek': 'Aired This Week ({week}) in History',
                   'historyMonth': 'Aired in {month}',
                   'popularTv': 'Most Popular TV Shows ({days} days)',
                   'popularMovies': 'Most Popular Movies ({days} days)',
-                  'custom':'{custom} Playlist',
+                  'custom': '{custom} Playlist',
                   'random': '{count} Random {libraries} Playlist'
                   }
     
