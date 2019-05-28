@@ -366,9 +366,9 @@ def sync_watch_status(watched, section, accountTo, userTo):
             if item.type == 'episode':
                 show_name = item.grandparentTitle
                 ep_name = item.title
-                title = "{} {}".format(show_name, ep_name)
+                title = "{} - {}".format(show_name, ep_name)
                 show = sectionTo.get(show_name)
-                watch_check = show.episode(season=item.parentIndex, episode=item.index)
+                watch_check = show.episode(season=int(item.parentIndex), episode=int(item.index))
             else:
                 title = item.title
                 watch_check = sectionTo.get(title)
@@ -477,9 +477,10 @@ if __name__ == '__main__':
                 # Check library for watched items
                 sectionFrom = watchedFrom.library.section(_library.title)
                 if _library.type == 'show':
-                    for episode in sectionFrom.episodes():
-                        if episode.isWatched:
-                            watched_lst.append(episode)
+                    for show in sectionFrom.all():
+                        for episode in show.episodes():
+                            if episode.isWatched:
+                                watched_lst.append(episode)
                 else:
                     for item in sectionFrom.search(unwatched=False):
                         watched_lst.append(item)
