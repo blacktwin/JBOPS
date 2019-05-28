@@ -274,6 +274,38 @@ def sort_by_dates(video, date_type):
         return
 
 
+def multi_filter_search(keyword_dict, library):
+    """Allowing for multiple filter or search values
+    
+    Parameters
+    ----------
+    keyword_dict: dict
+    library: class
+
+    Returns
+    -------
+    list
+        items that include all searched or filtered values
+    """
+    multi_lst = []
+    # How many keywords
+    keyword_count = len(keyword_dict)
+    for key, values in keyword_dict.items():
+        if isinstance(values, list):
+            keyword_count += 1
+            for value in values:
+                search_dict = {}
+                search_dict[key] = value
+                search_lst = [movie.ratingKey for movie in library.all(**search_dict)]
+                multi_lst += search_lst
+        else:
+            multi_lst += [movie.ratingKey for movie in library.all(**{key: values})]
+    counts = Counter(multi_lst)
+    # Use amount of keywords to check that all keywords were found in results
+    search_lst = [id for id in multi_lst if counts[id] == keyword_count]
+    
+    return list(set(search_lst))
+
 def get_content(libraries, jbop, filters=None, search=None, limit=None):
     """Get all movies or episodes from LIBRARY_NAME
 
@@ -293,7 +325,8 @@ def get_content(libraries, jbop, filters=None, search=None, limit=None):
     child_lst = []
     filter_lst = []
     search_lst = []
-    keywords = ''
+    keywords = {}
+    tags = "__tag__icontains"
 
     if search or filters:
         if search:
@@ -307,26 +340,21 @@ def get_content(libraries, jbop, filters=None, search=None, limit=None):
             if library_type == 'movie':
                 # Decisions to stack filter and search
                 if keywords:
-                    multi_lst = []
-                    # How many keywords
-                    keyword_count = len(keywords)
-                    for key, values in keywords.items():
-                        if isinstance(values, list):
-                            keyword_count += 1
-                            for value in values:
-                                search_dict = {}
-                                search_dict[key] = value
-                                search_lst = [movie.ratingKey for movie in plex_library.all(**search_dict)]
-                                multi_lst += search_lst
-                        else:
-                            multi_lst += [movie.ratingKey for movie in plex_library.all(**{key:values})]
-                    counts = Counter(multi_lst)
-                    # Use amount of keywords to check that all keywords were found in results
-                    search_lst = [id for id in multi_lst if counts[id] == keyword_count]
-                    child_lst += list(set(search_lst))
+                    child_lst += multi_filter_search(keywords, plex_library)
                 if filters:
-                    filter_lst = [movie.ratingKey for movie in plex_library.search(**filters)]
-                    child_lst += filter_lst
+                    # Update filters for tagged filtered keys
+                    for key, value in filters.items():
+                        # Genre needs special handling
+                        if key == "genre":
+                            del filters[key]
+                            filters[key + tags] = value
+                    for key, value in filters.items():
+                        # Only genre filtering should allow multiple values and allow for AND statement
+                        if key.endswith(tags):
+                            child_lst += multi_filter_search({key: value}, plex_library)
+                        else:
+                            filter_lst = [movie.ratingKey for movie in plex_library.search(**{key: value})]
+                            child_lst += filter_lst
                 if keywords and filters:
                     child_lst += list(set(filter_lst) & set(search_lst))
                     
@@ -581,7 +609,13 @@ def create_title(jbop, libraries, days, filters, search, limit):
                     title_lst += [values]
             title = " ".join(title_lst)
         elif filters and not search:
-            title = ' '.join(filters.values())
+            title_lst = []
+            for values in filters.values():
+                if isinstance(values, list):
+                    title_lst += values
+                else:
+                    title_lst += [values]
+            title = " ".join(title_lst)
         elif search and filters:
             search_title = ' '.join(search.values())
             filters_title = ' '.join(filters.values())
@@ -661,10 +695,23 @@ if __name__ == "__main__":
     if opts.search:
         search = dict(opts.search)
         for k, v in search.items():
+            # If comma separated search then consider searching values with AND statement
             if "," in v:
                 search[k] = v.split(",")
     if opts.filter:
+        if len(opts.filter) >= 2:
+            # Check if filter key was used twice or more
+            filter_key = opts.filter[0][0]
+            filter_count = sum(f.count(filter_key) for f in opts.filter)
+            # If filter key used more than once than consider filtering values with OR statement
+            if filter_count > 1:
+                filters_lst = []
+                
         filters = dict(opts.filter)
+        for k, v in filters.items():
+            # If comma separated filter then consider filtering values with AND statement
+            if "," in v:
+                filters[k] = v.split(",")
         # Check if provided filter exist, exit if it doesn't exist
         if not (set(filters.keys()) & set(filter_lst)):
             print('({}) was not found in filters list: [{}]'
