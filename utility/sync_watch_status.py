@@ -365,8 +365,6 @@ def sync_watch_status(watched, section, accountTo, userTo):
         try:
             if item.type == 'episode':
                 show_name = item.grandparentTitle
-                ep_name = item.title
-                title = "{} - {}".format(show_name, ep_name)
                 show = sectionTo.get(show_name)
                 watch_check = show.episode(season=int(item.parentIndex), episode=int(item.index))
             else:
@@ -379,6 +377,7 @@ def sync_watch_status(watched, section, accountTo, userTo):
             if not fetch_check.isWatched:
                 # todo-me should watched count be synced?
                 fetch_check.markWatched()
+                title = fetch_check._prettyfilename()
                 print("Synced watched status of {} to account {}...".format(title, userTo))
         
         except Exception as e:
