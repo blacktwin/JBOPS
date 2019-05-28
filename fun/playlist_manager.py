@@ -145,7 +145,7 @@ account = plex.myPlexAccount()
 user_lst = [x.title for x in plex.myPlexAccount().users() if x.servers]
 sections = plex.library.sections()
 sections_dict = {x.key: x.title for x in sections}
-filter_lst = list(set([y for x in sections if x.type != 'photo' for y in x.ALLOWED_FILTERS]))
+filters_lst = list(set([y for x in sections if x.type != 'photo' for y in x.ALLOWED_FILTERS]))
 playlist_lst = [x.title for x in plex.playlists()]
 today = datetime.datetime.now().date()
 weeknum = datetime.date(today.year, today.month, today.day).isocalendar()[1]
@@ -296,10 +296,10 @@ def multi_filter_search(keyword_dict, library):
             for value in values:
                 search_dict = {}
                 search_dict[key] = value
-                search_lst = [movie.ratingKey for movie in library.all(**search_dict)]
+                search_lst = [item.ratingKey for item in library.all(**search_dict)]
                 multi_lst += search_lst
         else:
-            multi_lst += [movie.ratingKey for movie in library.all(**{key: values})]
+            multi_lst += [item.ratingKey for item in library.all(**{key: values})]
     counts = Counter(multi_lst)
     # Use amount of keywords to check that all keywords were found in results
     search_lst = [id for id in multi_lst if counts[id] == keyword_count]
@@ -366,10 +366,24 @@ def get_content(libraries, jbop, filters=None, search=None, limit=None):
                             search_lst += [episode.ratingKey]
                     child_lst += search_lst
                 if filters:
-                    for show in plex_library.search(**filters):
-                        for episode in show.episodes():
-                            filter_lst += [episode.ratingKey]
-                    child_lst += filter_lst
+                    # Update filters for tagged filtered keys
+                    for key, value in filters.items():
+                        # Genre needs special handling
+                        if key == "genre":
+                            del filters[key]
+                            filters[key + tags] = value
+                    for key, value in filters.items():
+                        # Only genre filtering should allow multiple values and allow for AND statement
+                        if key.endswith(tags):
+                            shows_lst = multi_filter_search({key: value}, plex_library)
+                        else:
+                            shows_lst = [show for show in plex_library.search(**{key: value})]
+                        for showkey in shows_lst:
+                            show = plex.fetchItem(showkey)
+                            for episode in show.episodes():
+                                filter_lst += [episode.ratingKey]
+                        child_lst += filter_lst
+                    
                 if keywords and filters:
                     child_lst += list(set(filter_lst) & set(search_lst))
             else:
@@ -678,7 +692,7 @@ if __name__ == "__main__":
                         help='Limit the amount items to be added to a playlist.')
     parser.add_argument('--filter', action='append', type=lambda kv: kv.split("="),
                         help='Search filtered metadata fields.\n'
-                             'Filters: ({}).'.format(', '.join(filter_lst)))
+                             'Filters: ({}).'.format(', '.join(filters_lst)))
     parser.add_argument('--search', action='append', type=lambda kv: kv.split("="),
                         help='Search non-filtered metadata fields for keywords '
                              'in title, summary, etc.')
@@ -713,9 +727,9 @@ if __name__ == "__main__":
             if "," in v:
                 filters[k] = v.split(",")
         # Check if provided filter exist, exit if it doesn't exist
-        if not (set(filters.keys()) & set(filter_lst)):
+        if not (set(filters.keys()) & set(filters_lst)):
             print('({}) was not found in filters list: [{}]'
-                  .format(' '.join(filters.keys()), ', '.join(filter_lst)))
+                  .format(' '.join(filters.keys()), ', '.join(filters_lst)))
             exit()
 
     # Defining users
