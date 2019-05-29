@@ -269,7 +269,7 @@ if __name__ == "__main__":
     parser.add_argument('--today', default=False, action='store_true',
                         help='Search history only for today. \n'
                              'Default: %(default)s')
-    parser.add_argument('--duration', type=int,
+    parser.add_argument('--duration', type=int, default=0,
                         help='Duration of item that triggered script agent.')
     
     opts = parser.parse_args()
