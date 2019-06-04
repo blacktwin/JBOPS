@@ -348,31 +348,39 @@ def check_users_access(access, user, server_name, libraries=None):
         exit()
 
 
-def sync_watch_status(watched, section, accountTo, userTo):
+def sync_watch_status(watched, section, accountTo, userTo, same_server=False):
     """
     Parameters
     ----------
     watched: list
         List of watched items either from Tautulli or Plex
-    section: class
-        Section class of sync from server
+    section: str
+        Section title of sync from server
+    accountTo: class
+        User's account that will be synced to
     userTo: str
         User's server class of sync to user
+    same_server: bool
+        Are serverFrom and serverTo the same
     """
     print('Marking watched...')
     sectionTo = accountTo.library.section(section)
     for item in watched:
+        print(item)
         try:
-            if item.type == 'episode':
-                show_name = item.grandparentTitle
-                show = sectionTo.get(show_name)
-                watch_check = show.episode(season=int(item.parentIndex), episode=int(item.index))
+            if same_server:
+                fetch_check = sectionTo.fetchItem(item.ratingKey)
             else:
-                title = item.title
-                watch_check = sectionTo.get(title)
-            # .get retrieves a partial object
-            # .fetchItem retrieves a full object
-            fetch_check = sectionTo.fetchItem(watch_check.key)
+                if item.type == 'episode':
+                    show_name = item.grandparentTitle
+                    show = sectionTo.get(show_name)
+                    watch_check = show.episode(season=int(item.parentIndex), episode=int(item.index))
+                else:
+                    title = item.title
+                    watch_check = sectionTo.get(title)
+                # .get retrieves a partial object
+                # .fetchItem retrieves a full object
+                fetch_check = sectionTo.fetchItem(watch_check.key)
             # If item is already watched ignore
             if not fetch_check.isWatched:
                 # todo-me should watched count be synced?
@@ -407,6 +415,7 @@ if __name__ == '__main__':
     libraries = []
     all_sections = {}
     watchedFrom = ''
+    same_server = False
     count = 25
     start = 0
     plex_admin = Plex(PLEX_TOKEN)
@@ -486,7 +495,9 @@ if __name__ == '__main__':
             
             for user in plexTo:
                 username, server = user
-                sync_watch_status(watched_lst, _library.title, server, username)
+                if server == serverFrom:
+                    same_server = True
+                sync_watch_status(watched_lst, _library.title, server, username, same_server)
 
     elif opts.ratingKey and serverFrom == "Tautulli":
         plexTo = []
