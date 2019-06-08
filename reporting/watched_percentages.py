@@ -150,6 +150,31 @@ class Plex:
         return section_totals
 
 
+def make_pie(user_dict, sections_dict):
+    
+    import matplotlib.pyplot as plt
+    
+    x = len(user_dict.keys())
+    y = len(sections_dict.keys())
+    user_count = 0
+    
+    for user, values in user_dict.items():
+        position = 0
+        for library, watched_value in values.items():
+            fracs = [watched_value, sections_dict.get(library)]
+            ax = plt.subplot2grid((x, y), (user_count, position))
+            ax.xaxis.set_major_formatter(plt.NullFormatter())
+            ax.pie(fracs, autopct='%1.1f%%', shadow=True)
+            if user_count == 0:
+                ax.title.set_text(library)
+            if position == 0:
+                ax.set_ylabel(user).set_rotation(0)
+            position += 1
+        user_count += 1
+    
+    plt.show()
+
+
 if __name__ == '__main__':
     admin_account = Plex(PLEX_TOKEN)
     plex_server = Plex(PLEX_TOKEN, PLEX_URL)
@@ -161,25 +186,45 @@ if __name__ == '__main__':
     parser.add_argument('--users', nargs='*', metavar='users', choices=admin_account.all_users().keys(),
                         help='Users to scan for watched content.\n'
                              'Choices: %(choices)s')
+    parser.add_argument('--pie', default=False, action='store_true',
+                        help='Display pie chart')
     
     opts = parser.parse_args()
     
-
+    sections_totals_dict = {}
+    user_dict = {}
+    
     for library in opts.libraries:
         section_total = plex_server.all_sections_totals(library)
+        sections_totals_dict[library] = section_total
         print("Section: {}, has {} items.".format(library, section_total))
         for user in opts.users:
-            user_account = admin_account.account.user(user)
-            token = user_account.get_token(plex_server.server.machineIdentifier)
-            user_server = Plex(url=PLEX_URL, token=token)
-            section = user_server.server.library.section(library)
-            section_watched_lst = []
-            if section.type == 'movie':
-                section_watched_lst += section.search(unwatched=False)
-            elif section.type == 'show':
-                section_watched_lst += section.search(libtype='episode', unwatched=False)
-            else:
-                continue
-            section_watched_total = len(section_watched_lst)
-            percent_watched = 100 * (float(section_watched_total) / float(section_total))
-            print("    {} has watched {} items ({}%).".format(user, section_watched_total, int(percent_watched)))
+            try:
+                user_account = admin_account.account.user(user)
+                token = user_account.get_token(plex_server.server.machineIdentifier)
+                user_server = Plex(url=PLEX_URL, token=token)
+                section = user_server.server.library.section(library)
+                section_watched_lst = []
+                if section.type == 'movie':
+                    section_watched_lst += section.search(unwatched=False)
+                elif section.type == 'show':
+                    section_watched_lst += section.search(libtype='episode', unwatched=False)
+                else:
+                    continue
+                section_watched_total = len(section_watched_lst)
+                percent_watched = 100 * (float(section_watched_total) / float(section_total))
+                print("    {} has watched {} items ({}%).".format(user, section_watched_total, int(percent_watched)))
+                
+                if user_dict.get(user):
+                    user_dict[user].update({library: section_watched_total})
+                else:
+                    user_dict[user] = {library: section_watched_total}
+            except Exception as e:
+                print(user, e)
+                if user_dict.get(user):
+                    user_dict[user].update({library: 0})
+                else:
+                    user_dict[user] = {library: 0}
+    
+    if opts.pie:
+        make_pie(user_dict, sections_totals_dict)
