@@ -42,7 +42,22 @@ class Connection:
             # Disable the warning that the request is insecure, we know that...
             import urllib3
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
+            
+            
+class Library(object):
+    def __init__(self, data=None):
+        d = data or {}
+        self.title = d['section_name']
+        self.key = d['section_id']
+        self.count = d['count']
+        self.type = d['section_type']
+        try:
+            self.parent_count = d['parent_count']
+            self.child_count = d['child_count']
+        except Exception as e:
+            # print(e)
+            pass
+        
 
 class Tautulli:
     def __init__(self, connection):
@@ -89,6 +104,12 @@ class Tautulli:
         history = self._call_api('get_history', payload)
         
         return [d for d in history['data'] if d['watched_status'] == 1]
+
+    def get_libraries(self):
+        """Call Tautulli's get_libraries api endpoint"""
+    
+        payload = {}
+        return self._call_api('get_libraries', payload)
 
 
 class Plex:
@@ -176,55 +197,118 @@ def make_pie(user_dict, sections_dict):
 
 
 if __name__ == '__main__':
-    admin_account = Plex(PLEX_TOKEN)
-    plex_server = Plex(PLEX_TOKEN, PLEX_URL)
-    parser = argparse.ArgumentParser(description="Sync watch status from one user to others.",
+
+    parser = argparse.ArgumentParser(description="Show watched percentage of users by libraries.",
                                      formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('--libraries', nargs='*', metavar='library', choices=plex_server.all_sections().keys(),
-                        help='Libraries to scan for watched content.\n'
-                             'Choices: %(choices)s')
-    parser.add_argument('--users', nargs='*', metavar='users', choices=admin_account.all_users().keys(),
-                        help='Users to scan for watched content.\n'
-                             'Choices: %(choices)s')
+    servers = parser.add_mutually_exclusive_group()
+    servers.add_argument('--plex', default=False, action='store_true',
+                        help='Pull data from Plex')
+    servers.add_argument('--tautulli', default=False, action='store_true',
+                        help='Pull data from Tautulli')
+    parser.add_argument('--libraries', nargs='*', metavar='library',
+                        help='Libraries to scan for watched content.')
+    parser.add_argument('--users', nargs='*', metavar='users',
+                        help='Users to scan for watched content.')
     parser.add_argument('--pie', default=False, action='store_true',
                         help='Display pie chart')
     
     opts = parser.parse_args()
     
+
     sections_totals_dict = {}
+    sections_dict = {}
     user_dict = {}
     
-    for library in opts.libraries:
-        section_total = plex_server.all_sections_totals(library)
-        sections_totals_dict[library] = section_total
-        print("Section: {}, has {} items.".format(library, section_total))
-        for user in opts.users:
-            try:
-                user_account = admin_account.account.user(user)
-                token = user_account.get_token(plex_server.server.machineIdentifier)
-                user_server = Plex(url=PLEX_URL, token=token)
-                section = user_server.server.library.section(library)
+    if opts.plex:
+        admin_account = Plex(PLEX_TOKEN)
+        plex_server = Plex(PLEX_TOKEN, PLEX_URL)
+        
+        
+        for library in opts.libraries:
+            section_total = plex_server.all_sections_totals(library)
+            sections_totals_dict[library] = section_total
+            print("Section: {}, has {} items.".format(library, section_total))
+            for user in opts.users:
+                try:
+                    user_account = admin_account.account.user(user)
+                    token = user_account.get_token(plex_server.server.machineIdentifier)
+                    user_server = Plex(url=PLEX_URL, token=token)
+                    section = user_server.server.library.section(library)
+                    section_watched_lst = []
+                    if section.type == 'movie':
+                        section_watched_lst += section.search(unwatched=False)
+                    elif section.type == 'show':
+                        section_watched_lst += section.search(libtype='episode', unwatched=False)
+                    else:
+                        continue
+                    section_watched_total = len(section_watched_lst)
+                    percent_watched = 100 * (float(section_watched_total) / float(section_total))
+                    print("    {} has watched {} items ({}%).".format(user, section_watched_total, int(percent_watched)))
+                    
+                    if user_dict.get(user):
+                        user_dict[user].update({library: section_watched_total})
+                    else:
+                        user_dict[user] = {library: section_watched_total}
+                except Exception as e:
+                    print(user, e)
+                    if user_dict.get(user):
+                        user_dict[user].update({library: 0})
+                    else:
+                        user_dict[user] = {library: 0}
+            
+    elif opts.tautulli:
+        # Create a Tautulli instance
+        tautulli_server = Tautulli(Connection(url=TAUTULLI_URL.rstrip('/'),
+                                              apikey=TAUTULLI_APIKEY,
+                                              verify_ssl=VERIFY_SSL))
+        # Pull all libraries from Tautulli
+        tautulli_sections = tautulli_server.get_libraries()
+
+        for section in tautulli_sections:
+            library = Library(section)
+            sections_dict[library.title] = library
+        
+        for library in opts.libraries:
+            section = sections_dict[library]
+            if section.type == "movie":
+                section_total = section.count
+            elif section.type == "show":
+                section_total = section.child_count
+            else:
+                print("Not doing that...")
+                section_total = 0
+            
+            print("Section: {}, has {} items.".format(library, section_total))
+            sections_totals_dict[library] = section_total
+            for user in opts.users:
+                count = 25
+                start = 0
                 section_watched_lst = []
-                if section.type == 'movie':
-                    section_watched_lst += section.search(unwatched=False)
-                elif section.type == 'show':
-                    section_watched_lst += section.search(libtype='episode', unwatched=False)
-                else:
-                    continue
+                try:
+                    while True:
+                        # Getting all watched history for userFrom
+                        tt_watched = tautulli_server.get_watched_history(user=user, section_id=section.key,
+                                                                         start=start, length=count)
+                        if all([tt_watched]):
+                            start += count
+                            for item in tt_watched:
+                                section_watched_lst.append(item)
+                            continue
+                        elif not all([tt_watched]):
+                            break
+                        start += count
+                
+                except Exception as e:
+                    print(user, e)
+
                 section_watched_total = len(section_watched_lst)
                 percent_watched = 100 * (float(section_watched_total) / float(section_total))
                 print("    {} has watched {} items ({}%).".format(user, section_watched_total, int(percent_watched)))
-                
+
                 if user_dict.get(user):
                     user_dict[user].update({library: section_watched_total})
                 else:
                     user_dict[user] = {library: section_watched_total}
-            except Exception as e:
-                print(user, e)
-                if user_dict.get(user):
-                    user_dict[user].update({library: 0})
-                else:
-                    user_dict[user] = {library: 0}
-    
+
     if opts.pie:
         make_pie(user_dict, sections_totals_dict)
