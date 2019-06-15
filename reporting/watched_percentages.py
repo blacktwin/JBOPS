@@ -171,7 +171,7 @@ class Plex:
         return section_totals
 
 
-def make_pie(user_dict, sections_dict):
+def make_pie(user_dict, sections_dict, title):
     
     import matplotlib.pyplot as plt
     
@@ -182,17 +182,19 @@ def make_pie(user_dict, sections_dict):
     for user, values in user_dict.items():
         position = 0
         for library, watched_value in values.items():
-            fracs = [watched_value, sections_dict.get(library)]
+            library_total = sections_dict.get(library)
+            fracs = [watched_value, library_total]
             ax = plt.subplot2grid((x, y), (user_count, position))
             ax.xaxis.set_major_formatter(plt.NullFormatter())
             ax.pie(fracs, autopct='%1.1f%%', shadow=True)
             if user_count == 0:
-                ax.title.set_text(library)
+                ax.title.set_text("{}: {}".format(library, library_total))
             if position == 0:
                 ax.set_ylabel(user).set_rotation(0)
             position += 1
         user_count += 1
-    
+        
+    plt.suptitle(title)
     plt.show()
 
 
@@ -218,11 +220,12 @@ if __name__ == '__main__':
     sections_totals_dict = {}
     sections_dict = {}
     user_dict = {}
+    title = "User's Watch Percentage by Library\nFrom: {}"
     
     if opts.plex:
         admin_account = Plex(PLEX_TOKEN)
         plex_server = Plex(PLEX_TOKEN, PLEX_URL)
-        
+        title = title.format(plex_server.server.friendlyName)
         
         for library in opts.libraries:
             section_total = plex_server.all_sections_totals(library)
@@ -263,7 +266,7 @@ if __name__ == '__main__':
                                               verify_ssl=VERIFY_SSL))
         # Pull all libraries from Tautulli
         tautulli_sections = tautulli_server.get_libraries()
-
+        title = title.format("Tautulli")
         for section in tautulli_sections:
             library = Library(section)
             sections_dict[library.title] = library
@@ -311,4 +314,4 @@ if __name__ == '__main__':
                     user_dict[user] = {library: section_watched_total}
 
     if opts.pie:
-        make_pie(user_dict, sections_totals_dict)
+        make_pie(user_dict, sections_totals_dict, title)
