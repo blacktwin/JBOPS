@@ -14,6 +14,14 @@ PLEX_TOKEN = ''
 TAUTULLI_URL = ''
 TAUTULLI_APIKEY = ''
 
+COLOR = '#FFFFFF'
+BACKGROUND_COLOR = '#282828'
+BOX_COLOR = '#3C3C3C'
+BBOX_PROPS = dict(boxstyle="round,pad=0.7, rounding_size=0.3", fc=BOX_COLOR, ec=BOX_COLOR)
+
+EXPLODE = [0, 0.01]
+COLORS = ['#F6A821', '#C07D37']
+
 if not PLEX_URL:
     PLEX_URL = CONFIG.data['auth'].get('server_baseurl')
 if not PLEX_TOKEN:
@@ -176,8 +184,12 @@ class Plex:
 
 def make_pie(user_dict, sections_dict, title, filename=None, headless=None):
     
+    import matplotlib as mpl
+    mpl.rcParams['text.color'] = COLOR
+    mpl.rcParams['axes.labelcolor'] = COLOR
+    mpl.rcParams['xtick.color'] = COLOR
+    mpl.rcParams['ytick.color'] = COLOR
     if headless:
-        import matplotlib as mpl
         mpl.use("Agg")
 
     import matplotlib.pyplot as plt
@@ -185,7 +197,7 @@ def make_pie(user_dict, sections_dict, title, filename=None, headless=None):
     section_len = len(sections_dict.keys())
     user_position = 0
 
-    fig = plt.figure(figsize=(section_len + 4, user_len + 4))
+    fig = plt.figure(figsize=(section_len + 6, user_len + 6), facecolor=BACKGROUND_COLOR)
 
     for user, values in user_dict.items():
         section_position = 0
@@ -193,22 +205,27 @@ def make_pie(user_dict, sections_dict, title, filename=None, headless=None):
             library_total = sections_dict.get(library)
             fracs = [watched_value, library_total]
             ax = plt.subplot2grid((user_len, section_len), (user_position, section_position))
-            ax.pie(fracs, autopct='%1.1f%%', shadow=True)
+            # ax.xaxis.set_major_formatter(plt.NullFormatter())
+            ax.pie(fracs, explode=EXPLODE, colors=COLORS, pctdistance=1.3,
+                   autopct='%1.1f%%', shadow=True, startangle=300, radius=0.8,
+                   wedgeprops=dict(width=0.5, edgecolor=BACKGROUND_COLOR))
+        
             if user_position == 0:
-                ax.set_title("\n{}: {}".format(library, library_total))
+                ax.set_title("{}: {}".format(library, library_total), bbox=BBOX_PROPS,
+                             ha='center', va='bottom', size=12)
             if section_position == 0:
-                ax.set_ylabel(user).set_rotation(0)
-                ax.yaxis.labelpad = 35
-            ax.set_xlabel("User watched: {}".format(watched_value))
+                ax.set_ylabel(user, bbox=BBOX_PROPS, size=13).set_rotation(0)
+                ax.yaxis.labelpad = 40
+            ax.set_xlabel("User watched: {}".format(watched_value), bbox=BBOX_PROPS)
             section_position += 1
         user_position += 1
-    
+
     plt.suptitle(title)
     plt.tight_layout()
     fig.subplots_adjust(top=0.88)
     
     if filename:
-        plt.savefig('{}_{}.png'.format(filename, timestr))
+        plt.savefig('{}_{}.png'.format(filename, timestr), facecolor=BACKGROUND_COLOR)
         print('Image saved as: {}_{}.png'.format(filename, timestr))
     if not headless:
         plt.show()
