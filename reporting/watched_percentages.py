@@ -174,27 +174,33 @@ class Plex:
 def make_pie(user_dict, sections_dict, title):
     
     import matplotlib.pyplot as plt
-    
-    x = len(user_dict.keys())
-    y = len(sections_dict.keys())
-    user_count = 0
-    
+
+    user_len = len(user_dict.keys())
+    section_len = len(sections_dict.keys())
+    user_position = 0
+
+    fig = plt.figure(figsize=(section_len + 4, user_len + 4))
+
     for user, values in user_dict.items():
-        position = 0
+        section_position = 0
         for library, watched_value in values.items():
             library_total = sections_dict.get(library)
             fracs = [watched_value, library_total]
-            ax = plt.subplot2grid((x, y), (user_count, position))
-            ax.xaxis.set_major_formatter(plt.NullFormatter())
+            ax = plt.subplot2grid((user_len, section_len), (user_position, section_position))
+            # ax.xaxis.set_major_formatter(plt.NullFormatter())
             ax.pie(fracs, autopct='%1.1f%%', shadow=True)
-            if user_count == 0:
-                ax.title.set_text("{}: {}".format(library, library_total))
-            if position == 0:
+            if user_position == 0:
+                ax.set_title("\n{}: {}".format(library, library_total))
+            if section_position == 0:
                 ax.set_ylabel(user).set_rotation(0)
-            position += 1
-        user_count += 1
+                ax.yaxis.labelpad = 35
+            ax.set_xlabel("User watched: {}".format(watched_value))
+            section_position += 1
+        user_position += 1
         
     plt.suptitle(title)
+    plt.tight_layout()
+    fig.subplots_adjust(top=0.88)
     plt.show()
 
 
