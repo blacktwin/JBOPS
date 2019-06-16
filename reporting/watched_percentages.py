@@ -19,6 +19,7 @@ BACKGROUND_COLOR = '#282828'
 BOX_COLOR = '#3C3C3C'
 BBOX_PROPS = dict(boxstyle="round,pad=0.7, rounding_size=0.3", fc=BOX_COLOR, ec=BOX_COLOR)
 
+# [user, section] for Explode and Color
 EXPLODE = [0, 0.01]
 COLORS = ['#F6A821', '#C07D37']
 
