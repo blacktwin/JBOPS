@@ -275,11 +275,10 @@ if __name__ == '__main__':
                     token = user_account.get_token(plex_server.server.machineIdentifier)
                     user_server = Plex(url=PLEX_URL, token=token)
                     section = user_server.server.library.section(library)
-                    section_watched_lst = []
                     if section.type == 'movie':
-                        section_watched_lst += section.search(unwatched=False)
+                        section_watched_lst = section.search(unwatched=False)
                     elif section.type == 'show':
-                        section_watched_lst += section.search(libtype='episode', unwatched=False)
+                        section_watched_lst = section.search(libtype='episode', unwatched=False)
                     else:
                         continue
                     section_watched_total = len(section_watched_lst)
