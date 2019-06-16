@@ -9,7 +9,7 @@
 #	    - Notify on Playback Start
 #	    - Notify on Playback Stop
 #	    - Notify on Playback Resume
-# 	  - Notify on Playback Pause
+# 	  	- Notify on Playback Pause
 #
 # - Copy paste the following line to each of the Triggers you enabled (found on the Arguments tab):
 # 	-a {action} -mt {media_type} -mi {machine_id} -rk {rating_key} -pu {poster_url}
@@ -51,8 +51,8 @@ Duration = 3.0
 # Number of colors to be used across your lights
 NumColors = 5
 
-# How closely the colors should match the media thumbnail, 10 is the highest
-ColorQuality = 10
+# How closely the colors should match the media thumbnail, 1 is the best match, larger numbers will perform faster but may be a less accurate color match
+ColorQuality = 1
 
 # Default theme to restore lights to on media pause/stop
 DefaultPauseTheme = "Basic"
@@ -246,7 +246,10 @@ if event == 'play' or event == "resume":
 
     # Determine Color Palette for Lights
 	color_thief = ColorThief(thumb_path)
-	palette = color_thief.get_palette(color_count=num_colors, quality=color_quality)
+	if num_colors >= 2:
+		palette = color_thief.get_palette(color_count=num_colors, quality=color_quality)
+	else:
+		palette = [color_thief.get_color(quality=color_quality)]
 	logger.debug("Color Palette: " + palette.__str__())
 
     # Set Color Palette
