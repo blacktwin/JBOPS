@@ -14,7 +14,7 @@ PLEX_TOKEN = ''
 TAUTULLI_URL = ''
 TAUTULLI_APIKEY = ''
 
-COLOR = '#FFFFFF'
+FONT_COLOR = '#FFFFFF'
 BACKGROUND_COLOR = '#282828'
 BOX_COLOR = '#3C3C3C'
 BBOX_PROPS = dict(boxstyle="round,pad=0.7, rounding_size=0.3", fc=BOX_COLOR, ec=BOX_COLOR)
@@ -186,10 +186,10 @@ class Plex:
 def make_pie(user_dict, sections_dict, title, filename=None, headless=None):
     
     import matplotlib as mpl
-    mpl.rcParams['text.color'] = COLOR
-    mpl.rcParams['axes.labelcolor'] = COLOR
-    mpl.rcParams['xtick.color'] = COLOR
-    mpl.rcParams['ytick.color'] = COLOR
+    mpl.rcParams['text.color'] = FONT_COLOR
+    mpl.rcParams['axes.labelcolor'] = FONT_COLOR
+    mpl.rcParams['xtick.color'] = FONT_COLOR
+    mpl.rcParams['ytick.color'] = FONT_COLOR
     if headless:
         mpl.use("Agg")
 
