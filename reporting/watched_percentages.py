@@ -221,7 +221,7 @@ def make_pie(user_dict, sections_dict, title, filename=None, headless=None):
             section_position += 1
         user_position += 1
 
-    plt.suptitle(title)
+    plt.suptitle(title, bbox=BBOX_PROPS, size=15)
     plt.tight_layout()
     fig.subplots_adjust(top=0.88)
     
