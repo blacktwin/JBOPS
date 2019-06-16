@@ -333,7 +333,7 @@ if __name__ == '__main__':
                         if all([tt_watched]):
                             start += count
                             for item in tt_watched:
-                                section_watched_lst.append(item)
+                                section_watched_lst.append(item["rating_key"])
                             continue
                         elif not all([tt_watched]):
                             break
@@ -342,7 +342,7 @@ if __name__ == '__main__':
                 except Exception as e:
                     print(user, e)
 
-                section_watched_total = len(section_watched_lst)
+                section_watched_total = len(list(set(section_watched_lst)))
                 percent_watched = 100 * (float(section_watched_total) / float(section_total))
                 print("    {} has watched {} items ({}%).".format(user, section_watched_total, int(percent_watched)))
 
