@@ -206,7 +206,6 @@ def make_pie(user_dict, sections_dict, title, filename=None, headless=None):
             library_total = sections_dict.get(library)
             fracs = [watched_value, library_total]
             ax = plt.subplot2grid((user_len, section_len), (user_position, section_position))
-            # ax.xaxis.set_major_formatter(plt.NullFormatter())
             ax.pie(fracs, explode=EXPLODE, colors=COLORS, pctdistance=1.3,
                    autopct='%1.1f%%', shadow=True, startangle=300, radius=0.8,
                    wedgeprops=dict(width=0.5, edgecolor=BACKGROUND_COLOR))
