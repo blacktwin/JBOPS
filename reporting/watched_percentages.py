@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+import time
 import argparse
 from plexapi.myplex import MyPlexAccount
 from plexapi.server import PlexServer
@@ -23,6 +25,7 @@ if not TAUTULLI_APIKEY:
 
 VERIFY_SSL = False
 
+timestr = time.strftime("%Y%m%d-%H%M%S")
 
 class Connection:
     def __init__(self, url=None, apikey=None, verify_ssl=False):
@@ -171,10 +174,13 @@ class Plex:
         return section_totals
 
 
-def make_pie(user_dict, sections_dict, title):
+def make_pie(user_dict, sections_dict, title, filename=None, headless=None):
     
-    import matplotlib.pyplot as plt
+    if headless:
+        import matplotlib as mpl
+        mpl.use("Agg")
 
+    import matplotlib.pyplot as plt
     user_len = len(user_dict.keys())
     section_len = len(sections_dict.keys())
     user_position = 0
@@ -187,7 +193,6 @@ def make_pie(user_dict, sections_dict, title):
             library_total = sections_dict.get(library)
             fracs = [watched_value, library_total]
             ax = plt.subplot2grid((user_len, section_len), (user_position, section_position))
-            # ax.xaxis.set_major_formatter(plt.NullFormatter())
             ax.pie(fracs, autopct='%1.1f%%', shadow=True)
             if user_position == 0:
                 ax.set_title("\n{}: {}".format(library, library_total))
@@ -197,28 +202,38 @@ def make_pie(user_dict, sections_dict, title):
             ax.set_xlabel("User watched: {}".format(watched_value))
             section_position += 1
         user_position += 1
-        
+    
     plt.suptitle(title)
     plt.tight_layout()
     fig.subplots_adjust(top=0.88)
-    plt.show()
+    
+    if filename:
+        plt.savefig('{}_{}.png'.format(filename, timestr))
+        print('Image saved as: {}_{}.png'.format(filename, timestr))
+    if not headless:
+        plt.show()
 
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Show watched percentage of users by libraries.",
                                      formatter_class=argparse.RawTextHelpFormatter)
+    
     servers = parser.add_mutually_exclusive_group()
     servers.add_argument('--plex', default=False, action='store_true',
                         help='Pull data from Plex')
     servers.add_argument('--tautulli', default=False, action='store_true',
                         help='Pull data from Tautulli')
+    
     parser.add_argument('--libraries', nargs='*', metavar='library',
                         help='Libraries to scan for watched content.')
     parser.add_argument('--users', nargs='*', metavar='users',
                         help='Users to scan for watched content.')
     parser.add_argument('--pie', default=False, action='store_true',
                         help='Display pie chart')
+    parser.add_argument('--filename', type=str, default='Users_Watched_{}'.format(timestr), metavar='',
+                        help='Filename of pie chart. None will not save. \n(default: %(default)s)')
+    parser.add_argument('--headless', action='store_true', help='Run headless.')
     
     opts = parser.parse_args()
     
@@ -320,4 +335,4 @@ if __name__ == '__main__':
                     user_dict[user] = {library: section_watched_total}
 
     if opts.pie:
-        make_pie(user_dict, sections_totals_dict, title)
+        make_pie(user_dict, sections_totals_dict, title, opts.filename, opts.headless)
