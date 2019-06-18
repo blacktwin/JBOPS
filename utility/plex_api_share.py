@@ -278,6 +278,8 @@ if __name__ == "__main__":
                         help='Restore share settings from json file.\n'
                              'Filename of json file to use.\n'
                              '(choices: %(choices)s)')
+    parser.add_argument('--libraryShares', default=False, action='store_true',
+                        help='Show all shares by library.')
 
     # For Plex Pass members
     if plex.myPlexSubscription == True:
@@ -378,7 +380,23 @@ if __name__ == "__main__":
         for library in opts.libraries:
             sections_lst.remove(library)
             libraries = sections_lst
+            
+    if opts.libraryShares:
+        users = user_lst.keys()
+        user_sections = {}
+        for user in users:
+            user_shares_lst = find_shares(user)
+            user_sections[user] = user_shares_lst['sections']
 
+        section_users = {}
+        for user, sections in user_sections.items():
+            for section in sections:
+                section_users.setdefault(section, []).append(user)
+        
+        for section, users in section_users.items():
+                 print("{} is shared to the following users:\n  {}\n".format(section, ", ".join(users)))
+            
+            
     # Share, Unshare, Kill, Add, or Remove
     for user in users:
         user_shares = find_shares(user)
