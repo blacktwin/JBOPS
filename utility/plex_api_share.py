@@ -21,6 +21,7 @@ optional arguments:
   --restore             Restore share settings from json file
                         Filename of json file to use.
                         (choices: %(json files found in cwd)s)
+  --libraryShares       Show all shares by library
 
   # Plex Pass member only settings:
   --kill                Kill user's current stream(s). Include message to override default message
@@ -80,6 +81,9 @@ Usage:
    plex_api_share.py --user USER --remove --sync
        - Disable sync feature for USER
 
+   plex_api_share.py --libraryShares
+       - {Library Name} is shared to the following users:
+             {USERS}
 
    Excluding;
 
