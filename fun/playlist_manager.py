@@ -274,13 +274,14 @@ def sort_by_dates(video, date_type):
         return
 
 
-def multi_filter_search(keyword_dict, library):
+def multi_filter_search(keyword_dict, library, search_eps=None):
     """Allowing for multiple filter or search values
     
     Parameters
     ----------
     keyword_dict: dict
     library: class
+    search_eps: bool
 
     Returns
     -------
@@ -288,6 +289,9 @@ def multi_filter_search(keyword_dict, library):
         items that include all searched or filtered values
     """
     multi_lst = []
+    ep_lst = []
+    logs = {}
+    ep_logs = []
     # How many keywords
     keyword_count = len(keyword_dict)
     for key, values in keyword_dict.items():
@@ -296,13 +300,30 @@ def multi_filter_search(keyword_dict, library):
             for value in values:
                 search_dict = {}
                 search_dict[key] = value
-                search_lst = [item.ratingKey for item in library.all(**search_dict)]
+                if search_eps:
+                    logs["data"] = [{key: value}]
+                    for show in library.all():
+                        for episode in show.episodes(**search_dict):
+                            ep_lst += [episode.ratingKey]
+                            ep_logs += [episode.title, episode.summary]
+
+                        logs["data"].append({"keys": ep_lst, "info": ep_logs})
+                    search_lst = ep_lst
+                else:
+                    search_lst = [item.ratingKey for item in library.all(**search_dict)]
                 multi_lst += search_lst
         else:
-            multi_lst += [item.ratingKey for item in library.all(**{key: values})]
+            if search_eps:
+                for show in library.all():
+                    for episode in show.episodes(**{key: values}):
+                        ep_lst += [episode.ratingKey]
+                multi_lst += ep_lst
+                
+            else:
+                multi_lst += [item.ratingKey for item in library.all(**{key: values})]
     counts = Counter(multi_lst)
     # Use amount of keywords to check that all keywords were found in results
-    search_lst = [id for id in multi_lst if counts[id] == keyword_count]
+    search_lst = [id for id in multi_lst if counts[id] >= keyword_count]
     
     return list(set(search_lst))
 
@@ -361,9 +382,7 @@ def get_content(libraries, jbop, filters=None, search=None, limit=None):
             elif library_type == 'show':
                 # Decisions to stack filter and search
                 if keywords:
-                    for show in plex_library.all():
-                        for episode in show.episodes(**keywords):
-                            search_lst += [episode.ratingKey]
+                    search_lst = multi_filter_search(keywords, plex_library, search_eps=True)
                     child_lst += search_lst
                 if filters:
                     # Update filters for tagged filtered keys
