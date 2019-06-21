@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Change show deletion settings by library.
 
@@ -33,7 +35,7 @@ PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
 
 # Allowed days/episodes to keep or delete
 WATCHED_LST = [0, 1, 7]
-UNWATCHED_LST = [0, 5, 3, 1, -3, -7,-30]
+UNWATCHED_LST = [0, 5, 3, 1, -3, -7, -30]
 
 sess = requests.Session()
 # Ignore verifying the SSL certificate
@@ -57,10 +59,10 @@ def set_show(rating_key, action, number):
     path = '{}/prefs'.format(rating_key)
     try:
         params = {'X-Plex-Token': PLEX_TOKEN,
-                   action: number
-                   }
+                  action: number
+                  }
 
-        r = requests.put(PLEX_URL + path,  params=params, verify=False)
+        r = requests.put(PLEX_URL + path, params=params, verify=False)
         print(r.url)
     except Exception as e:
         print('Error: {}'.format(e))

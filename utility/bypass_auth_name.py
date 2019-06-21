@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-'''
+# -*- coding: utf-8 -*-
+
+"""
 Use Tautulli to pull last IP address from user and add to List of IP addresses and networks that are allowed without auth in Plex.
 
 optional arguments:
@@ -13,14 +15,14 @@ optional arguments:
                         (default: None)
 
 List of IP addresses is cleared before adding new IPs
-'''
+"""
 
 import requests
 import argparse
 import sys
 
 
-## EDIT THESE SETTINGS ##
+# ## EDIT THESE SETTINGS ##
 PLEX_TOKEN = 'xxxx'
 PLEX_URL = 'http://localhost:32400'
 TAUTULLI_APIKEY = 'xxxx'  # Your Tautulli API key
@@ -78,7 +80,7 @@ if __name__ == '__main__':
     parser.add_argument('-u', '--users', nargs='+', type=str, choices=user_lst, metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
                              '(choices: %(choices)s) \n(default: %(default)s)')
-    parser.add_argument('-c', '--clear', nargs='?',default=None, metavar='',
+    parser.add_argument('-c', '--clear', nargs='?', default=None, metavar='',
                         help='Clear List of IP addresses and networks that are allowed without auth in Plex: \n'
                              '(default: %(default)s)')
 

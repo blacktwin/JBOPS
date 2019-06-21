@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Notify users of recently added episode to show that they have watched at least LIMIT times via email.
 Block users with IGNORE_LST.
@@ -21,11 +24,11 @@ import smtplib
 import sys
 import argparse
 
-## EDIT THESE SETTINGS ##
+# ## EDIT THESE SETTINGS ##
 TAUTULLI_APIKEY = 'XXXXXXX'  # Your Tautulli API key
 TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 
-IGNORE_LST = [123456, 123456] # User_ids
+IGNORE_LST = [123456, 123456]  # User_ids
 LIMIT = 3
 
 # Email settings
@@ -37,6 +40,7 @@ email_username = ''  # Your email username
 email_password = ''  # Your email password
 
 user_dict = {}
+
 
 class Users(object):
     def __init__(self, data=None):
@@ -74,7 +78,10 @@ def get_user(user_id):
 
 
 def get_history(showkey):
-    # Get the user history from Tautulli. Length matters!
+    """Get the user history from Tautulli.
+
+    Length matters!
+    """
     payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_history',
                'grandparent_rating_key': showkey,
@@ -84,8 +91,9 @@ def get_history(showkey):
         r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         res_data = response['response']['data']['data']
-        return [UserHIS(data=d) for d in res_data if d['watched_status'] == 1
-                and d['media_type'].lower() in ('episode', 'show')]
+        return [UserHIS(data=d) for d in res_data
+                if d['watched_status'] == 1 and
+                d['media_type'].lower() in ('episode', 'show')]
 
     except Exception as e:
         sys.stderr.write("Tautulli API 'get_history' request failed: {0}.".format(e))
@@ -188,7 +196,7 @@ if __name__ == '__main__':
     </html>
     """.format(p=p)
 
-    ### Do not edit below ###
+    # ## Do not edit below ###
     message = MIMEText(show_html, 'html')
     message['Subject'] = email_subject
     message['From'] = email.utils.formataddr((name, sender))
@@ -199,4 +207,4 @@ if __name__ == '__main__':
     mailserver.login(email_username, email_password)
     mailserver.sendmail(sender, to, message.as_string())
     mailserver.quit()
-    print 'Email sent'
+    print('Email sent')

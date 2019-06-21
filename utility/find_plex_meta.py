@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 '''
 Find location of Plex metadata.
 
@@ -18,7 +20,7 @@ import hashlib
 import argparse
 import requests
 
-## Edit ##
+# ## Edit ##
 PLEX_URL = ''
 PLEX_TOKEN = ''
 PLEX_URL = CONFIG.data['auth'].get('server_baseurl', PLEX_URL)
@@ -28,7 +30,7 @@ PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
 PLEX_LOCAL_TV_PATH = os.path.join(os.getenv('LOCALAPPDATA'), 'Plex Media Server\Metadata\TV Shows')
 PLEX_LOCAL_MOVIE_PATH = os.path.join(os.getenv('LOCALAPPDATA'), 'Plex Media Server\Metadata\Movies')
 PLEX_LOCAL_ALBUM_PATH = os.path.join(os.getenv('LOCALAPPDATA'), 'Plex Media Server\Metadata\Albums')
-## /Edit ##
+# ## /Edit ##
 
 sess = requests.Session()
 # Ignore verifying the SSL certificate
@@ -44,6 +46,7 @@ if sess.verify is False:
 
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
+
 def hash_to_path(hash_str, path, title, media_type, artist=None):
     full_hash = hashlib.sha1(hash_str).hexdigest()
     hash_path = '{}\{}{}'.format(full_hash[0], full_hash[1::1], '.bundle')
@@ -54,12 +57,11 @@ def hash_to_path(hash_str, path, title, media_type, artist=None):
         output = "{} titled: {}\nPath: {}".format(media_type.title(), title, full_path)
     print(output)
 
+
 def get_plex_hash(search, mediatype=None):
     for searched in plex.search(search, mediatype=mediatype):
-        # Remove special characters from name
-        clean_title = re.sub('\W+',' ', searched.title)
-        if searched.type == 'show':
         # Need to find guid.
+        if searched.type == 'show':
             # Get tvdb_if from first episode
             db_id = searched.episodes()[0].guid
             # Find str to pop
@@ -79,7 +81,7 @@ def get_plex_hash(search, mediatype=None):
                 hash_str = 'local://{}'.format(local_id)
             else:
                 hash_str = searched.tracks()[0].guid.replace('/1?lang=en', '?lang=en')
-            #print(searched.__dict__.items())
+            # print(searched.__dict__.items())
             hash_to_path(hash_str, PLEX_LOCAL_ALBUM_PATH, searched.title, searched.type, searched.parentTitle)
 
         elif searched.type == 'artist':
@@ -88,6 +90,7 @@ def get_plex_hash(search, mediatype=None):
                 get_plex_hash(albums.title, 'album')
         else:
             pass
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Helping navigate Plex's locally stored data.")

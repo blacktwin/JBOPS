@@ -1,6 +1,11 @@
 #!/usr/bin/env python
-"""
-Description: Pull Movie and TV Show poster images from Plex.  Save to Movie and TV Show directories in scripts working directory.
+# -*- coding: utf-8 -*-
+
+"""Pull Movie and TV Show poster images from Plex.
+
+Saves the poster images to Movie and TV Show directories in scripts working
+directory.
+
 Author: Blacktwin
 Requires: plexapi
 
@@ -15,7 +20,7 @@ import re
 import os
 import urllib
 
-library_name = ['Movies','TV Shows'] # You library names
+library_name = ['Movies', 'TV Shows']  # Your library names
 
 PLEX_URL = ''
 PLEX_TOKEN = ''
@@ -50,7 +55,7 @@ if not os.path.isdir(show_path):
 for library in library_name:
     for child in plex.library.section(library).all():
         # Clean names of special characters
-        name = re.sub('\W+',' ', child.title)
+        name = re.sub('\W+', ' ', child.title)
         # Add (year) to name
         name = '{} ({})'.format(name, child.year)
         # Pull URL for poster

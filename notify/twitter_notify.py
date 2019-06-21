@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 1. Install the requests module for python.
        pip install requests
@@ -14,18 +17,18 @@ Tautulli > Settings > Notifications > Script > Script Arguments:
 https://gist.github.com/blacktwin/261c416dbed08291e6d12f6987d9bafa
 """
 
-from twitter import *
+from twitter import Twitter, OAuth
 import argparse
 import requests
 import os
 
-## EDIT THESE SETTINGS ##
+# ## EDIT THESE SETTINGS ##
 TOKEN = ''
 TOKEN_SECRET = ''
 CONSUMER_KEY = ''
 CONSUMER_SECRET = ''
 
-TITLE_FIND = ['Friends'] # Title to ignore ['Snow White']
+TITLE_FIND = ['Friends']  # Title to ignore ['Snow White']
 TWITTER_USER = ' @username'
 
 BODY_TEXT = ''
@@ -80,12 +83,13 @@ if __name__ == '__main__':
 
     p = parser.parse_args()
 
-
     if p.media_type == 'movie':
         BODY_TEXT = MOVIE_TEXT.format(media_type=p.media_type, title=p.title, duration=p.duration)
     elif p.media_type == 'episode':
-        BODY_TEXT = TV_TEXT.format(media_type=p.media_type, show_name=p.show_name, title=p.title,
-                                   season_num00=p.season_num, episode_num00=p.episode_num, duration=p.duration)
+        BODY_TEXT = TV_TEXT.format(
+            media_type=p.media_type, show_name=p.show_name, title=p.title,
+            season_num00=p.season_num, episode_num00=p.episode_num,
+            duration=p.duration)
     else:
         exit()
 
@@ -100,7 +104,6 @@ if __name__ == '__main__':
         with open(filename, 'wb') as image:
             for chunk in request:
                 image.write(chunk)
-
 
     t_upload = Twitter(domain='upload.twitter.com',
                        auth=OAuth(TOKEN, TOKEN_SECRET, CONSUMER_KEY, CONSUMER_SECRET))

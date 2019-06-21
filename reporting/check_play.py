@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 #   1. Install the requests module for python.
 #       pip install requests
 #   2. Add script arguments in Tautulli.
@@ -10,7 +13,7 @@ import sys
 user = sys.argv[1]
 title = sys.argv[2]
 
-## EDIT THESE SETTINGS ##
+# ## EDIT THESE SETTINGS ##
 TAUTULLI_APIKEY = 'XXXXXXXXXX'  # Your Tautulli API key
 TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 NOTIFIER_ID = 10  # The notification notifier ID for Tautulli
@@ -25,7 +28,7 @@ BODY_TEXT = """\
     </p>
   </body>
 </html>
-""" %(user, title)
+""" % (user, title)
 
 
 class UserHIS(object):
@@ -33,9 +36,9 @@ class UserHIS(object):
         data = data or {}
         self.watched = [d['watched_status'] for d in data]
 
-		
+
 def get_history():
-    # Get the user IP list from Tautulli
+    """Get the history from Tautulli."""
     payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_history',
                'user': user,

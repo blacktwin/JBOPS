@@ -1,6 +1,7 @@
-"""
-Find Movies that have been watched by a list of users. 
-If all users have watched movie than delete.
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""Find and delete Movies that have been watched by a list of users.
 
 Deletion is prompted
 """
@@ -11,11 +12,12 @@ import os
 import shutil
 
 
-## EDIT THESE SETTINGS ##
+# ## EDIT THESE SETTINGS ##
 TAUTULLI_APIKEY = 'xxxxxxxx'  # Your Tautulli API key
 TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
-LIBRARY_NAMES = ['My Movies'] # Whatever your movie libraries are called.
-USER_LST = ['Joe', 'Alex'] # Name of users
+LIBRARY_NAMES = ['My Movies']  # Whatever your movie libraries are called.
+USER_LST = ['Joe', 'Alex']  # Name of users
+
 
 class UserHIS(object):
     def __init__(self, data=None):
@@ -81,6 +83,7 @@ def delete_files(tmp_lst):
     else:
         print('Ok. doing nothing.')
 
+
 movie_dict = {}
 movie_lst = []
 delete_lst = []
@@ -119,7 +122,7 @@ for user in USER_LST:
 
 for movie_dict in movie_lst:
     if set(USER_LST) == set(movie_dict['watched_by']):
-        print(u"{} has been watched by {}".format(movie_dict['title']," & ".join(USER_LST)))
+        print(u"{} has been watched by {}".format(movie_dict['title'], " & ".join(USER_LST)))
         delete_lst.append(movie_dict['file'])
 
 delete_files(delete_lst)

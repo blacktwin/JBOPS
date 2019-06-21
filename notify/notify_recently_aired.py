@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Description: Notify only if recently aired/released
 Author: Blacktwin
@@ -64,6 +67,7 @@ aired_date = datetime.strptime(air_date, date_format)
 today = date.today()
 delta = today - aired_date.date()
 
+
 def notify_recently_added(rating_key, notifier_id):
     # Get the metadata for a media item.
     payload = {'apikey': TAUTULLI_APIKEY,
@@ -79,7 +83,8 @@ def notify_recently_added(rating_key, notifier_id):
     except Exception as e:
         sys.stderr.write("Tautulli API 'notify_recently_added' request failed: {0}.".format(e))
         pass
-    
+
+
 if delta.days < RECENT_DAYS:
     notify_recently_added(rating_key, NOTIFIER_ID)
 else:

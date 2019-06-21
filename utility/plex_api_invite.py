@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-'''
+# -*- coding: utf-8 -*-
+
+"""
 Invite new users to share Plex libraries.
 
 optional arguments:
@@ -33,7 +35,7 @@ Usage:
    plex_api_invite.py --libraries Movies --user USER --movieRatings G, PG-13
        - Share Movie library with USER but restrict them to only G and PG-13 titles.
 
-'''
+"""
 
 from plexapi.server import PlexServer, CONFIG
 import argparse
@@ -71,11 +73,11 @@ def invite(user, sections, allowSync, camera, channels, filterMovies, filterTele
                                       allowCameraUpload=camera, allowChannels=channels, filterMovies=filterMovies,
                                       filterTelevision=filterTelevision, filterMusic=filterMusic)
     print('Invited {user} to share libraries: \n{sections}'.format(sections=sections, user=user))
-    if allowSync == True:
+    if allowSync is True:
         print('Sync: Enabled')
-    if camera == True:
+    if camera is True:
         print('Camera Upload: Enabled')
-    if channels == True:
+    if channels is True:
         print('Plugins: Enabled')
     if filterMovies:
         print('Movie Filters: {}'.format(filterMovies))
@@ -161,4 +163,4 @@ if __name__ == "__main__":
 
     for user in opts.user:
         invite(user, libraries, sync, camera, channels,
-                   filterMovies, filterTelevision, filterMusic)
+               filterMovies, filterTelevision, filterMusic)

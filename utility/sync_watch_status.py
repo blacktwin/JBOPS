@@ -1,6 +1,8 @@
 #!/usr/bin/env python
-"""
-Description: Sync the watch status from one Plex or Tautulli user to other users across any owned server.
+# -*- coding: utf-8 -*-
+
+"""Sync the watch status from one Plex or Tautulli user to other users across any owned server.
+
 Author: Blacktwin
 Requires: requests, plexapi, argparse
 
@@ -87,7 +89,7 @@ class Connection:
                                     pool_block=True)
         self.session.mount('http://', self.adapters)
         self.session.mount('https://', self.adapters)
-        
+
         # Ignore verifying the SSL certificate
         if verify_ssl is False:
             self.session.verify = False
@@ -115,7 +117,7 @@ class Metadata(object):
             self.title = ep_name.lstrip()
         else:
             self.title = d['full_title']
-        
+
         # For History
         try:
             if d['watched_status']:
@@ -133,32 +135,32 @@ class Metadata(object):
 class Tautulli:
     def __init__(self, connection):
         self.connection = connection
-    
+
     def _call_api(self, cmd, payload, method='GET'):
         payload['cmd'] = cmd
         payload['apikey'] = self.connection.apikey
-        
+
         try:
             response = self.connection.session.request(method, self.connection.url + '/api/v2', params=payload)
         except RequestException as e:
             print("Tautulli request failed for cmd '{}'. Invalid Tautulli URL? Error: {}".format(cmd, e))
             return
-        
+
         try:
             response_json = response.json()
         except ValueError:
             print("Failed to parse json response for Tautulli API cmd '{}'".format(cmd))
             return
-        
+
         if response_json['response']['result'] == 'success':
             return response_json['response']['data']
         else:
             error_msg = response_json['response']['message']
             print("Tautulli API cmd '{}' failed: {}".format(cmd, error_msg))
             return
-    
+
     def get_watched_history(self, user=None, section_id=None, rating_key=None, start=None, length=None):
-        """Call Tautulli's get_history api endpoint"""
+        """Call Tautulli's get_history api endpoint."""
         payload = {"order_column": "full_title",
                    "order_dir": "asc"}
         if user:
@@ -171,20 +173,18 @@ class Tautulli:
             payload["start"] = start
         if length:
             payload["lengh"] = length
-        
+
         history = self._call_api('get_history', payload)
-        
+
         return [d for d in history['data'] if d['watched_status'] == 1]
-    
+
     def get_metadata(self, rating_key):
-        """Call Tautulli's get_metadata api endpoint"""
-        
+        """Call Tautulli's get_metadata api endpoint."""
         payload = {"rating_key": rating_key}
         return self._call_api('get_metadata', payload)
-    
+
     def get_libraries(self):
-        """Call Tautulli's get_libraries api endpoint"""
-        
+        """Call Tautulli's get_libraries api endpoint."""
         payload = {}
         return self._call_api('get_libraries', payload)
 
@@ -196,37 +196,43 @@ class Plex:
         if token and url:
             session = Connection().session
             self.server = PlexServer(baseurl=url, token=token, session=session)
-    
+
     def admin_servers(self):
-        """All owned servers
+        """Get all owned servers.
+
         Returns
         -------
         data: dict
+
         """
         resources = {}
         for resource in self.account.resources():
-            if 'server' in [resource.provides] and resource.owned == True:
+            if 'server' in [resource.provides] and resource.owned is True:
                 resources[resource.name] = resource
-        
+
         return resources
-    
+
     def all_users(self):
-        """All users
+        """Get all users.
+
         Returns
         -------
         data: dict
+
         """
         users = {self.account.title: self.account}
         for user in self.account.users():
             users[user.title] = user
-        
+
         return users
-    
+
     def all_sections(self):
-        """All sections from all owned servers
+        """Get all sections from all owned servers.
+
         Returns
         -------
         data: dict
+
         """
         data = {}
         servers = self.admin_servers()
@@ -235,21 +241,23 @@ class Plex:
             connect = server.connect()
             sections = {section.title: section for section in connect.library.sections()}
             data[name] = sections
-        
+
         return data
-    
+
     def users_access(self):
-        """Users access across all owned servers
+        """Get users access across all owned servers.
+
         Returns
         -------
         data: dict
+
         """
         all_users = self.all_users().values()
         admin_servers = self.admin_servers()
         all_sections = self.all_sections()
-        
+
         data = {self.account.title: {"account": self.account}}
-        
+
         for user in all_users:
             if not data.get(user.title):
                 servers = []
@@ -257,7 +265,7 @@ class Plex:
                     if admin_servers.get(server.name):
                         access = {}
                         sections = {section.title: section for section in server.sections()
-                                    if section.shared == True}
+                                    if section.shared is True}
                         access['server'] = {server.name: admin_servers.get(server.name)}
                         access['sections'] = sections
                         servers += [access]
@@ -278,7 +286,8 @@ class Plex:
 
 
 def connect_to_server(server_obj, user_account):
-    """Find server url and connect using user token
+    """Find server url and connect using user token.
+
     Parameters
     ----------
     server_obj: class
@@ -287,10 +296,11 @@ def connect_to_server(server_obj, user_account):
     Returns
     -------
     user_connection.server: class
+
     """
     server_name = server_obj.name
     user = user_account.title
-    
+
     print('Connecting {} to {}...'.format(user, server_name))
     server_connection = server_obj.connect()
     baseurl = server_connection._baseurl.split('.')
@@ -300,14 +310,15 @@ def connect_to_server(server_obj, user_account):
         token = PLEX_TOKEN
     else:
         token = user_account.get_token(server_connection.machineIdentifier)
-    
+
     user_connection = Plex(url=url, token=token)
-    
+
     return user_connection.server
 
 
 def check_users_access(access, user, server_name, libraries=None):
     """Check user's access to server. If allowed connect.
+
     Parameters
     ----------
     access: dict
@@ -318,6 +329,7 @@ def check_users_access(access, user, server_name, libraries=None):
     Returns
     -------
     server_connection: class
+
     """
     try:
         _user = access.get(user)
@@ -333,7 +345,7 @@ def check_users_access(access, user, server_name, libraries=None):
                     if library_check:
                         server_connection = connect_to_server(server_obj, _user['account'])
                         return server_connection
-                    
+
                     elif not library_check:
                         print("User does not have access to this library.")
                 # Not syncing by libraries
@@ -349,7 +361,8 @@ def check_users_access(access, user, server_name, libraries=None):
 
 
 def sync_watch_status(watched, section, accountTo, userTo, same_server=False):
-    """
+    """Sync watched status between two users.
+
     Parameters
     ----------
     watched: list
@@ -362,6 +375,7 @@ def sync_watch_status(watched, section, accountTo, userTo, same_server=False):
         User's server class of sync to user
     same_server: bool
         Are serverFrom and serverTo the same
+
     """
     print('Marking watched...')
     sectionTo = accountTo.library.section(section)
@@ -387,7 +401,7 @@ def sync_watch_status(watched, section, accountTo, userTo, same_server=False):
                 fetch_check.markWatched()
                 title = fetch_check._prettyfilename()
                 print("Synced watched status of {} to account {}...".format(title, userTo))
-        
+
         except Exception as e:
             print(e)
             pass
@@ -407,11 +421,11 @@ if __name__ == '__main__':
     requiredNamed.add_argument('--userTo', nargs='*', metavar='user=server', required=True,
                                type=lambda kv: kv.split("="),
                                help='Select user and server to sync to.')
-    
+
     opts = parser.parse_args()
     # print(opts)
     tautulli_server = ''
-    
+
     libraries = []
     all_sections = {}
     watchedFrom = ''
@@ -420,15 +434,15 @@ if __name__ == '__main__':
     start = 0
     plex_admin = Plex(PLEX_TOKEN)
     plex_access = plex_admin.users_access()
-    
+
     userFrom, serverFrom = opts.userFrom
-    
+
     if serverFrom == "Tautulli":
         # Create a Tautulli instance
         tautulli_server = Tautulli(Connection(url=TAUTULLI_URL.rstrip('/'),
                                               apikey=TAUTULLI_APIKEY,
                                               verify_ssl=VERIFY_SSL))
-    
+
     if serverFrom == "Tautulli" and opts.libraries:
         # Pull all libraries from Tautulli
         _sections = {}
@@ -452,19 +466,19 @@ if __name__ == '__main__':
             else:
                 print("No matching library name '{}'".format(library))
                 exit()
-    
+
     # If server is Plex and synciing libraries, check access
     if serverFrom != "Tautulli" and libraries:
         print("Checking {}'s access to {}".format(userFrom, serverFrom))
         watchedFrom = check_users_access(plex_access, userFrom, serverFrom, libraries)
-    
+
     if libraries:
         print("Finding watched items in libraries...")
         plexTo = []
-        
+
         for user, server_name in opts.userTo:
             plexTo.append([user, check_users_access(plex_access, user, server_name, libraries)])
-        
+
         for _library in libraries:
             watched_lst = []
             print("Checking {}'s library: '{}' watch statuses...".format(userFrom, _library.title))
@@ -492,7 +506,7 @@ if __name__ == '__main__':
                 else:
                     for item in sectionFrom.search(unwatched=False):
                         watched_lst.append(item)
-            
+
             for user in plexTo:
                 username, server = user
                 if server == serverFrom:
@@ -502,7 +516,7 @@ if __name__ == '__main__':
     elif opts.ratingKey and serverFrom == "Tautulli":
         plexTo = []
         watched_item = []
-        
+
         if userFrom != "Tautulli":
             print("Request manually triggered to update watch status")
             tt_watched = tautulli_server.get_watched_history(user=userFrom, rating_key=opts.ratingKey)
@@ -511,18 +525,18 @@ if __name__ == '__main__':
             else:
                 print("Rating Key {} was not reported as watched in Tautulli for user {}".format(opts.ratingKey, userFrom))
                 exit()
-                
+
         elif userFrom == "Tautulli":
             print("Request from Tautulli notification agent to update watch status")
             watched_item = Metadata(tautulli_server.get_metadata(opts.ratingKey))
-    
+
         for user, server_name in opts.userTo:
             # Check access and connect
             plexTo.append([user, check_users_access(plex_access, user, server_name, libraries)])
-    
+
         for user in plexTo:
             username, server = user
             sync_watch_status([watched_item], watched_item.libraryName, server, username)
-        
+
     else:
         print("You aren't using this script correctly... bye!")

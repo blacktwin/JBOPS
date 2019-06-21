@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 usage: plex_netflix_check.py [-h] [-l  [...]] [-s ] [-t ]
 
@@ -29,15 +32,14 @@ import argparse
 from xmljson import badgerfish as bf
 from lxml.html import fromstring
 from time import sleep
-import json
 from plexapi.server import PlexServer
 # pip install plexapi
 
 
-## Edit ##
+# ## Edit ##
 PLEX_URL = 'http://localhost:32400'
 PLEX_TOKEN = 'xxxx'
-## /Edit ##
+# ## /Edit ##
 
 sess = requests.Session()
 sess.verify = False
@@ -57,7 +59,7 @@ def instantwatch_search(name, media_type, site, search_limit):
     elif media_type == 'episode':
         content_type = '4'
     else:
-        content_type =''
+        content_type = ''
 
     payload = {'content_type': content_type,
                'q': name.lower()}
@@ -108,7 +110,7 @@ def instantwatch_search(name, media_type, site, search_limit):
                         pass
 
                 for data in results['span']:
-                    if data['@class'] == 'title' and search_limit is not 0:
+                    if data['@class'] == 'title' and search_limit != 0:
                         if str(data['a']['$']).lower().startswith(name.lower()):
                             if amazon_id:
                                 if data['a']['@data-title-id'] == amazon_id:
@@ -119,10 +121,10 @@ def instantwatch_search(name, media_type, site, search_limit):
                                     print('Page: {}{}'.format(NETFLIX_URL, data['a']['@data-title-id']))
                             results_count += 1
                             search_limit -= 1
-                            if search_limit is 0:
+                            if search_limit == 0:
                                 limit = True
 
-                    elif data['@class'] == 'title' and search_limit is 0 and limit is False:
+                    elif data['@class'] == 'title' and search_limit == 0 and limit is False:
                         if data['a']['$'].lower().startswith(name.lower()):
                             if amazon_id:
                                 if data['a']['@data-title-id'] == amazon_id:
@@ -206,7 +208,7 @@ def main():
                              '(choices: %(choices)s)\n(default: %(default)s)')
     parser.add_argument('-site', '--site', metavar='', choices=['Netflix', 'Amazon', 'Both'], nargs='?',
                         default='Both', help='Refine search for name by using type.\n'
-                             '(choices: %(choices)s)\n(default: %(default)s)')
+                        '(choices: %(choices)s)\n(default: %(default)s)')
     parser.add_argument('-sl', '--search_limit', metavar='', nargs='?', type=int, default=5,
                         help='Define number of search returns from page. Zero returns all.'
                              '\n(default: %(default)s)')
@@ -222,6 +224,7 @@ def main():
                 plex_library_search(section, opts.site, opts.episodes, opts.search_limit)
         else:
             plex_library_search(opts.library[0], opts.site, opts.episodes, opts.search_limit)
+
 
 if __name__ == '__main__':
     main()

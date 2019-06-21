@@ -1,5 +1,7 @@
-"""
-Delete all playlists from Plex using PlexAPI
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""Delete all playlists from Plex.
 
 https://github.com/mjs7231/python-plexapi
 """
@@ -21,8 +23,8 @@ for playlist in plex.playlists():
 
 for i in tmp_lst:
     try:
-        r = requests.delete('{}/playlists/{}?X-Plex-Token={}'.format(baseurl,i,token))
+        r = requests.delete('{}/playlists/{}?X-Plex-Token={}'.format(baseurl, i, token))
         print(r)
 
     except Exception as e:
-        print e
+        print(e)

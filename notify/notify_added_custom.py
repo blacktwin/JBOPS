@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Send an email with what was added to Plex in the past week using Tautulli.
 Email includes title (TV: Show Name: Episode Name; Movie: Movie Title), time added, image, and summary.
@@ -35,22 +38,21 @@ import uuid
 import argparse
 
 
-
-## EDIT THESE SETTINGS ##
+# ## EDIT THESE SETTINGS ##
 TAUTULLI_APIKEY = ''  # Your Tautulli API key
 TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
-LIBRARY_NAMES = ['Movies', 'TV Shows'] # Name of libraries you want to check.
+LIBRARY_NAMES = ['Movies', 'TV Shows']  # Name of libraries you want to check.
 
 # Email settings
-name = '' # Your name
-sender = '' # From email address
-to = [sender] # Whoever you want to email [sender, 'name@example.com']
+name = ''  # Your name
+sender = ''  # From email address
+to = [sender]  # Whoever you want to email [sender, 'name@example.com']
 # Emails will be sent as BCC.
-email_server = 'smtp.gmail.com' # Email server (Gmail: smtp.gmail.com)
+email_server = 'smtp.gmail.com'  # Email server (Gmail: smtp.gmail.com)
 email_port = 587  # Email port (Gmail: 587)
-email_username = '' # Your email username
-email_password = '' # Your email password
-email_subject = 'Tautulli Added Last {} day(s) Notification' #The email subject
+email_username = ''  # Your email username
+email_password = ''  # Your email password
+email_subject = 'Tautulli Added Last {} day(s) Notification'  # The email subject
 
 # Default sizing for pictures
 # Poster
@@ -60,7 +62,8 @@ poster_w = 100
 art_h = 100
 art_w = 205
 
-## /EDIT THESE SETTINGS ##
+# ## /EDIT THESE SETTINGS ##
+
 
 class METAINFO(object):
     def __init__(self, data=None):
@@ -220,17 +223,21 @@ def build_html(rating_key, height, width, pic_type):
     if meta.grandparent_title == '' or meta.media_type == 'movie':
         # Movies
         notify = u"<dt>{x.title} ({x.rating_key}) was added {when}.</dt>" \
-                       u"</dt> <dd> <table> <tr> <th>" \
-                       '<img src="cid:{cid}" alt="{alt}" width="{width}" height="{height}"> </th>' \
-                       u" <th id=t11> {x.summary} </th> </tr> </table> </dd> <br>" \
-            .format(x=meta, when=added, alt=cgi.escape(meta.rating_key), quote=True, width=width, height=height,**image)
+                 u"</dt> <dd> <table> <tr> <th>" \
+                 '<img src="cid:{cid}" alt="{alt}" width="{width}" height="{height}"> </th>' \
+                 u" <th id=t11> {x.summary} </th> </tr> </table> </dd> <br>" \
+            .format(
+                x=meta, when=added, alt=cgi.escape(meta.rating_key),
+                quote=True, width=width, height=height, **image)
     else:
         # Shows
         notify = u"<dt>{x.grandparent_title}: {x.title} ({x.rating_key}) was added {when}." \
-                       u"</dt> <dd> <table> <tr> <th>" \
-                       '<img src="cid:{cid}" alt="{alt}" width="{width}" height="{height}"> </th>' \
-                       u" <th id=t11> {x.summary} </th> </tr> </table> </dd> <br>" \
-            .format(x=meta, when=added, alt=cgi.escape(meta.rating_key), quote=True, width=width, height=height, **image)
+                 u"</dt> <dd> <table> <tr> <th>" \
+                 '<img src="cid:{cid}" alt="{alt}" width="{width}" height="{height}"> </th>' \
+                 u" <th id=t11> {x.summary} </th> </tr> </table> </dd> <br>" \
+            .format(
+                x=meta, when=added, alt=cgi.escape(meta.rating_key),
+                quote=True, width=width, height=height, **image)
 
     image_text = MIMEText(u'[image: {title}]'.format(**image), 'plain', 'utf-8')
 
@@ -258,8 +265,10 @@ def send_email(msg_text_lst, notify_lst, image_lst, to, days):
         </p>
       </body>
     </html>
-    """.format(notify_lst="\n".join(notify_lst).encode("utf-8"), LIBRARY_NAMES=" & ".join(LIBRARY_NAMES)
-               , quote=True, ), 'html', 'utf-8')
+    """.format(
+        notify_lst="\n".join(notify_lst).encode("utf-8"),
+        LIBRARY_NAMES=" & ".join(LIBRARY_NAMES),
+        quote=True), 'html', 'utf-8')
 
     message = MIMEMultipart('related')
     message['Subject'] = email_subject.format(days)
@@ -291,18 +300,16 @@ def send_email(msg_text_lst, notify_lst, image_lst, to, days):
 
 
 if __name__ == '__main__':
-
     parser = argparse.ArgumentParser(description="Send an email with what was added to Plex in the past week using Tautulli.")
     parser.add_argument('-t', '--type', help='Metadata picture type from Plex.',
-                        required= True, choices=['art', 'poster'])
+                        required=True, choices=['art', 'poster'])
     parser.add_argument('-s', '--size', help='Metadata picture size from Plex {Height Width}.', nargs='*')
     parser.add_argument('-d', '--days', help='Time frame for which to check recently added to Plex.',
-                        required= True, type=int)
+                        required=True, type=int)
     parser.add_argument('-u', '--users', help='Which users from Plex will be emailed.',
                         nargs='+', default='self', type=str)
     parser.add_argument('-i', '--ignore', help='Which users from Plex to ignore.',
                         nargs='+', default='None', type=str)
-
 
     opts = parser.parse_args()
 
@@ -328,8 +335,10 @@ if __name__ == '__main__':
 
     # Gather all users email addresses
     if opts.users == ['all']:
-        [to.append(x['email']) for x in get_users() if x['email'] is not None and x['email'] not in to
-         and x['username'] not in opts.ignore]
+        [to.append(x['email']) for x in get_users()
+            if x['email'] is not None and
+            x['email'] not in to and
+            x['username'] not in opts.ignore]
     elif opts.users != ['all'] and opts.users != 'self':
         for get_users in get_users():
             for arg_users in opts.users:

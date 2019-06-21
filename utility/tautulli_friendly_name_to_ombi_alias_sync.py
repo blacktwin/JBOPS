@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
-"""
-Description: Sync Tautulli friendly names with Ombi aliases (Tautulli as master)
+# -*- coding: utf-8 -*-
+
+"""Sync Tautulli friendly names with Ombi aliases (Tautulli as master).
+
 Author: DirtyCajunRice
 Requires: requests, python3.6+
 """
