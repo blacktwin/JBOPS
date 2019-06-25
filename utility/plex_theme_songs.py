@@ -1,9 +1,12 @@
 #!/usr/bin/env python
-'''
-Download theme songs from Plex TV Shows. Theme songs are mp3 and named by shows as displayed by Plex.
+# -*- coding: utf-8 -*-
+
+"""Download theme songs from Plex TV Shows.
+
+Theme songs are mp3 and named by shows as displayed by Plex.
 Songs are saved in a 'Theme Songs' directory located in script's path.
 
-'''
+"""
 
 
 from plexapi.server import PlexServer, CONFIG
@@ -13,14 +16,14 @@ import re
 import urllib
 import requests
 
-## Edit ##
+# ## Edit ##
 PLEX_URL = ''
 PLEX_TOKEN = ''
 PLEX_URL = CONFIG.data['auth'].get('server_baseurl', PLEX_URL)
 PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
 
-TV_LIBRARY = 'TV Shows' # Name of your TV Show library
-## /Edit ##
+TV_LIBRARY = 'TV Shows'  # Name of your TV Show library
+# ## /Edit ##
 
 sess = requests.Session()
 # Ignore verifying the SSL certificate
@@ -47,7 +50,7 @@ if not os.path.isdir(out_path):
 # Get episodes from TV Shows
 for show in plex.library.section(TV_LIBRARY).all():
     # Remove special characters from name
-    filename = '{}.mp3'.format(re.sub('\W+',' ', show.title))
+    filename = '{}.mp3'.format(re.sub('\W+', ' ', show.title))
     # Set output path
     theme_path = os.path.join(out_path, filename)
     # Get tvdb_if from first episode, no need to go through all episodes

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-"""
-Share functions from https://gist.github.com/JonnyWong16/f8139216e2748cb367558070c1448636
+# -*- coding: utf-8 -*-
+
+"""Share functions from https://gist.github.com/JonnyWong16/f8139216e2748cb367558070c1448636
 
 Once user stream count hits LIMIT they are unshared from libraries expect for banned library.
 Once user stream count is below LIMIT and banned library video is watched their shares are restored.
@@ -30,7 +31,6 @@ Tautulli will continue displaying that user is watching after unshare is execute
 Tautulli will update after ~5 minutes and no longer display user's stream in ACTIVITY.
 Tautulli will think that user has stopped.
 
-
 Create new library with one video.
 Name library and video whatever you want.
 
@@ -59,7 +59,7 @@ import email.utils
 import smtplib
 
 
-## EDIT THESE SETTINGS ###
+# ## EDIT THESE SETTINGS ###
 
 TAUTULLI_APIKEY = 'XXXXXX'  # Your Tautulli API key
 TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
@@ -74,8 +74,8 @@ SERVER_ID = "XXXXX"  # Example: https://i.imgur.com/EjaMTUk.png
 #      UserID2: [LibraryID1, LibraryID2]}
 
 USER_LIBRARIES = {123456: [123456, 123456, 123456, 123456, 123456, 123456]}
-BAN_LIBRARY = {123456: [123456]} # {UserID1: [LibraryID1], UserID2: [LibraryID1]}
-BAN_RATING = 123456 # Banned rating_key to check if it's been watched.
+BAN_LIBRARY = {123456: [123456]}  # {UserID1: [LibraryID1], UserID2: [LibraryID1]}
+BAN_RATING = 123456  # Banned rating_key to check if it's been watched.
 
 LIMIT = 3
 VIOLATION_LIMIT = 3
@@ -99,15 +99,15 @@ BODY_TEXT = """\
 """
 
 # Email settings
-name = '' # Your name
-sender = '' # From email address
-email_server = 'smtp.gmail.com' # Email server (Gmail: smtp.gmail.com)
+name = ''  # Your name
+sender = ''  # From email address
+email_server = 'smtp.gmail.com'  # Email server (Gmail: smtp.gmail.com)
 email_port = 587  # Email port (Gmail: 587)
-email_username = '' # Your email username
-email_password = '' # Your email password
+email_username = ''  # Your email username
+email_password = ''  # Your email password
 
 
-## DO NOT EDIT BELOW ##
+# ## DO NOT EDIT BELOW ##
 
 class Activity(object):
     def __init__(self, data=None):
@@ -216,7 +216,7 @@ def unshare(user_id):
         return
 
     elif r.status_code == 400:
-        print r.content
+        print(r.content)
         return
 
     elif r.status_code == 200:
@@ -255,6 +255,7 @@ def get_activity():
 
     except Exception as e:
         sys.stderr.write("Tautulli API 'get_activity' request failed: {0}.".format(e))
+
 
 def send_notification(to=None, friendly=None, val_cnt=None, val_tot=None, mess=None):
     # Format notification text
@@ -295,9 +296,9 @@ if __name__ == "__main__":
         try:
             if act_lst.count(user) >= LIMIT:
                 # Trigger for first and next violation
-                unshare(user) # Remove libraries
-                share(user, BAN) # Share banned library
-                sys.stdout.write("Shared BAN_LIBRARY with user {0}".format(i))
+                unshare(user)  # Remove libraries
+                share(user, BAN)  # Share banned library
+                sys.stdout.write("Shared BAN_LIBRARY with user {0}".format(user))
                 if type(history) is int:
                     # Next violation, history of banned video.
                     send_notification(mail_add, friendly, history, VIOLATION_LIMIT, FIRST_WARN)
@@ -308,10 +309,10 @@ if __name__ == "__main__":
             elif type(history) is int:
                 # Trigger to share
                 if share(user, UNBAN) == 400:
-                    exit() # User has history of watching banned video but libraries are already restored.
+                    exit()  # User has history of watching banned video but libraries are already restored.
                 else:
-                    unshare(user) # Remove banned library
-                    share(user, UNBAN) # Restore libraries
+                    unshare(user)  # Remove banned library
+                    share(user, UNBAN)  # Restore libraries
             elif history == 'ban':
                 # Trigger for ban
                 unshare(user)

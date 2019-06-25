@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Description: Limiting Plex users by plays, watches, or total time from Tautulli.
 Author: Blacktwin, Arcanemagus
@@ -48,7 +51,7 @@ import argparse
 from datetime import datetime
 import sys
 import os
-from plexapi.server import PlexServer, CONFIG
+from plexapi.server import PlexServer
 from time import time as ttime
 from time import sleep
 
@@ -65,6 +68,7 @@ TAUTULLI_APIKEY = os.getenv('TAUTULLI_APIKEY', TAUTULLI_APIKEY)
 TAUTULLI_ENCODING = os.getenv('TAUTULLI_ENCODING', 'UTF-8')
 
 # Using CONFIG file
+# from plexapi.server import CONFIG
 # PLEX_URL = CONFIG.data['auth'].get('server_baseurl', PLEX_URL)
 # PLEX_TOKEN = CONFIG.data['auth'].get('server_token', PLEX_TOKEN)
 # TAUTULLI_URL = CONFIG.data['auth'].get('tautulli_baseurl', TAUTULLI_URL)
@@ -88,7 +92,7 @@ if sess.verify is False:
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
-lib_dict = {x.title : x.key for x in plex.library.sections()}
+lib_dict = {x.title: x.key for x in plex.library.sections()}
 
 
 SELECTOR = ['watch', 'plays', 'time', 'limit']
@@ -144,7 +148,7 @@ def get_activity(session_id=None):
     try:
         req = sess.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = req.json()
-        
+
         if session_id:
             res_data = response['response']['data']
         else:
@@ -271,7 +275,7 @@ if __name__ == "__main__":
                              'Default: %(default)s')
     parser.add_argument('--duration', type=int, default=0,
                         help='Duration of item that triggered script agent.')
-    
+
     opts = parser.parse_args()
 
     total_limit = 0
@@ -327,7 +331,7 @@ if __name__ == "__main__":
                 else:
                     print('Session; {} has been dropped. Stopping monitoring of stream.'.format(opts.sessionId))
                     exit()
-                
+
             print('Total {} ({} + current item duration {}) is greater than limit ({}).'
                   .format(opts.jbop, total_jbop, opts.duration, total_limit))
             terminate_session(opts.sessionId, message, opts.notify, opts.username)
@@ -346,16 +350,16 @@ if __name__ == "__main__":
         if not message:
             message = LIMIT_MESSAGE.format(delay=opts.delay)
         ep_watched = [data['watched_status'] for data in history['data']
-                      if data['grandparent_rating_key'] == opts.grandparent_rating_key
-                      and data['watched_status'] == 1]
+                      if data['grandparent_rating_key'] == opts.grandparent_rating_key and
+                      data['watched_status'] == 1]
         if not ep_watched:
             ep_watched = 0
         else:
             ep_watched = sum(ep_watched)
 
         stopped_time = [data['stopped'] for data in history['data']
-                        if data['grandparent_rating_key'] == opts.grandparent_rating_key
-                        and data['watched_status'] == 1]
+                        if data['grandparent_rating_key'] == opts.grandparent_rating_key and
+                        data['watched_status'] == 1]
         if not stopped_time:
             stopped_time = unix_time
         else:
@@ -366,9 +370,9 @@ if __name__ == "__main__":
             sys.exit(1)
 
         if ep_watched >= total_limit:
-            print("{}'s limit is {} and has watched {} episodes of this show today."
-                .format(opts.username, total_limit, ep_watched))
+            print("{}'s limit is {} and has watched {} episodes of this show today.".format(
+                opts.username, total_limit, ep_watched))
             terminate_session(opts.sessionId, message, opts.notify, opts.username)
         else:
-            print("{}'s limit is {} but has only watched {} episodes of this show today."
-                .format(opts.username, total_limit, ep_watched))
+            print("{}'s limit is {} but has only watched {} episodes of this show today.".format(
+                opts.username, total_limit, ep_watched))

@@ -1,8 +1,9 @@
-# -*- encoding: UTF-8 -*-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-'''
+"""
 https://gist.github.com/blacktwin/f435aa0ccd498b0840d2407d599bf31d
-'''
+"""
 
 import os
 import httplib2
@@ -12,15 +13,11 @@ from oauth2client.file import Storage
 from googleapiclient.discovery import build
 from oauth2client.client import OAuth2WebServerFlow
 
-import time, shutil, sys
-
 # Copy your credentials from the console
 # https://console.developers.google.com
 CLIENT_ID = ''
 CLIENT_SECRET = ''
-OUT_PATH = '' # Output Path
-
-
+OUT_PATH = ''  # Output Path
 
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
 REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
@@ -47,6 +44,7 @@ http = httplib2.Http()
 http = credentials.authorize(http)
 
 drive_service = build('drive', 'v2', http=http)
+
 
 def list_files(service):
     page_token = None
@@ -90,11 +88,11 @@ for item in list_files(drive_service):
             if 'mimeType' in item and 'image/jpeg' in item['mimeType'] or 'video/mp4' in item['mimeType']:
                 download_url = item['downloadUrl']
             else:
-                print 'ERROR getting %s' % item.get('title')
-                print item
-                print dir(item)
+                print('ERROR getting %s' % item.get('title'))
+                print(item)
+                print(dir(item))
             if download_url:
-                print "downloading %s" % item.get('title')
+                print("downloading %s" % item.get('title'))
                 resp, content = drive_service._http.request(download_url)
                 if resp.status == 200:
                     if os.path.isfile(outfile):

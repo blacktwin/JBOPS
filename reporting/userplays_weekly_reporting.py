@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Use Tautulli to count how many plays per user occurred this week.
 Notify via Tautulli Notification
@@ -10,7 +13,7 @@ import time
 TODAY = int(time.time())
 LASTWEEK = int(TODAY - 7 * 24 * 60 * 60)
 
-## EDIT THESE SETTINGS ##
+# ## EDIT THESE SETTINGS ##
 TAUTULLI_APIKEY = 'XXXXXX'  # Your Tautulli API key
 TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 SUBJECT_TEXT = "Tautulli Weekly Plays Per User"
@@ -29,12 +32,13 @@ class UserHIS(object):
         self.full_title = d['full_title']
         self.date = d['date']
 
+
 def get_history():
     # Get the Tautulli history. Count matters!!!
     payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_history',
                'length': 100000}
-               
+
     try:
         r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
@@ -42,9 +46,10 @@ def get_history():
         res_data = response['response']['data']['data']
         return [UserHIS(data=d) for d in res_data if d['watched_status'] == 1 and
                 LASTWEEK < d['date'] < TODAY]
-    
+
     except Exception as e:
         sys.stderr.write("Tautulli API 'get_history' request failed: {0}.".format(e))
+
 
 def send_notification(BODY_TEXT):
     # Format notification text
@@ -73,13 +78,15 @@ def send_notification(BODY_TEXT):
         sys.stderr.write("Tautulli API 'notify' request failed: {0}.".format(e))
         return None
 
+
 def add_to_dictlist(d, key, val):
     if key not in d:
         d[key] = [val]
     else:
         d[key].append(val)
 
-user_dict ={}
+
+user_dict = {}
 notify_lst = []
 
 [add_to_dictlist(user_dict, h.user, h.media) for h in get_history()]
@@ -106,7 +113,9 @@ BODY_TEXT = """\
     </p>
   </body>
 </html>
-""".format(notify_lst="\n".join(notify_lst).encode("utf-8"),end=time.ctime(float(TODAY)),
-           start=time.ctime(float(LASTWEEK)))
+""".format(
+    notify_lst="\n".join(notify_lst).encode("utf-8"),
+    end=time.ctime(float(TODAY)),
+    start=time.ctime(float(LASTWEEK)))
 
 send_notification(BODY_TEXT)

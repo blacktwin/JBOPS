@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 #
 # Author: Bailey Belvis (https://github.com/philosowaffle)
 #
@@ -6,18 +9,16 @@
 #
 # - Enable `Upload Posters to Imgur for Notifications` - required for lights to match the posters color scheme
 # - Triggers - PlexLifx supports the following triggers, enable the ones you are interested in.
-#	    - Notify on Playback Start
-#	    - Notify on Playback Stop
-#	    - Notify on Playback Resume
-# 	  	- Notify on Playback Pause
+#        - Notify on Playback Start
+#        - Notify on Playback Stop
+#        - Notify on Playback Resume
+#        - Notify on Playback Pause
 #
 # - Copy paste the following line to each of the Triggers you enabled (found on the Arguments tab):
-# 	-a {action} -mt {media_type} -mi {machine_id} -rk {rating_key} -pu {poster_url}
-#
+#     -a {action} -mt {media_type} -mi {machine_id} -rk {rating_key} -pu {poster_url}
+
 import os
-import sys
 import logging
-import hashlib
 import shutil
 import numpy
 import argparse
@@ -99,10 +100,10 @@ filtered_players = [] if PlayerUUIDs == "none" else PlayerUUIDs.split(',')
 logger.debug("Filtered Players: " + filtered_players.__str__())
 
 events = [
-	'play',
-	'pause',
-	'resume',
-	'stop'
+    'play',
+    'pause',
+    'resume',
+    'stop'
 ]
 
 ##############################
@@ -115,33 +116,33 @@ num_colors = NumColors if NumColors else 4
 color_quality = ColorQuality if ColorQuality else 1
 
 if not APIKey:
-	logger.error("Missing LIFX API Key")
-	exit(1)
+    logger.error("Missing LIFX API Key")
+    exit(1)
 else:
-	lifx_api_key = APIKey
-	logger.debug("LIFX API Key: " + lifx_api_key)
+    lifx_api_key = APIKey
+    logger.debug("LIFX API Key: " + lifx_api_key)
 
 pifx = PIFX(lifx_api_key)
 
 lights = []
 if Lights:
-	lights_use_name = True
-	lights = Lights.split(',')
+    lights_use_name = True
+    lights = Lights.split(',')
 
-	tmp = []
-	for light in lights:
-		tmp.append(light.strip())
-	lights = tmp
+    tmp = []
+    for light in lights:
+        tmp.append(light.strip())
+    lights = tmp
 else:
-	lights_detail = pifx.list_lights()
-	for light in lights_detail:
-		lights.append(light['id'])
-	shuffle(lights)
+    lights_detail = pifx.list_lights()
+    for light in lights_detail:
+        lights.append(light['id'])
+    shuffle(lights)
 
 scenes_details = pifx.list_scenes()
 scenes = dict()
 for scene in scenes_details:
-	scenes[scene['name']] = scene['uuid']
+    scenes[scene['name']] = scene['uuid']
 
 logger.debug(scenes)
 logger.debug(lights)
@@ -154,7 +155,7 @@ default_play_uuid = scenes[default_play_theme]
 
 number_of_lights = len(lights)
 if number_of_lights < num_colors:
-	num_colors = number_of_lights
+    num_colors = number_of_lights
 
 light_groups = numpy.array_split(numpy.array(lights), num_colors)
 
@@ -167,15 +168,15 @@ logger.debug("Color Quality: " + color_quality.__str__())
 ##############################
 p = argparse.ArgumentParser()
 p.add_argument('-a', '--action', action='store', default='',
-                    help='The action that triggered the script.')
+               help='The action that triggered the script.')
 p.add_argument('-mt', '--media_type', action='store', default='',
-                    help='The media type of the media being played.')
+               help='The media type of the media being played.')
 p.add_argument('-mi', '--machine_id', action='store', default='',
-                    help='The machine id of where the media is playing.')
+               help='The machine id of where the media is playing.')
 p.add_argument('-rk', '--rating_key', action='store', default='',
-                    help='The unique identifier for the media.')
+               help='The unique identifier for the media.')
 p.add_argument('-pu', '--poster_url', action='store', default='',
-                    help='The poster url for the media playing.')
+               help='The poster url for the media playing.')
 
 parser = p.parse_args()
 
@@ -196,22 +197,22 @@ logger.debug("Media Guid: " + media_guid)
 logger.debug("Poster Url: " + poster_url)
 
 # Only perform action for event play/pause/resume/stop for TV and Movies
-if not event in events:
-	logger.debug("Invalid action: " + event)
-	exit()
+if event not in events:
+    logger.debug("Invalid action: " + event)
+    exit()
 
 if (media_type != "movie") and (media_type != "episode"):
-	logger.debug("Media type was not movie or episode, ignoring.")
-	exit()
+    logger.debug("Media type was not movie or episode, ignoring.")
+    exit()
 
 # If we configured only specific players to be able to play with the lights
 if filtered_players:
-	try:
-		if player_uuid  not in filtered_players:
-			logger.info(player_uuid + " player is not able to play with the lights")
-			exit()
-	except Exception as e:
-		logger.error("Failed to check uuid - " + e.__str__())
+    try:
+        if player_uuid not in filtered_players:
+            logger.info(player_uuid + " player is not able to play with the lights")
+            exit()
+    except Exception as e:
+        logger.error("Failed to check uuid - " + e.__str__())
 
 # Setup Thumbnail directory paths
 upload_folder = os.getcwd() + '\\tmp'
@@ -219,63 +220,63 @@ thumb_folder = os.path.join(upload_folder, media_guid)
 thumb_path = os.path.join(thumb_folder, "thumb.jpg")
 
 if event == 'stop':
-	if os.path.exists(thumb_folder):
-		logger.debug("Removing Directory: " + thumb_folder)
-		shutil.rmtree(thumb_folder)
+    if os.path.exists(thumb_folder):
+        logger.debug("Removing Directory: " + thumb_folder)
+        shutil.rmtree(thumb_folder)
 
-	pifx.activate_scene(default_pause_uuid)
-	exit()
+    pifx.activate_scene(default_pause_uuid)
+    exit()
 
 if event == 'pause':
-	pifx.activate_scene(default_pause_uuid)
-	exit()
+    pifx.activate_scene(default_pause_uuid)
+    exit()
 
 if event == 'play' or event == "resume":
 
-	# If the file already exists then we don't need to re-upload the image
-	if not os.path.exists(thumb_folder):
-		try:
-			logger.debug("Making Directory: " + thumb_folder)
-			os.makedirs(thumb_folder)
-			urllib.urlretrieve(poster_url, thumb_path)
-		except Exception as e:
-			logger.error(e)
-			logger.info("No file found in request")
-			pifx.activate_scene(default_play_uuid)
-			exit()			
+    # If the file already exists then we don't need to re-upload the image
+    if not os.path.exists(thumb_folder):
+        try:
+            logger.debug("Making Directory: " + thumb_folder)
+            os.makedirs(thumb_folder)
+            urllib.urlretrieve(poster_url, thumb_path)
+        except Exception as e:
+            logger.error(e)
+            logger.info("No file found in request")
+            pifx.activate_scene(default_play_uuid)
+            exit()
 
     # Determine Color Palette for Lights
-	color_thief = ColorThief(thumb_path)
-	if num_colors >= 2:
-		palette = color_thief.get_palette(color_count=num_colors, quality=color_quality)
-	else:
-		palette = [color_thief.get_color(quality=color_quality)]
-	logger.debug("Color Palette: " + palette.__str__())
+    color_thief = ColorThief(thumb_path)
+    if num_colors >= 2:
+        palette = color_thief.get_palette(color_count=num_colors, quality=color_quality)
+    else:
+        palette = [color_thief.get_color(quality=color_quality)]
+    logger.debug("Color Palette: " + palette.__str__())
 
     # Set Color Palette
-	pifx.set_state(selector='all', power="off")
-	for index in range(len(light_groups)):
-		try:
-			color = palette[index]
-			light_group = light_groups[index]
+    pifx.set_state(selector='all', power="off")
+    for index in range(len(light_groups)):
+        try:
+            color = palette[index]
+            light_group = light_groups[index]
 
-			logger.debug(light_group)
-			logger.debug(color)
+            logger.debug(light_group)
+            logger.debug(color)
 
-			color_rgb = ', '.join(str(c) for c in color)
-			color_rgb = "rgb:" + color_rgb
-			color_rgb = color_rgb.replace(" ", "")
+            color_rgb = ', '.join(str(c) for c in color)
+            color_rgb = "rgb:" + color_rgb
+            color_rgb = color_rgb.replace(" ", "")
 
-			for light_id in light_group:
-				if lights_use_name:
-					selector = "label:" + light_id
-				else:
-					selector = light_id
+            for light_id in light_group:
+                if lights_use_name:
+                    selector = "label:" + light_id
+                else:
+                    selector = light_id
 
-				logger.debug("Setting light: " + selector + " to color: " + color_rgb)
-				pifx.set_state(selector=selector, power="on", color=color_rgb, brightness=brightness, duration=duration)
-			
-		except Exception as e:
-			logger.error(e)
+                logger.debug("Setting light: " + selector + " to color: " + color_rgb)
+                pifx.set_state(selector=selector, power="on", color=color_rgb, brightness=brightness, duration=duration)
+
+        except Exception as e:
+            logger.error(e)
 
 exit()

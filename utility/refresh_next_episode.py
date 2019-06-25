@@ -1,6 +1,8 @@
 #!/usr/bin/env python
-'''
-Refresh the next episode of show once current episode is watched.
+# -*- coding: utf-8 -*-
+
+"""Refresh the next episode of show once current episode is watched.
+
 Check Tautulli's Watched Percent in Tautulli > Settings > General
 
 1. Tautulli > Settings > Notification Agents > Scripts > Bell icon:
@@ -12,7 +14,7 @@ Check Tautulli's Watched Percent in Tautulli > Settings > General
 3. Tautulli > Settings > Notifications > Script > Script Arguments:
     {show_name} {episode_num00} {season_num00}
 
-'''
+"""
 
 import requests
 import sys
@@ -42,7 +44,7 @@ plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 show_name = sys.argv[1]
 next_ep_num = int(sys.argv[2])
 season_num = int(sys.argv[3])
-TV_LIBRARY = 'My TV Shows' # Name of your TV Shows library
+TV_LIBRARY = 'My TV Shows'  # Name of your TV Shows library
 
 current_season = season_num - 1
 

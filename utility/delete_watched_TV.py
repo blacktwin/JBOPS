@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 From a list of TV shows, check if users in a list has watched shows episodes.
 If all users in list have watched an episode of listed show, then delete episode.
@@ -9,8 +12,7 @@ import requests
 import sys
 import os
 
-
-## EDIT THESE SETTINGS ##
+# ## EDIT THESE SETTINGS ##
 TAUTULLI_APIKEY = 'xxxxx'  # Your Tautulli API key
 TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 SHOW_LST = [123456, 123456, 123456, 123456]  # Show rating keys.
@@ -109,8 +111,9 @@ for user in USER_LST:
 
 for meta_dict in meta_lst:
     if set(USER_LST) == set(meta_dict['watched_by']):
-        print("{} {} has been watched by {}".format(meta_dict['grandparent_title'].encode('UTF-8'),
-                                                    meta_dict['title'].encode('UTF-8'),
-                                                     " & ".join(USER_LST)))
+        print("{} {} has been watched by {}".format(
+            meta_dict['grandparent_title'].encode('UTF-8'),
+            meta_dict['title'].encode('UTF-8'),
+            " & ".join(USER_LST)))
         print("Removing {}".format(meta_dict['file']))
         os.remove(meta_dict['file'])

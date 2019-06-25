@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-'''
+# -*- coding: utf-8 -*-
+
+"""
 Set as cron or task for times of allowing and not allowing user access to server.
 Unsharing will kill any current stream from user before unsharing.
 
@@ -33,7 +35,7 @@ Usage:
        - Unshared all libraries with USER.
        - USER is still exists as a Friend or Home User
 
-'''
+"""
 
 
 import argparse

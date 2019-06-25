@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Delay Notification Agent message for concurrent streams
 
@@ -19,7 +22,7 @@ import sys
 import argparse
 from time import sleep
 
-## EDIT THESE SETTINGS ##
+# ## EDIT THESE SETTINGS ##
 TAUTULLI_APIKEY = ''  # Your Tautulli API key
 TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 CONCURRENT_TOTAL = 2
@@ -44,7 +47,7 @@ BODY_TEXT = """\
 
 
 def get_activity():
-    # Get the current activity on the PMS.
+    """Get the current activity on the PMS."""
     payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_activity'}
 
@@ -60,7 +63,7 @@ def get_activity():
 
 
 def send_notification(subject_text, body_text):
-    # Format notification text
+    """Format notification text."""
     try:
         subject = subject_text.format(p=p, total=cc_total)
         body = body_text.format(p=p, total=cc_total, time=TIMEOUT / 60)

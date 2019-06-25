@@ -1,18 +1,22 @@
-'''
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
 Run script by itself. Will look for WARN code followed by /library/metadata/ str in Plex logs.
 This is find files that are corrupt or having playback issues.
 I corrupted a file to test.
-'''
+"""
 
 import requests
 import sys
 
-## EDIT THESE SETTINGS ##
+# ## EDIT THESE SETTINGS ##
 TAUTULLI_APIKEY = 'XXXXXXXX'  # Your Tautulli API key
 TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 
 lib_met = []
 err_title = []
+
 
 class PlexLOG(object):
     def __init__(self, data=None):
@@ -43,6 +47,7 @@ def get_plex_log():
     except Exception as e:
         sys.stderr.write("Tautulli API 'get_plex_log' request failed: {0}.".format(e))
 
+
 def get_history(key):
     # Get the user IP list from Tautulli
     payload = {'apikey': TAUTULLI_APIKEY,
@@ -58,6 +63,7 @@ def get_history(key):
 
     except Exception as e:
         sys.stderr.write("Tautulli API 'get_history' request failed: {0}.".format(e))
+
 
 if __name__ == '__main__':
     p_log = get_plex_log()

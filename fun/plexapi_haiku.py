@@ -1,10 +1,13 @@
-'''
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
 https://gist.github.com/blacktwin/4ccb79c7d01a95176b8e88bf4890cd2b
-'''
+"""
+
 from plexapi.server import PlexServer
 import random
 import re
-
 
 baseurl = 'http://localhost:32400'
 token = 'xxxxx'
@@ -44,8 +47,11 @@ def sylco(word):
     if word[-2:] == "es" or word[-2:] == "ed":
         doubleAndtripple_1 = len(re.findall(r'[eaoui][eaoui]', word))
         if doubleAndtripple_1 > 1 or len(re.findall(r'[eaoui][^eaoui]', word)) > 1:
-            if word[-3:] == "ted" or word[-3:] == "tes" or word[-3:] == "ses" or word[-3:] == "ied" or word[
-                                                                                                       -3:] == "ies":
+            if word[-3:] == "ted" or \
+                    word[-3:] == "tes" or \
+                    word[-3:] == "ses" or \
+                    word[-3:] == "ied" or \
+                    word[-3:] == "ies":
                 pass
             else:
                 disc += 1
@@ -140,8 +146,7 @@ def sylco(word):
     if word in exception_add:
         syls += 1
 
-
-        # calculate the output
+    # calculate the output
     return numVowels - disc + syls
 
 
@@ -190,13 +195,13 @@ for x in LIBRARIES_LST:
 
 m_lst = hi_build(sections_lst, 5) + hi_build(sections_lst, 7) + hi_build(sections_lst, 5)
 # to see word and syllable count uncomment below print.
-#print(m_lst)
+# print(m_lst)
 
 stanz1 = ' '.join(m_lst[0].keys())
 stanz2 = ' '.join(m_lst[1].keys())
 stanz3 = ' '.join(m_lst[2].keys())
 
-lines = stanz1,stanz2,stanz3
+lines = stanz1, stanz2, stanz3
 lines = '\n'.join(lines)
 print('')
 print(lines.lower())

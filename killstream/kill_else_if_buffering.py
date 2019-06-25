@@ -1,4 +1,7 @@
-'''
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
 If server admin stream is experiencing buffering and there are concurrent transcode streams from
 another user, kill concurrent transcode stream that has the lowest percent complete. Message in
 kill stream will list why it was killed ('Server Admin's stream take priority and this user has X
@@ -11,7 +14,7 @@ Tautulli > Settings > Notification Agents > Scripts > Bell icon:
 Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Buffer Warnings: kill_else_if_buffering.py
 
-'''
+"""
 
 import requests
 from operator import itemgetter
@@ -19,7 +22,7 @@ import unicodedata
 from plexapi.server import PlexServer
 
 
-## EDIT THESE SETTINGS ##
+# ## EDIT THESE SETTINGS ##
 PLEX_TOKEN = 'xxxx'
 PLEX_URL = 'http://localhost:32400'
 
@@ -27,8 +30,8 @@ DEFAULT_REASON = 'Server Admin\'s stream takes priority and {user}(you) has {x} 
                  ' {user}\'s stream of {video} is {time}% complete. Should be finished in {comp} minutes. ' \
                  'Try again then.'
 
-ADMIN_USER = ('Admin') # additional usernames can be added ('Admin', 'user2')
-##
+ADMIN_USER = ('Admin')  # Additional usernames can be added ('Admin', 'user2')
+# ##
 
 sess = requests.Session()
 sess.verify = False
@@ -71,17 +74,17 @@ def main():
 
     # Remove users with only 1 stream. Targeting users with multiple concurrent streams
     filtered_dict = {key: value for key, value in user_dict.items()
-                     if len(value) is not 1}
+                     if len(value) != 1}
 
     # Find who to kill and who will be finishing first.
     if filtered_dict:
         for users in filtered_dict.values():
             to_kill = min(users, key=itemgetter(1))
             to_finish = max(users, key=itemgetter(1))
-       
+
         MESSAGE = DEFAULT_REASON.format(user=to_finish[3], x=len(filtered_dict.values()[0]),
                                         video=to_finish[2], time=to_finish[1], comp=to_finish[4])
-    
+
         print(MESSAGE)
         kill_session(to_kill[0], MESSAGE)
 

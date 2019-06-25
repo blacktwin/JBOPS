@@ -1,27 +1,30 @@
 #!/usr/bin/env python
-'''
+# -*- coding: utf-8 -*-
+
+"""
 Pull poster images from Imgur and places them inside Shows root folder.
     /path/to/show/Show.jpg
-    
+
 Skips download if showname.jpg exists or if show does not exist.
 
-'''
+"""
 
 import requests
 import urllib
 import os
 
 
-## Edit ##
+# ## Edit ##
 
 # Imgur info
-CLIENT_ID = 'xxxxx' # Tautulli Settings > Notifications > Imgur Client ID
-ALBUM_ID = '7JeSw' # http://imgur.com/a/7JeSw  <--- 7JeSw is the ablum_id
+CLIENT_ID = 'xxxxx'  # Tautulli Settings > Notifications > Imgur Client ID
+ALBUM_ID = '7JeSw'  # http://imgur.com/a/7JeSw  <--- 7JeSw is the ablum_id
 
 # Local info
 SHOW_PATH = 'D:\\Shows\\'
 
-## /Edit ##
+# ## /Edit ##
+
 
 class IMGURINFO(object):
     def __init__(self, data=None):

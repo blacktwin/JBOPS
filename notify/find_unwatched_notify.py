@@ -1,5 +1,7 @@
-"""
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
+"""
 Find what was added TFRAME ago and not watched and notify admin using Tautulli.
 
 TAUTULLI_URL + delete_media_info_cache?section_id={section_id}
@@ -12,7 +14,7 @@ import time
 TFRAME = 1.577e+7  # ~ 6 months in seconds
 TODAY = time.time()
 
-## EDIT THESE SETTINGS ##
+# ## EDIT THESE SETTINGS ##
 TAUTULLI_APIKEY = ''  # Your Tautulli API key
 TAUTULLI_URL = 'http://localhost:8183/'  # Your Tautulli URL
 LIBRARY_NAMES = ['Movies', 'TV Shows']  # Name of libraries you want to check.
@@ -162,10 +164,10 @@ for library in libraries:
                     # Find movie rating_key.
                     show_lst += [int(lib.rating_key)]
             except Exception as e:
-                print "Rating_key failed: {e}".format(e=e)
+                print("Rating_key failed: {e}".format(e=e))
 
     except Exception as e:
-        print "Library media info failed: {e}".format(e=e)
+        print("Library media info failed: {e}".format(e=e))
 
 for show in show_lst:
     try:
@@ -181,7 +183,7 @@ for show in show_lst:
                            u" not been watched.<d/t> <dd>File location: {x.file}</dd> <br>".format(x=meta, when=added)]
 
     except Exception as e:
-        print "Metadata failed. Likely end of range: {e}".format(e=e)
+        print("Metadata failed. Likely end of range: {e}".format(e=e))
 
 if notify_lst:
     BODY_TEXT = """\

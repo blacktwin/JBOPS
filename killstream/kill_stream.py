@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Description: Use conditions to kill a stream
 Author: Blacktwin, Arcanemagus, Samwiseg0, JonnyWong16, DirtyCajunRice
@@ -372,8 +375,8 @@ class Stream:
             if self.session_exists is False:
                 sys.stdout.write(
                     "Session '{}'  from user '{}' is no longer active "
-                    .format(self.session_id, self.username)
-                    + "on the server, stopping monitoring.\n")
+                    .format(self.session_id, self.username) +
+                    "on the server, stopping monitoring.\n")
                 return False
 
             now = datetime.now()
@@ -392,8 +395,8 @@ class Stream:
             elif self.state == 'playing' or self.state == 'buffering':
                 sys.stdout.write(
                     "Session '{}' from user '{}' has been resumed, "
-                    .format(self.session_id, self.username)
-                    + "stopping monitoring.\n")
+                    .format(self.session_id, self.username) +
+                    "stopping monitoring.\n")
                 return False
 
 
@@ -536,7 +539,7 @@ class Notification:
                             "value": message,
                             "short": False
                         }
-                        ],
+                    ],
                     "thumb_url": poster_url,
                     "footer": footer,
                     "ts": time.time()
@@ -562,8 +565,8 @@ if __name__ == "__main__":
     parser.add_argument('--sessionId',
                         help='The unique identifier for the stream.')
     parser.add_argument('--notify', type=int,
-                        help='Notification Agent ID number to Agent to send '
-                        + 'notification.')
+                        help='Notification Agent ID number to Agent to ' +
+                        'send notification.')
     parser.add_argument('--limit', type=int, default=(20 * 60),  # 20 minutes
                         help='The time session is allowed to remain paused.')
     parser.add_argument('--interval', type=int, default=30,
