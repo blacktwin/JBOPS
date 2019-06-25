@@ -527,10 +527,11 @@ if __name__ == '__main__':
             print("Request manually triggered to update watch status")
             watchedFrom = check_users_access(plex_access, userFrom, serverFrom)
             watched_item = watchedFrom.fetchItem(opts.ratingKey)
-            if not watched_item.isWatched:
-                print("Rating Key {} was not reported as watched in Plex for user {}".format(opts.ratingKey,
-                                                                                                 userFrom))
-                exit()
+            if watched_item.type in ["episode", "movie"]:
+                if not watched_item.isWatched:
+                    print("Rating Key {} was not reported as watched in Plex for user {}".format(opts.ratingKey,
+                                                                                                     userFrom))
+                    exit()
     
         for user, server_name in opts.userTo:
             # Check access and connect
