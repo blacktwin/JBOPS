@@ -380,7 +380,6 @@ def sync_watch_status(watched, section, accountTo, userTo, same_server=False):
     print('Marking watched...')
     sectionTo = accountTo.library.section(section)
     for item in watched:
-        print(item)
         try:
             if same_server:
                 fetch_check = sectionTo.fetchItem(item.ratingKey)
