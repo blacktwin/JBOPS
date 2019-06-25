@@ -1,7 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
-
 Find what was added TFRAME ago and not watched using Tautulli.
-
 """
 
 import requests
@@ -9,14 +10,14 @@ import sys
 import time
 import os
 
-TFRAME = 1.577e+7 # ~ 6 months in seconds
+TFRAME = 1.577e+7  # ~ 6 months in seconds
 TODAY = time.time()
 
 
-## EDIT THESE SETTINGS ##
+# ## EDIT THESE SETTINGS ##
 TAUTULLI_APIKEY = 'XXXXXX'  # Your Tautulli API key
 TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
-LIBRARY_NAMES = ['My TV Shows', 'My Movies'] # Name of libraries you want to check.
+LIBRARY_NAMES = ['My TV Shows', 'My Movies']  # Name of libraries you want to check.
 
 
 class LIBINFO(object):
@@ -81,7 +82,7 @@ def get_metadata(rating_key):
         res_data = response['response']['data']
         return METAINFO(data=res_data)
 
-    except Exception as e:
+    except Exception:
         # sys.stderr.write("Tautulli API 'get_metadata' request failed: {0}.".format(e))
         pass
 
@@ -103,6 +104,7 @@ def get_library_media_info(section_id):
     except Exception as e:
         sys.stderr.write("Tautulli API 'get_library_media_info' request failed: {0}.".format(e))
 
+
 def get_libraries_table():
     # Get the data on the Tautulli libraries table.
     payload = {'apikey': TAUTULLI_APIKEY,
@@ -117,7 +119,8 @@ def get_libraries_table():
 
     except Exception as e:
         sys.stderr.write("Tautulli API 'get_libraries_table' request failed: {0}.".format(e))
-        
+
+
 def delete_files(tmp_lst):
     del_file = raw_input('Delete all unwatched files? (yes/no)').lower()
     if del_file.startswith('y'):
@@ -126,6 +129,7 @@ def delete_files(tmp_lst):
             os.remove(x)
     else:
         print('Ok. doing nothing.')
+
 
 show_lst = []
 path_lst = []

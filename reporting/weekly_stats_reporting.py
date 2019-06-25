@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Pull library and user statistics of last week.
 
@@ -13,7 +16,7 @@ import requests
 import sys
 import time
 import datetime
-import json
+# import json
 from operator import itemgetter
 import argparse
 
@@ -71,6 +74,7 @@ BODY_TEXT = """\
 """
 
 # /EDIT THESE SETTINGS #
+
 
 def get_history(section_id, check_date):
     # Get the Tautulli history.
@@ -156,7 +160,7 @@ def send_notification(body_text):
 
 def sizeof_fmt(num, suffix='B'):
     # Function found https://stackoverflow.com/a/1094933
-    for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
+    for unit in ['', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi']:
         if abs(num) < 1024.0:
             return "%3.1f%s%s" % (num, unit, suffix)
         num /= 1024.0
@@ -171,7 +175,7 @@ def date_split(to_split):
 
 
 def add_to_dictval(d, key, val):
-    #print(d, key, val)
+    # print(d, key, val)
     if key not in d:
         d[key] = val
     else:
@@ -191,7 +195,7 @@ def get_server_stats(date_ranges):
     user_stats_lst = []
     user_stats_dict = {}
     user_names_lst = []
-    user_durations_lst =[]
+    user_durations_lst = []
 
     print('Checking library stats.')
     for sections in get_libraries():
@@ -289,6 +293,7 @@ def main():
 
     print('Sending message.')
     send_notification(BODY_TEXT)
+
 
 if __name__ == '__main__':
     main()

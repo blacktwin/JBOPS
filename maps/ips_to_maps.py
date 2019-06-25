@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Use Tautulli draw a map connecting Server to Clients based on IP addresses.
 
@@ -30,12 +33,12 @@ import json
 import os
 from collections import OrderedDict
 import argparse
-import numpy as np
+# import numpy as np
 import time
 import webbrowser
 import re
 
-## EDIT THESE SETTINGS ##
+# ## EDIT THESE SETTINGS ##
 TAUTULLI_APIKEY = ''  # Your Tautulli API key
 TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 
@@ -259,7 +262,7 @@ def draw_map(map_type, geo_dict, filename, headless, leg_choice):
     import matplotlib.pyplot as plt
     from mpl_toolkits.basemap import Basemap
 
-    ## Map stuff ##
+    # ## Map stuff ##
     plt.figure(figsize=(16, 9), dpi=100, frameon=False)
     lon_r = 0
     lon_l = 0

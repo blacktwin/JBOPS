@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Description: Comparing content between two or more Plex servers.
               Creates .json file in script directory of server compared.
@@ -103,14 +105,14 @@ def get_meta(meta):
     """
     thumb_url = '{}{}?X-Plex-Token={}'.format(
         meta._server._baseurl, meta.thumb, meta._server._token)
-    
+
     meta_dict = {'title': meta.title,
                  'rating': meta.rating if
-                                meta.rating != None else 0.0,
+                 meta.rating is not None else 0.0,
                  'genres': [x.tag for x in meta.genres],
                  'server': [meta._server.friendlyName],
                  'thumb': [thumb_url]
-                }
+                 }
     if meta.guid:
         # guid will return (com.plexapp.agents.imdb://tt4302938?lang=en)
         # Agents will differ between servers.
@@ -193,8 +195,9 @@ def org_diff(lst_dicts, media_type, main_server):
         # Sort item list by Plex rating
         # Duplicates will use originals rating
         meta_lst = sorted(meta_lst, key=lambda d: d['rating'], reverse=True)
-        diff_dict[mtype] = {'combined': {'count': len(meta_lst),
-                                              'list': meta_lst}}
+        diff_dict[mtype] = {'combined': {
+            'count': len(meta_lst),
+            'list': meta_lst}}
 
         print('...finding {}s missing from {}'.format(
             mtype, main_server))
@@ -205,13 +208,15 @@ def org_diff(lst_dicts, media_type, main_server):
             # Main Server name is absent in items server list
             elif main_server in item['server'] and len(item['server']) == 1:
                 unique.append(item)
-        diff_dict[mtype].update({'missing': {'count': len(missing),
-                                        'list': missing}})
+        diff_dict[mtype].update({'missing': {
+            'count': len(missing),
+            'list': missing}})
 
         print('...finding {}s unique to {}'.format(
             mtype, main_server))
-        diff_dict[mtype].update({'unique': {'count': len(unique),
-                                         'list': unique}})
+        diff_dict[mtype].update({'unique': {
+            'count': len(unique),
+            'list': unique}})
 
     return diff_dict
 
@@ -220,7 +225,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         description="Comparing content between two or more Plex servers.",
-        formatter_class = argparse.RawTextHelpFormatter)
+        formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--server', required=True, choices=SERVER_DICT.keys(),
                         action='append', nargs='?', metavar='',
                         help='Choose servers to connect to and compare.\n'
@@ -272,7 +277,8 @@ if __name__ == "__main__":
 
     main_dict = org_diff(combined_lst, opts.media_type, main_server.friendlyName)
 
-    filename = 'diff_{}_{}_servers.json'.format(opts.server[0],'_'.join(servers))
+    filename = 'diff_{}_{}_servers.json'.format(
+        opts.server[0], '_'.join(servers))
 
     with open(filename, 'w') as fp:
         json.dump(main_dict, fp, indent=4, sort_keys=True)

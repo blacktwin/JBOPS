@@ -1,7 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Find when media was added between STARTFRAME and ENDFRAME to Plex through Tautulli.
 
-Some Exceptions have been commented out to supress what is printed. 
+Some Exceptions have been commented out to supress what is printed.
 Uncomment Exceptions if you run into problem and need to investigate.
 """
 
@@ -9,22 +12,20 @@ import requests
 import sys
 import time
 
-
-STARTFRAME = 1480550400 # 2016, Dec 1 in seconds
-ENDFRAME = 1488326400 # 2017, March 1 in seconds
+STARTFRAME = 1480550400  # 2016, Dec 1 in seconds
+ENDFRAME = 1488326400  # 2017, March 1 in seconds
 
 TODAY = int(time.time())
-LASTMONTH = int(TODAY - 2629743) # 2629743 = 1 month in seconds
+LASTMONTH = int(TODAY - 2629743)  # 2629743 = 1 month in seconds
 
 # Uncomment to change range to 1 month ago - Today
 # STARTFRAME = LASTMONTH
 # ENDFRAME = TODAY
 
-
-## EDIT THESE SETTINGS ##
+# ## EDIT THESE SETTINGS ##
 TAUTULLI_APIKEY = 'XXXXX'  # Your Tautulli API key
 TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
-LIBRARY_NAMES = ['TV Shows', 'Movies'] # Names of your libraries you want to check.
+LIBRARY_NAMES = ['TV Shows', 'Movies']  # Names of your libraries you want to check.
 
 
 class LIBINFO(object):
@@ -70,6 +71,7 @@ def get_new_rating_keys(rating_key, media_type):
     except Exception as e:
         sys.stderr.write("Tautulli API 'get_new_rating_keys' request failed: {0}.".format(e))
 
+
 def get_library_media_info(section_id):
     # Get the data on the Tautulli media info tables. Length matters!
     payload = {'apikey': TAUTULLI_APIKEY,
@@ -87,6 +89,7 @@ def get_library_media_info(section_id):
 
     except Exception as e:
         sys.stderr.write("Tautulli API 'get_library_media_info' request failed: {0}.".format(e))
+
 
 def get_metadata(rating_key):
     # Get the metadata for a media item.
@@ -106,6 +109,7 @@ def get_metadata(rating_key):
     except Exception as e:
         sys.stderr.write("Tautulli API 'get_metadata' request failed: {0}.".format(e))
 
+
 def update_library_media_info(section_id):
     # Get the data on the Tautulli media info tables.
     payload = {'apikey': TAUTULLI_APIKEY,
@@ -121,6 +125,7 @@ def update_library_media_info(section_id):
 
     except Exception as e:
         sys.stderr.write("Tautulli API 'update_library_media_info' request failed: {0}.".format(e))
+
 
 def get_libraries_table():
     # Get the data on the Tautulli libraries table.
@@ -181,15 +186,16 @@ for i in sorted(show_lst, reverse=True):
             # Shows
             print(u"{x.grandparent_title}: {x.title} ({x.rating_key}) was added {when}.".format(x=x, when=added))
 
-    except Exception as e:
+    except Exception:
         # Remove commented print below to investigate problems.
         # print("Metadata failed. Likely end of range: {e}").format(e=e)
         # Remove break if not finding files in range
         break
 
-print("There were {amount} files added between {start}:{end}".format(amount=len(count_lst),
-                                                                     start=time.ctime(float(STARTFRAME)),
-                                                                     end=time.ctime(float(ENDFRAME))))
+print("There were {amount} files added between {start}:{end}".format(
+    amount=len(count_lst),
+    start=time.ctime(float(STARTFRAME)),
+    end=time.ctime(float(ENDFRAME))))
 print("Total movies: {}".format(count_lst.count('movie')))
 print("Total shows: {}".format(count_lst.count('show') + count_lst.count('episode')))
-print("Total size of files added: {}MB".format(sum(size_lst)>>20))
+print("Total size of files added: {}MB".format(sum(size_lst) >> 20))

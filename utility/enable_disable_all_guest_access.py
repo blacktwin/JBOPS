@@ -1,6 +1,8 @@
 #!/usr/bin/env python
-"""
-Description: Enable or disable all users remote access to Tautulli
+# -*- coding: utf-8 -*-
+
+"""Enable or disable all users remote access to Tautulli.
+
 Author: DirtyCajunRice
 Requires: requests, python3.6+
 """

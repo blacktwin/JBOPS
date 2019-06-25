@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
-"""
-Description: Purge Tautulli users that no longer exist as a friend in Plex
+# -*- coding: utf-8 -*-
+
+"""Purge Tautulli users that no longer exist as a friend in Plex.
+
 Author: DirtyCajunRice
 Requires: requests, plexapi, python3.6+
 """

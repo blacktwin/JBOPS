@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-'''
-Build playlist from popular tracks.
+# -*- coding: utf-8 -*-
+
+"""Build playlist from popular tracks.
 
 optional arguments:
   -h, --help           show this help message and exit
@@ -14,7 +15,7 @@ optional arguments:
 
 * LIBRARY_EXCLUDE are excluded from libraries choice.
 
-'''
+"""
 
 
 import requests
@@ -59,8 +60,8 @@ def fetch(path):
 
     header = {'Accept': 'application/json'}
     params = {'X-Plex-Token': PLEX_TOKEN,
-               'includePopularLeaves': '1'
-               }
+              'includePopularLeaves': '1'
+              }
 
     r = requests.get(url + path, headers=header, params=params, verify=False)
     return r.json()['MediaContainer']['Metadata'][0]['PopularLeaves']['Metadata']
@@ -97,7 +98,7 @@ if __name__ == "__main__":
 
     parser.add_argument('--tracks', nargs='?', default=False, type=int, metavar='',
                         help='Specify the track length you would like the playlist.')
-    parser.add_argument('--random',nargs='?', default=False, type=int, metavar='',
+    parser.add_argument('--random', nargs='?', default=False, type=int, metavar='',
                         help='Randomly select N artists.')
 
     opts = parser.parse_args()
@@ -128,7 +129,7 @@ if __name__ == "__main__":
 
     if opts.tracks and opts.random:
         playlist = random.sample((playlist), opts.tracks)
-        
+
     elif opts.tracks and not opts.random:
         playlist = playlist[:opts.tracks]
 

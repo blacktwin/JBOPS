@@ -1,13 +1,15 @@
 #!/usr/bin/env python
-"""
-Description: Removes Shows from On Deck
+# -*- coding: utf-8 -*-
+
+"""Removes Shows from On Deck.
+
 Author: Blacktwin
 Requires: requests, plexapi
 
  Example:
      python off_deck.py --action deck --user Steve
         - Display what shows are on Steve's On Deck
-     
+
      python off_deck.py --action deck --shows "The Simpsons" Seinfeld
         - The Simpsons and Seinfeld will be removed from On Deck
 
@@ -17,10 +19,10 @@ Requires: requests, plexapi
      python off_deck.py --action deck --playlist "Favorite Shows!"
         - Any Show found in Favorite Shows playlist will be remove
         from On Deck
-        
+
      python off_deck.py --action watch --user Steve
         - Display what shows are on Steve's Continue Watching
-        
+
      python off_deck.py --action watch --shows "The Simpsons" Seinfeld
         - The Simpsons and Seinfeld will be removed from Continue Watching
 
@@ -99,9 +101,9 @@ def get_con_watch(server, off_deck=None):
             if item.grandparentTitle in off_deck:
                 print('Removing {}: S{:02}E{:02} {} from Continue Watching '
                       'by marking watched.'.format(
-                    item.grandparentTitle.encode('UTF-8'),
-                    int(item.parentIndex), int(item.index),
-                    item.title.encode('UTF-8')))
+                          item.grandparentTitle.encode('UTF-8'),
+                          int(item.parentIndex), int(item.index),
+                          item.title.encode('UTF-8')))
                 item.markWatched()
         else:
             if item.type == 'episode' and item.viewOffset > 0:
@@ -115,7 +117,7 @@ def get_con_watch(server, off_deck=None):
                 item.grandparentTitle.encode('UTF-8'),
                 int(item.parentIndex), int(item.index),
                 item.title.encode('UTF-8'), offset))
-                
+
 
 def get_on_deck(server, off_deck=None):
     """
@@ -142,12 +144,13 @@ def get_on_deck(server, off_deck=None):
                 watched_statuses['grandparent'] = grandparent
                 watched_statuses['episodes'] = []
                 for episode in grandparent.episodes():
-                    watched_statuses['episodes'].append({'object': episode,
-                                    'viewCount': episode.viewCount})
+                    watched_statuses['episodes'].append({
+                        'object': episode,
+                        'viewCount': episode.viewCount})
         else:
             if item.type == 'episode':
                 on_deck.append(item)
-            
+
     if on_deck:
         watched_statuses['on_deck'] = on_deck
     return watched_statuses
@@ -204,7 +207,7 @@ if __name__ == '__main__':
                     off_deck['grandparent'].markUnwatched()
                 else:
                     break
-        
+
             print('Resetting watch counts...')
             for item in ep_list:
                 print('Resetting view count for {}: S{:02}E{:02} {}'.format(
@@ -214,7 +217,7 @@ if __name__ == '__main__':
                 # if viewCount was 0 then make 1 so as not to return to On Deck.
                 for _ in range(item['viewCount'] if item['viewCount'] != 0 else 1):
                     item['object'].markWatched()
-                    
+
     elif opts.action == 'watch':
         print('Finding shows marked Continue Watching...')
         get_con_watch(plex_server, to_remove)

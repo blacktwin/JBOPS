@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
-"""
-Description: Get a list of "Serial Transcoders"
+# -*- coding: utf-8 -*-
+
+"""Get a list of "Serial Transcoders".
+
 Author: DirtyCajunRice
 Requires: requests, plexapi, python3.6+
 """

@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Pulling together User IP information and Email.
 
@@ -19,7 +21,7 @@ import argparse
 import requests
 import sys
 
-## EDIT THESE SETTINGS ##
+# ## EDIT THESE SETTINGS ##
 TAUTULLI_APIKEY = ''  # Your Tautulli API key
 TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 NOTIFIER_ID = 12  # The notification notifier ID
@@ -39,9 +41,9 @@ BODY_TEXT = """\
   <head></head>
   <body>
     <p>Hi!<br>
-    <br><a href="mailto:{u.email}"><img src="{u.user_thumb}" alt="Poster unavailable" height="50" width="50"></a> 
+    <br><a href="mailto:{u.email}"><img src="{u.user_thumb}" alt="Poster unavailable" height="50" width="50"></a>
     {p.user} has watched {p.media_type}:{p.title} from a new IP address: {p.ip_address}<br>
-    <br>On {p.platform}[{p.player}] in 
+    <br>On {p.platform}[{p.player}] in
     <a href="http://maps.google.com/?q={g.city},{g.country},{g.postal_code}">{g.city}, {g.country} {g.postal_code}</a>
      at {p.timestamp} on {p.datestamp}<br>
     <br><br>
@@ -69,7 +71,7 @@ class UserEmail(object):
 
 
 def get_user_ip_addresses(user_id='', ip_address=''):
-    # Get the user IP list from Tautulli
+    """Get the user IP list from Tautulli."""
     payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_user_ips',
                'user_id': user_id,
@@ -99,7 +101,7 @@ def get_user_ip_addresses(user_id='', ip_address=''):
 
 
 def get_geoip_info(ip_address=''):
-    # Get the geo IP lookup from Tautulli
+    """Get the geo IP lookup from Tautulli."""
     payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_geoip_lookup',
                'ip_address': ip_address}
@@ -123,7 +125,7 @@ def get_geoip_info(ip_address=''):
 
 
 def get_user_email(user_id=''):
-    # Get the user email from Tautulli
+    """Get the user email from Tautulli."""
     payload = {'apikey': TAUTULLI_APIKEY,
                'cmd': 'get_user',
                'user_id': user_id}
@@ -147,7 +149,7 @@ def get_user_email(user_id=''):
 
 
 def send_notification(arguments=None, geodata=None, useremail=None):
-    # Format notification text
+    """Format notification text."""
     try:
         subject = SUBJECT_TEXT.format(p=arguments, g=geodata, u=useremail)
         body = BODY_TEXT.format(p=arguments, g=geodata, u=useremail)

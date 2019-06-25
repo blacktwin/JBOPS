@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Use Tautulli to print plays by library from 0, 1, 7, or 30 days ago. 0 = total
 
@@ -26,14 +29,15 @@ import requests
 import sys
 import argparse
 
-## EDIT THESE SETTINGS ##
+# ## EDIT THESE SETTINGS ##
 
 TAUTULLI_APIKEY = 'xxxxx'  # Your Tautulli API key
 TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 
 OUTPUT = 'Library: {section}\nDays: {days}\nPlays: {plays}'
 
-## CODE BELOW ##
+# ## CODE BELOW ##
+
 
 def get_library_names():
     # Get a list of new rating keys for the PMS of all of the item's parent/children.

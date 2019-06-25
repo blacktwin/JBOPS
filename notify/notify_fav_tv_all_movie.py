@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Notify users of recently added episode to show that they have watched at least LIMIT times via email.
 Also notify users of new movies.
@@ -22,11 +25,11 @@ import smtplib
 import sys
 import argparse
 
-## EDIT THESE SETTINGS ##
+# ## EDIT THESE SETTINGS ##
 TAUTULLI_APIKEY = 'XXXXXXX'  # Your Tautulli API key
 TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 
-IGNORE_LST = ['123456', '123456'] # User_ids
+IGNORE_LST = ['123456', '123456']  # User_ids
 LIMIT = 3
 
 # Email settings
@@ -74,6 +77,7 @@ TV_BODY = """\
 
 user_dict = {}
 
+
 class Users(object):
     def __init__(self, data=None):
         d = data or {}
@@ -108,6 +112,7 @@ def get_user(user_id):
     except Exception as e:
         sys.stderr.write("Tautulli API 'get_user' request failed: {0}.".format(e))
 
+
 def get_users():
     # Get the user list from Tautulli.
     payload = {'apikey': TAUTULLI_APIKEY,
@@ -134,8 +139,9 @@ def get_history(showkey):
         r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
         response = r.json()
         res_data = response['response']['data']['data']
-        return [UserHIS(data=d) for d in res_data if d['watched_status'] == 1
-                and d['media_type'].lower() in ('episode', 'show')]
+        return [UserHIS(data=d) for d in res_data
+                if d['watched_status'] == 1 and
+                d['media_type'].lower() in ('episode', 'show')]
 
     except Exception as e:
         sys.stderr.write("Tautulli API 'get_history' request failed: {0}.".format(e))
@@ -177,7 +183,7 @@ def get_email(show):
 
 
 def send_email(to, email_subject, body_html):
-    ### Do not edit below ###
+    # ## Do not edit below ###
     message = MIMEText(body_html, 'html')
     message['Subject'] = email_subject
     message['From'] = email.utils.formataddr((name, sender))
@@ -188,7 +194,7 @@ def send_email(to, email_subject, body_html):
     mailserver.login(email_username, email_password)
     mailserver.sendmail(sender, to, message.as_string())
     mailserver.quit()
-    print 'Email sent'
+    print('Email sent')
 
 
 if __name__ == '__main__':
@@ -241,7 +247,7 @@ if __name__ == '__main__':
         body_html = MOVIE_BODY.format(p=p)
         send_email(to, email_subject, body_html)
 
-    elif p.media_type in  ['show', 'season', 'episode']:
+    elif p.media_type in ['show', 'season', 'episode']:
         email_subject = TV_SUBJECT.format(p=p)
         to = get_email(int(p.grandparent_rating_key))
         body_html = TV_BODY.format(p=p)

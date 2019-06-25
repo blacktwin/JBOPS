@@ -1,5 +1,7 @@
-"""
-Delete all playlists from Plex using PlexAPI
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""Delete all playlists from Plex.
 
 
 """

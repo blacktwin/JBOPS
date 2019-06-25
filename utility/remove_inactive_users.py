@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-"""
-Unshare or Remove users who have been inactive for X days. Prints out last seen for all users.
+# -*- coding: utf-8 -*-
+
+"""Unshare or Remove users who have been inactive for X days. Prints out last seen for all users.
 
 Just run.
 
@@ -114,6 +115,3 @@ for user in TAUTULLI_USERS:
         else:
             print('{}, and has reached their inactivity limit. Unsharing.'.format(OUTPUT))
             ACCOUNT.updateFriend(PLEX_USERS[UID], SERVER, removeSections=True)
-
-
-

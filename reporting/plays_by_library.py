@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Use Tautulli to pull plays by library
 
@@ -6,8 +9,8 @@ optional arguments:
   -l  [ ...], --libraries  [ ...]
                         Space separated list of case sensitive names to process. Allowed names are:
                         (choices: All Library Names)
-                        
-                        
+
+
 Usage:
    plays_by_library.py -l "TV Shows" Movies
       TV Shows - Plays: 2859
@@ -18,18 +21,17 @@ Usage:
 import requests
 import sys
 import argparse
-import json
+# import json
 
-
-
-## EDIT THESE SETTINGS ##
+# ## EDIT THESE SETTINGS ##
 
 TAUTULLI_APIKEY = 'xxxxxx'  # Your Tautulli API key
 TAUTULLI_URL = 'http://localhost:8181/'  # Your Tautulli URL
 
 OUTPUT = '{section} - Plays: {plays}'
 
-## CODE BELOW ##
+# ## CODE BELOW ##
+
 
 def get_libraries_table(sections=None):
     # Get a list of new rating keys for the PMS of all of the item's parent/children.
