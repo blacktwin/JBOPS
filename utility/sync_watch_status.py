@@ -49,7 +49,7 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
        - Synced watch statuses from Tautulli {title from library} to {USER2 or USER3}'s account on selected servers.
 
     sync_watch_status.py --userFrom USER1=Tautulli --userTo USER2=Server1 USER3=Server2 --ratingKey  1234
-       - Synced watch statuse of rating key 1234 from USER1's Tautulli history to {USER2 or USER3}'s account
+       - Synced watch status of rating key 1234 from USER1's Tautulli history to {USER2 or USER3}'s account
        on selected servers.
        **Rating key must be a movie or episode. Shows and Seasons not support.... yet.
 """
@@ -366,7 +366,6 @@ def sync_watch_status(watched, section, accountTo, userTo, same_server=False):
     print('Marking watched...')
     sectionTo = accountTo.library.section(section)
     for item in watched:
-        print(item)
         try:
             if same_server:
                 fetch_check = sectionTo.fetchItem(item.ratingKey)
@@ -485,13 +484,9 @@ if __name__ == '__main__':
                 # Check library for watched items
                 sectionFrom = watchedFrom.library.section(_library.title)
                 if _library.type == 'show':
-                    for show in sectionFrom.all():
-                        for episode in show.episodes():
-                            if episode.isWatched:
-                                watched_lst.append(episode)
+                    watched_lst = sectionFrom.search(libtype='episode', unwatched=False)
                 else:
-                    for item in sectionFrom.search(unwatched=False):
-                        watched_lst.append(item)
+                    watched_lst = sectionFrom.search(unwatched=False)
             
             for user in plexTo:
                 username, server = user
