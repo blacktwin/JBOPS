@@ -499,13 +499,9 @@ if __name__ == '__main__':
                 # Check library for watched items
                 sectionFrom = watchedFrom.library.section(_library.title)
                 if _library.type == 'show':
-                    for show in sectionFrom.all():
-                        for episode in show.episodes():
-                            if episode.isWatched:
-                                watched_lst.append(episode)
+                    watched_lst = sectionFrom.search(libtype='episode', unwatched=False)
                 else:
-                    for item in sectionFrom.search(unwatched=False):
-                        watched_lst.append(item)
+                    watched_lst = sectionFrom.search(unwatched=False)
 
             for user in plexTo:
                 username, server = user
