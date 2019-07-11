@@ -545,6 +545,9 @@ if __name__ == '__main__':
                 print("Rating Key {} was not reported as watched in Plex for user {}".format(opts.ratingKey,
                                                                                              userFrom))
                 exit()
+        else:
+            print("Use an actual user.")
+            exit()
     
         for user, server_name in opts.userTo:
             # Check access and connect
