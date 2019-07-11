@@ -114,4 +114,4 @@ for user in TAUTULLI_USERS:
             print('{}, and would unshare libraries.'.format(OUTPUT))
         else:
             print('{}, and has reached their inactivity limit. Unsharing.'.format(OUTPUT))
-            ACCOUNT.updateFriend(PLEX_USERS[UID], SERVER, removeSections=True)
+            ACCOUNT.updateFriend(PLEX_USERS[UID], SERVER, SECTIONS, removeSections=True)
