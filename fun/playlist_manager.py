@@ -104,6 +104,7 @@ import random
 import requests
 import argparse
 import operator
+from datetime import datetime, timedelta
 import datetime
 import unicodedata
 from collections import Counter
@@ -152,6 +153,8 @@ filters_lst = list(set([y for x in sections if x.type != 'photo' for y in x.ALLO
 playlist_lst = [x.title for x in plex.playlists()]
 today = datetime.datetime.now().date()
 weeknum = datetime.date(today.year, today.month, today.day).isocalendar()[1]
+yesterday = today - timedelta(days = 1)
+YESTERDAY_PLAY_TITLE = 'Aired Today {}-{} in History'.format(yesterday.month, yesterday.day)
 
 
 def actions():
@@ -827,7 +830,7 @@ if __name__ == "__main__":
     if opts.action == 'update':
         print("Deleting the playlist(s)...")
         for data in playlist_dict['data']:
-            delete_playlist(data, title)
+            delete_playlist(data, YESTERDAY_PLAY_TITLE)
         print('Creating playlist(s)...')
         for data in playlist_dict['data']:
             create_playlist(title, keys_list, data['server'], data['user'])
