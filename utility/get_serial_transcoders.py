@@ -60,4 +60,4 @@ for user, counts in USERS.items():
     if TRANSCODE_PERCENT >= THRESHOLD_PERCENT:
         PARAMS['user_id'] = user
         NAUGHTY = SESSION.get(FORMATTED_URL, params=PARAMS).json()['response']['data']
-        print(f"{NAUGHTY['friendly_name']} is a serial transocde offender above the threshold at {TRANSCODE_PERCENT}%")
+        print(f"{NAUGHTY['friendly_name']} is a serial transcode offender above the threshold at {TRANSCODE_PERCENT}%")
