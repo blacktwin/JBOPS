@@ -294,6 +294,9 @@ if __name__ == "__main__":
             elif key == 'plays':
                 total_limit = int(value)
 
+    if opts.duration:
+        opts.duration = opts.duration * 60
+    
     if not opts.sessionId:
         sys.stderr.write("No sessionId provided! Is this synced content?\n")
         sys.exit(1)
