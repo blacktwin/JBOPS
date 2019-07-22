@@ -280,6 +280,7 @@ if __name__ == "__main__":
 
     total_limit = 0
     total_jbop = 0
+    duration = 0
 
     if opts.limit:
         limit = dict(opts.limit)
@@ -297,6 +298,10 @@ if __name__ == "__main__":
     if not opts.sessionId:
         sys.stderr.write("No sessionId provided! Is this synced content?\n")
         sys.exit(1)
+
+    if opts.duration:
+        # If duration is used convert to seconds from minutes
+        duration = opts.duration * 60
 
     if opts.killMessage:
         message = ' '.join(opts.killMessage)
@@ -321,7 +326,7 @@ if __name__ == "__main__":
             print('Total {} ({}) is greater than limit ({}).'
                   .format(opts.jbop, total_jbop, total_limit))
             terminate_session(opts.sessionId, message, opts.notify, opts.username)
-        elif (opts.duration + total_jbop) > total_limit:
+        elif (duration + total_jbop) > total_limit:
             interval = 60
             start = 0
             while (start + total_jbop) < total_limit:
@@ -333,12 +338,12 @@ if __name__ == "__main__":
                     exit()
 
             print('Total {} ({} + current item duration {}) is greater than limit ({}).'
-                  .format(opts.jbop, total_jbop, opts.duration, total_limit))
+                  .format(opts.jbop, total_jbop, duration, total_limit))
             terminate_session(opts.sessionId, message, opts.notify, opts.username)
         else:
-            if opts.duration:
+            if duration:
                 print('Total {} ({} + current item duration {}) is less than limit ({}).'
-                      .format(opts.jbop, total_jbop, opts.duration, total_limit))
+                      .format(opts.jbop, total_jbop, duration, total_limit))
             else:
                 print('Total {} ({}) is less than limit ({}).'
                       .format(opts.jbop, total_jbop, total_limit))
