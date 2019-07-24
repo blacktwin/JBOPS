@@ -402,7 +402,7 @@ def get_content(libraries, jbop, filters=None, search=None, limit=None):
                         if key.endswith(tags):
                             shows_lst = multi_filter_search({key: value}, plex_library)
                         else:
-                            shows_lst = [show for show in plex_library.search(**{key: value})]
+                            shows_lst = [show.ratingKey for show in plex_library.search(**{key: value})]
                         for showkey in shows_lst:
                             show = plex.fetchItem(showkey)
                             for episode in show.episodes():
