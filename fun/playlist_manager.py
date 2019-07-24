@@ -423,11 +423,11 @@ def get_content(libraries, jbop, filters=None, search=None, limit=None):
         for library_id in libraries.keys():
             plex_library = plex.library.sectionByID(library_id)
             library_type = plex_library.type
-            if jbop == 'random' and library_type == 'movie':
-                child_lst += [movie.ratingKey for movie in random.sample((plex_library.all()), limit)]
-            elif jbop == 'random' and library_type == 'show':
+            if library_type == 'movie':
+                child_lst += [movie.ratingKey for movie in plex_library.all()]
+            elif library_type == 'show':
                 all_eps = [eps for show in plex_library.all() for eps in show.episodes()]
-                child_lst += [show.ratingKey for show in random.sample((all_eps), limit)]
+                child_lst += [show.ratingKey for show in all_eps]
             else:
                 for child in plex_library.all():
                     if child.type == 'movie':
@@ -450,6 +450,8 @@ def get_content(libraries, jbop, filters=None, search=None, limit=None):
             # Remove date used for sorting
             play_lst = [x[0] for x in aired_lst]
         else:
+            if jbop == "random" and limit:
+                child_lst = random.sample(child_lst, limit)
             play_lst = child_lst
 
     return play_lst
