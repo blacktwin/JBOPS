@@ -420,8 +420,8 @@ def get_content(libraries, jbop, filters=None, search=None, limit=None):
         play_lst = child_lst
 
     else:
-        for library in libraries.keys():
-            plex_library = plex.library.sectionByID(library)
+        for library_id in libraries.keys():
+            plex_library = plex.library.sectionByID(library_id)
             library_type = plex_library.type
             if jbop == 'random' and library_type == 'movie':
                 child_lst += [movie.ratingKey for movie in random.sample((plex_library.all()), limit)]
