@@ -287,13 +287,15 @@ def sort_by_dates(video, date_type):
         if date_type == 'historyToday':
             if ad_month == today.month and ad_day == today.day:
                 return [[video.ratingKey] + [str(video.originallyAvailableAt)]]
-        if date_type == 'historyWeek':
+        elif date_type == 'historyWeek':
             if ad_week == weeknum:
                 return [[video.ratingKey] + [str(video.originallyAvailableAt)]]
-        if date_type == 'historyMonth':
+        elif date_type == 'historyMonth':
             if ad_month == today.month:
                 return [[video.ratingKey] + [str(video.originallyAvailableAt)]]
-
+        else:
+            logger.debug("{} is outside of range for {}".format(video.title, date_type))
+            pass
     # todo-me return object
     except Exception as e:
         logger.exception(e)
@@ -446,23 +448,23 @@ def get_content(libraries, jbop, filters=None, search=None, limit=None):
             plex_library = plex.library.sectionByID(library_id)
             library_type = plex_library.type
             if library_type == 'movie':
-                child_lst += [movie.ratingKey for movie in plex_library.all()]
-            elif library_type == 'show':
-                all_eps = [eps for show in plex_library.all() for eps in show.episodes()]
-                child_lst += [show.ratingKey for show in all_eps]
-            else:
                 for child in plex_library.all():
-                    if child.type == 'movie':
+                    if jbop.startswith("history"):
                         if sort_by_dates(child, jbop):
                             item_date = sort_by_dates(child, jbop)
                             child_lst += item_date
-                    elif child.type == 'show':
-                        for episode in child.episodes():
-                            if sort_by_dates(episode, jbop):
-                                item_date = sort_by_dates(episode, jbop)
-                                child_lst += item_date
                     else:
-                        pass
+                        child_lst += [child.ratingKey]
+            elif library_type == 'show':
+                for child in plex_library.all():
+                    for episode in child.episodes():
+                        if jbop.startswith("history"):
+                            item_date = sort_by_dates(episode, jbop)
+                            child_lst += item_date
+                        else:
+                            child_lst += [episode.ratingKey]
+            else:
+                 pass
         # check if sort_by_dates was used
         if isinstance(child_lst[0], list):
             # Sort by original air date, oldest first
