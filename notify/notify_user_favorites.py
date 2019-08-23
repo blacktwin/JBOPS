@@ -179,32 +179,32 @@ if __name__ == '__main__':
     email_subject = 'New episode for ' + p.show_name + ' is available on ' + p.plex_server  # The email subject
 
     to = get_email(int(p.grandparent_rating_key))
+    if to :
+            # Detailed body for tv shows. You can add more arguments if you want more details in the email body
+            show_html = """\
+            <html>
+              <head></head>
+              <body>
+                <p>Hi!<br>
+                    {p.show_name}  S{p.season_num} - E{p.episode_num} -- {p.episode_name} -- was recently added to
+                    {p.library_name} on PLEX
+                    <br><br>
+                    <br> {p.summary} <br>
+                   <br><img src="{p.poster}" alt="Poster unavailable" height="150" width="102"><br>
+                </p>
+              </body>
+            </html>
+            """.format(p=p)
 
-    # Detailed body for tv shows. You can add more arguments if you want more details in the email body
-    show_html = """\
-    <html>
-      <head></head>
-      <body>
-        <p>Hi!<br>
-            {p.show_name}  S{p.season_num} - E{p.episode_num} -- {p.episode_name} -- was recently added to
-            {p.library_name} on PLEX
-            <br><br>
-            <br> {p.summary} <br>
-           <br><img src="{p.poster}" alt="Poster unavailable" height="150" width="102"><br>
-        </p>
-      </body>
-    </html>
-    """.format(p=p)
+            # ## Do not edit below ###
+            message = MIMEText(show_html, 'html')
+            message['Subject'] = email_subject
+            message['From'] = email.utils.formataddr((name, sender))
 
-    # ## Do not edit below ###
-    message = MIMEText(show_html, 'html')
-    message['Subject'] = email_subject
-    message['From'] = email.utils.formataddr((name, sender))
-
-    mailserver = smtplib.SMTP(email_server, email_port)
-    mailserver.starttls()
-    mailserver.ehlo()
-    mailserver.login(email_username, email_password)
-    mailserver.sendmail(sender, to, message.as_string())
-    mailserver.quit()
-    print('Email sent')
+            mailserver = smtplib.SMTP(email_server, email_port)
+            mailserver.starttls()
+            mailserver.ehlo()
+            mailserver.login(email_username, email_password)
+            mailserver.sendmail(sender, to, message.as_string())
+            mailserver.quit()
+            print('Email sent')
