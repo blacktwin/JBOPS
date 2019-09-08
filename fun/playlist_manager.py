@@ -298,8 +298,8 @@ def sort_by_dates(video, date_type):
             pass
     # todo-me return object
     except Exception as e:
-        logger.exception(e)
-        exit()
+        logger.error("Error:{} for {}".format(e, video._prettyfilename()))
+        # exit()
 
 
 def multi_filter_search(keyword_dict, library, search_eps=None):
