@@ -459,8 +459,9 @@ def get_content(libraries, jbop, filters=None, search=None, limit=None):
                 for child in plex_library.all():
                     for episode in child.episodes():
                         if jbop.startswith("history"):
-                            item_date = sort_by_dates(episode, jbop)
-                            child_lst += item_date
+                            if sort_by_dates(episode, jbop):
+                                item_date = sort_by_dates(episode, jbop)
+                                child_lst += item_date
                         else:
                             child_lst += [episode.ratingKey]
             else:
