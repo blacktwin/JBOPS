@@ -167,7 +167,7 @@ if sess.verify is False:
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 account = plex.myPlexAccount()
 
-user_lst = [x.title for x in plex.myPlexAccount().users() if x.servers]
+user_lst = list(filter(None, [x.title for x in plex.myPlexAccount().users() if x.servers]))
 sections = plex.library.sections()
 sections_dict = {x.key: x.title for x in sections}
 filters_lst = list(set([y for x in sections if x.type != 'photo' for y in x.ALLOWED_FILTERS]))
