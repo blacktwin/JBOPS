@@ -160,11 +160,11 @@ for i in sorted(show_lst, reverse=True):
         added = time.ctime(float(x.added_at))
         if x.grandparent_title == '' or x.media_type == 'movie':
             # Movies
-            print(u"{x.title} ({x.rating_key}) was added {when} and has not been"
+            print(u"{x.title} ({x.rating_key}) was added {when} and has not been "
                   u"watched. \n File location: {x.file}".format(x=x, when=added))
         else:
             # Shows
-            print(u"{x.grandparent_title}: {x.title} ({x.rating_key}) was added {when} and has"
+            print(u"{x.grandparent_title}: {x.title} ({x.rating_key}) was added {when} and has "
                   u"not been watched. \n File location: {x.file}".format(x=x, when=added))
         path_lst += [x.file]
 
