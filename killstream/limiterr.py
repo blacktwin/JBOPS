@@ -48,7 +48,7 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
 
 import requests
 import argparse
-from datetime import datetime
+from datetime import datetime, timedelta
 import sys
 import os
 from plexapi.server import PlexServer
@@ -96,7 +96,7 @@ lib_dict = {x.title: x.key for x in plex.library.sections()}
 
 
 SELECTOR = ['watch', 'plays', 'time', 'limit']
-TODAY = datetime.today().strftime('%Y-%m-%d')
+TODAY = datetime.now()
 unix_time = int(ttime())
 
 
@@ -171,7 +171,7 @@ def get_history(username, start_date=None, section_id=None):
 
     Optional
     ----------
-    start_date : str "YYYY-MM-DD"
+    start_date : list ["YYYY-MM-DD", ...]
         The date in history to search.
     section_id : int
         The libraries numeric identifier
@@ -186,7 +186,7 @@ def get_history(username, start_date=None, section_id=None):
                'user': username}
 
     if start_date:
-        payload['start_date'] = TODAY
+        payload['start_date'] = start_date
 
     if section_id:
         payload['section_id '] = section_id
@@ -270,17 +270,24 @@ if __name__ == "__main__":
     parser.add_argument('--section', default=False, choices=lib_dict.keys(), metavar='',
                         help='Space separated list of case sensitive names to process. Allowed names are: \n'
                              '(choices: %(choices)s)')
-    parser.add_argument('--today', default=False, action='store_true',
-                        help='Search history only for today. \n'
-                             'Default: %(default)s')
+    parser.add_argument('--days', type=int, default=0, nargs='?',
+                        help='Search history limit. \n'
+                             'Default: %(default)s day(s) (today).')
     parser.add_argument('--duration', type=int, default=0,
                         help='Duration of item that triggered script agent.')
 
     opts = parser.parse_args()
 
+    history_lst = []
     total_limit = 0
     total_jbop = 0
     duration = 0
+    dates = []
+    delta = timedelta(days=opts.days)
+
+    for i in range(delta.days + 1):
+        day = TODAY + timedelta(days=-i)
+        dates.append(day.strftime('%Y-%m-%d'))
 
     if opts.limit:
         limit = dict(opts.limit)
@@ -308,18 +315,20 @@ if __name__ == "__main__":
     else:
         message = ''
 
-    if opts.section:
-        section_id = lib_dict[opts.section]
-        history = get_history(username=opts.username, section_id=section_id, start_date=opts.today)
-    else:
-        history = get_history(username=opts.username, start_date=opts.today)
-
+    for date in dates:
+        if opts.section:
+            section_id = lib_dict[opts.section]
+            history = get_history(username=opts.username, section_id=section_id, start_date=date)
+        else:
+            history = get_history(username=opts.username, start_date=date)
+        history_lst.append(history)
+        
     if opts.jbop == 'watch':
-        total_jbop = sum([data['watched_status'] for data in history['data']])
+        total_jbop = sum([data['watched_status'] for history in history_lst for data in history['data']])
     if opts.jbop == 'time':
-        total_jbop = sum([data['duration'] for data in history['data']])
+        total_jbop = sum([data['duration'] for history in history_lst for data in history['data']])
     if opts.jbop == 'plays':
-        total_jbop = history['recordsFiltered']
+        total_jbop = sum([history['recordsFiltered'] for history in history_lst])
 
     if total_jbop:
         if total_jbop > total_limit:
