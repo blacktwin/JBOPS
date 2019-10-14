@@ -359,21 +359,30 @@ if __name__ == "__main__":
     # todo-me need more flexibility for pulling history
     # limit work requires gp_rating_key only? Needs more options.
     if opts.jbop == 'limit' and opts.grandparent_rating_key:
-        history = get_history(username=opts.username, start_date=True)
+        ep_watched = []
+        stopped_time = []
+        for dates in dates:
+            history_lst.append(get_history(username=opts.username, start_date=date))
         # If message is not already defined use default message
         if not message:
             message = LIMIT_MESSAGE.format(delay=opts.delay)
-        ep_watched = [data['watched_status'] for data in history['data']
-                      if data['grandparent_rating_key'] == opts.grandparent_rating_key and
-                      data['watched_status'] == 1]
+        for history in history_lst:
+            ep_watched += [data['watched_status'] for data in history['data']
+                          if data['grandparent_rating_key'] == opts.grandparent_rating_key and
+                          data['watched_status'] == 1]
+            
+            stopped_time += [data['stopped'] for data in history['data']
+                            if data['grandparent_rating_key'] == opts.grandparent_rating_key and
+                            data['watched_status'] == 1]
+            
+        # If show has no history for date range start at 0.
         if not ep_watched:
             ep_watched = 0
         else:
             ep_watched = sum(ep_watched)
 
-        stopped_time = [data['stopped'] for data in history['data']
-                        if data['grandparent_rating_key'] == opts.grandparent_rating_key and
-                        data['watched_status'] == 1]
+        # If show episode have not been stopped (completed?) then use current time.
+        # Last stopped time is needed to test against auto play timer
         if not stopped_time:
             stopped_time = unix_time
         else:
@@ -384,9 +393,9 @@ if __name__ == "__main__":
             sys.exit(1)
 
         if ep_watched >= total_limit:
-            print("{}'s limit is {} and has watched {} episodes of this show today.".format(
+            print("{}'s limit is {} and has watched {} episodes of this show.".format(
                 opts.username, total_limit, ep_watched))
             terminate_session(opts.sessionId, message, opts.notify, opts.username)
         else:
-            print("{}'s limit is {} but has only watched {} episodes of this show today.".format(
+            print("{}'s limit is {} but has only watched {} episodes of this show.".format(
                 opts.username, total_limit, ep_watched))
