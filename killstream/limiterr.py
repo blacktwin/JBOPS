@@ -361,7 +361,7 @@ if __name__ == "__main__":
     if opts.jbop == 'limit' and opts.grandparent_rating_key:
         ep_watched = []
         stopped_time = []
-        for dates in dates:
+        for date in dates:
             history_lst.append(get_history(username=opts.username, start_date=date))
         # If message is not already defined use default message
         if not message:
