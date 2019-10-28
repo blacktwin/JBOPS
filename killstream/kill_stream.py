@@ -268,7 +268,9 @@ class Tautulli:
         try:
             response_json = response.json()
         except ValueError:
-            print("Failed to parse json response for Tautulli API cmd '{}'".format(cmd))
+            print(
+                "Failed to parse json response for Tautulli API cmd '{}': {}"
+                .format(cmd, response.content))
             return
 
         if response_json['response']['result'] == 'success':
