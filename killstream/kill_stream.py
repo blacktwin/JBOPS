@@ -174,7 +174,7 @@ def rich_notify(notifier_id, rich_type, color=None, kill_type=None, server_name=
     tautulli : obj
         Tautulli object.
     """
-    notification = Notification(notifier_id, SUBJECT_TEXT, BODY_TEXT, tautulli, stream)
+    notification = Notification(notifier_id, None, None, tautulli, stream)
     # Initialize Variables
     title = ''
     footer = ''
