@@ -330,9 +330,10 @@ def multi_filter_search(keyword_dict, library, search_eps=None):
                 search_dict[key] = value
                 if search_eps:
                     logs["data"] = [{key: value}]
-                    for episode in library.searchEpisodes(**search_dict):
-                        ep_lst += [episode.ratingKey]
-                        ep_logs += [episode.title, episode.summary]
+                    for show in library.all():
+                        for episode in show.episodes(**search_dict):
+                            ep_lst += [episode.ratingKey]
+                            ep_logs += [episode.title, episode.summary]
 
                         logs["data"].append({"keys": ep_lst, "info": ep_logs})
                     search_lst = ep_lst
@@ -341,8 +342,9 @@ def multi_filter_search(keyword_dict, library, search_eps=None):
                 multi_lst += search_lst
         else:
             if search_eps:
-                for episode in library.searchEpisodes(**{key: values}):
-                    ep_lst += [episode.ratingKey]
+                for show in library.all():
+                    for episode in show.episodes(**{key: values}):
+                        ep_lst += [episode.ratingKey]
                 multi_lst += ep_lst
 
             else:
