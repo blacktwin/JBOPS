@@ -411,19 +411,19 @@ if __name__ == "__main__":
                 share(user, libraries, sync, camera, channels, filterMovies, filterTelevision,
                       filterMusic)
             if opts.add and user_shares_lst:
-                libraries = libraries + user_shares_lst
-                libraries = list(set(libraries))
-                share(user, libraries, sync, camera, channels, filterMovies, filterTelevision,
+                addedLibraries = libraries + user_shares_lst
+                addedLibraries = list(set(addedLibraries))
+                share(user, addedLibraries, sync, camera, channels, filterMovies, filterTelevision,
                       filterMusic)
             if opts.remove and user_shares_lst:
-                libraries = [sect for sect in user_shares_lst if sect not in libraries]
-                share(user, libraries, sync, camera, channels, filterMovies, filterTelevision,
+                removedLibraries = [sect for sect in user_shares_lst if sect not in libraries]
+                share(user, removedLibraries, sync, camera, channels, filterMovies, filterTelevision,
                       filterMusic)
         else:
             if opts.add:
                 # Add/Enable settings independently of libraries
-                libraries = user_shares_lst
-                share(user, libraries, sync, camera, channels, filterMovies, filterTelevision,
+                addedLibraries = user_shares_lst
+                share(user, addedLibraries, sync, camera, channels, filterMovies, filterTelevision,
                       filterMusic)
             if opts.remove:
                 # Remove/Disable settings independently of libraries
