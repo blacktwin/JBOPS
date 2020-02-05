@@ -540,7 +540,7 @@ if __name__ == '__main__':
         if userFrom != "Tautulli":
             print("Request manually triggered to update watch status")
             watchedFrom = check_users_access(plex_access, userFrom, serverFrom)
-            watched_item = watchedFrom.fetchItem(opts.ratingKey)
+            watched_item = watchedFrom.fetchItem(int(opts.ratingKey))
             if not watched_item.isWatched:
                 print("Rating Key {} was not reported as watched in Plex for user {}".format(opts.ratingKey,
                                                                                              userFrom))
@@ -555,7 +555,8 @@ if __name__ == '__main__':
     
         for user in plexTo:
             username, server = user
-            sync_watch_status([watched_item], watched_item.libraryName, server, username)
+            library = server.library.sectionByID(watched_item.librarySectionID)
+            sync_watch_status([watched_item], library.title, server, username)
 
     else:
         print("You aren't using this script correctly... bye!")
