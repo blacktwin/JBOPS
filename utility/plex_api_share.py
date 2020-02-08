@@ -132,7 +132,7 @@ if sess.verify is False:
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 user_lst = {x.title: x.email if x.email else x.title for x in plex.myPlexAccount().users() if x.title}
-user_choices = list(set(user_lst.values() + user_lst.keys()))
+user_choices = list(set(user_lst.values())) + list(user_lst.keys())
 sections_lst = [x.title for x in plex.library.sections()]
 movies_keys = [x.key for x in plex.library.sections() if x.type == 'movie']
 show_keys = [x.key for x in plex.library.sections() if x.type == 'show']
@@ -401,6 +401,7 @@ if __name__ == "__main__":
 
         for section, users in section_users.items():
             print("{} is shared to the following users:\n  {}\n".format(section, ", ".join(users)))
+        exit()
 
     # Share, Unshare, Kill, Add, or Remove
     for user in users:
