@@ -194,8 +194,6 @@ def get_server_stats(date_ranges):
     sections_stats_lst = []
     user_stats_lst = []
     user_stats_dict = {}
-    user_names_lst = []
-    user_durations_lst = []
 
     print('Checking library stats.')
     for sections in get_libraries():
@@ -230,13 +228,9 @@ def get_server_stats(date_ranges):
                 # print(json.dumps(history, indent=4, sort_keys=True))
                 for data in history:
                     # print(data)
-                    user_names_lst += [data['friendly_name']]
-                    user_durations_lst += [data['duration']]
-                # print(user_durations_lst, user_names_lst)
-                for user_name, user_totals in zip(user_names_lst, user_durations_lst):
-                    add_to_dictval(user_stats_dict, user_name, user_totals)
+                    add_to_dictval(user_stats_dict, data['friendly_name'], data['duration'])
 
-        print('{} watched something on {}'.format(' & '.join(set(user_names_lst)), check_date))
+        print('{} watched something on {}'.format(' & '.join(set(user_stats_dict.keys())), check_date))
     # print(json.dumps(user_stats_dict, indent=4, sort_keys=True))
     for user, duration in sorted(user_stats_dict.items(), key=itemgetter(1), reverse=True):
         if user not in USER_IGNORE:
