@@ -114,7 +114,6 @@ def hex_to_int(value):
         return 0
 
 
-
 def sizeof_fmt(num, suffix='B'):
     # Function found https://stackoverflow.com/a/1094933
     for unit in ['', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi']:
@@ -143,60 +142,57 @@ def daterange(start_date, end_date):
         yield start_date + timedelta(n)
 
 
-def get_server_stats(date_ranges):
-    section_count = ''
-    total_size = 0
-    sections_id_lst = []
-    sections_stats_lst = []
+def get_user_stats(home_stats):
     user_stats_lst = []
     user_stats_dict = {}
-
-    print('Checking library stats.')
-    tautulli_server = Tautulli(TAUTULLI_URL.rstrip('/'), TAUTULLI_APIKEY, VERIFY_SSL)
-    for sections in tautulli_server.get_libraries():
-
-        library = tautulli_server.get_library_media_info(sections['section_id'])
-        total_size += library['total_file_size']
-        sections_id_lst += [sections['section_id']]
-
-        if sections['section_type'] == 'artist':
-            section_count = ARTIST_STAT.format(sections['count'], sections['parent_count'], sections['child_count'])
-
-        elif sections['section_type'] == 'show':
-            section_count = SHOW_STAT.format(sections['count'], sections['parent_count'], sections['child_count'])
-
-        elif sections['section_type'] == 'photo':
-            section_count = PHOTO_STAT.format(sections['count'], sections['parent_count'], sections['child_count'])
-
-        elif sections['section_type'] == 'movie':
-            section_count = MOVIE_STAT.format(sections['count'])
-
-        if sections['section_name'] not in LIB_IGNORE and section_count:
-            # Html formatting
-            sections_stats_lst += ['<li>{}: {}</li>'.format(sections['section_name'], section_count)]
-
     print('Checking users stats.')
-    for check_date in date_ranges:
-        for section_id in sections_id_lst:
-            history = tautulli_server.get_history(section_id, check_date)
-            if history:
-                for data in history['data']:
-                    add_to_dictval(user_stats_dict, data['friendly_name'], data['duration'])
-
-        print('{} watched something on {}'.format(' & '.join(set(user_stats_dict.keys())), check_date))
+    for stats in home_stats:
+        if stats['stat_id'] == 'top_users':
+            for row in stats['rows']:
+                add_to_dictval(user_stats_dict, row['friendly_name'], row['total_duration'])
+                
     for user, duration in sorted(user_stats_dict.items(), key=itemgetter(1), reverse=True):
         if user not in USER_IGNORE:
-            m, s = divmod(duration, 60)
-            h, m = divmod(m, 60)
-            easy_time = TIME_DISPLAY.format(h, m, s)
-            USER_STATS = USER_STAT.format(user, easy_time)
+            user_total = timedelta(seconds=duration)
+            USER_STATS = USER_STAT.format(user, user_total)
             # Html formatting
             user_stats_lst += ['<li>{}</li>'.format(USER_STATS)]
+    
+    return user_stats_lst
+
+
+def get_library_stats(libraries, tautulli):
+    section_count = ''
+    total_size = 0
+    sections_stats_lst = []
+
+    print('Checking library stats.')
+    for section in libraries:
+
+        library = tautulli.get_library_media_info(section['section_id'])
+        total_size += library['total_file_size']
+
+        if section['section_type'] == 'artist':
+            section_count = ARTIST_STAT.format(section['count'], section['parent_count'], section['child_count'])
+
+        elif section['section_type'] == 'show':
+            section_count = SHOW_STAT.format(section['count'], section['parent_count'], section['child_count'])
+
+        elif section['section_type'] == 'photo':
+            section_count = PHOTO_STAT.format(section['count'], section['parent_count'], section['child_count'])
+
+        elif section['section_type'] == 'movie':
+            section_count = MOVIE_STAT.format(section['count'])
+
+        if section['section_name'] not in LIB_IGNORE and section_count:
+            # Html formatting
+            sections_stats_lst += ['<li>{}: {}</li>'.format(section['section_name'], section_count)]
 
     # Html formatting. Adding the Capacity to bottom of list.
     sections_stats_lst += ['<li>Capacity: {}</li>'.format(sizeof_fmt(total_size))]
 
-    return (sections_stats_lst, user_stats_lst)
+    return sections_stats_lst
+
 
 class Tautulli:
     def __init__(self, url, apikey, verify_ssl=False, debug=None):
@@ -220,10 +216,19 @@ class Tautulli:
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
             
             
-    def get_library_media_info(self, section_id):
+    def get_library_media_info(self, section_id=None, refresh=None):
         """Call Tautulli's get_activity api endpoint"""
         payload = {}
-        payload['section_id'] = section_id
+        if refresh:
+            for library in self.get_libraries():
+                payload['section_id'] = library['section_id']
+                payload['refresh'] = 'true'
+                print('Refreshing library: {}'.format(library['section_name']))
+                self._call_api('get_library_media_info', payload)
+            print('Libraries have been refreshed, please wait while library stats are updated.')
+            exit()
+        else:
+            payload['section_id'] = section_id
 
         return self._call_api('get_library_media_info', payload)
     
@@ -233,12 +238,21 @@ class Tautulli:
         
         return self._call_api('get_libraries', payload)
 
+    def get_home_stats(self, time_range, stats_type, stats_count):
+        """Call Tautulli's get_activity api endpoint"""
+        payload = {}
+        payload['time_range'] = time_range
+        payload['stats_type'] = stats_type
+        payload['stats_count'] = stats_count
+        
+        return self._call_api('get_home_stats', payload)
+
     def get_history(self, section_id, check_date):
         """Call Tautulli's get_activity api endpoint"""
         payload = {}
         payload['section_id'] = int(section_id)
         payload['start_date'] = check_date
-        
+    
         return self._call_api('get_history', payload)
 
     def notify(self, notifier_id, subject, body):
@@ -427,8 +441,17 @@ if __name__ == '__main__':
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-d', '--days', default=7, metavar='', type=int,
                         help='Enter in number of days to go back. \n(default: %(default)s)')
+    parser.add_argument('-t', '--top', default=5, metavar='', type=int,
+                        help='Enter in number of top users to find. \n(default: %(default)s)')
+    parser.add_argument('--refresh', action='store_true',
+                        help='Refresh all libraries in Tautulli')
 
     opts = parser.parse_args()
+
+    tautulli_server = Tautulli(TAUTULLI_URL.rstrip('/'), TAUTULLI_APIKEY, VERIFY_SSL)
+    
+    if opts.refresh:
+        tautulli_server.get_library_media_info(refresh=True)
 
     TODAY = int(time.time())
     DAYS = opts.days
@@ -443,18 +466,20 @@ if __name__ == '__main__':
     for single_date in daterange(start_date, end_date):
         dates_range_lst += [single_date.strftime("%Y-%m-%d")]
 
+    libraries = tautulli_server.get_libraries()
+    lib_stats = get_library_stats(libraries, tautulli_server)
+    sections_stats = "\n".join(lib_stats)
+
     print('Checking user stats from {:02d} days ago.'.format(opts.days))
-    lib_stats, user_stats_lst = get_server_stats(dates_range_lst)
+    home_stats = tautulli_server.get_home_stats(opts.days, 'duration', opts.top)
+    user_stats_lst = get_user_stats(home_stats)
+    user_stats = "\n".join(user_stats_lst)
 
     end = datetime.strptime(time.ctime(float(TODAY)), "%a %b %d %H:%M:%S %Y").strftime("%a %b %d %Y")
     start = datetime.strptime(time.ctime(float(DAYS_AGO)), "%a %b %d %H:%M:%S %Y").strftime("%a %b %d %Y")
 
-    sections_stats = "\n".join(lib_stats)
-    user_stats = "\n".join(user_stats_lst)
-
     BODY_TEXT = BODY_TEXT.format(end=end, start=start, sections_stats=sections_stats, user_stats=user_stats)
 
     print('Sending message.')
-    tautulli_server = Tautulli(TAUTULLI_URL.rstrip('/'), TAUTULLI_APIKEY, VERIFY_SSL)
     notify = Notification(NOTIFIER_ID, SUBJECT_TEXT, BODY_TEXT, tautulli_server)
     notify.send()
