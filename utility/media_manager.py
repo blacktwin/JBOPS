@@ -404,7 +404,7 @@ if __name__ == '__main__':
                 unwatched_lst += unwatched_work(sectionID=_library.key, date=date)
                 
         if opts.action == 'show':
-            print("The following items were added after {}".format(opts.date))
+            print("The following items were added before {}".format(opts.date))
             for item in unwatched_lst:
                 added_at = datetime.datetime.utcfromtimestamp(float(item.added_at)).strftime("%Y-%m-%d")
                 print("    {} added {}\n    File: {}".format(item.title, added_at, item.file))
