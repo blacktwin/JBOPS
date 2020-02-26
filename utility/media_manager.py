@@ -232,7 +232,7 @@ def plex_deletion(items, libraries, toggleDeletion):
         time.sleep(1)
         plex = PlexServer(PLEX_URL, PLEX_TOKEN)
     
-    print("The following items were added after {} and marked for deletion.".format(opts.date))
+    print("The following items were added before {} and marked for deletion.".format(opts.date))
     for item in items:
         plex_item = plex.fetchItem(int(item.rating_key))
         plex_item.delete()
