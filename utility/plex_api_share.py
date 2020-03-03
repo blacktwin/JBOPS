@@ -155,9 +155,13 @@ def get_ratings_lst(section_id):
     content = sess.get("{}/library/sections/{}/contentRating".format(PLEX_URL, section_id),
                        headers=headers, params=params)
 
-    ratings_keys = content.json()['MediaContainer']['Directory']
-    ratings_lst = [x['title'] for x in ratings_keys]
-    return ratings_lst
+    try:
+        ratings_keys = content.json()['MediaContainer']['Directory']
+        ratings_lst = [x['title'] for x in ratings_keys]
+        return ratings_lst
+    except KeyError:
+        print("Unable to pull ratings from section ID: {}.")
+        pass
 
 
 def filter_clean(filter_type):
