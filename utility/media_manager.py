@@ -101,6 +101,8 @@ class Metadata(object):
         if self.media_info:
             self.parts = self.media_info[0].get('parts')
             self.file = self.parts[0].get('file')
+            if not self.file_size:
+                self.file_size = self.parts[0].get('file_size')
         if self.media_type == 'episode' and not self.title:
             episodeName = self.full_title.partition('-')[-1]
             self.title = episodeName.lstrip()
