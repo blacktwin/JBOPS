@@ -418,7 +418,8 @@ if __name__ == '__main__':
             print("The following items were added before {}".format(opts.date))
             for item in unwatched_lst:
                 added_at = datetime.datetime.utcfromtimestamp(float(item.added_at)).strftime("%Y-%m-%d")
-                print("    {} added {}\n    File: {}".format(item.title, added_at, item.file))
+                print("\t{} added {}\tSize: {}\n\tFile: {}".format(
+                    item.title, added_at, sizeof_fmt(int(item.file_size)), item.file))
                 
         if opts.action == 'delete':
             plex_deletion(unwatched_lst, libraries, opts.toggleDeletion)
