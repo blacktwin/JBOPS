@@ -82,6 +82,7 @@ class Library(object):
 class Metadata(object):
     def __init__(self, data=None):
         d = data or {}
+        self.added_at = d.get('added_at')
         self.media_type = d.get('media_type')
         self.grandparent_title = d.get('grandparent_title')
         self.grandparent_rating_key = d.get('grandparent_rating_key')
@@ -92,6 +93,8 @@ class Metadata(object):
         self.container = d.get('container')
         self.rating_key = d.get('rating_key')
         self.index = d.get('media_index')
+        self.watched_status = d.get('watched_status')
+        self.libraryName = d.get("library_name")
         self.full_title = d.get('full_title')
         self.title = d.get('title')
         self.year = d.get('year')
