@@ -111,16 +111,15 @@ class Metadata(object):
             self.title = episodeName.lstrip()
         elif not self.title:
             self.title = self.full_title
-
-        # For History
-        if d.get('watched_status'):
-            self.watched_status = d['watched_status']
-        # For Metadata
-        if d.get("library_name"):
-            self.libraryName = d['library_name']
         
-        if d.get('added_at'):
-            self.added_at = d['added_at']
+        if self.media_type == 'show':
+            show = plex.fetchItem(int(self.rating_key))
+            self.file = show.locations[0]
+            show_size = []
+            episodes = show.episodes()
+            for episode in episodes:
+                show_size.append(episode.media[0].parts[0].size)
+            self.file_size = sum(show_size)
 
 
 class User(object):
