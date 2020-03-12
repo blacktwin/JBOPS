@@ -196,7 +196,9 @@ def selectors():
                   'popularTv': 'Most Popular TV Shows ({days} days)',
                   'popularMovies': 'Most Popular Movies ({days} days)',
                   'custom': '{custom} Playlist',
-                  'random': '{count} Random {libraries} Playlist'
+                  'random': '{count} Random {libraries} Playlist',
+                  'label': '{custom}',
+                  'collection': '{custom}'
                   }
 
     return selections
