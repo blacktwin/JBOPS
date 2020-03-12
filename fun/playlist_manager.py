@@ -869,8 +869,20 @@ if __name__ == "__main__":
             create_playlist(title, keys_list, data['server'], data['user'])
 
     if opts.action == 'add':
-        logger.info('Creating playlist(s)...')
-        for data in playlist_dict['data']:
-            create_playlist(title, keys_list, data['server'], data['user'])
+        if opts.jbop == 'collection':
+            logger.info('Creating collection(s)...')
+            for key in keys_list:
+                item = plex.fetchItem(int(key))
+                item.addCollection([title])
+    
+        elif opts.jbop == 'label':
+            logger.info('Creating label(s)...')
+            for key in keys_list:
+                item = plex.fetchItem(int(key))
+                item.addLabel([title])
+        else:
+            logger.info('Creating playlist(s)...')
+            for data in playlist_dict['data']:
+                create_playlist(title, keys_list, data['server'], data['user'])
 
     logger.info("Done.")
