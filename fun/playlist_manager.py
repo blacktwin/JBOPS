@@ -848,6 +848,10 @@ if __name__ == "__main__":
     # Setting custom name if provided
     if opts.name:
         title = opts.name
+    elif not opts.name and opts.jbop in ['collection', 'label']:
+        logger.error("If using --jbop collection or label, "
+                     "you must provide a custom name")
+        exit()
 
     if opts.jbop and opts.action == 'show':
         if len(libraries) > 0:
