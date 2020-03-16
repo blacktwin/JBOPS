@@ -159,8 +159,8 @@ def get_ratings_lst(section_id):
         ratings_keys = content.json()['MediaContainer']['Directory']
         ratings_lst = [x['title'] for x in ratings_keys]
         return ratings_lst
-    except KeyError:
-        print("Unable to pull ratings from section ID: {}.")
+    except Exception:
+        print("Unable to pull ratings from section ID: {}.".format(section_id))
         pass
 
 
