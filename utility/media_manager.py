@@ -368,7 +368,7 @@ if __name__ == '__main__':
                         help='Enable Plex to delete media while using script.')
 
     opts = parser.parse_args()
-    # todo find: watched by list of users[x], unwatched based on time[x], based on size, most transcoded
+    # todo find: watched by list of users[x], unwatched based on time[x], based on size, most transcoded, star rating
     # todo actions: delete[x], move?, zip and move?, notify, optimize
     # todo deletion toggle and optimize is dependent on plexapi PRs 433 and 426 respectively
     # todo logging and notification
