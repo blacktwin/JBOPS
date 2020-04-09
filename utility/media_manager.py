@@ -385,12 +385,12 @@ if __name__ == '__main__':
     user_lst = []
 
     if opts.date:
-        date = time.mktime(time.strptime(opts.date, '%Y-%m-%d'))
+        date = time.mktime(time.strptime(opts.date, "%Y-%m-%d"))
     else:
         date = None
 
     # Create a Tautulli instance
-    tautulli_server = Tautulli(Connection(url=TAUTULLI_URL.rstrip('/'),
+    tautulli_server = Tautulli(Connection(url=TAUTULLI_URL.rstrip("/"),
                                           apikey=TAUTULLI_APIKEY,
                                           verify_ssl=VERIFY_SSL))
 
@@ -421,7 +421,7 @@ if __name__ == '__main__':
                 print("Checking library: '{}' watch statuses...".format(_library.title))
                 unwatched_lst += unwatched_work(sectionID=_library.key, date=date)
                 
-        if opts.action == 'show':
+        if opts.action == "show":
             print("The following items were added before {}".format(opts.date))
             sizes = []
             for item in unwatched_lst:
@@ -431,9 +431,9 @@ if __name__ == '__main__':
                 print(u"\t{} added {}\tSize: {}\n\t\tFile: {}".format(
                     item.title, added_at, sizeof_fmt(size), item.file))
             total_size = sum(sizes)
-            print('Total size: {}'.format(sizeof_fmt(total_size)))
+            print("Total size: {}".format(sizeof_fmt(total_size)))
                 
-        if opts.action == 'delete':
+        if opts.action == "delete":
             plex_deletion(unwatched_lst, libraries, opts.toggleDeletion)
 
     if opts.select == "watched":
@@ -463,7 +463,7 @@ if __name__ == '__main__':
         watched_by_all = [id for id in all_watched if counts[id] >= len(user_lst)]
         watched_by_all = list(set(watched_by_all))
         
-        if opts.action == 'show':
+        if opts.action == "show":
             print("The following items were watched by {}".format(", ".join([user.name for user in user_lst])))
             for watched in watched_by_all:
                 metadata = user_lst[0].watch[watched]
