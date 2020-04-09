@@ -48,8 +48,9 @@ if not TAUTULLI_APIKEY:
 
 VERIFY_SSL = False
 
-SELECTOR = ['watched', 'unwatched', 'size', 'transcoded']
+SELECTOR = ['watched', 'unwatched', 'transcoded', 'rating', 'size']
 ACTIONS = ['delete', 'move', 'archive', 'optimize', 'show']
+OPERATORS = ['>', '>=', '<', '<=', '==', '!=']
 
 
 class Connection:
@@ -366,6 +367,10 @@ if __name__ == '__main__':
                         'send notification.')
     parser.add_argument('--toggleDeletion', action='store_true',
                         help='Enable Plex to delete media while using script.')
+    parser.add_argument('--size', type=lambda kv: kv.split("_"),
+                        help='Select Size to filter. ">_5G" ie. items greater than 5 gigabytes.')
+    parser.add_argument('--rating', type=lambda kv: kv.split("_"),
+                        help='Select Rating to filter. ">_3" ie. items greater than 3 stars.')
 
     opts = parser.parse_args()
     # todo find: watched by list of users[x], unwatched based on time[x], based on size, most transcoded, star rating
