@@ -52,6 +52,15 @@ SELECTOR = ['watched', 'unwatched', 'transcoded', 'rating', 'size']
 ACTIONS = ['delete', 'move', 'archive', 'optimize', 'show']
 OPERATORS = ['>', '>=', '<', '<=', '==', '!=']
 
+MOVEPATH = ''
+ARCHIVEPATH = ''
+OPTIMIZEDEFAULT = {'targetTagID': 'Mobile',
+                   'deviceProfile': None,
+                   'title': None,
+                   'target': "",
+                   'locationID': -1,
+                   'policyUnwatched': 0,
+                   'videoQuality': None}
 
 class Connection:
     def __init__(self, url=None, apikey=None, verify_ssl=False):
