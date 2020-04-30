@@ -376,10 +376,16 @@ if __name__ == '__main__':
                         'send notification.')
     parser.add_argument('--toggleDeletion', action='store_true',
                         help='Enable Plex to delete media while using script.')
-    parser.add_argument('--value', type=lambda kv: kv.split("_"),
-                        help='Operator and Value to use for Size or Rating filtering.\n'
+    parser.add_argument('--actionOption', type=lambda kv: kv.split("="), action='append',
+                        help='Addtional instructions to use for move, archive, optimize.\n'
+                             '--action optimize --actionOption title="Optimized thing"\n'
+                             '--action optimize --actionOption targetTagID=Mobile\n'
+                             '--action move --actionOption path="D:/my/new/path"')
+    parser.add_argument('--selectValue', type=lambda kv: kv.split("_"),
+                        help='Operator and Value to use for size, rating or transcoded filtering.\n'
                              '">_5G" ie. items greater than 5 gigabytes.\n'
-                             '">_3" ie. items greater than 3 stars.')
+                             '">_3" ie. items greater than 3 stars.\n'
+                             '">_3" ie. items played transcoded more than 3 times.')
 
     opts = parser.parse_args()
     # todo find: watched by list of users[x], unwatched based on time[x], based on size, most transcoded, star rating
