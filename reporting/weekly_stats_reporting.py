@@ -467,30 +467,44 @@ if __name__ == '__main__':
     end = datetime.strptime(time.ctime(float(TODAY)), "%a %b %d %H:%M:%S %Y").strftime("%a %b %d %Y")
     start = datetime.strptime(time.ctime(float(DAYS_AGO)), "%a %b %d %H:%M:%S %Y").strftime("%a %b %d %Y")
 
-    libraries = tautulli_server.get_libraries()
-    lib_stats = get_library_stats(libraries, tautulli_server, opts.richMessage, opts.notify)
-    sections_stats = "\n".join(lib_stats)
-    
-    print('Checking user stats from {:02d} days ago.'.format(opts.days))
-    home_stats = tautulli_server.get_home_stats(opts.days, opts.stat, opts.top)
-    user_stats_lst = get_user_stats(home_stats, opts.richMessage, opts.stat, opts.notify)
+    sections_stats = ''
+    if opts.libraryStats or (not opts.libraryStats and not opts.userStats):
+        libraries = tautulli_server.get_libraries()
+        lib_stats = get_library_stats(libraries, tautulli_server, opts.richMessage, opts.notify)
+        sections_stats = "\n".join(lib_stats)
 
-    user_stats = "\n".join(user_stats_lst)
+    user_stats = ''
+    if opts.userStats or (not opts.libraryStats and not opts.userStats):
+        print('Checking user stats from {:02d} days ago.'.format(opts.days))
+        home_stats = tautulli_server.get_home_stats(opts.days, opts.stat, opts.top)
+        user_stats_lst = get_user_stats(home_stats, opts.richMessage, opts.stat, opts.notify)
+        user_stats = "\n".join(user_stats_lst)
 
     if opts.notify and opts.richMessage:
-        user_notification = Notification(opts.notify, None, None, tautulli_server, user_stats)
-        section_notification= Notification(opts.notify, None, None, tautulli_server, sections_stats)
+        user_notification = ''
+        if user_stats:
+            user_notification = Notification(opts.notify, None, None, tautulli_server, user_stats)
+        section_notification = ''
+        if sections_stats:
+            section_notification= Notification(opts.notify, None, None, tautulli_server, sections_stats)
         if opts.richMessage == 'slack':
-            user_notification.send_slack(SUBJECT_TEXT, USERS_COLOR, 'User ' + opts.stat.capitalize())
-            section_notification.send_slack(SUBJECT_TEXT, SECTIONS_COLOR, 'Section')
+            if user_notification:
+                user_notification.send_slack(SUBJECT_TEXT, USERS_COLOR, 'User ' + opts.stat.capitalize())
+            if section_notification:
+                section_notification.send_slack(SUBJECT_TEXT, SECTIONS_COLOR, 'Section')
         elif opts.richMessage == 'discord':
-            user_notification.send_discord(SUBJECT_TEXT, USERS_COLOR, 'User ' + opts.stat.capitalize(), footer=(end,start))
-            section_notification.send_discord(SUBJECT_TEXT, SECTIONS_COLOR, 'Section', footer=(end,start))
+            if user_notification:
+                user_notification.send_discord(SUBJECT_TEXT, USERS_COLOR, 'User ' + opts.stat.capitalize(),
+                                               footer=(end,start))
+            if section_notification:
+                section_notification.send_discord(SUBJECT_TEXT, SECTIONS_COLOR, 'Section', footer=(end,start))
     elif opts.notify and not opts.richMessage:
         BODY_TEXT = BODY_TEXT.format(end=end, start=start, sections_stats=sections_stats, user_stats=user_stats)
         print('Sending message.')
         notify = Notification(opts.notify, SUBJECT_TEXT, BODY_TEXT, tautulli_server)
         notify.send()
     else:
-        print('Section Stats:\n{}'.format(''.join(sections_stats)))
-        print('User {} Stats:\n{}'.format(opts.stat.capitalize(), ''.join(user_stats)))
+        if sections_stats:
+            print('Section Stats:\n{}'.format(''.join(sections_stats)))
+        if user_stats:
+            print('User {} Stats:\n{}'.format(opts.stat.capitalize(), ''.join(user_stats)))
