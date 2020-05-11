@@ -27,6 +27,9 @@ TAUTULLI_URL = ''
 TAUTULLI_APIKEY = ''
 TAUTULLI_PUBLIC_URL = '0'
 
+SECTIONS_COLOR = 10964298
+USERS_COLOR = 10964298
+
 if not TAUTULLI_URL:
     TAUTULLI_URL = CONFIG.data['auth'].get('tautulli_baseurl')
 if not TAUTULLI_APIKEY:
@@ -65,7 +68,7 @@ LIB_IGNORE = ['XXX']
 
 # Customize user stats display
 # User: USER1 -> 1 hr 32 min 00 sec
-USER_STAT = 'User: {0} -> {1}'
+USER_STAT = '{0} -> {1}'
 
 # Usernames you do not want shown. Logging before exclusion.
 USER_IGNORE = ['User1']
@@ -462,11 +465,11 @@ if __name__ == '__main__':
         user_notification = Notification(opts.notify, None, None, tautulli_server, user_stats)
         section_notification= Notification(opts.notify, None, None, tautulli_server, sections_stats)
         if opts.richMessage == 'slack':
-            user_notification.send_slack(SUBJECT_TEXT, 10964298, 'User')
-            section_notification.send_slack(SUBJECT_TEXT, 10964298, 'Section')
+            user_notification.send_slack(SUBJECT_TEXT, USERS_COLOR, 'User')
+            section_notification.send_slack(SUBJECT_TEXT, SECTIONS_COLOR, 'Section')
         elif opts.richMessage == 'discord':
-            user_notification.send_discord(SUBJECT_TEXT, 10964298, 'User', footer=(end,start))
-            section_notification.send_discord(SUBJECT_TEXT, 10964298, 'Section', footer=(end,start))
+            user_notification.send_discord(SUBJECT_TEXT, USERS_COLOR, 'User', footer=(end,start))
+            section_notification.send_discord(SUBJECT_TEXT, SECTIONS_COLOR, 'Section', footer=(end,start))
     else:
 
         BODY_TEXT = BODY_TEXT.format(end=end, start=start, sections_stats=sections_stats, user_stats=user_stats)
