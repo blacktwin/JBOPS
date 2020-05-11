@@ -74,6 +74,9 @@ USER_STAT = '{0} -> {1}'
 # Usernames you do not want shown. Logging before exclusion.
 USER_IGNORE = ['User1']
 
+# User stat choices
+STAT_CHOICE = ['duration', 'plays']
+
 # Customize time display
 # {0:d} hr {1:02d} min {2:02d} sec  -->  1 hr 32 min 00 sec
 # {0:d} hr {1:02d} min  -->  1 hr 32 min
@@ -146,20 +149,26 @@ def daterange(start_date, end_date):
         yield start_date + timedelta(n)
 
 
-def get_user_stats(home_stats, rich):
+def get_user_stats(home_stats, rich, stats_type, notify=None):
     user_stats_lst = []
     user_stats_dict = {}
     print('Checking users stats.')
     for stats in home_stats:
         if stats['stat_id'] == 'top_users':
             for row in stats['rows']:
-                add_to_dictval(user_stats_dict, row['friendly_name'], row['total_duration'])
+                if stats_type == 'duration':
+                    add_to_dictval(user_stats_dict, row['friendly_name'], row['total_duration'])
+                else:
+                    add_to_dictval(user_stats_dict, row['friendly_name'], row['total_plays'])
                 
-    for user, duration in sorted(user_stats_dict.items(), key=itemgetter(1), reverse=True):
+    for user, stat in sorted(user_stats_dict.items(), key=itemgetter(1), reverse=True):
         if user not in USER_IGNORE:
-            user_total = timedelta(seconds=duration)
-            USER_STATS = USER_STAT.format(user, user_total)
-            if rich:
+            if stats_type == 'duration':
+                user_total = timedelta(seconds=stat)
+                USER_STATS = USER_STAT.format(user, user_total)
+            else:
+                USER_STATS = USER_STAT.format(user, stat)
+            if rich or not notify:
                 user_stats_lst += ['{}'.format(USER_STATS)]
             else:
                 # Html formatting
@@ -168,7 +177,7 @@ def get_user_stats(home_stats, rich):
     return user_stats_lst
 
 
-def get_library_stats(libraries, tautulli, rich):
+def get_library_stats(libraries, tautulli, rich, notify=None):
     section_count = ''
     total_size = 0
     sections_stats_lst = []
@@ -192,13 +201,13 @@ def get_library_stats(libraries, tautulli, rich):
             section_count = MOVIE_STAT.format(section['count'])
 
         if section['section_name'] not in LIB_IGNORE and section_count:
-            if rich:
+            if rich or not notify:
                 sections_stats_lst += ['{}: {}'.format(section['section_name'], section_count)]
             else:
                 # Html formatting
                 sections_stats_lst += ['<li>{}: {}</li>'.format(section['section_name'], section_count)]
 
-    if rich:
+    if rich or not notify:
         sections_stats_lst += ['Capacity: {}'.format(sizeof_fmt(total_size))]
     else:
         # Html formatting. Adding the Capacity to bottom of list.
@@ -419,6 +428,8 @@ if __name__ == '__main__':
                         help='Enter in number of days to go back. \n(default: %(default)s)')
     parser.add_argument('-t', '--top', default=5, metavar='', type=int,
                         help='Enter in number of top users to find. \n(default: %(default)s)')
+    parser.add_argument('--stat', default='duration', choices=STAT_CHOICE,
+                        help='Enter in number of top users to find. \n(default: %(default)s)')
     parser.add_argument('--notify', type=int,
                         help='Notification Agent ID number to Agent to '
                              'send notification.')
@@ -426,6 +437,10 @@ if __name__ == '__main__':
                         help='Rich message type selector.\nChoices: (%(choices)s)')
     parser.add_argument('--refresh', action='store_true',
                         help='Refresh all libraries in Tautulli')
+    parser.add_argument('--libraryStats', action='store_true',
+                        help='Only retrieve library stats.')
+    parser.add_argument('--userStats', action='store_true',
+                        help='Only retrieve users stats.')
     
     # todo Goals: growth reporting? show library size growth over time?
 
@@ -453,15 +468,12 @@ if __name__ == '__main__':
     start = datetime.strptime(time.ctime(float(DAYS_AGO)), "%a %b %d %H:%M:%S %Y").strftime("%a %b %d %Y")
 
     libraries = tautulli_server.get_libraries()
-    lib_stats = get_library_stats(libraries, tautulli_server, opts.richMessage)
+    lib_stats = get_library_stats(libraries, tautulli_server, opts.richMessage, opts.notify)
     sections_stats = "\n".join(lib_stats)
     
     print('Checking user stats from {:02d} days ago.'.format(opts.days))
-    home_stats = tautulli_server.get_home_stats(opts.days, 'duration', opts.top)
-    user_stats_lst = get_user_stats(home_stats, opts.richMessage)
-
-    end = datetime.strptime(time.ctime(float(TODAY)), "%a %b %d %H:%M:%S %Y").strftime("%a %b %d %Y")
-    start = datetime.strptime(time.ctime(float(DAYS_AGO)), "%a %b %d %H:%M:%S %Y").strftime("%a %b %d %Y")
+    home_stats = tautulli_server.get_home_stats(opts.days, opts.stat, opts.top)
+    user_stats_lst = get_user_stats(home_stats, opts.richMessage, opts.stat, opts.notify)
 
     user_stats = "\n".join(user_stats_lst)
 
@@ -469,14 +481,16 @@ if __name__ == '__main__':
         user_notification = Notification(opts.notify, None, None, tautulli_server, user_stats)
         section_notification= Notification(opts.notify, None, None, tautulli_server, sections_stats)
         if opts.richMessage == 'slack':
-            user_notification.send_slack(SUBJECT_TEXT, USERS_COLOR, 'User')
+            user_notification.send_slack(SUBJECT_TEXT, USERS_COLOR, 'User ' + opts.stat.capitalize())
             section_notification.send_slack(SUBJECT_TEXT, SECTIONS_COLOR, 'Section')
         elif opts.richMessage == 'discord':
-            user_notification.send_discord(SUBJECT_TEXT, USERS_COLOR, 'User', footer=(end,start))
+            user_notification.send_discord(SUBJECT_TEXT, USERS_COLOR, 'User ' + opts.stat.capitalize(), footer=(end,start))
             section_notification.send_discord(SUBJECT_TEXT, SECTIONS_COLOR, 'Section', footer=(end,start))
-    else:
-
+    elif opts.notify and not opts.richMessage:
         BODY_TEXT = BODY_TEXT.format(end=end, start=start, sections_stats=sections_stats, user_stats=user_stats)
         print('Sending message.')
         notify = Notification(opts.notify, SUBJECT_TEXT, BODY_TEXT, tautulli_server)
         notify.send()
+    else:
+        print('Section Stats:\n{}'.format(''.join(sections_stats)))
+        print('User {} Stats:\n{}'.format(opts.stat.capitalize(), ''.join(user_stats)))
