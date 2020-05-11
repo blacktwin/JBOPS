@@ -68,7 +68,22 @@ if __name__ == "__main__":
     parser.add_argument('--remove', action='store_true')
     opts = parser.parse_args()
     
-    if opts.image:
+    if opts.remove:
+        # File path to episode artwork using the same episode file name without extension
+        episode_path = os.path.dirname(opts.file)
+        episode_filename = os.path.splitext(os.path.basename(opts.file))[0]
+
+        # Find image files with the same name as the episode
+        for filename in os.listdir(episode_path):
+            if filename.startswith(episode_filename) and filename.endswith(('.jpg', '.png')):
+                # Delete the episode artwork image file
+                os.remove(os.path.join(episode_path, filename))
+
+        # Refresh metadata for the TV show
+        plex = PlexServer(PLEX_URL, PLEX_TOKEN)
+        plex.fetchItem(opts.rating_key).show().refresh()
+
+    elif opts.image:
         # File path to episode artwork using the same episode file name
         episode_artwork = os.path.splitext(opts.file)[0] + os.path.splitext(opts.image)[1]
         
@@ -93,18 +108,3 @@ if __name__ == "__main__":
             # Refresh metadata for the TV show
             plex = PlexServer(PLEX_URL, PLEX_TOKEN)
             plex.fetchItem(opts.rating_key).show().refresh()
-
-    elif opts.remove:
-        # File path to episode artwork using the same episode file name without extension
-        episode_path = os.path.dirname(opts.file)
-        episode_filename = os.path.splitext(os.path.basename(opts.file))[0]
-        
-        # Find image files with the same name as the episode
-        for filename in os.listdir(episode_path):
-            if filename.startswith(episode_filename) and filename.endswith(('.jpg', '.png')):
-                # Delete the episode artwork image file
-                os.remove(os.path.join(episode_path, filename))
-        
-        # Refresh metadata for the TV show
-        plex = PlexServer(PLEX_URL, PLEX_TOKEN)
-        plex.fetchItem(opts.rating_key).show().refresh()
