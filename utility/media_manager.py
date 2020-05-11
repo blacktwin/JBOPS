@@ -24,6 +24,7 @@ Enabling Scripts in Tautulli:
 import argparse
 import datetime
 import time
+import re
 from collections import Counter
 from plexapi.server import PlexServer
 from plexapi.server import CONFIG
@@ -50,7 +51,12 @@ VERIFY_SSL = False
 
 SELECTOR = ['watched', 'unwatched', 'transcoded', 'rating', 'size']
 ACTIONS = ['delete', 'move', 'archive', 'optimize', 'show']
-OPERATORS = ['>', '>=', '<', '<=', '==', '!=']
+OPERATORS = { '>': lambda v, q: v > q,
+              '>=': lambda v, q: v >= q,
+              '<': lambda v, q: v < q,
+              '<=': lambda v, q: v <= q,}
+
+UNTIS = {"B": 1, "KB": 2**10, "MB": 2**20, "GB": 2**30, "TB": 2**40}
 
 MOVEPATH = ''
 ARCHIVEPATH = ''
@@ -126,8 +132,8 @@ class Metadata(object):
             show = plex.fetchItem(int(self.rating_key))
             self.file = show.locations[0]
             show_size = []
-            episodes = show.episodes()
-            for episode in episodes:
+            self.episodes = show.episodes()
+            for episode in self.episodes:
                 show_size.append(episode.media[0].parts[0].size)
             self.file_size = sum(show_size)
 
@@ -208,13 +214,16 @@ class Tautulli:
         payload = {}
         return self._call_api('get_libraries', payload)
 
-    def get_library_media_info(self, section_id, start, length, unwatched=None, date=None):
+    def get_library_media_info(self, section_id, start, length, unwatched=None, date=None, order_column=None):
         """Call Tautulli's get_library_media_info api endpoint."""
         payload = {'section_id': section_id}
         if start:
             payload["start"] = start
         if length:
             payload["lengh"] = length
+        if order_column:
+            payload["order_column"] = order_column
+            payload['order_dir'] = 'desc'
             
         library_stats = self._call_api('get_library_media_info', payload)
         if unwatched and not date:
@@ -222,8 +231,10 @@ class Tautulli:
         elif unwatched and date:
             return [d for d in library_stats['data'] if d['play_count'] is None
                     and (float(d['added_at'])) < date]
-
-
+        else:
+            return [d for d in library_stats['data']]
+        
+        
 def sizeof_fmt(num, suffix='B'):
     # Function found https://stackoverflow.com/a/1094933
     for unit in ['', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi']:
@@ -231,6 +242,14 @@ def sizeof_fmt(num, suffix='B'):
             return "%3.1f%s%s" % (num, unit, suffix)
         num /= 1024.0
     return "%.1f%s%s" % (num, 'Yi', suffix)
+
+
+def parseSize(size):
+    size = size.upper()
+    if not re.match(r' ', size):
+        size = re.sub(r'([KMGT]?B)', r' \1', size)
+    number, unit = [string.strip() for string in size.split()]
+    return int(float(number)*UNTIS[unit])
 
 
 def plex_deletion(items, libraries, toggleDeletion):
@@ -301,6 +320,47 @@ def unwatched_work(sectionID, date=None):
         start += count
 
     return unwatched_lst
+
+
+def size_work(sectionID, operator, value, episodes):
+    """
+    Parameters
+    ----------
+    sectionID (int): Library key
+    date (float): Epoch time
+
+    Returns
+    -------
+    unwatched_lst (list): List of Metdata objects of unwatched items
+    """
+    count = 25
+    start = 0
+    size_lst = []
+    while True:
+        
+        # Getting all watched history for userFrom
+        tt_size = tautulli_server.get_library_media_info(section_id=sectionID,
+                                                            start=start, length=count,
+                                                            order_column="file_size")
+
+        start += count
+        for item in tt_size:
+            _meta = tautulli_server.get_metadata(item['rating_key'])
+            metadata = Metadata(_meta)
+            if episodes:
+                for _episode in metadata.episodes:
+                    file_size = _episode.media[0].parts[0].size
+                    if operator(file_size, value):
+                        size_lst.append(_episode)
+            else:
+                file_size = int(metadata.file_size)
+            if operator(file_size, value):
+                size_lst.append(metadata)
+            else:
+                return size_lst
+        continue
+    
+
 
 
 def watched_work(user, sectionID=None, ratingKey=None):
@@ -389,6 +449,7 @@ if __name__ == '__main__':
 
     opts = parser.parse_args()
     # todo find: watched by list of users[x], unwatched based on time[x], based on size, most transcoded, star rating
+    # todo find: all selectors should be able to search by user, library, and/or time
     # todo actions: delete[x], move?, zip and move?, notify, optimize
     # todo deletion toggle and optimize is dependent on plexapi PRs 433 and 426 respectively
     # todo logging and notification
@@ -397,6 +458,7 @@ if __name__ == '__main__':
     all_sections = []
     watched_lst = []
     unwatched_lst = []
+    size_lst = []
     user_lst = []
 
     if opts.date:
@@ -447,7 +509,7 @@ if __name__ == '__main__':
                     item.title, added_at, sizeof_fmt(size), item.file))
             total_size = sum(sizes)
             print("Total size: {}".format(sizeof_fmt(total_size)))
-                
+            
         if opts.action == "delete":
             plex_deletion(unwatched_lst, libraries, opts.toggleDeletion)
 
@@ -483,3 +545,39 @@ if __name__ == '__main__':
             for watched in watched_by_all:
                 metadata = user_lst[0].watch[watched]
                 print(u"    {}".format(metadata.full_title))
+    
+    if opts.select in ["size", "rating"]:
+        if opts.selectValue:
+            operator, value = opts.selectValue
+            if operator not in OPERATORS.keys():
+                print("Operator not found")
+                exit()
+        else:
+            print("No value provided.")
+            exit()
+        
+        op = OPERATORS.get(operator)
+        
+        if opts.select == "size":
+            if value[-2:] in UNTIS.keys():
+                size = parseSize(value)
+                if libraries:
+                    for _library in libraries:
+                        print("Checking library: '{}' items {}{} in size...".format(_library.title, operator, value))
+                        size_lst += size_work(sectionID=_library.key, operator=op, value=size, episodes=opts.episodes)
+
+                if opts.action == "show":
+                    sizes = []
+                    for item in size_lst:
+                        added_at = datetime.datetime.utcfromtimestamp(float(item.added_at)).strftime("%Y-%m-%d")
+                        size = int(item.file_size) if item.file_size else ''
+                        sizes.append(size)
+                        print(u"\t{} added {}\tSize: {}\n\t\tFile: {}".format(
+                            item.title, added_at, sizeof_fmt(size), item.file))
+                    total_size = sum(sizes)
+                    print("Total size: {}".format(sizeof_fmt(total_size)))
+            else:
+                print("Size must end with one of these notations: {}".format(", ".join(UNTIS.keys())))
+            pass
+        elif opts.select == "rating":
+            pass
