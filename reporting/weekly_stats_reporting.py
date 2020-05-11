@@ -27,9 +27,6 @@ TAUTULLI_URL = ''
 TAUTULLI_APIKEY = ''
 TAUTULLI_PUBLIC_URL = '0'
 
-SECTIONS_COLOR = 10964298
-USERS_COLOR = 10964298
-
 if not TAUTULLI_URL:
     TAUTULLI_URL = CONFIG.data['auth'].get('tautulli_baseurl')
 if not TAUTULLI_APIKEY:
@@ -46,6 +43,10 @@ else:
     TAUTULLI_LINK = TAUTULLI_URL
     
 RICH_TYPE = ['discord', 'slack']
+
+# Colors for rich notifications
+SECTIONS_COLOR = 10964298
+USERS_COLOR = 10964298
 
 TAUTULLI_ICON = 'https://github.com/Tautulli/Tautulli/raw/master/data/interfaces/default/images/logo-circle.png'
 
@@ -447,6 +448,9 @@ if __name__ == '__main__':
     dates_range_lst = []
     for single_date in daterange(start_date, end_date):
         dates_range_lst += [single_date.strftime("%Y-%m-%d")]
+        
+    end = datetime.strptime(time.ctime(float(TODAY)), "%a %b %d %H:%M:%S %Y").strftime("%a %b %d %Y")
+    start = datetime.strptime(time.ctime(float(DAYS_AGO)), "%a %b %d %H:%M:%S %Y").strftime("%a %b %d %Y")
 
     libraries = tautulli_server.get_libraries()
     lib_stats = get_library_stats(libraries, tautulli_server, opts.richMessage)
