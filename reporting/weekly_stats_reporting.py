@@ -48,9 +48,12 @@ RICH_TYPE = ['discord', 'slack']
 SECTIONS_COLOR = 10964298
 USERS_COLOR = 10964298
 
+# Author name for rich notifications
+AUTHOR_NAME = 'My Server'
+
 TAUTULLI_ICON = 'https://github.com/Tautulli/Tautulli/raw/master/data/interfaces/default/images/logo-circle.png'
 
-SUBJECT_TEXT = "Tautulli Weekly Server, Library, and User Statistics"
+SUBJECT_TEXT = "Tautulli Statistics"
 
 # Notification notifier ID: https://github.com/JonnyWong16/plexpy/blob/master/API.md#notify
 NOTIFIER_ID = 12  # The email notification notifier ID for Tautulli
@@ -352,7 +355,7 @@ class Notification:
                 {
                     "author": {
                         "icon_url": TAUTULLI_ICON,
-                        "name": "Tautulli",
+                        "name": AUTHOR_NAME,
                     },
                     "color": color,
                     "fields": [
@@ -399,7 +402,7 @@ class Notification:
                 {
                     "title": title,
                     "author_icon": TAUTULLI_ICON,
-                    "author_name": "Tautulli",
+                    "author_name": AUTHOR_NAME,
                     "author_link": TAUTULLI_LINK.rstrip('/'),
                     "color": color,
                     "fields": [
