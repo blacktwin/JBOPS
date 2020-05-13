@@ -545,6 +545,9 @@ if __name__ == '__main__':
             for watched in watched_by_all:
                 metadata = user_lst[0].watch[watched]
                 print(u"    {}".format(metadata.full_title))
+        
+        if opts.action == "delete":
+            plex_deletion(watched_by_all, libraries, opts.toggleDeletion)
     
     if opts.select in ["size", "rating"]:
         if opts.selectValue:
