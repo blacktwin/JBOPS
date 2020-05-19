@@ -60,9 +60,9 @@ OPERATORS = { '>': lambda v, q: v > q,
 
 UNTIS = {"B": 1, "KB": 2**10, "MB": 2**20, "GB": 2**30, "TB": 2**40}
 
-MOVEPATH = ''
-ARCHIVEPATH = ''
-OPTIMIZEDEFAULT = {'targetTagID': 'Mobile',
+MOVE_PATH = ''
+ARCHIVE_PATH = ''
+OPTIMIZE_DEFAULT = {'targetTagID': 'Mobile',
                    'deviceProfile': None,
                    'title': None,
                    'target': "",
