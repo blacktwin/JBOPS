@@ -5,6 +5,8 @@
 Description: Manage Plex media.
              Show, delete, archive, optimize, or move media based on whether it was
              watched, unwatched, transcoded often, or file size is greater than X
+             
+                    *Tautulli data to command Plex
 
 Author: Blacktwin
 Requires: requests, plexapi, argparse
@@ -93,6 +95,7 @@ class Library(object):
         d = data or {}
         self.title = d['section_name']
         self.key = d['section_id']
+        self.type = d['section_type']
 
 
 class Metadata(object):
