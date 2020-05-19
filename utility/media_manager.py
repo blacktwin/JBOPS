@@ -130,12 +130,20 @@ class Metadata(object):
         
         if self.media_type == 'show':
             show = plex.fetchItem(int(self.rating_key))
+            # todo only using the first library location for show types
             self.file = show.locations[0]
+            show = tautulli_server.get_new_rating_keys(self.rating_key, self.media_type)
+            seasons = show['0']['children']
+            episodes = []
             show_size = []
-            self.episodes = show.episodes()
-            for episode in self.episodes:
-                show_size.append(episode.media[0].parts[0].size)
+            for season in seasons.values():
+                for _episode in season['children'].values():
+                    metadata = tautulli_server.get_metadata(_episode['rating_key'])
+                    episode = Metadata(metadata)
+                    show_size.append(int(episode.file_size))
+                    episodes.append(episode)
             self.file_size = sum(show_size)
+            self.episodes = episodes
 
 
 class User(object):
@@ -233,6 +241,11 @@ class Tautulli:
                     and (float(d['added_at'])) < date]
         else:
             return [d for d in library_stats['data']]
+        
+    def get_new_rating_keys(self, rating_key, media_type):
+        """Call Tautulli's get_new_rating_keys api endpoint."""
+        payload = {"rating_key": rating_key, "media_type": media_type}
+        return self._call_api('get_new_rating_keys', payload)
         
         
 def sizeof_fmt(num, suffix='B'):
@@ -342,25 +355,28 @@ def size_work(sectionID, operator, value, episodes):
         tt_size = tautulli_server.get_library_media_info(section_id=sectionID,
                                                             start=start, length=count,
                                                             order_column="file_size")
-
+        if all([tt_size]):
+            start += count
+            for item in tt_size:
+                _meta = tautulli_server.get_metadata(item['rating_key'])
+                metadata = Metadata(_meta)
+                try:
+                    if episodes:
+                        for _episode in metadata.episodes:
+                            file_size = int(_episode.file_size)
+                            if operator(file_size, value):
+                                size_lst.append(_episode)
+                    else:
+                        file_size = int(metadata.file_size)
+                        if operator(file_size, value):
+                            size_lst.append(metadata)
+                except AttributeError:
+                    print("Metadata error found with rating_key: ({})".format(item['rating_key']))
+            continue
+        elif not all([tt_size]):
+            break
         start += count
-        for item in tt_size:
-            _meta = tautulli_server.get_metadata(item['rating_key'])
-            metadata = Metadata(_meta)
-            if episodes:
-                for _episode in metadata.episodes:
-                    file_size = _episode.media[0].parts[0].size
-                    if operator(file_size, value):
-                        size_lst.append(_episode)
-            else:
-                file_size = int(metadata.file_size)
-            if operator(file_size, value):
-                size_lst.append(metadata)
-            else:
-                return size_lst
-        continue
-    
-
+    return size_lst
 
 
 def watched_work(user, sectionID=None, ratingKey=None):
@@ -446,6 +462,8 @@ if __name__ == '__main__':
                              '">_5G" ie. items greater than 5 gigabytes.\n'
                              '">_3" ie. items greater than 3 stars.\n'
                              '">_3" ie. items played transcoded more than 3 times.')
+    parser.add_argument('--episodes', action='store_true',
+                        help='Enable Plex to scan episodes if Show library is selected.')
 
     opts = parser.parse_args()
     # todo find: watched by list of users[x], unwatched based on time[x], based on size, most transcoded, star rating
@@ -573,7 +591,7 @@ if __name__ == '__main__':
                     sizes = []
                     for item in size_lst:
                         added_at = datetime.datetime.utcfromtimestamp(float(item.added_at)).strftime("%Y-%m-%d")
-                        size = int(item.file_size) if item.file_size else ''
+                        size = int(item.file_size) if item.file_size else 0
                         sizes.append(size)
                         print(u"\t{} added {}\tSize: {}\n\t\tFile: {}".format(
                             item.title, added_at, sizeof_fmt(size), item.file))
