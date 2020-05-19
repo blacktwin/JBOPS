@@ -32,12 +32,12 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.exceptions import RequestException
 
-# Using CONFIG file
 PLEX_URL =''
 PLEX_TOKEN = ''
 TAUTULLI_URL = ''
 TAUTULLI_APIKEY = ''
 
+# Using CONFIG file
 if not PLEX_TOKEN:
     PLEX_TOKEN = CONFIG.data['auth'].get('server_token')
 if not PLEX_URL:
