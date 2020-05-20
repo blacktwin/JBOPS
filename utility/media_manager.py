@@ -186,7 +186,8 @@ class Tautulli:
             print("Tautulli API cmd '{}' failed: {}".format(cmd, error_msg))
             return
 
-    def get_history(self, user=None, section_id=None, rating_key=None, start=None, length=None, watched=None):
+    def get_history(self, user=None, section_id=None, rating_key=None, start=None, length=None, watched=None,
+                    transcode_decision=None):
         """Call Tautulli's get_history api endpoint."""
         payload = {"order_column": "full_title",
                    "order_dir": "asc"}
@@ -207,6 +208,8 @@ class Tautulli:
             payload["start"] = start
         if length:
             payload["lengh"] = length
+        if transcode_decision:
+            payload["transcode_decision"] = transcode_decision
 
         history = self._call_api('get_history', payload)
         
@@ -421,6 +424,54 @@ def watched_work(user, sectionID=None, ratingKey=None):
         start += count
 
 
+def transcode_work(sectionID, operator, value):
+    """
+    Parameters
+    ----------
+    user (object): User object holding user stats
+    sectionID {int): Library key
+    ratingKey (int): Item rating key
+
+    -------
+    """
+    count = 25
+    start = 0
+    transcoding_lst = []
+    transcoding_count = {}
+    
+    while True:
+        
+        # Getting all watched history for userFrom
+        tt_history = tautulli_server.get_history(section_id=sectionID, start=start, length=count,
+                                                 transcode_decision="transcode")
+
+        if all([tt_history]):
+            start += count
+            for item in tt_history:
+                if transcoding_count.get(item['rating_key']):
+                    transcoding_count[item['rating_key']] += 1
+                else:
+                    transcoding_count[item['rating_key']] = 1
+            
+            continue
+        elif not all([tt_history]):
+            break
+        start += count
+        
+    for rating_key, transcode_count in transcoding_count.items():
+        if operator(transcode_count, int(value)):
+            _meta = tautulli_server.get_metadata(rating_key)
+            if _meta:
+                metadata = Metadata(_meta)
+                metadata.transcode_count = transcode_count
+                transcoding_lst.append(metadata)
+            else:
+                print("Metadata error found with rating_key: ({})".format(rating_key))
+            
+    
+    return transcoding_lst
+
+
 if __name__ == '__main__':
     
     session = Connection().session
@@ -474,6 +525,7 @@ if __name__ == '__main__':
     # todo actions: delete[x], move?, zip and move?, notify, optimize
     # todo deletion toggle and optimize is dependent on plexapi PRs 433 and 426 respectively
     # todo logging and notification
+    # todo if optimizing and optimized version already exists, skip
 
     libraries = []
     all_sections = []
@@ -481,6 +533,7 @@ if __name__ == '__main__':
     unwatched_lst = []
     size_lst = []
     user_lst = []
+    transcode_lst = []
 
     if opts.date:
         date = time.mktime(time.strptime(opts.date, "%Y-%m-%d"))
@@ -570,7 +623,7 @@ if __name__ == '__main__':
         if opts.action == "delete":
             plex_deletion(watched_by_all, libraries, opts.toggleDeletion)
     
-    if opts.select in ["size", "rating"]:
+    if opts.select in ["size", "rating", "transcoded"]:
         if opts.selectValue:
             operator, value = opts.selectValue
             if operator not in OPERATORS.keys():
@@ -605,3 +658,18 @@ if __name__ == '__main__':
             pass
         elif opts.select == "rating":
             pass
+        elif opts.select == "transcoded":
+            if libraries:
+                for _library in libraries:
+                    print("Checking library: '{}' items with {}{} transcodes...".format(
+                        _library.title, operator, value))
+                    transcoded_lst = transcode_work(sectionID=_library.key, operator=op, value=value)
+                    transcode_lst += transcoded_lst
+
+            if opts.action == "show":
+                for item in transcode_lst:
+                    added_at = datetime.datetime.utcfromtimestamp(float(item.added_at)).strftime("%Y-%m-%d")
+                    size = int(item.file_size) if item.file_size else 0
+                    file_size = sizeof_fmt(size)
+                    print(u"\t{} added {}\tSize: {}\tTransocded: {} time(s)\n\t\tFile: {}".format(
+                        item.title, added_at, file_size, item.transcode_count, item.file))
