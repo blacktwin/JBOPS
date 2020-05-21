@@ -667,6 +667,7 @@ if __name__ == '__main__':
                     transcode_lst += transcoded_lst
 
             if opts.action == "show":
+                print("{} item(s) have been found.".format(len(transcode_lst)))
                 for item in transcode_lst:
                     added_at = datetime.datetime.utcfromtimestamp(float(item.added_at)).strftime("%Y-%m-%d")
                     size = int(item.file_size) if item.file_size else 0
