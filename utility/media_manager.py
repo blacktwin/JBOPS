@@ -457,8 +457,9 @@ def transcode_work(sectionID, operator, value):
         elif not all([tt_history]):
             break
         start += count
-        
-    for rating_key, transcode_count in transcoding_count.items():
+    
+    sorted_transcoding = sorted(transcoding_count.items(), key=lambda x: x[1], reverse=True)
+    for rating_key, transcode_count in sorted_transcoding:
         if operator(transcode_count, int(value)):
             _meta = tautulli_server.get_metadata(rating_key)
             if _meta:
