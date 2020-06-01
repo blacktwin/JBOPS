@@ -195,6 +195,30 @@ Arguments:
 --jbop allStreams --userId {user_id} --notify 1 --killMessage 'Hey Bob, we need to talk!'
 ```
 
+### Kill transcodes of a user that is a serial transcoder
+
+Triggers: 
+* Transcode Decision Change
+* Playback Start  
+Conditions: \[ `Transcode Decision` | `is` | `transcode` \]
+
+Arguments:
+```
+--jbop transcode --userId {user_id} --sessionId {session_id} --serialTranscoderEnabled "true" --serialTranscoderSelect "user" --killMessage 'You transcode a lot! You need to change your default quality settings.'
+```
+
+### Kill transcodes of a device that is a serial transcoder
+
+Triggers: 
+* Transcode Decision Change
+* Playback Start  
+Conditions: \[ `Transcode Decision` | `is` | `transcode` \]
+
+Arguments:
+```
+--jbop transcode --userId {user_id} --sessionId {session_id} --serialTranscoderEnabled "true" --serialTranscoderSelect "user" --killMessage 'This device transcodes a lot! You need to change your default quality settings.'
+```
+
 ### Rich Notifications (Discord or Slack)
 The following can be added to any of the above examples.
 

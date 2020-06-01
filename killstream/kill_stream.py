@@ -41,7 +41,10 @@ Tautulli > Settings > Notification Agents > New Script > Script Arguments:
             --plexUrl {plex_url} --posterUrl {poster_url}
             --richColor '#E5A00D'
             --killMessage 'Your message here.'
-
+            --serialTranscoderEnabled" 'true' , 'false'
+            --serialTranscoderTimeWindow '14' number in days
+            --serialTranscoderPercent '50'
+            --serialTranscoderSelect  'player' or 'user' 
  Save
  Close
 """
@@ -52,7 +55,7 @@ import sys
 import json
 import time
 import argparse
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.exceptions import RequestException
@@ -78,7 +81,7 @@ BODY_TEXT = "Killed session ID '{id}'. Reason: {message}"
 BODY_TEXT_USER = "Killed {user}'s stream. Reason: {message}."
 
 
-SELECTOR = ['stream', 'allStreams', 'paused']
+SELECTOR = ['stream', 'allStreams', 'paused', 'transcode']
 
 RICH_TYPE = ['discord', 'slack']
 
@@ -136,6 +139,52 @@ def get_all_streams(tautulli, user_id=None):
         streams = [Stream(session=s) for s in sessions]
 
     return streams
+
+
+def get_all_users_history(tautulli, PAST_DAYS):
+    # Get a list of all play history
+    TODAY = date.today()
+    START_DATE = TODAY - timedelta(days=PAST_DAYS)
+    sessions = tautulli.get_history()['data']
+    HISTORY = [play for play in sessions if date.fromtimestamp(
+        play['started']) >= START_DATE]
+    return HISTORY
+
+
+def get_users_transcode_history(tautulli, userID, PAST_DAYS):
+    history = get_all_users_history(tautulli, PAST_DAYS)
+    USERS = {}
+    for play in history:
+        if not USERS.get(play['user_id']):
+            USERS[play['user_id']] = {}
+            USERS[play['user_id']]['transcode_decision'] = {}
+            USERS[play['user_id']]['transcode_decision'].update(
+                {
+                    'direct play': 0,
+                    'copy': 0,
+                    'transcode': 0,
+                }
+            )
+        # Loop through and get play counts for each of the players per user and save it as a subdict in USERS{}
+        if 'players' not in USERS[play['user_id']]:
+            USERS[play['user_id']]['players'] = {}
+        else:
+            if play['player'] not in USERS[play['user_id']]['players']:
+                USERS[play['user_id']]['players'][play['player']] = {}
+            else:
+                if play['transcode_decision'] not in USERS[play['user_id']]['players'][play['player']]:
+                    USERS[play['user_id']]['players'][play['player']].update(
+                        {
+                            'direct play': 0,
+                            'copy': 0,
+                            'transcode': 0,
+                        }
+                    )
+                USERS[play['user_id']]['players'][play['player']
+                                                  ][play['transcode_decision']] += 1
+        USERS[play['user_id']]['transcode_decision'][play['transcode_decision']] += 1
+    test = USERS[userID]
+    return USERS[userID]
 
 
 def notify(all_opts, message, kill_type=None, stream=None, tautulli=None):
@@ -292,6 +341,18 @@ class Tautulli:
             payload['session_id'] = session_id
 
         return self._call_api('get_activity', payload)
+
+    def get_history(self, session_key=None, session_id=None):
+        """Call Tautulli's get_activity api endpoint"""
+        payload = {'cmd': 'get_history', 'grouping': 1,
+                   'order_column': 'date', 'length': 1000}
+
+        if session_key:
+            payload['session_key'] = session_key
+        elif session_id:
+            payload['session_id'] = session_id
+
+        return self._call_api('get_history', payload)
 
     def notify(self, notifier_id, subject, body):
         """Call Tautulli's notify api endpoint"""
@@ -587,6 +648,14 @@ if __name__ == "__main__":
                         help='Color of the rich message')
     parser.add_argument("--debug", action='store_true',
                         help='Enable debug messages.')
+    parser.add_argument("--serialTranscoderEnabled", type=str, default="false",
+                        help='kill streams from players that are known serial transcoders.')
+    parser.add_argument('--serialTranscoderTimeWindow', type=int, default=14,
+                        help='The ammount of previous days you want to pull transcoder history from.')
+    parser.add_argument('--serialTranscoderPercent', type=int, default=50,
+                        help='Ppercentage of transcodes that are allowable before killing the stream.')
+    parser.add_argument("--serialTranscoderSelect", type=str, default="player",
+                        help='Kill streams of serial transcoders by (player) or (user).')
 
     opts = parser.parse_args()
 
@@ -630,3 +699,39 @@ if __name__ == "__main__":
         killed_stream = tautulli_stream.terminate_long_pause(kill_message, opts.limit, opts.interval)
         if killed_stream:
             notify(opts, kill_message, 'Paused', tautulli_stream, tautulli_server)
+
+    elif opts.jbop == 'transcode':
+        if opts.serialTranscoderEnabled == "true":
+            USER_HISTORY = get_users_transcode_history(
+                tautulli_server, opts.userId, opts.serialTranscoderTimeWindow)
+            PARAMS = {'cmd': 'get_user', 'user_id': 0}
+            # Kill stream if user is a serial transcoder and stream is a transcode
+            if opts.serialTranscoderSelect == 'user':
+                total_plays = USER_HISTORY['transcode_decision']['transcode'] + \
+                    USER_HISTORY['transcode_decision']['direct play'] + \
+                    USER_HISTORY['transcode_decision']['copy']
+                transcode_percent = round(
+                    USER_HISTORY['transcode_decision']['transcode'] * 100 / total_plays, 2)
+                if transcode_percent >= opts.serialTranscoderPercent:
+                    tautulli_server.terminate_session(
+                        session_id=a_stream.session_id, message=kill_message)
+                    notify(opts, kill_message, 'Transcode', tautulli_stream, tautulli_server)
+            # Kill stream if player is a serial transcoder and stream is a transcode
+            elif opts.serialTranscoderSelect == 'player':
+                user_players = USER_HISTORY['players']
+                for player in user_players.items():
+                    if len(player[1]) == 0:
+                        temp = ""
+                    else:
+                        player_total_plays = player[1]['transcode'] + \
+                            player[1]['direct play'] + player[1]['copy']
+                        player_transcode_percent = round(
+                            player[1]['transcode'] * 100 / player_total_plays, 2)
+                    if player_transcode_percent >= opts.serialTranscoderPercent:
+                        all_streams = get_all_streams(
+                            tautulli_server, opts.userId)
+                        for a_stream in all_streams:
+                            if player[0] == a_stream.player:
+                                tautulli_server.terminate_session(
+                                    session_id=a_stream.session_id, message=kill_message)
+                                notify(opts, kill_message, 'transcode', tautulli_stream, tautulli_server)
