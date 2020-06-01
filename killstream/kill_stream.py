@@ -653,7 +653,7 @@ if __name__ == "__main__":
     parser.add_argument('--serialTranscoderTimeWindow', type=int, default=14,
                         help='The ammount of previous days you want to pull transcoder history from.')
     parser.add_argument('--serialTranscoderPercent', type=int, default=50,
-                        help='Ppercentage of transcodes that are allowable before killing the stream.')
+                        help='Percentage of transcodes that are allowable before killing the stream.')
     parser.add_argument("--serialTranscoderSelect", type=str, default="player",
                         help='Kill streams of serial transcoders by (player) or (user).')
 

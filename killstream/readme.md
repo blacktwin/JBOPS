@@ -207,6 +207,15 @@ Arguments:
 --jbop transcode --userId {user_id} --sessionId {session_id} --serialTranscoderEnabled "true" --serialTranscoderSelect "user" --killMessage 'You transcode a lot! You need to change your default quality settings.'
 ```
 
+Optional Arguments:
+```
+The ammount of previous days you want to pull transcoder history from.
+--serialTranscoderTimeWindow           default=14
+
+Percentage of transcodes that are allowable before killing the stream
+--serialTranscoderPercent              default=50,
+```
+
 ### Kill transcodes of a device that is a serial transcoder
 
 Triggers: 
@@ -217,6 +226,15 @@ Conditions: \[ `Transcode Decision` | `is` | `transcode` \]
 Arguments:
 ```
 --jbop transcode --userId {user_id} --sessionId {session_id} --serialTranscoderEnabled "true" --serialTranscoderSelect "user" --killMessage 'This device transcodes a lot! You need to change your default quality settings.'
+```
+
+Optional Arguments:
+```
+The ammount of previous days you want to pull transcoder history from.
+--serialTranscoderTimeWindow           default=14
+
+Percentage of transcodes that are allowable before killing the stream
+--serialTranscoderPercent              default=50,
 ```
 
 ### Rich Notifications (Discord or Slack)
