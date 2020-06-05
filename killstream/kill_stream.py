@@ -102,7 +102,10 @@ def hex_to_int(value):
 
 def arg_decoding(arg):
     """Decode args, encode UTF-8"""
-    return arg.decode(TAUTULLI_ENCODING).encode('UTF-8')
+    if sys.version_info[0] < 3:
+        return arg.decode(TAUTULLI_ENCODING).encode('UTF-8')
+    else:
+        return arg
 
 
 def debug_dump_vars():
