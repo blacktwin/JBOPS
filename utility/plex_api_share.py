@@ -167,7 +167,8 @@ def get_ratings_lst(section_id):
 def filter_clean(filter_type):
     clean = ''
     try:
-        clean = dict(item.split("=") for item in filter_type.split("|"))
+        filter_type = filter_type.replace('|', '&')
+        clean = dict(item.split("=") for item in filter_type.split("&"))
         for k, v in clean.items():
             labels = v.replace('%20', ' ')
             labels = labels.split('%2C')
