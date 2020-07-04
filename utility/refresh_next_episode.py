@@ -16,6 +16,7 @@ Check Tautulli's Watched Percent in Tautulli > Settings > General
 
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 
 import requests
 import sys

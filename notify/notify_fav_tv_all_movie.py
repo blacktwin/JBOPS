@@ -18,6 +18,7 @@ Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Recently Added: notify_fav_tv_all_movie.py
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 
 from builtins import object
 import requests

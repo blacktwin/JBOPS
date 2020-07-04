@@ -7,6 +7,7 @@ This is find files that are corrupt or having playback issues.
 I corrupted a file to test.
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 
 from builtins import object
 import requests

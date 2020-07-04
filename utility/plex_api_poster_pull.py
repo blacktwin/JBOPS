@@ -14,6 +14,7 @@ Requires: plexapi
 
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 
 from future import standard_library
 standard_library.install_aliases()

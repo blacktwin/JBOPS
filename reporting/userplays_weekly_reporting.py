@@ -5,6 +5,7 @@
 Use Tautulli to count how many plays per user occurred this week.
 Notify via Tautulli Notification
 """
+from __future__ import unicode_literals
 
 from builtins import object
 import requests

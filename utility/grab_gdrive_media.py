@@ -5,6 +5,7 @@
 https://gist.github.com/blacktwin/f435aa0ccd498b0840d2407d599bf31d
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 
 from builtins import input
 import os

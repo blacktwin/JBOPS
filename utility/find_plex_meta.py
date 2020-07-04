@@ -11,6 +11,7 @@ find_plex_meta.py -s adventure -m movie
     pulls all movie titles with adventure in the title
 '''
 from __future__ import print_function
+from __future__ import unicode_literals
 
 
 from plexapi.server import PlexServer, CONFIG

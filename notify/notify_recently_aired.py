@@ -44,6 +44,7 @@ Note:
         It does not have to be an active notification agent, just setup.
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 import os
 import sys
 import requests

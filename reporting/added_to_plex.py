@@ -8,6 +8,7 @@ Some Exceptions have been commented out to supress what is printed.
 Uncomment Exceptions if you run into problem and need to investigate.
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 
 from builtins import str
 from builtins import object

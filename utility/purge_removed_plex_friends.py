@@ -7,6 +7,7 @@ Author: DirtyCajunRice
 Requires: requests, plexapi, python3.6+
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 
 from requests import Session
 from plexapi.server import CONFIG

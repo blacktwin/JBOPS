@@ -15,6 +15,7 @@
 #        --rating_key {rating_key} --collection "New Releases" --days 180
 
 from __future__ import print_function
+from __future__ import unicode_literals
 import argparse
 import os
 from datetime import datetime, timedelta

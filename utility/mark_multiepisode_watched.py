@@ -16,6 +16,7 @@
 #        --rating_key {rating_key} --filename {filename}
 
 from __future__ import print_function
+from __future__ import unicode_literals
 from builtins import str
 import argparse
 import os

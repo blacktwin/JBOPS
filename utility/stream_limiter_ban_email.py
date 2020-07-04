@@ -50,6 +50,7 @@ Concurrent stream count is the trigger. Trigger can be anything you want.
 
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 
 
 from builtins import str

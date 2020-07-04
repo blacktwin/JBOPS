@@ -16,6 +16,7 @@ Tautulli > Settings > Notifications > Script > Script Arguments:
 
 https://gist.github.com/blacktwin/261c416dbed08291e6d12f6987d9bafa
 """
+from __future__ import unicode_literals
 
 from twitter import Twitter, OAuth
 import argparse

@@ -7,6 +7,7 @@ Theme songs are mp3 and named by shows as displayed by Plex.
 Songs are saved in a 'Theme Songs' directory located in script's path.
 
 """
+from __future__ import unicode_literals
 
 
 from future import standard_library

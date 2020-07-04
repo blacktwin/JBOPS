@@ -7,6 +7,7 @@
 #       {user} {title}
 #   Add to Playback Resume
 
+from __future__ import unicode_literals
 from builtins import object
 import requests
 import sys

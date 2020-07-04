@@ -12,6 +12,7 @@ Tautulli Settings > Extra Settings >  Check - Calculate Total File Sizes [experi
 
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 from builtins import range
 from builtins import object
 from plexapi.server import CONFIG

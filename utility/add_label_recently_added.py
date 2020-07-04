@@ -18,6 +18,7 @@
 #        --title {title} --section_id {section_id} --media_type {media_type} --rating_key {rating_key}  --parent_rating_key {parent_rating_key} --grandparent_rating_key {grandparent_rating_key} --label "Label"
 
 from __future__ import print_function
+from __future__ import unicode_literals
 import argparse
 import os
 import requests

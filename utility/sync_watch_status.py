@@ -56,6 +56,7 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
        **Rating key must be a movie or episode. Shows and Seasons not support.... yet.
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 from builtins import object
 import argparse
 from plexapi.myplex import MyPlexAccount

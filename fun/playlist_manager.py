@@ -98,6 +98,7 @@ optional arguments:
        - Create Aired Today Playlist from every library by Movies for admin user
 
 """
+from __future__ import unicode_literals
 
 from builtins import str
 import sys
