@@ -13,6 +13,7 @@ Requires: plexapi
     python plex_api_poster_pull.py
 
 """
+from __future__ import print_function
 
 from plexapi.server import PlexServer, CONFIG
 import requests

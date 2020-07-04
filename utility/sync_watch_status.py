@@ -55,6 +55,7 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
        on selected servers.
        **Rating key must be a movie or episode. Shows and Seasons not support.... yet.
 """
+from __future__ import print_function
 import argparse
 from plexapi.myplex import MyPlexAccount
 from plexapi.server import PlexServer

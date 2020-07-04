@@ -15,6 +15,7 @@
 #    * Watched:
 #        --rating_key {rating_key} --filename {filename}
 
+from __future__ import print_function
 import argparse
 import os
 from plexapi.server import PlexServer

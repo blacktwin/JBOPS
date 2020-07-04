@@ -4,6 +4,7 @@
 """
 https://gist.github.com/blacktwin/4ccb79c7d01a95176b8e88bf4890cd2b
 """
+from __future__ import print_function
 
 from plexapi.server import PlexServer
 import random

@@ -26,6 +26,7 @@ optional arguments:
 
 If title is matched in both, Amazon is first then Netflix.
 """
+from __future__ import print_function
 
 import requests
 import argparse

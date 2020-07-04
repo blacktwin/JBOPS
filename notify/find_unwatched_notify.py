@@ -6,6 +6,7 @@ Find what was added TFRAME ago and not watched and notify admin using Tautulli.
 
 TAUTULLI_URL + delete_media_info_cache?section_id={section_id}
 """
+from __future__ import print_function
 
 import requests
 import sys

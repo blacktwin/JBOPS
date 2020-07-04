@@ -17,6 +17,7 @@ Usage:
       Movies - Plays: 379
 
 """
+from __future__ import print_function
 
 import requests
 import sys

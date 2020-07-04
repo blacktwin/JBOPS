@@ -6,6 +6,7 @@
 Author: DirtyCajunRice
 Requires: requests, plexapi, python3.6+
 """
+from __future__ import print_function
 
 from requests import Session
 from plexapi.server import CONFIG

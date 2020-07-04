@@ -8,6 +8,7 @@ Pull poster images from Imgur and places them inside Shows root folder.
 Skips download if showname.jpg exists or if show does not exist.
 
 """
+from __future__ import print_function
 
 import requests
 import urllib

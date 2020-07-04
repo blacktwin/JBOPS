@@ -24,6 +24,7 @@ python plex_api_show_settings.py --libraries "TV Shows" --watched 7
 python plex_api_show_settings.py --libraries "TV Shows" --unwatched -7
    - Keep Episodesfrom the past 7 days
 """
+from __future__ import print_function
 import argparse
 import requests
 from plexapi.server import PlexServer, CONFIG

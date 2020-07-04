@@ -24,6 +24,7 @@ Usage:
     Plays: 56 : 754 : 2899
 
 """
+from __future__ import print_function
 
 import requests
 import sys

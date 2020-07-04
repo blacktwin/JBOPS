@@ -17,6 +17,7 @@ Tautulli > Settings > Notification Agents > Scripts > Bell icon:
 Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Recently Added: notify_fav_tv_all_movie.py
 """
+from __future__ import print_function
 
 import requests
 from email.mime.text import MIMEText

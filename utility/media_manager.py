@@ -23,6 +23,7 @@ Enabling Scripts in Tautulli:
         python media_manager.py --libraries "TV Shows" --select watched --users User1 User2
 
 """
+from __future__ import print_function
 import argparse
 import datetime
 import time
@@ -591,7 +592,7 @@ if __name__ == '__main__':
     if opts.select == "watched":
         if libraries:
             for user in user_lst:
-                print("Finding watched items from user: {}",format(user.name))
+                print(("Finding watched items from user: {}",format(user.name)))
                 for _library in libraries:
                     print("Checking library: '{}' watch statuses...".format(_library.title))
                     watched_work(user=user, sectionID=_library.key)

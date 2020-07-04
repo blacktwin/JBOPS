@@ -16,6 +16,7 @@ optional arguments:
 
 List of IP addresses is cleared before adding new IPs
 """
+from __future__ import print_function
 
 import requests
 import argparse

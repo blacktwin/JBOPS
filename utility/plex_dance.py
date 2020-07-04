@@ -45,6 +45,7 @@ Script Dance moves
     Please use this script to update your Tautulli database with the new rating key
         https://gist.github.com/JonnyWong16/f554f407832076919dc6864a78432db2
 """
+from __future__ import print_function
 
 from plexapi.server import PlexServer
 from plexapi.server import CONFIG

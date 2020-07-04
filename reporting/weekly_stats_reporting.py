@@ -11,6 +11,7 @@ User stats display username and hour, minutes, and seconds of view time
 Tautulli Settings > Extra Settings >  Check - Calculate Total File Sizes [experimental] ...... wait
 
 """
+from __future__ import print_function
 from plexapi.server import CONFIG
 from datetime import datetime, timedelta, date
 from requests import Session

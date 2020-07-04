@@ -14,6 +14,7 @@
 #    * Recently Added:
 #        --rating_key {rating_key} --collection "New Releases" --days 180
 
+from __future__ import print_function
 import argparse
 import os
 from datetime import datetime, timedelta

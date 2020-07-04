@@ -98,6 +98,7 @@ Usage:
        - Shared [all libraries but Movies] with USER.
 
 """
+from __future__ import print_function
 
 from plexapi.server import PlexServer, CONFIG
 import time

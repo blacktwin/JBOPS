@@ -9,6 +9,7 @@ Set api_sql = 1 in the config file.
 Restart Tautulli.
 Place in Playback Start
 """
+from __future__ import print_function
 import argparse
 import requests
 import sys

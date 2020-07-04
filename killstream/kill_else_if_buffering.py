@@ -15,6 +15,7 @@ Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Buffer Warnings: kill_else_if_buffering.py
 
 """
+from __future__ import print_function
 
 import requests
 from operator import itemgetter

@@ -17,6 +17,7 @@ Requires: requests, plexapi
     python find_diff_other_servers.py --server "My Plex Server" --server PlexServer2 --server "Steven Plex"
 
 """
+from __future__ import print_function
 
 import argparse
 import requests

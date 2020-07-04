@@ -16,6 +16,7 @@ Tautulli > Settings > Notification Agents > Scripts > Gear icon:
 
 Tautulli Settings > Notification Agents > Scripts (Gear) > Script Timeout: 0 to disable or set to > 180
 """
+from __future__ import print_function
 
 import requests
 import sys

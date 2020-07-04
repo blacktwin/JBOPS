@@ -44,6 +44,7 @@ original.
  * For episodes of show not watched the view count will be set to 1.
 
 """
+from __future__ import print_function
 
 import requests
 import argparse

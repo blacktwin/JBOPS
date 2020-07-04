@@ -16,6 +16,7 @@ Tautulli > Settings > Notification Agents > Scripts > Bell icon:
 Tautulli > Settings > Notification Agents > Scripts > Gear icon:
         Recently Added: notify_user_favorite.py
 """
+from __future__ import print_function
 
 import requests
 from email.mime.text import MIMEText

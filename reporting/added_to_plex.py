@@ -7,6 +7,7 @@ Find when media was added between STARTFRAME and ENDFRAME to Plex through Tautul
 Some Exceptions have been commented out to supress what is printed.
 Uncomment Exceptions if you run into problem and need to investigate.
 """
+from __future__ import print_function
 
 import requests
 import sys
@@ -164,10 +165,10 @@ for i in glt:
                     # Find movie rating_key.
                     show_lst += [int(x.rating_key)]
             except Exception as e:
-                print("Rating_key failed: {e}").format(e=e)
+                print(("Rating_key failed: {e}").format(e=e))
 
     except Exception as e:
-        print("Library media info failed: {e}").format(e=e)
+        print(("Library media info failed: {e}").format(e=e))
 
 # All rating_keys for episodes and movies.
 # Reserving order will put newest rating_keys first

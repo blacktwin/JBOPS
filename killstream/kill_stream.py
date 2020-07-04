@@ -45,6 +45,7 @@ Tautulli > Settings > Notification Agents > New Script > Script Arguments:
  Save
  Close
 """
+from __future__ import print_function
 
 
 import os

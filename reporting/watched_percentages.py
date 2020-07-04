@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import time
 import argparse
 from plexapi.myplex import MyPlexAccount
@@ -292,7 +293,7 @@ if __name__ == '__main__':
                     else:
                         user_dict[user] = {library: section_watched_total}
                 except Exception as e:
-                    print(user, e)
+                    print((user, e))
                     if user_dict.get(user):
                         user_dict[user].update({library: 0})
                     else:
@@ -341,7 +342,7 @@ if __name__ == '__main__':
                         start += count
 
                 except Exception as e:
-                    print(user, e)
+                    print((user, e))
 
                 section_watched_total = len(list(set(section_watched_lst)))
                 percent_watched = 100 * (float(section_watched_total) / float(section_total))

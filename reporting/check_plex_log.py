@@ -6,6 +6,7 @@ Run script by itself. Will look for WARN code followed by /library/metadata/ str
 This is find files that are corrupt or having playback issues.
 I corrupted a file to test.
 """
+from __future__ import print_function
 
 import requests
 import sys

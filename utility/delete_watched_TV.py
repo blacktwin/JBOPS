@@ -7,6 +7,7 @@ If all users in list have watched an episode of listed show, then delete episode
 
 Add deletion via Plex.
 """
+from __future__ import print_function
 
 import requests
 import sys

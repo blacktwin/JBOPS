@@ -5,6 +5,7 @@
 # Author:       /u/SwiftPanda16
 # Requires:     plexapi
 
+from __future__ import print_function
 from plexapi.server import PlexServer
 
 
