@@ -7,6 +7,7 @@
 #       {user} {title}
 #   Add to Playback Resume
 
+from builtins import object
 import requests
 import sys
 

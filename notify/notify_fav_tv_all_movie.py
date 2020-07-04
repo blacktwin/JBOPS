@@ -19,6 +19,7 @@ Tautulli > Settings > Notification Agents > Scripts > Gear icon:
 """
 from __future__ import print_function
 
+from builtins import object
 import requests
 from email.mime.text import MIMEText
 import email.utils
@@ -244,7 +245,7 @@ if __name__ == '__main__':
 
     if p.media_type == 'movie':
         email_subject = MOVIE_SUBJECT.format(p=p)
-        to = filter(None, [x['email'] for x in get_users() if x['user_id'] not in IGNORE_LST])
+        to = [_f for _f in [x['email'] for x in get_users() if x['user_id'] not in IGNORE_LST] if _f]
         body_html = MOVIE_BODY.format(p=p)
         send_email(to, email_subject, body_html)
 

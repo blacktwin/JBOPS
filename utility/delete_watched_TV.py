@@ -9,6 +9,7 @@ Add deletion via Plex.
 """
 from __future__ import print_function
 
+from builtins import object
 import requests
 import sys
 import os

@@ -18,6 +18,7 @@ Tautulli > Settings > Notification Agents > Scripts > Gear icon:
 """
 from __future__ import print_function
 
+from builtins import object
 import requests
 from email.mime.text import MIMEText
 import email.utils

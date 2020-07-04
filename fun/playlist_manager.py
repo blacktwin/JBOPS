@@ -99,6 +99,7 @@ optional arguments:
 
 """
 
+from builtins import str
 import sys
 import os
 import random

@@ -8,6 +8,7 @@ I corrupted a file to test.
 """
 from __future__ import print_function
 
+from builtins import object
 import requests
 import sys
 

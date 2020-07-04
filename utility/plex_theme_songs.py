@@ -9,11 +9,13 @@ Songs are saved in a 'Theme Songs' directory located in script's path.
 """
 
 
+from future import standard_library
+standard_library.install_aliases()
 from plexapi.server import PlexServer, CONFIG
 # pip install plexapi
 import os
 import re
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import requests
 
 # ## Edit ##
@@ -56,4 +58,4 @@ for show in plex.library.section(TV_LIBRARY).all():
     # Get tvdb_if from first episode, no need to go through all episodes
     tvdb_id = show.episodes()[0].guid.split('/')[2]
     # Download theme song to output path
-    urllib.urlretrieve(themes_url.format(tvdb_id), theme_path)
+    urllib.request.urlretrieve(themes_url.format(tvdb_id), theme_path)

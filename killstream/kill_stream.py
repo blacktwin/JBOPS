@@ -48,6 +48,8 @@ Tautulli > Settings > Notification Agents > New Script > Script Arguments:
 from __future__ import print_function
 
 
+from builtins import object
+from builtins import str
 import os
 import sys
 import json
@@ -236,7 +238,7 @@ def basic_notify(notifier_id, session_id, username=None, message=None, stream=No
     notification.send(SUBJECT_TEXT, body)
 
 
-class Tautulli:
+class Tautulli(object):
     def __init__(self, url, apikey, verify_ssl=False, debug=None):
         self.url = url
         self.apikey = apikey
@@ -320,7 +322,7 @@ class Tautulli:
         return self._call_api('terminate_session', payload)
 
 
-class Stream:
+class Stream(object):
     def __init__(self, session_id=None, user_id=None, username=None, tautulli=None, session=None):
         self.state = None
         self.ip_address = None
@@ -406,7 +408,7 @@ class Stream:
                 return False
 
 
-class Notification:
+class Notification(object):
     def __init__(self, notifier_id, subject, body, tautulli, stream):
         self.notifier_id = notifier_id
         self.subject = subject

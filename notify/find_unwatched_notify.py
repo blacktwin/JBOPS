@@ -8,6 +8,8 @@ TAUTULLI_URL + delete_media_info_cache?section_id={section_id}
 """
 from __future__ import print_function
 
+from builtins import object
+from builtins import str
 import requests
 import sys
 import time

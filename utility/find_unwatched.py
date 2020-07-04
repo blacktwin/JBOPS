@@ -6,6 +6,9 @@ Find what was added TFRAME ago and not watched using Tautulli.
 """
 from __future__ import print_function
 
+from builtins import input
+from builtins import str
+from builtins import object
 import requests
 import sys
 import time
@@ -123,7 +126,7 @@ def get_libraries_table():
 
 
 def delete_files(tmp_lst):
-    del_file = raw_input('Delete all unwatched files? (yes/no)').lower()
+    del_file = input('Delete all unwatched files? (yes/no)').lower()
     if del_file.startswith('y'):
         for x in tmp_lst:
             print("Removing {}".format(x))

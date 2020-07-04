@@ -52,6 +52,8 @@ Concurrent stream count is the trigger. Trigger can be anything you want.
 from __future__ import print_function
 
 
+from builtins import str
+from builtins import object
 import requests
 import sys
 from xml.dom import minidom

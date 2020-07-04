@@ -9,6 +9,8 @@ Uncomment Exceptions if you run into problem and need to investigate.
 """
 from __future__ import print_function
 
+from builtins import str
+from builtins import object
 import requests
 import sys
 import time

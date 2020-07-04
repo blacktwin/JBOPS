@@ -17,6 +17,7 @@ Arguments passed from Tautulli
 
 
 """
+from builtins import object
 import argparse
 import requests
 import sys

@@ -7,6 +7,8 @@ Author: DirtyCajunRice
 Requires: requests, plexapi, python3.6+
 """
 from __future__ import print_function
+from __future__ import division
+from past.utils import old_div
 from requests import Session
 from plexapi.server import CONFIG
 from datetime import date, timedelta
@@ -57,7 +59,7 @@ for play in HISTORY:
 PARAMS = {'cmd': 'get_user', 'user_id': 0}
 for user, counts in USERS.items():
     TOTAL_PLAYS = counts['transcode'] + counts['direct play'] + counts['copy']
-    TRANSCODE_PERCENT = round(counts['transcode'] * 100 / TOTAL_PLAYS, 2)
+    TRANSCODE_PERCENT = round(old_div(counts['transcode'] * 100, TOTAL_PLAYS), 2)
     if TRANSCODE_PERCENT >= THRESHOLD_PERCENT:
         PARAMS['user_id'] = user
         NAUGHTY = SESSION.get(FORMATTED_URL, params=PARAMS).json()['response']['data']

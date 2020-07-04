@@ -47,6 +47,7 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
 """
 from __future__ import print_function
 
+from builtins import range
 import requests
 import argparse
 from datetime import datetime, timedelta

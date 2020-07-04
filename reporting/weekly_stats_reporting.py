@@ -12,6 +12,8 @@ Tautulli Settings > Extra Settings >  Check - Calculate Total File Sizes [experi
 
 """
 from __future__ import print_function
+from builtins import range
+from builtins import object
 from plexapi.server import CONFIG
 from datetime import datetime, timedelta, date
 from requests import Session
@@ -220,7 +222,7 @@ def get_library_stats(libraries, tautulli, rich, notify=None):
     return sections_stats_lst
 
 
-class Tautulli:
+class Tautulli(object):
     def __init__(self, url, apikey, verify_ssl=False, debug=None):
         self.url = url
         self.apikey = apikey
@@ -317,7 +319,7 @@ class Tautulli:
             return
 
 
-class Notification:
+class Notification(object):
     def __init__(self, notifier_id, subject, body, tautulli, stats=None):
         self.notifier_id = notifier_id
         self.subject = subject

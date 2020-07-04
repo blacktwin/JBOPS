@@ -28,6 +28,7 @@ If title is matched in both, Amazon is first then Netflix.
 """
 from __future__ import print_function
 
+from builtins import str
 import requests
 import argparse
 from xmljson import badgerfish as bf

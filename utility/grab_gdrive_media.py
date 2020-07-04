@@ -6,6 +6,7 @@ https://gist.github.com/blacktwin/f435aa0ccd498b0840d2407d599bf31d
 """
 from __future__ import print_function
 
+from builtins import input
 import os
 import httplib2
 
@@ -35,7 +36,7 @@ if credentials is None:
     flow = OAuth2WebServerFlow(CLIENT_ID, CLIENT_SECRET, OAUTH_SCOPE, REDIRECT_URI)
     authorize_url = flow.step1_get_authorize_url()
     print('Go to the following link in your browser: ' + authorize_url)
-    code = raw_input('Enter verification code: ').strip()
+    code = input('Enter verification code: ').strip()
     credentials = flow.step2_exchange(code)
     storage.put(credentials)
 

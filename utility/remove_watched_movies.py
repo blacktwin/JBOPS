@@ -7,6 +7,8 @@ Deletion is prompted
 """
 from __future__ import print_function
 
+from builtins import input
+from builtins import object
 import requests
 import sys
 import os
@@ -76,7 +78,7 @@ def get_history(user, start, length):
 
 
 def delete_files(tmp_lst):
-    del_file = raw_input('Delete all watched files? (yes/no)').lower()
+    del_file = input('Delete all watched files? (yes/no)').lower()
     if del_file.startswith('y'):
         for x in tmp_lst:
             print("Removing {}".format(os.path.dirname(x)))

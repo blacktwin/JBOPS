@@ -46,6 +46,7 @@ original.
 """
 from __future__ import print_function
 
+from builtins import range
 import requests
 import argparse
 import datetime

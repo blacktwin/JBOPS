@@ -26,6 +26,7 @@ Usage:
 """
 from __future__ import print_function
 
+from builtins import str
 import requests
 import sys
 import argparse
