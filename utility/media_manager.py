@@ -477,8 +477,11 @@ if __name__ == '__main__':
     
     session = Connection().session
     plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=session)
+    all_users = plex.myPlexAccount().users()
+    all_users.append(plex.myPlexAccount())
     users = {user.title: User(name=user.title, email=user.email, userid=user.id)
-             for user in plex.myPlexAccount().users()}
+             for user in all_users}
+    
     user_choices = []
     for user in users.values():
         if user.email:
