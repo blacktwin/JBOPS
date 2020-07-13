@@ -227,7 +227,12 @@ def exclusions(all_true, select, all_items):
         if all_true and not select:
             output = all_items
         elif not all_true and select:
-            output = select
+            for item in all_items:
+                if isinstance(item, str):
+                    return select
+                else:
+                    if item.title in select:
+                        output.append(item)
         elif all_true and select:
             for x in select:
                 all_items.remove(x)
@@ -808,7 +813,7 @@ if __name__ == "__main__":
                 share_playlists(selected_playlists, users)
             user_acct = account.user(user)
             user_server = PlexServer(PLEX_URL, user_acct.get_token(plex.machineIdentifier))
-            all_playlists = [pl.title for pl in user_server.playlists()]
+            all_playlists = [pl for pl in user_server.playlists()]
             user_selected = exclusions(opts.allPlaylists, opts.playlists, all_playlists)
             playlist_dict['data'].append({
                 'server': user_server,
@@ -827,7 +832,7 @@ if __name__ == "__main__":
         logger.info("Displaying the user's playlist(s)...")
         for data in playlist_dict['data']:
             user = data['user']
-            playlists = data['all_playlists']
+            playlists = [playlist.title for playlist in data['all_playlists']]
             logger.info("{}'s current playlist(s): {}".format(user, ', '.join(playlists)))
         exit()
 
