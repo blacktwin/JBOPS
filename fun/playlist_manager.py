@@ -712,6 +712,37 @@ def create_title(jbop, libraries, days, filters, search, limit):
     return title
 
 
+def object_cleaner(item):
+    """
+    Removes any protected attributes from a PlexAPI object.
+    Returns the object's attributes into a nested dict
+    
+    Parameters
+    ----------
+    item (object): A PlexAPI object
+
+    Returns
+    -------
+    item_dict
+    """
+    try:
+        if item.isPartialObject:
+            item.reload()
+    except:
+        pass
+    item_dict = vars(item)
+
+    for k in list(item_dict):
+        if k.startswith('_'):
+            del item_dict[k]
+            continue
+        if isinstance(item_dict[k], list):
+            for _ in item_dict[k]:
+                object_cleaner(_)
+
+    return item_dict
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Create, share, and clean Playlists for users.",
@@ -893,5 +924,60 @@ if __name__ == "__main__":
             logger.info('Creating playlist(s)...')
             for data in playlist_dict['data']:
                 create_playlist(title, keys_list, data['server'], data['user'])
+                
+    if opts.action == 'export':
+        logger.info("Exporting the user's playlist(s)...")
+        # Only import if exporting
+        import json
+        import jsonpickle
+        import pandas as pd
+        from flatten_json import flatten
+        
+        for data in playlist_dict['data']:
+            user = data['user']
+            if data['user_selected']:
+                playlists = data['user_selected']
+            else:
+                playlists = data['all_playlists']
+            playlists_titles = [pl.title for pl in playlists]
+            for pl in playlists:
+                pl_dict = {'items': []}
+                pl_dict.update(vars(pl))
+                for k in list(pl_dict):
+                    if k.startswith('_'):
+                        del pl_dict[k]
+                items = plex.fetchItem(pl.ratingKey).items()
+                for item in items:
+                    item_dict = object_cleaner(item)
+                    pl_dict['items'].append(item_dict)
+
+                json_dump = jsonpickle.Pickler(unpicklable=False).flatten(obj=pl_dict)
+                title = json_dump['title']
+                output_file = '{}-{}-Playlist.{}'.format(user, title, opts.export)
+                if opts.export == 'json':
+                    with open(output_file, 'w') as fp:
+                        json.dump(json_dump, fp, indent=4, sort_keys=True)
+                elif opts.export == 'csv':
+                    columns = []
+                    data_list = []
+                    for rows in json_dump['items']:
+                        flat_data = flatten(rows)
+                        data = pd.json_normalize(flat_data)
+                        columns += list(data)
+                        data_list.append(data)
+                    with open(output_file, 'w', encoding='UTF-8') as data_file:
+                        columns = sorted(list(set(columns)))
+                        for data in data_list:
+                            dataf = pd.DataFrame(data, columns=columns)
+                            dataf.to_csv(data_file, index=False, header=not data_file.tell(),
+                                        line_terminator='\n')
+                    with open(output_file) as f:
+                        lines = f.readlines()
+                        last = len(lines) - 1
+                        lines[last] = lines[last].replace('\r', '').replace('\n', '')
+                    with open(output_file, 'w') as wr:
+                        wr.writelines(lines)
+                    
+                logger.info("Exporting {}'s current playlist: {} (./{})".format(user, title, output_file))
 
     logger.info("Done.")
