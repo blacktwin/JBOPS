@@ -183,8 +183,9 @@ def actions():
     update - remove playlist type and create new playlist type for admin or users
     show - show contents of playlist type or admin or users current playlists
     share - share existing playlist by title from admin to users
+    export - export playlist by title from admin to users
     """
-    return ['add', 'remove', 'update', 'show', 'share']
+    return ['add', 'remove', 'update', 'show', 'share', 'export']
 
 
 def selectors():
@@ -750,6 +751,9 @@ if __name__ == "__main__":
     parser.add_argument('--search', action='append', type=lambda kv: kv.split("="),
                         help='Search non-filtered metadata fields for keywords '
                              'in title, summary, etc.')
+    parser.add_argument('--export', choices=['csv', 'json'], default='json',
+                        help='Space separated list of case sensitive names to process. Allowed names are:\n'
+                             'Choices: %(choices)s\nDefault: %(default)s)')
 
     opts = parser.parse_args()
 
