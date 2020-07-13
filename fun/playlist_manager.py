@@ -19,6 +19,7 @@ optional arguments:
                         update - remove playlist type and create new playlist type for admin or users
                         show - show contents of playlist type or admin or users current playlists
                         share - share existing playlist by title from admin to users
+                        export - export playlist by title from admin to users
 
   --users {]            The Plex usernames to create/share to or delete from.
                         Choices:  (USERNAMES)
@@ -73,6 +74,12 @@ optional arguments:
 
  Share existing admin Playlists "My Custom Playlist" and "Another Playlist" with all users
     python playlist_manager.py --action share --allUsers --playlists "My Custom Playlist" "Another Playlist"
+    
+ Export each of an user's Playlists contents to a json file in the root of the script
+    python playlist_manager.py" --action export --user USER --playlists "Most Popular Movies (30 days)" "New Hot"
+    
+ Export each of an user's Playlists contents to a csv file in the root of the script
+    python playlist_manager.py" --action export --user USER --allPlaylists --export csv
 
  Search and Filter;
 
