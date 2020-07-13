@@ -5,7 +5,7 @@
 Description: Create and share playlists based on Most Popular TV/Movies from Tautulli
                 and Aired this day in history.
 Author: blacktwin
-Requires: requests, plexapi
+Requires: requests, plexapi, jsonpickle, pandas, flatten_json
 
 Create, share, and clean Playlists for users.
 
