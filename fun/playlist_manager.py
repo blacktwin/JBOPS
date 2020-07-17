@@ -937,7 +937,7 @@ if __name__ == "__main__":
         # Only import if exporting
         import json
         import jsonpickle
-        import pandas as pd
+        import csv
         from flatten_json import flatten
         
         for data in playlist_dict['data']:
@@ -969,21 +969,16 @@ if __name__ == "__main__":
                     data_list = []
                     for rows in json_dump['items']:
                         flat_data = flatten(rows)
-                        data = pd.json_normalize(flat_data)
-                        columns += list(data)
-                        data_list.append(data)
-                    with open(output_file, 'w', encoding='UTF-8') as data_file:
+                        columns += list(flat_data)
+                        data_list.append(flat_data)
+                    with open(output_file, 'w', encoding='UTF-8', newline='') as data_file:
                         columns = sorted(list(set(columns)))
+                        
+                        writer = csv.DictWriter(data_file, fieldnames=columns)
+                        writer.writeheader()
                         for data in data_list:
-                            dataf = pd.DataFrame(data, columns=columns)
-                            dataf.to_csv(data_file, index=False, header=not data_file.tell(),
-                                        line_terminator='\n')
-                    with open(output_file) as f:
-                        lines = f.readlines()
-                        last = len(lines) - 1
-                        lines[last] = lines[last].replace('\r', '').replace('\n', '')
-                    with open(output_file, 'w') as wr:
-                        wr.writelines(lines)
+                            writer.writerow(data)
+
                     
                 logger.info("Exporting {}'s current playlist: {} (./{})".format(user, title, output_file))
 
