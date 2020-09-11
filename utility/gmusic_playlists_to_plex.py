@@ -57,21 +57,21 @@ def round_down(num, divisor):
     return num - (num%divisor)
 
 
-def compare(ggmusic, pmusic):
+def compare(info, pmusic):
     """
     Parameters
     ----------
-    ggmusic (dict): Contains Playlist data from Google Music
+    info (dict): Contains track data from Google Music
     pmusic (object): Plex item found from search
 
     Returns
     -------
     pmusic (object): Matched Plex item
     """
-    title = str(ggmusic['track']['title'].encode('ascii', 'ignore'))
-    album = str(ggmusic['track']['album'].encode('ascii', 'ignore'))
-    tracknum = int(ggmusic['track']['trackNumber'])
-    duration = int(ggmusic['track']['durationMillis'])
+    title = str(info['title'].encode('ascii', 'ignore'))
+    album = str(info['album'].encode('ascii', 'ignore'))
+    tracknum = int(info['trackNumber'])
+    duration = int(info['durationMillis'])
 
     # Check if track numbers match
     if int(pmusic.index) == int(tracknum):
@@ -87,6 +87,17 @@ def compare(ggmusic, pmusic):
     elif title == pmusic.title:
         return [pmusic]
 
+songs = mc.get_all_songs()
+def get_songs_info(id_song):
+    for e in songs:
+        if e['id'] == id_song:
+            return {
+                "title": e['title'],
+                "artist": e['artist'],
+                "album": e['album'],
+                "trackNumber": e['trackNumber'],
+                "durationMillis": e['durationMillis']
+            }
 
 def main():
     for pl in mc.get_all_user_playlist_contents():
@@ -98,10 +109,11 @@ def main():
             playlistContent = []
             shareToken = pl['shareToken']
             # Go through tracks in Google Music Playlist
-            for ggmusic in mc.get_shared_playlist_contents(shareToken):
-                title = str(ggmusic['track']['title'].encode('ascii', 'ignore'))
-                album = str(ggmusic['track']['album'].encode('ascii', 'ignore'))
-                artist = str(ggmusic['track']['artist'])
+            for ggmusic in pl['tracks']:
+                info = get_songs_info(ggmusic['trackId'])
+                title = str(info['title'])
+                album = str(info['album'])
+                artist = str(info['artist'])
                 # Search Plex for Album title and Track title
                 albumTrackSearch = plex.library.section(MUSIC_LIBRARY_NAME).searchTracks(
                         **{'album.title': album, 'track.title': title})
@@ -110,7 +122,7 @@ def main():
                     playlistContent += albumTrackSearch
                 if len(albumTrackSearch) > 1:
                     for pmusic in albumTrackSearch:
-                        albumTrackFound = compare(ggmusic, pmusic)
+                        albumTrackFound = compare(info, pmusic)
                         if albumTrackFound:
                             playlistContent += albumTrackFound
                             break
@@ -123,7 +135,7 @@ def main():
                         playlistContent += trackSearch
                     if len(trackSearch) > 1:
                         for pmusic in trackSearch:
-                            trackFound = compare(ggmusic, pmusic)
+                            trackFound = compare(info, pmusic)
                             if trackFound:
                                 playlistContent += trackFound
                                 break
@@ -133,7 +145,7 @@ def main():
                         artistSearch = plex.library.section(MUSIC_LIBRARY_NAME).searchTracks(
                                 **{'artist.title': artist})
                         for pmusic in artistSearch:
-                            artistFound = compare(ggmusic, pmusic)
+                            artistFound = compare(info, pmusic)
                             if artistFound:
                                 playlistContent += artistFound
                                 break
