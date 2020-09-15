@@ -40,7 +40,7 @@ plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 mc = Mobileclient()
 if not mc.oauth_login(device_id=Mobileclient.FROM_MAC_ADDRESS):
     mc.perform_oauth()
-
+GGMUSICLIST = mc.get_all_songs()
 
 def round_down(num, divisor):
     """
@@ -57,21 +57,21 @@ def round_down(num, divisor):
     return num - (num%divisor)
 
 
-def compare(info, pmusic):
+def compare(ggmusic, pmusic):
     """
     Parameters
     ----------
-    info (dict): Contains track data from Google Music
+    ggmusic (dict): Contains track data from Google Music
     pmusic (object): Plex item found from search
 
     Returns
     -------
     pmusic (object): Matched Plex item
     """
-    title = str(info['title'].encode('ascii', 'ignore'))
-    album = str(info['album'].encode('ascii', 'ignore'))
-    tracknum = int(info['trackNumber'])
-    duration = int(info['durationMillis'])
+    title = str(ggmusic['title'].encode('ascii', 'ignore'))
+    album = str(ggmusic['album'].encode('ascii', 'ignore'))
+    tracknum = int(ggmusic['trackNumber'])
+    duration = int(ggmusic['durationMillis'])
 
     # Check if track numbers match
     if int(pmusic.index) == int(tracknum):
@@ -87,17 +87,10 @@ def compare(info, pmusic):
     elif title == pmusic.title:
         return [pmusic]
 
-songs = mc.get_all_songs()
-def get_songs_info(id_song):
-    for e in songs:
-        if e['id'] == id_song:
-            return {
-                "title": e['title'],
-                "artist": e['artist'],
-                "album": e['album'],
-                "trackNumber": e['trackNumber'],
-                "durationMillis": e['durationMillis']
-            }
+def get_ggmusic(trackId):
+    for ggmusic in GGMUSICLIST:
+        if ggmusic['id'] == trackId:
+            return ggmusic
 
 def main():
     for pl in mc.get_all_user_playlist_contents():
@@ -109,11 +102,11 @@ def main():
             playlistContent = []
             shareToken = pl['shareToken']
             # Go through tracks in Google Music Playlist
-            for ggmusic in pl['tracks']:
-                info = get_songs_info(ggmusic['trackId'])
-                title = str(info['title'])
-                album = str(info['album'])
-                artist = str(info['artist'])
+            for ggmusicTrackInfo in pl['tracks']:
+                ggmusic = get_ggmusic(ggmusicTrackInfo['trackId'])
+                title = str(ggmusic['title'])
+                album = str(ggmusic['album'])
+                artist = str(ggmusic['artist'])
                 # Search Plex for Album title and Track title
                 albumTrackSearch = plex.library.section(MUSIC_LIBRARY_NAME).searchTracks(
                         **{'album.title': album, 'track.title': title})
@@ -122,7 +115,7 @@ def main():
                     playlistContent += albumTrackSearch
                 if len(albumTrackSearch) > 1:
                     for pmusic in albumTrackSearch:
-                        albumTrackFound = compare(info, pmusic)
+                        albumTrackFound = compare(ggmusic, pmusic)
                         if albumTrackFound:
                             playlistContent += albumTrackFound
                             break
@@ -135,7 +128,7 @@ def main():
                         playlistContent += trackSearch
                     if len(trackSearch) > 1:
                         for pmusic in trackSearch:
-                            trackFound = compare(info, pmusic)
+                            trackFound = compare(ggmusic, pmusic)
                             if trackFound:
                                 playlistContent += trackFound
                                 break
@@ -145,7 +138,7 @@ def main():
                         artistSearch = plex.library.section(MUSIC_LIBRARY_NAME).searchTracks(
                                 **{'artist.title': artist})
                         for pmusic in artistSearch:
-                            artistFound = compare(info, pmusic)
+                            artistFound = compare(ggmusic, pmusic)
                             if artistFound:
                                 playlistContent += artistFound
                                 break
