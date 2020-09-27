@@ -3,7 +3,7 @@
 
 """
 Description: Pull Playlists from Google Music and create Playlist in Plex
-Author: Blacktwin
+Author: Blacktwin, pjft, sdlynx
 Requires: gmusicapi, plexapi, requests
 
 
@@ -41,6 +41,7 @@ mc = Mobileclient()
 if not mc.oauth_login(device_id=Mobileclient.FROM_MAC_ADDRESS):
     mc.perform_oauth()
 GGMUSICLIST = mc.get_all_songs()
+PLEX_MUSIC_LIBRARY = plex.library.section(MUSIC_LIBRARY_NAME)
 
 def round_down(num, divisor):
     """
@@ -108,7 +109,7 @@ def main():
                 album = str(ggmusic['album'])
                 artist = str(ggmusic['artist'])
                 # Search Plex for Album title and Track title
-                albumTrackSearch = plex.library.section(MUSIC_LIBRARY_NAME).searchTracks(
+                albumTrackSearch = PLEX_MUSIC_LIBRARY.searchTracks(
                         **{'album.title': album, 'track.title': title})
                 # Check results
                 if len(albumTrackSearch) == 1:
@@ -122,7 +123,7 @@ def main():
                 # Nothing found from Album title and Track title
                 if not albumTrackSearch or len(albumTrackSearch) == 0:
                     # Search Plex for Track title
-                    trackSearch = plex.library.section(MUSIC_LIBRARY_NAME).searchTracks(
+                    trackSearch = PLEX_MUSIC_LIBRARY.searchTracks(
                             **{'track.title': title})
                     if len(trackSearch) == 1:
                         playlistContent += trackSearch
@@ -135,7 +136,7 @@ def main():
                     # Nothing found from Track title
                     if not trackSearch or len(trackSearch) == 0:
                         # Search Plex for Artist
-                        artistSearch = plex.library.section(MUSIC_LIBRARY_NAME).searchTracks(
+                        artistSearch = PLEX_MUSIC_LIBRARY.searchTracks(
                                 **{'artist.title': artist})
                         for pmusic in artistSearch:
                             artistFound = compare(ggmusic, pmusic)
@@ -145,6 +146,8 @@ def main():
                         if not artistSearch or len(artistSearch) == 0:
                             print(u"Could not find in Plex:\n\t{} - {} {}".format(artist, album, title))
             print("Adding Playlist: {}".format(playlistName))
+            print("Google Music Playlist: {}, has {} tracks. {} tracks were added to Plex.".format(
+                playlistName, len(pl['tracks']), len(playlistContent)))
             plex.createPlaylist(playlistName, playlistContent)
 
 main()
