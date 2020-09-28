@@ -3,7 +3,7 @@
 
 """
 Description: Pull Playlists from Google Music and create Playlist in Plex
-Author: Blacktwin
+Author: Blacktwin, pjft, sdlynx
 Requires: gmusicapi, plexapi, requests
 
 
@@ -40,7 +40,8 @@ plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 mc = Mobileclient()
 if not mc.oauth_login(device_id=Mobileclient.FROM_MAC_ADDRESS):
     mc.perform_oauth()
-
+GGMUSICLIST = mc.get_all_songs()
+PLEX_MUSIC_LIBRARY = plex.library.section(MUSIC_LIBRARY_NAME)
 
 def round_down(num, divisor):
     """
@@ -61,17 +62,17 @@ def compare(ggmusic, pmusic):
     """
     Parameters
     ----------
-    ggmusic (dict): Contains Playlist data from Google Music
+    ggmusic (dict): Contains track data from Google Music
     pmusic (object): Plex item found from search
 
     Returns
     -------
     pmusic (object): Matched Plex item
     """
-    title = str(ggmusic['track']['title'].encode('ascii', 'ignore'))
-    album = str(ggmusic['track']['album'].encode('ascii', 'ignore'))
-    tracknum = int(ggmusic['track']['trackNumber'])
-    duration = int(ggmusic['track']['durationMillis'])
+    title = str(ggmusic['title'].encode('ascii', 'ignore'))
+    album = str(ggmusic['album'].encode('ascii', 'ignore'))
+    tracknum = int(ggmusic['trackNumber'])
+    duration = int(ggmusic['durationMillis'])
 
     # Check if track numbers match
     if int(pmusic.index) == int(tracknum):
@@ -87,6 +88,10 @@ def compare(ggmusic, pmusic):
     elif title == pmusic.title:
         return [pmusic]
 
+def get_ggmusic(trackId):
+    for ggmusic in GGMUSICLIST:
+        if ggmusic['id'] == trackId:
+            return ggmusic
 
 def main():
     for pl in mc.get_all_user_playlist_contents():
@@ -98,12 +103,13 @@ def main():
             playlistContent = []
             shareToken = pl['shareToken']
             # Go through tracks in Google Music Playlist
-            for ggmusic in mc.get_shared_playlist_contents(shareToken):
-                title = str(ggmusic['track']['title'].encode('ascii', 'ignore'))
-                album = str(ggmusic['track']['album'].encode('ascii', 'ignore'))
-                artist = str(ggmusic['track']['artist'])
+            for ggmusicTrackInfo in pl['tracks']:
+                ggmusic = get_ggmusic(ggmusicTrackInfo['trackId'])
+                title = str(ggmusic['title'])
+                album = str(ggmusic['album'])
+                artist = str(ggmusic['artist'])
                 # Search Plex for Album title and Track title
-                albumTrackSearch = plex.library.section(MUSIC_LIBRARY_NAME).searchTracks(
+                albumTrackSearch = PLEX_MUSIC_LIBRARY.searchTracks(
                         **{'album.title': album, 'track.title': title})
                 # Check results
                 if len(albumTrackSearch) == 1:
@@ -117,7 +123,7 @@ def main():
                 # Nothing found from Album title and Track title
                 if not albumTrackSearch or len(albumTrackSearch) == 0:
                     # Search Plex for Track title
-                    trackSearch = plex.library.section(MUSIC_LIBRARY_NAME).searchTracks(
+                    trackSearch = PLEX_MUSIC_LIBRARY.searchTracks(
                             **{'track.title': title})
                     if len(trackSearch) == 1:
                         playlistContent += trackSearch
@@ -130,7 +136,7 @@ def main():
                     # Nothing found from Track title
                     if not trackSearch or len(trackSearch) == 0:
                         # Search Plex for Artist
-                        artistSearch = plex.library.section(MUSIC_LIBRARY_NAME).searchTracks(
+                        artistSearch = PLEX_MUSIC_LIBRARY.searchTracks(
                                 **{'artist.title': artist})
                         for pmusic in artistSearch:
                             artistFound = compare(ggmusic, pmusic)
@@ -140,6 +146,8 @@ def main():
                         if not artistSearch or len(artistSearch) == 0:
                             print(u"Could not find in Plex:\n\t{} - {} {}".format(artist, album, title))
             print("Adding Playlist: {}".format(playlistName))
+            print("Google Music Playlist: {}, has {} tracks. {} tracks were added to Plex.".format(
+                playlistName, len(pl['tracks']), len(playlistContent)))
             plex.createPlaylist(playlistName, playlistContent)
 
 main()
