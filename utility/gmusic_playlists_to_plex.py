@@ -145,9 +145,12 @@ def main():
                                 break
                         if not artistSearch or len(artistSearch) == 0:
                             print(u"Could not find in Plex:\n\t{} - {} {}".format(artist, album, title))
-            print("Adding Playlist: {}".format(playlistName))
-            print("Google Music Playlist: {}, has {} tracks. {} tracks were added to Plex.".format(
-                playlistName, len(pl['tracks']), len(playlistContent)))
-            plex.createPlaylist(playlistName, playlistContent)
+            if len(playlistContent) != 0:
+                print("Adding Playlist: {}".format(playlistName))
+                print("Google Music Playlist: {}, has {} tracks. {} tracks were added to Plex.".format(
+                    playlistName, len(pl['tracks']), len(playlistContent)))
+                plex.createPlaylist(playlistName, playlistContent)
+            else:
+                print("Could not find any matching tracks in Plex for {}".format(playlistName))
 
 main()
