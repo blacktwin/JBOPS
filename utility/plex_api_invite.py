@@ -86,7 +86,6 @@ def invite(user, sections, allowSync, camera, channels, filterMovies, filterTele
     if filterMusic:
         print('Music Filters: {}'.format(filterMusic))
 
-
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Invite new users to share Plex libraries.",
@@ -164,3 +163,13 @@ if __name__ == "__main__":
     for user in opts.user:
         invite(user, libraries, sync, camera, channels,
                filterMovies, filterTelevision, filterMusic)
+
+UserList = open("UserList.log","a")
+from datetime import date
+today = date.today()
+d1 = today.strftime("%Y/%m/%D")
+
+for user in opts.user:
+     UserList.write(d1 + ', ' + user + '\n')
+
+UserList.close()
