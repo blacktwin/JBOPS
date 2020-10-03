@@ -19,11 +19,12 @@ PLEX_TOKEN = ''
 TAUTULLI_URL = ''
 TAUTULLI_APIKEY = ''
 
-REMOVE_LIMIT = 30  # Days
+REMOVE_LIMIT = 14  # Days
 UNSHARE_LIMIT = 15  # Days
 
 USERNAME_IGNORE = ['user1', 'username2']
 IGNORE_NEVER_SEEN = True
+USE_USERLIST_LOG = True
 DRY_RUN = True
 # EDIT THESE SETTINGS #
 
@@ -50,6 +51,8 @@ ACCOUNT = SERVER.myPlexAccount()
 SECTIONS = [section.title for section in SERVER.library.sections()]
 PLEX_USERS = {user.id: user.title for user in ACCOUNT.users()}
 PLEX_USERS.update({int(ACCOUNT.id): ACCOUNT.title})
+PLEX_NAMES = {user.title for user in ACCOUNT.users()}
+PLEX_NAMES.update({ACCOUNT.title})
 IGNORED_UIDS = [uid for uid, username in PLEX_USERS.items() if username.lower() in USERNAME_IGNORE]
 IGNORED_UIDS.extend((int(ACCOUNT.id), 0))
 # Get the Tautulli history.
@@ -72,6 +75,9 @@ try:
 except Exception as e:
     exit("Tautulli API 'get_users_table' request failed. Error: {}.".format(e))
 
+UserList = open("Userlist.log", "r") # List of log lines
+log_lines = UserList.read().split('\n')
+UserList.close
 
 def time_format(total_seconds):
     # Display user's last history entry
@@ -93,13 +99,49 @@ for user in TAUTULLI_USERS:
     UID = user['user_id']
     if not user['last_seen']:
         TOTAL_SECONDS = None
-        OUTPUT = '{} has never used the server'.format(USERNAME)
+        
+        with open('UserList.log') as f:
+            if USERNAME in f.read(): 
+               for i, log in enumerate(log_lines):
+                   if log != '': 
+                        LIST_NAME = log.split(', ')[1]
+                        if LIST_NAME not in PLEX_NAMES:
+                           if DRY_RUN:
+                              print (LIST_NAME + ' is in your UserList.log but not a friend on Plex, and would be removed from the log.')
+                              del log_lines[i]
+                           else:
+                              del log_lines[i]
+                              LIST_UPDATE = open("UserList.log", "w+")
+                              for line in log_lines: 
+                                  if line.rstrip(): LIST_UPDATE.write(line + "\n")
+                              LIST_UPDATE.close()
+                              print ('Removed ' + LIST_NAME + ' from UserList.log as user is no longer a friend on Plex.')
+
+                   if USERNAME in log:
+                        DATEADDED, sep, tail = log.partition(',')
+                        DATESPLIT = DATEADDED.split("/")
+                        from datetime import date
+                        d0 = date(NOW.year, NOW.month, NOW.day)
+                        d1 = date(int(DATESPLIT[0]), int(DATESPLIT[1]), int(DATESPLIT[2]))
+                        DateDiff = d0 - d1
+                        if int(DateDiff.days) > REMOVE_LIMIT: 
+                           OUTPUT = '{} has never used the server, was added '.format(USERNAME) + str(DateDiff.days) + ' days ago'
+                        else: 
+                           OUTPUT = '{} has never used the server and was added '.format(USERNAME) + str(DateDiff.days) + ' days ago'
+            else:
+               OUTPUT = '{} has never used the server'.format(USERNAME)
+                 
+
     else:
         TOTAL_SECONDS = int((NOW - datetime.fromtimestamp(user['last_seen'])).total_seconds())
         OUTPUT = '{} was last seen {} ago'.format(USERNAME, time_format(TOTAL_SECONDS))
 
     if UID not in PLEX_USERS.keys():
         print('{}, and exists in Tautulli but does not exist in Plex. Skipping.'.format(OUTPUT))
+        continue
+
+    if 'and was' in OUTPUT:
+        print('{}. Skipping.'.format(OUTPUT))
         continue
 
     TOTAL_SECONDS = TOTAL_SECONDS or 86400 * UNSHARE_LIMIT
