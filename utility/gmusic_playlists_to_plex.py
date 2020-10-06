@@ -75,7 +75,7 @@ def compare(ggmusic, pmusic):
     duration = int(ggmusic['durationMillis'])
 
     # Check if track numbers match
-    if int(pmusic.index) == int(tracknum):
+    if int(pmusic.index or 0) == int(tracknum):
         return [pmusic]
     # If not track number, check track title and album title
     elif title == pmusic.title and (album == pmusic.parentTitle or
