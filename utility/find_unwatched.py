@@ -4,7 +4,12 @@
 """
 Find what was added TFRAME ago and not watched using Tautulli.
 """
+from __future__ import print_function
+from __future__ import unicode_literals
 
+from builtins import input
+from builtins import str
+from builtins import object
 import requests
 import sys
 import time
@@ -122,7 +127,7 @@ def get_libraries_table():
 
 
 def delete_files(tmp_lst):
-    del_file = raw_input('Delete all unwatched files? (yes/no)').lower()
+    del_file = input('Delete all unwatched files? (yes/no)').lower()
     if del_file.startswith('y'):
         for x in tmp_lst:
             print("Removing {}".format(x))
@@ -148,10 +153,10 @@ for i in glt:
                     # Find movie rating_key.
                     show_lst += [int(x.rating_key)]
             except Exception as e:
-                print("Rating_key failed: {e}").format(e=e)
+                print(("Rating_key failed: {e}").format(e=e))
 
     except Exception as e:
-        print("Library media info failed: {e}").format(e=e)
+        print(("Library media info failed: {e}").format(e=e))
 
 # Remove reverse sort if you want the oldest keys first.
 for i in sorted(show_lst, reverse=True):
@@ -169,7 +174,7 @@ for i in sorted(show_lst, reverse=True):
         path_lst += [x.file]
 
     except Exception as e:
-        print("Metadata failed. Likely end of range: {e}").format(e=e)
+        print(("Metadata failed. Likely end of range: {e}").format(e=e))
 
 
 delete_files(path_lst)

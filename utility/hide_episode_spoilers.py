@@ -22,6 +22,7 @@
 #    * Watched (optional):
 #        --rating_key {rating_key} --file {file} --remove
 
+from __future__ import unicode_literals
 import argparse
 import os
 import requests

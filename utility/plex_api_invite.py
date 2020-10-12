@@ -36,6 +36,8 @@ Usage:
        - Share Movie library with USER but restrict them to only G and PG-13 titles.
 
 """
+from __future__ import print_function
+from __future__ import unicode_literals
 
 from plexapi.server import PlexServer, CONFIG
 import argparse

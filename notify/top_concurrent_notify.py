@@ -47,6 +47,7 @@ Tautulli > Settings > Notification Agents > New Script > Script Arguments:
 
 
 """
+from __future__ import unicode_literals
 
 import os
 import sys

@@ -23,6 +23,9 @@ Enabling Scripts in Tautulli:
         python media_manager.py --libraries "TV Shows" --select watched --users User1 User2
 
 """
+from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import object
 import argparse
 import datetime
 import time
@@ -70,7 +73,7 @@ OPTIMIZE_DEFAULT = {'targetTagID': 'Mobile',
                    'policyUnwatched': 0,
                    'videoQuality': None}
 
-class Connection:
+class Connection(object):
     def __init__(self, url=None, apikey=None, verify_ssl=False):
         self.url = url
         self.apikey = apikey
@@ -159,7 +162,7 @@ class User(object):
         self.direct = {}
 
 
-class Tautulli:
+class Tautulli(object):
     def __init__(self, connection):
         self.connection = connection
 
@@ -594,7 +597,7 @@ if __name__ == '__main__':
     if opts.select == "watched":
         if libraries:
             for user in user_lst:
-                print("Finding watched items from user: {}",format(user.name))
+                print(("Finding watched items from user: {}",format(user.name)))
                 for _library in libraries:
                     print("Checking library: '{}' watch statuses...".format(_library.title))
                     watched_work(user=user, sectionID=_library.key)

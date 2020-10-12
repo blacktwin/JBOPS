@@ -49,8 +49,12 @@ Clear user history for banned video to remove violation counts and run manually 
 Concurrent stream count is the trigger. Trigger can be anything you want.
 
 """
+from __future__ import print_function
+from __future__ import unicode_literals
 
 
+from builtins import str
+from builtins import object
 import requests
 import sys
 from xml.dom import minidom

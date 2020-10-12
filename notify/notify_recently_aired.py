@@ -43,6 +43,8 @@ Note:
     The notifier_id in the edit section will need to be this other notification agent you intend to use.
         It does not have to be an active notification agent, just setup.
 """
+from __future__ import print_function
+from __future__ import unicode_literals
 import os
 import sys
 import requests

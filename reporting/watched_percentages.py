@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import object
 import time
 import argparse
 from plexapi.myplex import MyPlexAccount
@@ -39,7 +42,7 @@ VERIFY_SSL = False
 timestr = time.strftime("%Y%m%d-%H%M%S")
 
 
-class Connection:
+class Connection(object):
     def __init__(self, url=None, apikey=None, verify_ssl=False):
         self.url = url
         self.apikey = apikey
@@ -74,7 +77,7 @@ class Library(object):
             pass
 
 
-class Tautulli:
+class Tautulli(object):
     def __init__(self, connection):
         self.connection = connection
 
@@ -127,7 +130,7 @@ class Tautulli:
         return self._call_api('get_libraries', payload)
 
 
-class Plex:
+class Plex(object):
     def __init__(self, token, url=None):
         if token and not url:
             self.account = MyPlexAccount(token)
@@ -292,7 +295,7 @@ if __name__ == '__main__':
                     else:
                         user_dict[user] = {library: section_watched_total}
                 except Exception as e:
-                    print(user, e)
+                    print((user, e))
                     if user_dict.get(user):
                         user_dict[user].update({library: 0})
                     else:
@@ -341,7 +344,7 @@ if __name__ == '__main__':
                         start += count
 
                 except Exception as e:
-                    print(user, e)
+                    print((user, e))
 
                 section_watched_total = len(list(set(section_watched_lst)))
                 percent_watched = 100 * (float(section_watched_total) / float(section_total))
