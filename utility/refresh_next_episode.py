@@ -15,6 +15,8 @@ Check Tautulli's Watched Percent in Tautulli > Settings > General
     {show_name} {episode_num00} {season_num00}
 
 """
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import requests
 import sys

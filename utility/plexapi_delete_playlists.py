@@ -5,6 +5,7 @@
 
 
 """
+from __future__ import unicode_literals
 
 from plexapi.server import PlexServer
 

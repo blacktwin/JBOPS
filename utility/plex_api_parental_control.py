@@ -36,6 +36,8 @@ Usage:
        - USER is still exists as a Friend or Home User
 
 """
+from __future__ import print_function
+from __future__ import unicode_literals
 
 
 import argparse

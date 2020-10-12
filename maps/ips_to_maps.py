@@ -26,7 +26,13 @@ optional arguments:
 
 
 """
+from __future__ import print_function
+from __future__ import unicode_literals
 
+from builtins import zip
+from builtins import str
+from builtins import range
+from builtins import object
 import requests
 import sys
 import json
@@ -212,7 +218,7 @@ def get_geo_dict(length, users):
 
 def get_geojson_dict(user_locations):
     locs = []
-    for username, locations in user_locations.iteritems():
+    for username, locations in user_locations.items():
         for location in locations:
             try:
                 locs.append({
@@ -348,9 +354,9 @@ def draw_map(map_type, geo_dict, filename, headless, leg_choice):
                                   0))
         labels = labels[idx:] + labels[:idx]
         handles = handles[idx:] + handles[:idx]
-        by_label = OrderedDict(zip(labels, handles))
+        by_label = OrderedDict(list(zip(labels, handles)))
 
-        leg = plt.legend(by_label.values(), by_label.keys(), fancybox=True, fontsize='x-small',
+        leg = plt.legend(list(by_label.values()), list(by_label.keys()), fancybox=True, fontsize='x-small',
                          numpoints=1, title="Legend", labelspacing=1., borderpad=1.5, handletextpad=2.)
         if leg:
             lleng = len(leg.legendHandles)

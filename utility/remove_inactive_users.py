@@ -7,6 +7,8 @@ Just run.
 
 Comment out `remove_friend(username)` and `unshare(username)` to test.
 """
+from __future__ import print_function
+from __future__ import unicode_literals
 from sys import exit
 from requests import Session
 from datetime import datetime

@@ -13,12 +13,16 @@ Requires: plexapi
     python plex_api_poster_pull.py
 
 """
+from __future__ import print_function
+from __future__ import unicode_literals
 
+from future import standard_library
+standard_library.install_aliases()
 from plexapi.server import PlexServer, CONFIG
 import requests
 import re
 import os
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 library_name = ['Movies', 'TV Shows']  # Your library names
 
@@ -70,4 +74,4 @@ for library in library_name:
             print("ERROR, %s already exist" % image_path)
         else:
             # Save to directory
-            urllib.urlretrieve(thumb_url, image_path)
+            urllib.request.urlretrieve(thumb_url, image_path)

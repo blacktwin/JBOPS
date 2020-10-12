@@ -5,6 +5,8 @@
 # Author:       /u/SwiftPanda16
 # Requires:     plexapi
 
+from __future__ import print_function
+from __future__ import unicode_literals
 from plexapi.server import PlexServer
 
 

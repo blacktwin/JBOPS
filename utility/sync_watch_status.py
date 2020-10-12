@@ -55,6 +55,9 @@ Taultulli > Settings > Notification Agents > New Script > Script Arguments:
        on selected servers.
        **Rating key must be a movie or episode. Shows and Seasons not support.... yet.
 """
+from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import object
 import argparse
 from plexapi.myplex import MyPlexAccount
 from plexapi.server import PlexServer
@@ -78,7 +81,7 @@ if not TAUTULLI_APIKEY:
 VERIFY_SSL = False
 
 
-class Connection:
+class Connection(object):
     def __init__(self, url=None, apikey=None, verify_ssl=False):
         self.url = url
         self.apikey = apikey
@@ -132,7 +135,7 @@ class Metadata(object):
             pass
 
 
-class Tautulli:
+class Tautulli(object):
     def __init__(self, connection):
         self.connection = connection
 
@@ -189,7 +192,7 @@ class Tautulli:
         return self._call_api('get_libraries', payload)
 
 
-class Plex:
+class Plex(object):
     def __init__(self, token, url=None):
         if token and not url:
             self.account = MyPlexAccount(token)

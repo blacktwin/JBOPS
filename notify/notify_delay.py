@@ -16,7 +16,11 @@ Tautulli > Settings > Notification Agents > Scripts > Gear icon:
 
 Tautulli Settings > Notification Agents > Scripts (Gear) > Script Timeout: 0 to disable or set to > 180
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import unicode_literals
 
+from past.utils import old_div
 import requests
 import sys
 import argparse
@@ -66,7 +70,7 @@ def send_notification(subject_text, body_text):
     """Format notification text."""
     try:
         subject = subject_text.format(p=p, total=cc_total)
-        body = body_text.format(p=p, total=cc_total, time=TIMEOUT / 60)
+        body = body_text.format(p=p, total=cc_total, time=old_div(TIMEOUT, 60))
 
     except LookupError as e:
         sys.stderr.write("Unable to substitute '{0}' in the notification subject or body".format(e))
