@@ -116,7 +116,6 @@ import requests
 import argparse
 import operator
 import datetime
-import unicodedata
 from collections import Counter
 from plexapi.server import PlexServer, CONFIG
 
@@ -568,13 +567,11 @@ def show_playlist(playlist_title, playlist_keys):
         plex_obj = plex.fetchItem(key)
         if plex_obj.type == 'show':
             for episode in plex_obj.episodes():
-                title = u"{}".format(episode._prettyfilename())
-                title = unicodedata.normalize('NFKD', title).encode('ascii', 'ignore').translate(None, "'")
+                title = str("{}".format(episode._prettyfilename()))
                 playlist_list.append(title)
-        else:
-            title = u"{} ({})".format(plex_obj._prettyfilename(), plex_obj.year)
-            title = unicodedata.normalize('NFKD', title).encode('ascii', 'ignore').translate(None, "'")
-            playlist_list.append(title)
+            else:
+                title = str("{} ({})".format(plex_obj._prettyfilename(), plex_obj.year))
+                playlist_list.append(title)
 
     logger.info(u"Contents of Playlist {title}:\n{playlist}".format(
         title=playlist_title,
