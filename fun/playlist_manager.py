@@ -637,7 +637,8 @@ def delete_playlist(playlist_dict, title):
                           .format(playlist=playlist, user=user))
             if isinstance(title, list):
                 # If list then removing selected playlists
-                if playlist.title in title:
+                playlists_titles = [pl.title for pl in title]
+                if playlist.title in playlists_titles:
                     playlist.delete()
                     logger.info("...Deleted Playlist: {playlist.title} for '{user}'."
                           .format(playlist=playlist, user=user))
