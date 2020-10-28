@@ -61,13 +61,13 @@ optional arguments:
     python playlist_manager.py --jbop historyToday --action remove --users bob "Black Twin"
 
  Create 5 Most Popular TV Shows (30 days) Playlist and share to users bob and Black Twin
-    python playlist_manager.py --jbop popularTv --action add --users bob "Black Twin"
+    python playlist_manager.py --jbop popularTv --libraries "TV Shows" --action add --users bob "Black Twin"
 
  Create 10 Most Popular Movies (60 days) Playlist and share to users bob and Black Twin
-    python playlist_manager.py --jbop popularMovies --action add --users bob "Black Twin" --days 60 --top 10
+    python playlist_manager.py --jbop popularMovies --libraries Movies --action add --users bob "Black Twin" --days 60 --top 10
 
  Show 5 Most Popular TV Shows (30 days) Playlist
-    python playlist_manager.py --jbop popularTv --action show
+    python playlist_manager.py --jbop popularTv --libraries "TV Shows" --action show
 
  Show all users current playlists
     python playlist_manager.py --action show --allUsers
