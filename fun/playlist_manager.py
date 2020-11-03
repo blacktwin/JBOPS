@@ -569,9 +569,9 @@ def show_playlist(playlist_title, playlist_keys):
             for episode in plex_obj.episodes():
                 title = str("{}".format(episode._prettyfilename()))
                 playlist_list.append(title)
-            else:
-                title = str("{} ({})".format(plex_obj._prettyfilename(), plex_obj.year))
-                playlist_list.append(title)
+        else:
+            title = str("{} ({})".format(plex_obj._prettyfilename(), plex_obj.year))
+            playlist_list.append(title)
 
     logger.info(u"Contents of Playlist {title}:\n{playlist}".format(
         title=playlist_title,
