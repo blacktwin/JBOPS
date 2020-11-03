@@ -883,6 +883,8 @@ if __name__ == "__main__":
         logger.info("Deleting the playlist(s)...")
         for data in playlist_dict['data']:
             titles = data['user_selected']
+            # if no titles were selected then assume jbop, libraries, and title used
+            titles = titles if titles else title
             delete_playlist(data, titles)
 
     # Check if limit exist and if it's greater than the pulled list of rating keys
