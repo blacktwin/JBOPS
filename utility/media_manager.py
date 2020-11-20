@@ -298,9 +298,12 @@ def plex_deletion(items, libraries, toggleDeletion):
     
     print("The following items were added before {} and marked for deletion.".format(opts.date))
     for item in items:
-        plex_item = plex.fetchItem(int(item.rating_key))
+        if isinstance(item, int):
+            plex_item = plex.fetchItem(item)
+        else:
+            plex_item = plex.fetchItem(int(item.rating_key))
         plex_item.delete()
-        print("Item: {} was deleted".format(item.title))
+        print("Item: {} was deleted".format(plex_item.title))
     for _library in libraries:
         section = plex.library.sectionByID(_library.key)
         print("Emptying Trash from library {}".format(_library.title))
