@@ -299,9 +299,14 @@ if __name__ == "__main__":
         movie_ratings = []
         show_ratings = []
         for movie in movies_keys:
-            movie_ratings += get_ratings_lst(movie)
+            ratings = get_ratings_lst(movie)
+            if ratings: movie_ratings += ratings
         for show in show_keys:
-            show_ratings += get_ratings_lst(show)
+            ratings = get_ratings_lst(show)
+            if ratings: show_ratings += ratings
+        filterParsers = argparse.ArgumentParser(description="Filters.",
+                                             formatter_class=argparse.RawTextHelpFormatter)
+        filterSubParsers = parser.add_subparsers()
         parser.add_argument('--kill', default=None, nargs='?',
                             help='Kill user\'s current stream(s). Include message to override default message.')
         parser.add_argument('--sync', default=None, action='store_true',
