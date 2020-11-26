@@ -150,6 +150,8 @@ for res in plex.myPlexAccount().resources():
     if res.provides == 'server' and res.owned is True:
         my_server_names.append(res.name)
 
+ALLOWED_MEDIA_FILTERS = ('contentRating', 'contentRating!', 'label', 'label!')
+
 
 def get_ratings_lst(section_id):
     headers = {'Accept': 'application/json'}
@@ -259,6 +261,22 @@ def unshare(user, sections):
     print('Unshared all libraries from {user}.'.format(user=user))
 
 
+def add_to_dictlist(d, key, val):
+    if key not in d:
+        d[key] = [val]
+    else:
+        d[key].append(val)
+        
+
+def allowed_filters(filters, filterDict):
+    for filter in filters[0]:
+        if filter[0] in ALLOWED_MEDIA_FILTERS:
+            add_to_dictlist(filterDict, filter[0], filter[1])
+        else:
+            print("{} is not among the allowed keys for this argument.\n"
+                  "Allowed keys: {}".format(filter[0], ','.join(ALLOWED_MEDIA_FILTERS)))
+        
+
 if __name__ == "__main__":
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
@@ -304,9 +322,6 @@ if __name__ == "__main__":
         for show in show_keys:
             ratings = get_ratings_lst(show)
             if ratings: show_ratings += ratings
-        filterParsers = argparse.ArgumentParser(description="Filters.",
-                                             formatter_class=argparse.RawTextHelpFormatter)
-        filterSubParsers = parser.add_subparsers()
         parser.add_argument('--kill', default=None, nargs='?',
                             help='Kill user\'s current stream(s). Include message to override default message.')
         parser.add_argument('--sync', default=None, action='store_true',
@@ -319,13 +334,13 @@ if __name__ == "__main__":
                             help='Use to add rating restrictions to movie library types.\n'
                                  'Space separated list of case sensitive names to process. Allowed names are: \n'
                                  '(choices: %(choices)s')
-        parser.add_argument('--movieLabels', nargs='+', metavar='',
+        parser.add_argument('--movieLabels', nargs='+', action='append', type=lambda kv: kv.split("="),
                             help='Use to add label restrictions for movie library types.')
         parser.add_argument('--tvRatings', nargs='+', choices=list(set(show_ratings)), metavar='',
                             help='Use to add rating restrictions for show library types.\n'
                                  'Space separated list of case sensitive names to process. Allowed names are: \n'
                                  '(choices: %(choices)s')
-        parser.add_argument('--tvLabels', nargs='+', metavar='',
+        parser.add_argument('--tvLabels', nargs='+', action='append', type=lambda kv: kv.split("="),
                             help='Use to add label restrictions for show library types.')
         parser.add_argument('--musicLabels', nargs='+', metavar='',
                             help='Use to add label restrictions for music library types.')
@@ -354,13 +369,15 @@ if __name__ == "__main__":
         if opts.movieLabels or opts.movieRatings:
             filterMovies = {}
         if opts.movieLabels:
-            filterMovies['label'] = opts.movieLabels
+            allowed_filters(opts.movieLabels, filterMovies)
         if opts.movieRatings:
             filterMovies['contentRating'] = opts.movieRatings
         if opts.tvLabels or opts.tvRatings:
             filterTelevision = {}
         if opts.tvLabels:
             filterTelevision['label'] = opts.tvLabels
+            for label in opts.filterTelevision[0]:
+                add_to_dictlist(filterMovies, label[0], label[1])
         if opts.tvRatings:
             filterTelevision['contentRating'] = opts.tvRatings
         if opts.musicLabels:
