@@ -409,16 +409,10 @@ def get_content(libraries, jbop, filters=None, search=None, limit=None):
                 if keywords:
                     child_lst += multi_filter_search(keywords, plex_library)
                 if filters:
-                    # Update filters for tagged filtered keys
-                    for key, value in filters.items():
-                        # Genre needs special handling
-                        if key == "genre":
-                            del filters[key]
-                            filters[key + tags] = value
                     for key, value in filters.items():
                         # Only genre filtering should allow multiple values and allow for AND statement
-                        if key.endswith(tags):
-                            child_lst += multi_filter_search({key: value}, plex_library)
+                        if key == "genre":
+                            child_lst += multi_filter_search({key + tags: value}, plex_library)
                         else:
                             filter_lst = [movie.ratingKey for movie in plex_library.search(**{key: value})]
                             child_lst += filter_lst
@@ -431,15 +425,9 @@ def get_content(libraries, jbop, filters=None, search=None, limit=None):
                     search_lst = multi_filter_search(keywords, plex_library, search_eps=True)
                     child_lst += search_lst
                 if filters:
-                    # Update filters for tagged filtered keys
-                    for key, value in filters.items():
-                        # Genre needs special handling
-                        if key == "genre":
-                            del filters[key]
-                            filters[key + tags] = value
                     for key, value in filters.items():
                         # Only genre filtering should allow multiple values and allow for AND statement
-                        if key.endswith(tags):
+                        if key == "genre":
                             shows_lst = multi_filter_search({key: value}, plex_library)
                         else:
                             shows_lst = [show.ratingKey for show in plex_library.search(**{key: value})]
