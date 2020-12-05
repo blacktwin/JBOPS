@@ -858,7 +858,7 @@ if __name__ == "__main__":
         logger.info("Displaying the user's playlist(s)...")
         for data in playlist_dict['data']:
             user = data['user']
-            playlists = [playlist.title for playlist in data['all_playlists']]
+            playlists = [playlist if isinstance(playlist, str) else playlist.title for playlist in data['all_playlists']]
             logger.info("{}'s current playlist(s): {}".format(user, ', '.join(playlists)))
         exit()
 
