@@ -54,7 +54,7 @@ if not TAUTULLI_APIKEY:
 
 VERIFY_SSL = False
 
-SELECTOR = ['watched', 'unwatched', 'transcoded', 'rating', 'size']
+SELECTOR = ['watched', 'unwatched', 'transcoded', 'rating', 'size', 'last_played']
 ACTIONS = ['delete', 'move', 'archive', 'optimize', 'show']
 OPERATORS = { '>': lambda v, q: v > q,
               '>=': lambda v, q: v >= q,
