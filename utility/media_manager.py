@@ -54,7 +54,7 @@ if not TAUTULLI_APIKEY:
 
 VERIFY_SSL = False
 
-SELECTOR = ['watched', 'unwatched', 'transcoded', 'rating', 'size', 'last_played']
+SELECTOR = ['watched', 'unwatched', 'transcoded', 'rating', 'size', 'lastPlayed']
 ACTIONS = ['delete', 'move', 'archive', 'optimize', 'show']
 OPERATORS = { '>': lambda v, q: v > q,
               '>=': lambda v, q: v >= q,
@@ -231,7 +231,8 @@ class Tautulli(object):
         payload = {}
         return self._call_api('get_libraries', payload)
 
-    def get_library_media_info(self, section_id, start, length, unwatched=None, date=None, order_column=None):
+    def get_library_media_info(self, section_id, start, length, unwatched=None, date=None, order_column=None,
+                               last_played=None):
         """Call Tautulli's get_library_media_info api endpoint."""
         payload = {'section_id': section_id}
         if start:
@@ -248,6 +249,8 @@ class Tautulli(object):
         elif unwatched and date:
             return [d for d in library_stats['data'] if d['play_count'] is None
                     and (float(d['added_at'])) < date]
+        elif last_played and date:
+            return [d for d in library_stats['data'] if d['play_count'] is not None]
         else:
             return [d for d in library_stats['data']]
         
@@ -311,6 +314,42 @@ def plex_deletion(items, libraries, toggleDeletion):
     if toggleDeletion:
         print("Disabling Plex to delete media.")
         plex._allowMediaDeletion(False)
+
+
+def last_played_work(sectionID, date=None):
+    """
+    Parameters
+    ----------
+    sectionID (int): Library key
+    date (float): Epoch time
+
+    Returns
+    -------
+    last_played_lst (list): List of Metdata objects of last played items
+    """
+    count = 25
+    start = 0
+    last_played_lst = []
+    while True:
+        
+        # Getting all watched history
+        tt_history = tautulli_server.get_library_media_info(section_id=sectionID,
+                                                            start=start, length=count, last_played=True,
+                                                            date=date, order_column='last_played')
+        
+        if all([tt_history]):
+            start += count
+            for item in tt_history:
+                _meta = tautulli_server.get_metadata(item['rating_key'])
+                metadata = Metadata(_meta)
+                if (float(item['last_played'])) < date:
+                    metadata.last_played = item['last_played']
+                    last_played_lst.append(metadata)
+        elif not all([tt_history]):
+            break
+        start += count
+    
+    return last_played_lst
 
 
 def unwatched_work(sectionID, date=None):
@@ -541,6 +580,7 @@ if __name__ == '__main__':
     all_sections = []
     watched_lst = []
     unwatched_lst = []
+    last_played_lst = []
     size_lst = []
     user_lst = []
     transcode_lst = []
@@ -632,6 +672,28 @@ if __name__ == '__main__':
         
         if opts.action == "delete":
             plex_deletion(watched_by_all, libraries, opts.toggleDeletion)
+
+    if opts.select == "lastPlayed":
+        if libraries:
+            for _library in libraries:
+                print("Checking library: '{}' watch statuses...".format(_library.title))
+                last_played_lst += last_played_work(sectionID=_library.key, date=date)
+    
+        if opts.action == "show":
+            print("The following items were last played before {}".format(opts.date))
+            sizes = []
+            for item in last_played_lst:
+                added_at = datetime.datetime.utcfromtimestamp(float(item.added_at)).strftime("%Y-%m-%d")
+                last_played = datetime.datetime.utcfromtimestamp(float(item.last_played)).strftime("%Y-%m-%d")
+                size = int(item.file_size) if item.file_size else ''
+                sizes.append(size)
+                print(u"\t{} added {} and last played {}\tSize: {}\n\t\tFile: {}".format(
+                    item.title, added_at, last_played, sizeof_fmt(size), item.file))
+            total_size = sum(sizes)
+            print("Total size: {}".format(sizeof_fmt(total_size)))
+    
+        if opts.action == "delete":
+            plex_deletion(last_played_lst, libraries, opts.toggleDeletion)
     
     if opts.select in ["size", "rating", "transcoded"]:
         if opts.selectValue:
