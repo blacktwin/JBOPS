@@ -530,29 +530,32 @@ def action_show(items, selector, date, users=None):
         print("The following items were watched by {}".format(", ".join([user.name for user in users])))
     else:
         print("The following items were added before {}".format(date))
-        
-    for item in items:
-        if selector == 'watched':
-            item = users[0].watch[item]
-        added_at = datetime.datetime.utcfromtimestamp(float(item.added_at)).strftime("%Y-%m-%d")
-        size = int(item.file_size) if item.file_size else 0
-        sizes.append(size)
     
-        if selector == 'lastPlayed':
-            last_played = datetime.datetime.utcfromtimestamp(float(item.last_played)).strftime("%Y-%m-%d")
-            print(u"\t{} added {} and last played {}\tSize: {}\n\t\tFile: {}".format(
-                item.title, added_at, last_played, sizeof_fmt(size), item.file))
-
-        elif selector == 'transcoded':
-            print(u"\t{} added {}\tSize: {}\tTransocded: {} time(s)\n\t\tFile: {}".format(
-                item.title, added_at, file_size, item.transcode_count, item.file))
-            
-        else:
-            print(u"\t{} added {}\tSize: {}\n\t\tFile: {}".format(
-                    item.title, added_at, sizeof_fmt(size), item.file))
-
-    total_size = sum(sizes)
-    print("Total size: {}".format(sizeof_fmt(total_size)))
+    for item in items:
+        try:
+            if selector == 'watched':
+                item = users[0].watch[item]
+            added_at = datetime.datetime.utcfromtimestamp(float(item.added_at)).strftime("%Y-%m-%d")
+            size = int(item.file_size) if item.file_size else 0
+            sizes.append(size)
+        
+            if selector == 'lastPlayed':
+                last_played = datetime.datetime.utcfromtimestamp(float(item.last_played)).strftime("%Y-%m-%d")
+                print(u"\t{} added {} and last played {}\tSize: {}\n\t\tFile: {}".format(
+                    item.title, added_at, last_played, sizeof_fmt(size), item.file))
+    
+            elif selector == 'transcoded':
+                print(u"\t{} added {}\tSize: {}\tTransocded: {} time(s)\n\t\tFile: {}".format(
+                    item.title, added_at, file_size, item.transcode_count, item.file))
+                
+            else:
+                print(u"\t{} added {}\tSize: {}\n\t\tFile: {}".format(
+                        item.title, added_at, sizeof_fmt(size), item.file))
+    
+            total_size = sum(sizes)
+            print("Total size: {}".format(sizeof_fmt(total_size)))
+        except TypeError as e:
+            print("Item: {} caused the following error: {}".format(item.rating_key, e))
 
 
 if __name__ == '__main__':
