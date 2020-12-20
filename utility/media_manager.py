@@ -687,7 +687,7 @@ if __name__ == '__main__':
                     watched_work(user=user, ratingKey=opts.ratingKey)
 
         # Find all items watched by all users
-        all_watched = [key for user in user_lst for key in user.watch.keys()]
+        all_watched = [key for user in user_lst for key in user.watch.keys() if key is not None]
         counts = Counter(all_watched)
         watched_by_all = [id for id in all_watched if counts[id] >= len(user_lst)]
         watched_by_all = list(set(watched_by_all))
