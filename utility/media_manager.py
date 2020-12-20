@@ -461,6 +461,8 @@ def watched_work(user, sectionID=None, ratingKey=None):
                 if user.watch.get(metadata.rating_key):
                     user.watch.get(metadata.rating_key).watched_status += 1
                 else:
+                    _meta = tautulli_server.get_metadata(metadata.rating_key)
+                    metadata = Metadata(_meta)
                     user.watch.update({metadata.rating_key: metadata})
                     
             continue
