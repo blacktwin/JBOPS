@@ -734,15 +734,7 @@ if __name__ == '__main__':
                         size_lst += size_work(sectionID=_library.key, operator=op, value=size, episodes=opts.episodes)
 
                 if opts.action == "show":
-                    sizes = []
-                    for item in size_lst:
-                        added_at = datetime.datetime.utcfromtimestamp(float(item.added_at)).strftime("%Y-%m-%d")
-                        size = int(item.file_size) if item.file_size else 0
-                        sizes.append(size)
-                        print(u"\t{} added {}\tSize: {}\n\t\tFile: {}".format(
-                            item.title, added_at, sizeof_fmt(size), item.file))
-                    total_size = sum(sizes)
-                    print("Total size: {}".format(sizeof_fmt(total_size)))
+                    action_show(size_lst, opts.select, opts.date)
             else:
                 print("Size must end with one of these notations: {}".format(", ".join(UNTIS.keys())))
             pass
@@ -757,10 +749,4 @@ if __name__ == '__main__':
                     transcode_lst += transcoded_lst
 
             if opts.action == "show":
-                print("{} item(s) have been found.".format(len(transcode_lst)))
-                for item in transcode_lst:
-                    added_at = datetime.datetime.utcfromtimestamp(float(item.added_at)).strftime("%Y-%m-%d")
-                    size = int(item.file_size) if item.file_size else 0
-                    file_size = sizeof_fmt(size)
-                    print(u"\t{} added {}\tSize: {}\tTransocded: {} time(s)\n\t\tFile: {}".format(
-                        item.title, added_at, file_size, item.transcode_count, item.file))
+                action_show(transcode_lst, opts.select, opts.date)
