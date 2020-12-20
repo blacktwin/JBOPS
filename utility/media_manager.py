@@ -546,17 +546,17 @@ def action_show(items, selector, date, users=None):
     
             elif selector == 'transcoded':
                 print(u"\t{} added {}\tSize: {}\tTransocded: {} time(s)\n\t\tFile: {}".format(
-                    item.title, added_at, file_size, item.transcode_count, item.file))
+                    item.title, added_at, sizeof_fmt(size), item.transcode_count, item.file))
                 
             else:
                 print(u"\t{} added {}\tSize: {}\n\t\tFile: {}".format(
                         item.title, added_at, sizeof_fmt(size), item.file))
     
-            total_size = sum(sizes)
-            print("Total size: {}".format(sizeof_fmt(total_size)))
         except TypeError as e:
             print("Item: {} caused the following error: {}".format(item.rating_key, e))
 
+    total_size = sum(sizes)
+    print("Total size: {}".format(sizeof_fmt(total_size)))
 
 if __name__ == '__main__':
     
