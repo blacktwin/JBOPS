@@ -520,6 +520,41 @@ def transcode_work(sectionID, operator, value):
     return transcoding_lst
 
 
+def action_show(items, selector, date, users=None):
+    sizes = []
+    
+    print("{} item(s) have been found.".format(len(items)))
+    if selector == 'lastPlayed':
+        print("The following items were last played before {}".format(date))
+    elif selector == 'watched':
+        print("The following items were watched by {}".format(", ".join([user.name for user in users])))
+    else:
+        print("The following items were added before {}".format(date))
+        
+    for item in items:
+        if selector == 'watched':
+            item = users[0].watch[item]
+        added_at = datetime.datetime.utcfromtimestamp(float(item.added_at)).strftime("%Y-%m-%d")
+        size = int(item.file_size) if item.file_size else 0
+        sizes.append(size)
+    
+        if selector == 'lastPlayed':
+            last_played = datetime.datetime.utcfromtimestamp(float(item.last_played)).strftime("%Y-%m-%d")
+            print(u"\t{} added {} and last played {}\tSize: {}\n\t\tFile: {}".format(
+                item.title, added_at, last_played, sizeof_fmt(size), item.file))
+
+        elif selector == 'transcoded':
+            print(u"\t{} added {}\tSize: {}\tTransocded: {} time(s)\n\t\tFile: {}".format(
+                item.title, added_at, file_size, item.transcode_count, item.file))
+            
+        else:
+            print(u"\t{} added {}\tSize: {}\n\t\tFile: {}".format(
+                    item.title, added_at, sizeof_fmt(size), item.file))
+
+    total_size = sum(sizes)
+    print("Total size: {}".format(sizeof_fmt(total_size)))
+
+
 if __name__ == '__main__':
     
     session = Connection().session
@@ -625,16 +660,7 @@ if __name__ == '__main__':
                 unwatched_lst += unwatched_work(sectionID=_library.key, date=date)
                 
         if opts.action == "show":
-            print("The following items were added before {}".format(opts.date))
-            sizes = []
-            for item in unwatched_lst:
-                added_at = datetime.datetime.utcfromtimestamp(float(item.added_at)).strftime("%Y-%m-%d")
-                size = int(item.file_size) if item.file_size else ''
-                sizes.append(size)
-                print(u"\t{} added {}\tSize: {}\n\t\tFile: {}".format(
-                    item.title, added_at, sizeof_fmt(size), item.file))
-            total_size = sum(sizes)
-            print("Total size: {}".format(sizeof_fmt(total_size)))
+            action_show(unwatched_lst, opts.select, opts.date)
             
         if opts.action == "delete":
             plex_deletion(unwatched_lst, libraries, opts.toggleDeletion)
@@ -642,7 +668,7 @@ if __name__ == '__main__':
     if opts.select == "watched":
         if libraries:
             for user in user_lst:
-                print(("Finding watched items from user: {}",format(user.name)))
+                print("Finding watched items from user: {}".format(user.name))
                 for _library in libraries:
                     print("Checking library: '{}' watch statuses...".format(_library.title))
                     watched_work(user=user, sectionID=_library.key)
@@ -667,10 +693,7 @@ if __name__ == '__main__':
         watched_by_all = list(set(watched_by_all))
         
         if opts.action == "show":
-            print("The following items were watched by {}".format(", ".join([user.name for user in user_lst])))
-            for watched in watched_by_all:
-                metadata = user_lst[0].watch[watched]
-                print(u"    {}".format(metadata.full_title))
+            action_show(watched_by_all, opts.select, opts.date, user_lst)
         
         if opts.action == "delete":
             plex_deletion(watched_by_all, libraries, opts.toggleDeletion)
@@ -682,17 +705,7 @@ if __name__ == '__main__':
                 last_played_lst += last_played_work(sectionID=_library.key, date=date)
     
         if opts.action == "show":
-            print("The following items were last played before {}".format(opts.date))
-            sizes = []
-            for item in last_played_lst:
-                added_at = datetime.datetime.utcfromtimestamp(float(item.added_at)).strftime("%Y-%m-%d")
-                last_played = datetime.datetime.utcfromtimestamp(float(item.last_played)).strftime("%Y-%m-%d")
-                size = int(item.file_size) if item.file_size else ''
-                sizes.append(size)
-                print(u"\t{} added {} and last played {}\tSize: {}\n\t\tFile: {}".format(
-                    item.title, added_at, last_played, sizeof_fmt(size), item.file))
-            total_size = sum(sizes)
-            print("Total size: {}".format(sizeof_fmt(total_size)))
+            action_show(last_played_lst, opts.select, opts.date)
     
         if opts.action == "delete":
             plex_deletion(last_played_lst, libraries, opts.toggleDeletion)
