@@ -33,6 +33,7 @@ import re
 from collections import Counter
 from plexapi.server import PlexServer
 from plexapi.server import CONFIG
+from plexapi.exceptions import NotFound
 from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.exceptions import RequestException
@@ -301,12 +302,15 @@ def plex_deletion(items, libraries, toggleDeletion):
     
     print("The following items were added before {} and marked for deletion.".format(opts.date))
     for item in items:
-        if isinstance(item, int):
-            plex_item = plex.fetchItem(item)
-        else:
-            plex_item = plex.fetchItem(int(item.rating_key))
-        plex_item.delete()
-        print("Item: {} was deleted".format(plex_item.title))
+        try:
+            if isinstance(item, int):
+                plex_item = plex.fetchItem(item)
+            else:
+                plex_item = plex.fetchItem(int(item.rating_key))
+            plex_item.delete()
+            print("Item: {} was deleted".format(plex_item.title))
+        except NotFound:
+            print("Item: {} may already have been deleted.".format(item))
     for _library in libraries:
         section = plex.library.sectionByID(_library.key)
         print("Emptying Trash from library {}".format(_library.title))
