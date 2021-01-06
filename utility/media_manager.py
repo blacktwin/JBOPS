@@ -305,11 +305,13 @@ def plex_deletion(items, libraries, toggleDeletion):
         try:
             if isinstance(item, int):
                 plex_item = plex.fetchItem(item)
+            elif isinstance(item, str):
+                plex_item = plex.fetchItem(int(item))
             else:
                 plex_item = plex.fetchItem(int(item.rating_key))
             plex_item.delete()
             print("Item: {} was deleted".format(plex_item.title))
-        except (NotFound, AttributeError):
+        except NotFound:
             print("Item: {} may already have been deleted.".format(item))
     for _library in libraries:
         section = plex.library.sectionByID(_library.key)
