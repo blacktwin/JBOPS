@@ -309,7 +309,7 @@ def plex_deletion(items, libraries, toggleDeletion):
                 plex_item = plex.fetchItem(int(item.rating_key))
             plex_item.delete()
             print("Item: {} was deleted".format(plex_item.title))
-        except NotFound:
+        except (NotFound, AttributeError):
             print("Item: {} may already have been deleted.".format(item))
     for _library in libraries:
         section = plex.library.sectionByID(_library.key)
