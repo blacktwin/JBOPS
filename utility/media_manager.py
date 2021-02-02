@@ -534,6 +534,8 @@ def action_show(items, selector, date, users=None):
         print("The following items were last played before {}".format(date))
     elif selector == 'watched':
         print("The following items were watched by {}".format(", ".join([user.name for user in users])))
+    elif selector == 'unwatched':
+        print("The following items were added before {} and are unwatched".format(date))
     else:
         print("The following items were added before {}".format(date))
     
@@ -630,12 +632,21 @@ if __name__ == '__main__':
     size_lst = []
     user_lst = []
     transcode_lst = []
+    date_format = ''
 
-    if opts.date:
-        date = time.mktime(time.strptime(opts.date, "%Y-%m-%d"))
-    else:
+    # Check for days or date format
+    if opts.date and opts.date.isdigit():
+        days = datetime.date.today() - datetime.timedelta(int(opts.date))
+        date = time.mktime(days.timetuple())
+    elif opts.date is None:
         date = None
-
+    else:
+        date = time.mktime(time.strptime(opts.date, "%Y-%m-%d"))
+    
+    if date:
+        days = (datetime.datetime.utcnow() - datetime.datetime.fromtimestamp(date))
+        date_format = time.strftime("%Y-%m-%d", time.localtime(date))
+        date_format = '{} ({} days)'.format(date_format, days.days)
     # Create a Tautulli instance
     tautulli_server = Tautulli(Connection(url=TAUTULLI_URL.rstrip("/"),
                                           apikey=TAUTULLI_APIKEY,
@@ -669,7 +680,7 @@ if __name__ == '__main__':
                 unwatched_lst += unwatched_work(sectionID=_library.key, date=date)
                 
         if opts.action == "show":
-            action_show(unwatched_lst, opts.select, opts.date)
+            action_show(unwatched_lst, opts.select, date_format)
             
         if opts.action == "delete":
             plex_deletion(unwatched_lst, libraries, opts.toggleDeletion)
@@ -702,7 +713,7 @@ if __name__ == '__main__':
         watched_by_all = list(set(watched_by_all))
         
         if opts.action == "show":
-            action_show(watched_by_all, opts.select, opts.date, user_lst)
+            action_show(watched_by_all, opts.select, date_format, user_lst)
         
         if opts.action == "delete":
             plex_deletion(watched_by_all, libraries, opts.toggleDeletion)
@@ -714,7 +725,7 @@ if __name__ == '__main__':
                 last_played_lst += last_played_work(sectionID=_library.key, date=date)
     
         if opts.action == "show":
-            action_show(last_played_lst, opts.select, opts.date)
+            action_show(last_played_lst, opts.select, date_format)
     
         if opts.action == "delete":
             plex_deletion(last_played_lst, libraries, opts.toggleDeletion)
@@ -755,4 +766,4 @@ if __name__ == '__main__':
                     transcode_lst += transcoded_lst
 
             if opts.action == "show":
-                action_show(transcode_lst, opts.select, opts.date)
+                action_show(transcode_lst, opts.select, date_format)
