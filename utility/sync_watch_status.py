@@ -499,7 +499,7 @@ if __name__ == '__main__':
                 # Check library for watched items
                 sectionFrom = watchedFrom.library.section(_library.title)
                 if _library.type == 'show':
-                    watched_lst = sectionFrom.search(libtype='episode', unwatched=False)
+                    watched_lst = sectionFrom.search(libtype='episode', **{'show.unwatchedLeaves': False})
                 else:
                     watched_lst = sectionFrom.search(unwatched=False)
 
