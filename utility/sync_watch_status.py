@@ -306,9 +306,7 @@ def connect_to_server(server_obj, user_account):
 
     print('Connecting {} to {}...'.format(user, server_name))
     server_connection = server_obj.connect()
-    baseurl = server_connection._baseurl.split('.')
-    url = "".join([baseurl[0].replace('-', '.'),
-                   baseurl[-1].replace('direct', '')])
+    url = server_connection._baseurl
     if user_account.title == Plex(PLEX_TOKEN).account.title:
         token = PLEX_TOKEN
     else:
