@@ -179,7 +179,7 @@ user_lst = [x.title for x in plex.myPlexAccount().users() if x.servers and x.fri
 sections = plex.library.sections()
 sections_dict = {x.key: x.title for x in sections}
 filters_lst = list(set([y.key for x in sections if x.type != 'photo' for y in x.filterFields()]))
-playlist_lst = [x.title for x in plex.playlists()]
+admin_playlist_lst = [x for x in plex.playlists()]
 today = datetime.datetime.now().date()
 weeknum = datetime.date(today.year, today.month, today.day).isocalendar()[1]
 
@@ -828,7 +828,7 @@ if __name__ == "__main__":
     libraries = exclusions(opts.allLibraries, opts.libraries, sections_dict)
 
     # Defining selected playlists
-    selected_playlists = exclusions(opts.allPlaylists, opts.playlists, playlist_lst)
+    selected_playlists = exclusions(opts.allPlaylists, opts.playlists, admin_playlist_lst)
 
     # Create user server objects
     if users:
@@ -852,7 +852,7 @@ if __name__ == "__main__":
             'server': plex,
             'user': 'admin',
             'user_selected': selected_playlists,
-            'all_playlists': playlist_lst})
+            'all_playlists': admin_playlist_lst})
 
     if not opts.jbop and opts.action == 'show':
         logger.info("Displaying the user's playlist(s)...")
