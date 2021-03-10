@@ -364,7 +364,7 @@ def draw_map(map_type, geo_dict, filename, headless, leg_choice):
                 leg.legendHandles[i]._legmarker.set_markersize(10)
                 leg.legendHandles[i]._legmarker.set_alpha(1)
             leg.get_title().set_color('#7B777C')
-            leg.draggable()
+            leg.set_draggable(state=True)
             leg.get_frame().set_facecolor('#2C2C2C')
             for text in leg.get_texts():
                 plt.setp(text, color='#A5A5A7')
