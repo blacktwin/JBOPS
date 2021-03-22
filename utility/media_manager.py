@@ -33,6 +33,7 @@ import re
 from collections import Counter
 from plexapi.server import PlexServer
 from plexapi.server import CONFIG
+from plexapi.exceptions import NotFound
 from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.exceptions import RequestException
@@ -54,7 +55,7 @@ if not TAUTULLI_APIKEY:
 
 VERIFY_SSL = False
 
-SELECTOR = ['watched', 'unwatched', 'transcoded', 'rating', 'size']
+SELECTOR = ['watched', 'unwatched', 'transcoded', 'rating', 'size', 'lastPlayed']
 ACTIONS = ['delete', 'move', 'archive', 'optimize', 'show']
 OPERATORS = { '>': lambda v, q: v > q,
               '>=': lambda v, q: v >= q,
@@ -231,7 +232,8 @@ class Tautulli(object):
         payload = {}
         return self._call_api('get_libraries', payload)
 
-    def get_library_media_info(self, section_id, start, length, unwatched=None, date=None, order_column=None):
+    def get_library_media_info(self, section_id, start, length, unwatched=None, date=None, order_column=None,
+                               last_played=None):
         """Call Tautulli's get_library_media_info api endpoint."""
         payload = {'section_id': section_id}
         if start:
@@ -248,6 +250,8 @@ class Tautulli(object):
         elif unwatched and date:
             return [d for d in library_stats['data'] if d['play_count'] is None
                     and (float(d['added_at'])) < date]
+        elif last_played and date:
+            return [d for d in library_stats['data'] if d['play_count'] is not None]
         else:
             return [d for d in library_stats['data']]
         
@@ -298,12 +302,17 @@ def plex_deletion(items, libraries, toggleDeletion):
     
     print("The following items were added before {} and marked for deletion.".format(opts.date))
     for item in items:
-        if isinstance(item, int):
-            plex_item = plex.fetchItem(item)
-        else:
-            plex_item = plex.fetchItem(int(item.rating_key))
-        plex_item.delete()
-        print("Item: {} was deleted".format(plex_item.title))
+        try:
+            if isinstance(item, int):
+                plex_item = plex.fetchItem(item)
+            elif isinstance(item, str):
+                plex_item = plex.fetchItem(int(item))
+            else:
+                plex_item = plex.fetchItem(int(item.rating_key))
+            plex_item.delete()
+            print("Item: {} was deleted".format(plex_item.title))
+        except NotFound:
+            print("Item: {} may already have been deleted.".format(item))
     for _library in libraries:
         section = plex.library.sectionByID(_library.key)
         print("Emptying Trash from library {}".format(_library.title))
@@ -311,6 +320,42 @@ def plex_deletion(items, libraries, toggleDeletion):
     if toggleDeletion:
         print("Disabling Plex to delete media.")
         plex._allowMediaDeletion(False)
+
+
+def last_played_work(sectionID, date=None):
+    """
+    Parameters
+    ----------
+    sectionID (int): Library key
+    date (float): Epoch time
+
+    Returns
+    -------
+    last_played_lst (list): List of Metdata objects of last played items
+    """
+    count = 25
+    start = 0
+    last_played_lst = []
+    while True:
+        
+        # Getting all watched history
+        tt_history = tautulli_server.get_library_media_info(section_id=sectionID,
+                                                            start=start, length=count, last_played=True,
+                                                            date=date, order_column='last_played')
+        
+        if all([tt_history]):
+            start += count
+            for item in tt_history:
+                _meta = tautulli_server.get_metadata(item['rating_key'])
+                metadata = Metadata(_meta)
+                if (float(item['last_played'])) < date:
+                    metadata.last_played = item['last_played']
+                    last_played_lst.append(metadata)
+        elif not all([tt_history]):
+            break
+        start += count
+    
+    return last_played_lst
 
 
 def unwatched_work(sectionID, date=None):
@@ -422,6 +467,8 @@ def watched_work(user, sectionID=None, ratingKey=None):
                 if user.watch.get(metadata.rating_key):
                     user.watch.get(metadata.rating_key).watched_status += 1
                 else:
+                    _meta = tautulli_server.get_metadata(metadata.rating_key)
+                    metadata = Metadata(_meta)
                     user.watch.update({metadata.rating_key: metadata})
                     
             continue
@@ -478,6 +525,46 @@ def transcode_work(sectionID, operator, value):
     
     return transcoding_lst
 
+
+def action_show(items, selector, date, users=None):
+    sizes = []
+    
+    print("{} item(s) have been found.".format(len(items)))
+    if selector == 'lastPlayed':
+        print("The following items were last played before {}".format(date))
+    elif selector == 'watched':
+        print("The following items were watched by {}".format(", ".join([user.name for user in users])))
+    elif selector == 'unwatched':
+        print("The following items were added before {} and are unwatched".format(date))
+    else:
+        print("The following items were added before {}".format(date))
+    
+    for item in items:
+        try:
+            if selector == 'watched':
+                item = users[0].watch[item]
+            added_at = datetime.datetime.utcfromtimestamp(float(item.added_at)).strftime("%Y-%m-%d")
+            size = int(item.file_size) if item.file_size else 0
+            sizes.append(size)
+        
+            if selector == 'lastPlayed':
+                last_played = datetime.datetime.utcfromtimestamp(float(item.last_played)).strftime("%Y-%m-%d")
+                print(u"\t{} added {} and last played {}\tSize: {}\n\t\tFile: {}".format(
+                    item.title, added_at, last_played, sizeof_fmt(size), item.file))
+    
+            elif selector == 'transcoded':
+                print(u"\t{} added {}\tSize: {}\tTransocded: {} time(s)\n\t\tFile: {}".format(
+                    item.title, added_at, sizeof_fmt(size), item.transcode_count, item.file))
+                
+            else:
+                print(u"\t{} added {}\tSize: {}\n\t\tFile: {}".format(
+                        item.title, added_at, sizeof_fmt(size), item.file))
+    
+        except TypeError as e:
+            print("Item: {} caused the following error: {}".format(item.rating_key, e))
+
+    total_size = sum(sizes)
+    print("Total size: {}".format(sizeof_fmt(total_size)))
 
 if __name__ == '__main__':
     
@@ -541,15 +628,25 @@ if __name__ == '__main__':
     all_sections = []
     watched_lst = []
     unwatched_lst = []
+    last_played_lst = []
     size_lst = []
     user_lst = []
     transcode_lst = []
+    date_format = ''
 
-    if opts.date:
-        date = time.mktime(time.strptime(opts.date, "%Y-%m-%d"))
-    else:
+    # Check for days or date format
+    if opts.date and opts.date.isdigit():
+        days = datetime.date.today() - datetime.timedelta(int(opts.date))
+        date = time.mktime(days.timetuple())
+    elif opts.date is None:
         date = None
-
+    else:
+        date = time.mktime(time.strptime(opts.date, "%Y-%m-%d"))
+    
+    if date:
+        days = (datetime.datetime.utcnow() - datetime.datetime.fromtimestamp(date))
+        date_format = time.strftime("%Y-%m-%d", time.localtime(date))
+        date_format = '{} ({} days)'.format(date_format, days.days)
     # Create a Tautulli instance
     tautulli_server = Tautulli(Connection(url=TAUTULLI_URL.rstrip("/"),
                                           apikey=TAUTULLI_APIKEY,
@@ -583,16 +680,7 @@ if __name__ == '__main__':
                 unwatched_lst += unwatched_work(sectionID=_library.key, date=date)
                 
         if opts.action == "show":
-            print("The following items were added before {}".format(opts.date))
-            sizes = []
-            for item in unwatched_lst:
-                added_at = datetime.datetime.utcfromtimestamp(float(item.added_at)).strftime("%Y-%m-%d")
-                size = int(item.file_size) if item.file_size else ''
-                sizes.append(size)
-                print(u"\t{} added {}\tSize: {}\n\t\tFile: {}".format(
-                    item.title, added_at, sizeof_fmt(size), item.file))
-            total_size = sum(sizes)
-            print("Total size: {}".format(sizeof_fmt(total_size)))
+            action_show(unwatched_lst, opts.select, date_format)
             
         if opts.action == "delete":
             plex_deletion(unwatched_lst, libraries, opts.toggleDeletion)
@@ -600,7 +688,7 @@ if __name__ == '__main__':
     if opts.select == "watched":
         if libraries:
             for user in user_lst:
-                print(("Finding watched items from user: {}",format(user.name)))
+                print("Finding watched items from user: {}".format(user.name))
                 for _library in libraries:
                     print("Checking library: '{}' watch statuses...".format(_library.title))
                     watched_work(user=user, sectionID=_library.key)
@@ -619,19 +707,28 @@ if __name__ == '__main__':
                     watched_work(user=user, ratingKey=opts.ratingKey)
 
         # Find all items watched by all users
-        all_watched = [key for user in user_lst for key in user.watch.keys()]
+        all_watched = [key for user in user_lst for key in user.watch.keys() if key is not None]
         counts = Counter(all_watched)
         watched_by_all = [id for id in all_watched if counts[id] >= len(user_lst)]
         watched_by_all = list(set(watched_by_all))
         
         if opts.action == "show":
-            print("The following items were watched by {}".format(", ".join([user.name for user in user_lst])))
-            for watched in watched_by_all:
-                metadata = user_lst[0].watch[watched]
-                print(u"    {}".format(metadata.full_title))
+            action_show(watched_by_all, opts.select, date_format, user_lst)
         
         if opts.action == "delete":
             plex_deletion(watched_by_all, libraries, opts.toggleDeletion)
+
+    if opts.select == "lastPlayed":
+        if libraries:
+            for _library in libraries:
+                print("Checking library: '{}' watch statuses...".format(_library.title))
+                last_played_lst += last_played_work(sectionID=_library.key, date=date)
+    
+        if opts.action == "show":
+            action_show(last_played_lst, opts.select, date_format)
+    
+        if opts.action == "delete":
+            plex_deletion(last_played_lst, libraries, opts.toggleDeletion)
     
     if opts.select in ["size", "rating", "transcoded"]:
         if opts.selectValue:
@@ -654,15 +751,7 @@ if __name__ == '__main__':
                         size_lst += size_work(sectionID=_library.key, operator=op, value=size, episodes=opts.episodes)
 
                 if opts.action == "show":
-                    sizes = []
-                    for item in size_lst:
-                        added_at = datetime.datetime.utcfromtimestamp(float(item.added_at)).strftime("%Y-%m-%d")
-                        size = int(item.file_size) if item.file_size else 0
-                        sizes.append(size)
-                        print(u"\t{} added {}\tSize: {}\n\t\tFile: {}".format(
-                            item.title, added_at, sizeof_fmt(size), item.file))
-                    total_size = sum(sizes)
-                    print("Total size: {}".format(sizeof_fmt(total_size)))
+                    action_show(size_lst, opts.select, opts.date)
             else:
                 print("Size must end with one of these notations: {}".format(", ".join(UNTIS.keys())))
             pass
@@ -677,10 +766,5 @@ if __name__ == '__main__':
                     transcode_lst += transcoded_lst
 
             if opts.action == "show":
-                print("{} item(s) have been found.".format(len(transcode_lst)))
-                for item in transcode_lst:
-                    added_at = datetime.datetime.utcfromtimestamp(float(item.added_at)).strftime("%Y-%m-%d")
-                    size = int(item.file_size) if item.file_size else 0
-                    file_size = sizeof_fmt(size)
-                    print(u"\t{} added {}\tSize: {}\tTransocded: {} time(s)\n\t\tFile: {}".format(
-                        item.title, added_at, file_size, item.transcode_count, item.file))
+                action_show(transcode_lst, opts.select, date_format)
+           
