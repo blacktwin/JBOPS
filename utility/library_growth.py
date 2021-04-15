@@ -168,11 +168,10 @@ if __name__ == '__main__':
     # Defining libraries
     libraries = exclusions(opts.allLibraries, opts.libraries, sections_dict)
     
-    graph = graph_setup()
-    
     for library in libraries:
         library_title = sections_dict.get(library)
         print("Starting {}".format(library_title))
+        graph = graph_setup()
         plex_growth(library, graph)
         plex_released(library, graph)
         plt.savefig('{}_library_growth.png'.format(library_title), bbox_inches='tight', dpi=100)
