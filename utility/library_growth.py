@@ -107,8 +107,8 @@ def plex_growth(section, axs):
     
     allAddedAt = [x.addedAt.date() for x in allthem if x.addedAt]
     y = range(len(allAddedAt))
-    axs[1].plot(sorted(allAddedAt), y)
-    axs[1].set_title('Plex {} Library Added Date'.format(library.title))
+    axs[0].plot(sorted(allAddedAt), y)
+    axs[0].set_title('Plex {} Library Growth'.format(library.title))
 
 
 def plex_released(section, axs):
@@ -120,10 +120,10 @@ def plex_released(section, axs):
                              for x in allthem if x.originallyAvailableAt]
     counts = Counter(sorted(originallyAvailableAt))
 
-    axs[0].bar(list(counts.keys()), list(counts.values()))
+    axs[1].bar(list(counts.keys()), list(counts.values()))
     loc = plticker.MultipleLocator(base=5.0) # this locator puts ticks at regular intervals
-    axs[0].xaxis.set_major_locator(loc)
-    axs[0].set_title('Plex {} Library Released Date'.format(library.title))
+    axs[1].xaxis.set_major_locator(loc)
+    axs[1].set_title('Plex {} Library Released Date'.format(library.title))
     
     releasedGenres = {}
     genres = []
