@@ -178,7 +178,7 @@ account = plex.myPlexAccount()
 user_lst = [x.title for x in plex.myPlexAccount().users() if x.servers and x.friend]
 sections = plex.library.sections()
 sections_dict = {x.key: x.title for x in sections}
-filters_lst = list(set([y.key for x in sections if x.type != 'photo' for y in x.filterFields()]))
+filters_lst = list(set([y.key for x in sections if x.type != 'photo' for y in x.listFields()]))
 admin_playlist_lst = [x for x in plex.playlists()]
 today = datetime.datetime.now().date()
 weeknum = datetime.date(today.year, today.month, today.day).isocalendar()[1]
