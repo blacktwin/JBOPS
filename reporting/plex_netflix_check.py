@@ -35,17 +35,33 @@ import argparse
 from xmljson import badgerfish as bf
 from lxml.html import fromstring
 from time import sleep
-from plexapi.server import PlexServer
+from plexapi.server import PlexServer, CONFIG
 # pip install plexapi
 
 
 # ## Edit ##
-PLEX_URL = 'http://localhost:32400'
-PLEX_TOKEN = 'xxxx'
+PLEX_URL = ''
+PLEX_TOKEN = ''
+
+if not PLEX_URL:
+    PLEX_URL = CONFIG.data['auth'].get('server_baseurl', '')
+
+if not PLEX_TOKEN:
+    PLEX_TOKEN = CONFIG.data['auth'].get('server_token', '')
+
 # ## /Edit ##
 
 sess = requests.Session()
-sess.verify = False
+# Ignore verifying the SSL certificate
+sess.verify = False  # '/path/to/certfile'
+# If verify is set to a path to a directory,
+# the directory must have been processed using the c_rehash utility supplied
+# with OpenSSL.
+if sess.verify is False:
+    # Disable the warning that the request is insecure, we know that...
+    import urllib3
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=sess)
 
 
@@ -68,20 +84,23 @@ def instantwatch_search(name, media_type, site, search_limit):
                'q': name.lower()}
 
     if site == 'Netflix':
-        r = requests.get('http://instantwatcher.com/search'.rstrip('/'), params=payload)
+        r = requests.get('http://instantwatcher.com/netflix/78/search'.rstrip('/'), params=payload)
     elif site == 'Amazon':
-        r = requests.get('http://instantwatcher.com/a/search'.rstrip('/'), params=payload)
+        r = requests.get('http://instantwatcher.com/amazon/search'.rstrip('/'), params=payload)
     else:
         r = requests.get('http://instantwatcher.com/u/search'.rstrip('/'), params=payload)
-
+    
+    if r.status_code != 200:
+        print('{} not found: {}'.format(name, r.url))
+        return 0
     results_lst = []
     res_data = bf.data(fromstring(r.content))
 
     res_data = res_data['html']['body']['div']['div'][1]
 
     # Any matches?
-    res_results = res_data['div'][0]['div'][1]['div'][0]
-    title_check = res_data['div'][0]['div'][1]['div'][1]
+    res_results = res_data['div'][1]['div'][0]
+    title_check = res_data['div'][1]['div'][1]
 
     try:
         if res_results['span']:
@@ -210,7 +229,7 @@ def main():
                         help='Refine search for individual episodes.\n'
                              '(choices: %(choices)s)\n(default: %(default)s)')
     parser.add_argument('-site', '--site', metavar='', choices=['Netflix', 'Amazon', 'Both'], nargs='?',
-                        default='Both', help='Refine search for name by using type.\n'
+                        default='Netflix', help='Refine search for name by using type.\n'
                         '(choices: %(choices)s)\n(default: %(default)s)')
     parser.add_argument('-sl', '--search_limit', metavar='', nargs='?', type=int, default=5,
                         help='Define number of search returns from page. Zero returns all.'
