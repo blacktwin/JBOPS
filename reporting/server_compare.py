@@ -161,14 +161,13 @@ def org_diff(lst_dicts, media_type, main_server):
                     }
     """
     diff_dict = {}
-    seen = {}
-    dupes = []
-    missing = []
-    unique = []
     # todo-me pull posters from connected servers
 
     for mtype in media_type:
         meta_lst = []
+        seen = {}
+        missing = []
+        unique = []
         print('...combining {}s'.format(mtype))
         for server_lst in lst_dicts:
             for item in server_lst[mtype]:
@@ -184,7 +183,6 @@ def org_diff(lst_dicts, media_type, main_server):
                 else:
                     # Duplicate found
                     if seen[title] >= 1:
-                        dupes.append([title, item._server.friendlyName])
                         # Go back through list to find original
                         for meta in meta_lst:
                             if meta['title'] == title:
