@@ -512,7 +512,7 @@ def build_playlist(jbop, libraries=None, days=None, top=None, filters=None, sear
         for stat in home_stats:
             if stat['stat_id'] in ['popular_tv', 'popular_movies']:
                 keys_list += [x['rating_key'] for x in stat['rows'] if
-                              str(x['section_id']) in libraries.keys()]
+                              x['section_id'] in libraries.keys()]
     else:
         try:
             keys_list = get_content(libraries, jbop, filters, search, limit)
