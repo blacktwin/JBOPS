@@ -598,7 +598,7 @@ def create_playlist(playlist_title, playlist_keys, server, user):
                 logger.exception('Rating Key: {}, may have been deleted or moved.'.format(key))
 
     if playlist_list:
-        server.createPlaylist(playlist_title, playlist_list)
+        server.createPlaylist(playlist_title, items=playlist_list)
         logger.info("...Added Playlist: {title} to '{user}'.".format(title=playlist_title, user=user))
 
 
