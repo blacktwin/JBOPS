@@ -19,6 +19,8 @@
 #            --rating_key {rating_key} --image spoilers.png
 #        To blur the episode artwork (optional blur in pixels):
 #            --rating_key {rating_key} --blur 25
+#        To add a prefix to the summary:
+#            --rating_key --summary_prefix "** SPOILERS **"
 #    * Watched (optional):
 #        --rating_key {rating_key} --remove
 
@@ -54,7 +56,7 @@ def get_blurred_image(rating_key, blur=25):
               'img_format': 'png',
               'fallback': 'art'
               }
-    
+
     r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=params, stream=True)
     if r.status_code == 200:
         r.raw.decode_content = True
@@ -66,12 +68,13 @@ if __name__ == "__main__":
     parser.add_argument('--rating_key', required=True, type=int)
     parser.add_argument('--image')
     parser.add_argument('--blur', type=int, default=25)
+    parser.add_argument('--summary_prefix')
     parser.add_argument('--remove', action='store_true')
     opts = parser.parse_args()
 
     plex = PlexServer(PLEX_URL, PLEX_TOKEN)
     item = plex.fetchItem(opts.rating_key)
-    
+
     if item.type == 'show':
         episodes = item.episodes()
         show = item
@@ -91,7 +94,7 @@ if __name__ == "__main__":
             episode_filepath = part.file
             episode_folder = os.path.dirname(episode_filepath)
             episode_filename = os.path.splitext(os.path.basename(episode_filepath))[0]
-            
+
             if opts.remove:
                 # Find image files with the same name as the episode
                 for filename in os.listdir(episode_folder):
@@ -99,12 +102,15 @@ if __name__ == "__main__":
                         # Delete the episode artwork image file
                         os.remove(os.path.join(episode_folder, filename))
 
-            elif opts.image:
+                episode.edit(**{'summary.locked': 0})
+                continue
+
+            if opts.image:
                 # File path to episode artwork using the same episode file name
                 episode_artwork = os.path.splitext(episode_filepath)[0] + os.path.splitext(opts.image)[1]
                 # Copy the image to the episode artwork
                 shutil.copy2(opts.image, episode_artwork)
-        
+
             elif opts.blur:
                 # File path to episode artwork using the same episode file name
                 episode_artwork = os.path.splitext(episode_filepath)[0] + '.png'
@@ -114,6 +120,10 @@ if __name__ == "__main__":
                     # Copy the image to the episode artwork
                     with open(episode_artwork, 'wb') as f:
                         shutil.copyfileobj(blurred_artwork, f)
+
+            if opts.summary_prefix and not episode.summary.startswith(opts.summary_prefix):
+                # Use a zero-width space for blank lines
+                episode.edit(**{'summary.value': opts.summary_prefix + '\n\u200b\n' + episode.summary, 'summary.locked': 1})
 
         # Refresh metadata for the episode
         episode.refresh()
