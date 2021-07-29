@@ -102,6 +102,7 @@ if __name__ == "__main__":
                         # Delete the episode artwork image file
                         os.remove(os.path.join(episode_folder, filename))
 
+                # Unlock the summary so it will get updated on refresh
                 episode.edit(**{'summary.locked': 0})
                 continue
 
@@ -122,8 +123,11 @@ if __name__ == "__main__":
                         shutil.copyfileobj(blurred_artwork, f)
 
             if opts.summary_prefix and not episode.summary.startswith(opts.summary_prefix):
-                # Use a zero-width space for blank lines
-                episode.edit(**{'summary.value': opts.summary_prefix + '\n\u200b\n' + episode.summary, 'summary.locked': 1})
+                # Use a zero-width space (\u200b) for blank lines
+                episode.edit(**{
+                    'summary.value': opts.summary_prefix + '\n\u200b\n' + episode.summary,
+                    'summary.locked': 1
+                })
 
         # Refresh metadata for the episode
         episode.refresh()
