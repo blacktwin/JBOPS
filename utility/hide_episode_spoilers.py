@@ -20,7 +20,7 @@
 #        To blur the episode artwork (optional blur in pixels):
 #            --rating_key {rating_key} --blur 25
 #        To add a prefix to the summary:
-#            --rating_key --summary_prefix "** SPOILERS **"
+#            --rating_key {rating_key} --summary_prefix "** SPOILERS **"
 #    * Watched (optional):
 #        --rating_key {rating_key} --remove
 
