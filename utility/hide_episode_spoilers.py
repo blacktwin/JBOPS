@@ -19,7 +19,7 @@
 #            --rating_key {rating_key} --image spoilers.png
 #        To blur the episode artwork (optional blur in pixels):
 #            --rating_key {rating_key} --blur 25
-#        To add a prefix to the summary:
+#        To add a prefix to the summary (optional string prefix):
 #            --rating_key {rating_key} --summary_prefix "** SPOILERS **"
 #    * Watched (optional):
 #        --rating_key {rating_key} --remove
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     parser.add_argument('--rating_key', required=True, type=int)
     parser.add_argument('--image')
     parser.add_argument('--blur', type=int, default=25)
-    parser.add_argument('--summary_prefix')
+    parser.add_argument('--summary_prefix', nargs='?', const='** SPOILERS **')
     parser.add_argument('--remove', action='store_true')
     opts = parser.parse_args()
 
