@@ -602,7 +602,7 @@ def create_playlist(playlist_title, playlist_keys, server, user):
         logger.info("...Added Playlist: {title} to '{user}'.".format(title=playlist_title, user=user))
 
 
-def delete_playlist(playlist_dict, title):
+def delete_playlist(playlist_dict, title, jbop=None):
     """
     Parameters
     ----------
@@ -619,10 +619,19 @@ def delete_playlist(playlist_dict, title):
         for playlist in server.playlists():
             if isinstance(title, str):
                 # If str then updating playlist
+                # The same title should catch popular* jbops
                 if playlist.title == title:
                     playlist.delete()
                     logger.info("...Deleted Playlist: {playlist.title} for '{user}'."
                           .format(playlist=playlist, user=user))
+                else:
+                    # catching for history* jbops
+                    titleTemplate = selectors().get(jbop)
+                    titleStart = titleTemplate.split('{')[0]
+                    if playlist.title.startswith(titleStart):
+                        playlist.delete()
+                        logger.info("...Deleted Playlist: {playlist.title} for '{user}'."
+                                    .format(playlist=playlist, user=user))
             if isinstance(title, list):
                 # If list then removing selected playlists
                 playlists_titles = [playlist if isinstance(playlist, str) else playlist.title for playlist in title]
@@ -900,8 +909,8 @@ if __name__ == "__main__":
     if opts.action == 'update':
         logger.info("Deleting the playlist(s)...")
         for data in playlist_dict['data']:
-            delete_playlist(data, title)
-            logger.info('Creating playlist(s)...')
+            delete_playlist(data, title, opts.jbop)
+        logger.info('Creating playlist(s)...')
         for data in playlist_dict['data']:
             create_playlist(title, keys_list, data['server'], data['user'])
 
