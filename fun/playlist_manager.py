@@ -628,7 +628,7 @@ def delete_playlist(playlist_dict, title, jbop=None):
                     # catching for history* jbops
                     titleTemplate = selectors().get(jbop)
                     titleStart = titleTemplate.split('{')[0]
-                    if playlist.title.startswith(titleStart):
+                    if titleStart and playlist.title.startswith(titleStart):
                         playlist.delete()
                         logger.info("...Deleted Playlist: {playlist.title} for '{user}'."
                                     .format(playlist=playlist, user=user))
