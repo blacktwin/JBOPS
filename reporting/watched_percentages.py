@@ -204,7 +204,7 @@ class Plex(object):
         return section_totals
 
 
-def make_pie(user_dict, sections_dict, title, filename=None, headless=None):
+def make_pie(user_dict, source_dict, title, filename=None, image=None, headless=None):
 
     import matplotlib as mpl
     mpl.rcParams['text.color'] = FONT_COLOR
@@ -215,31 +215,32 @@ def make_pie(user_dict, sections_dict, title, filename=None, headless=None):
         mpl.use("Agg")
 
     import matplotlib.pyplot as plt
+    
     user_len = len(user_dict.keys())
-    section_len = len(sections_dict.keys())
+    source_len = len(source_dict.keys())
     user_position = 0
-
-    fig = plt.figure(figsize=(section_len + 6, user_len + 6), facecolor=BACKGROUND_COLOR)
+    
+    fig = plt.figure(figsize=(source_len + 10, user_len + 10), facecolor=BACKGROUND_COLOR)
 
     for user, values in user_dict.items():
-        section_position = 0
-        for library, watched_value in values.items():
-            library_total = sections_dict.get(library)
-            percent_watched = 100 * (float(watched_value) / float(library_total))
+        source_position = 0
+        for source, watched_value in values.items():
+            source_total = source_dict.get(source)
+            percent_watched = 100 * (float(watched_value) / float(source_total))
             fracs = [percent_watched, 100 - percent_watched]
-            ax = plt.subplot2grid((user_len, section_len), (user_position, section_position))
+            ax = plt.subplot2grid((user_len, source_len), (user_position, source_position))
             pie, text, autotext = ax.pie(fracs, explode=EXPLODE, colors=COLORS, pctdistance=1.3,
                    autopct='%1.1f%%', shadow=True, startangle=300, radius=0.8,
                    wedgeprops=dict(width=0.5, edgecolor=BACKGROUND_COLOR))
 
             if user_position == 0:
-                ax.set_title("{}: {}".format(library, library_total), bbox=BBOX_PROPS,
+                ax.set_title("{}: {}".format(source, source_total), bbox=BBOX_PROPS,
                              ha='center', va='bottom', size=12)
-            if section_position == 0:
+            if source_position == 0:
                 ax.set_ylabel(user, bbox=BBOX_PROPS, size=13, horizontalalignment='right').set_rotation(0)
                 ax.yaxis.labelpad = 40
             ax.set_xlabel("User watched: {}".format(watched_value), bbox=BBOX_PROPS)
-            section_position += 1
+            source_position += 1
         user_position += 1
 
     plt.suptitle(title, bbox=BBOX_PROPS, size=15)
@@ -278,8 +279,7 @@ if __name__ == '__main__':
 
     opts = parser.parse_args()
 
-    sections_totals_dict = {}
-    collections_totals_dict = {}
+    source_dict = {}
     user_servers = []
     sections_dict = {}
     user_dict = {}
@@ -302,7 +302,7 @@ if __name__ == '__main__':
 
             for library in opts.libraries:
                 section_total = plex_server.all_sections_totals(library)
-                sections_totals_dict[library] = section_total
+                source_dict[library] = section_total
                 print("Section: {}, has {} items.".format(library, section_total))
                 for user_server in user_servers:
                     try:
@@ -335,7 +335,7 @@ if __name__ == '__main__':
                 _collection = plex_server.all_collections()[collection]
                 collection_albums = _collection.items()
                 collection_total = len(collection_albums)
-                collections_totals_dict[collection] = collection_total
+                source_dict[collection] = collection_total
                 print("Collection: {}, has {} items.".format(collection, collection_total))
                 if _collection.subtype == 'album':
                     for user_server in user_servers:
@@ -407,7 +407,7 @@ if __name__ == '__main__':
                 section_total = 0
 
             print("Section: {}, has {} items.".format(library, section_total))
-            sections_totals_dict[library] = section_total
+            source_dict[library] = section_total
             for user in opts.users:
                 count = 25
                 start = 0
@@ -439,6 +439,6 @@ if __name__ == '__main__':
                     user_dict[user] = {library: section_watched_total}
 
     if opts.pie:
-        if collections_totals_dict:
-            sections_totals_dict = collections_totals_dict
-        make_pie(user_dict, sections_totals_dict, title, opts.filename, image, opts.headless)
+        # if collections_totals_dict:
+        #     sections_totals_dict = collections_totals_dict
+        make_pie(user_dict, source_dict, title, opts.filename, image, opts.headless)
