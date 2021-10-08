@@ -210,9 +210,10 @@ def make_pie(user_dict, sections_dict, title, filename=None, headless=None):
         section_position = 0
         for library, watched_value in values.items():
             library_total = sections_dict.get(library)
-            fracs = [watched_value, library_total]
+            percent_watched = 100 * (float(watched_value) / float(library_total))
+            fracs = [percent_watched, 100 - percent_watched]
             ax = plt.subplot2grid((user_len, section_len), (user_position, section_position))
-            ax.pie(fracs, explode=EXPLODE, colors=COLORS, pctdistance=1.3,
+            pie, text, autotext = ax.pie(fracs, explode=EXPLODE, colors=COLORS, pctdistance=1.3,
                    autopct='%1.1f%%', shadow=True, startangle=300, radius=0.8,
                    wedgeprops=dict(width=0.5, edgecolor=BACKGROUND_COLOR))
 
@@ -220,7 +221,7 @@ def make_pie(user_dict, sections_dict, title, filename=None, headless=None):
                 ax.set_title("{}: {}".format(library, library_total), bbox=BBOX_PROPS,
                              ha='center', va='bottom', size=12)
             if section_position == 0:
-                ax.set_ylabel(user, bbox=BBOX_PROPS, size=13).set_rotation(0)
+                ax.set_ylabel(user, bbox=BBOX_PROPS, size=13, horizontalalignment='right').set_rotation(0)
                 ax.yaxis.labelpad = 40
             ax.set_xlabel("User watched: {}".format(watched_value), bbox=BBOX_PROPS)
             section_position += 1
