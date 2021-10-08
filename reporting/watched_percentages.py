@@ -165,7 +165,7 @@ class Plex(object):
         """All collections from server
         Returns
         -------
-        sections: dict
+        collections: dict
             {collection title: collection object}
         """
         collections = {}
@@ -309,7 +309,6 @@ if __name__ == '__main__':
         plex_server = Plex(PLEX_TOKEN, PLEX_URL)
         for user in opts.users:
             user_server = plex_server.server.switchUser(user)
-            user_server._history = []
             user_server._username = user
             user_servers.append(user_server)
         
@@ -322,28 +321,21 @@ if __name__ == '__main__':
                 source_dict[library] = section_total
                 print("Section: {}, has {} items.".format(library, section_total))
                 for user_server in user_servers:
-                    try:
-                        section = user_server.library.section(library)
-                        if section.type == 'movie':
-                            section_watched_lst = section.search(unwatched=False)
-                        elif section.type == 'show':
-                            section_watched_lst = section.search(libtype='episode', unwatched=False)
-                        else:
-                            continue
-                        section_watched_total = len(section_watched_lst)
-                        percent_watched = 100 * (float(section_watched_total) / float(section_total))
-                        print("    {} has watched {} items ({}%).".format(user_server._username, section_watched_total, int(percent_watched)))
-    
-                        if user_dict.get(user_server._username):
-                            user_dict[user_server._username].update({library: section_watched_total})
-                        else:
-                            user_dict[user_server._username] = {library: section_watched_total}
-                    except Exception as e:
-                        print((user_server._username, e))
-                        if user_dict.get(user_server._username):
-                            user_dict[user_server._username].update({library: 0})
-                        else:
-                            user_dict[user_server._username] = {library: 0}
+                    section = user_server.library.section(library)
+                    if section.type == 'movie':
+                        section_watched_lst = section.search(unwatched=False)
+                    elif section.type == 'show':
+                        section_watched_lst = section.search(libtype='episode', unwatched=False)
+                    else:
+                        continue
+                    section_watched_total = len(section_watched_lst)
+                    percent_watched = 100 * (float(section_watched_total) / float(section_total))
+                    print("    {} has watched {} items ({}%).".format(user_server._username, section_watched_total, int(percent_watched)))
+
+                    if user_dict.get(user_server._username):
+                        user_dict[user_server._username].update({library: section_watched_total})
+                    else:
+                        user_dict[user_server._username] = {library: section_watched_total}
                             
         if opts.collections:
             title = "User's Watch Percentage by Collection\nFrom: {}"
@@ -362,7 +354,7 @@ if __name__ == '__main__':
                             if album.viewedLeafCount:
                                 user_server._history.append(album)
                                 collection_watched_lst.append(album)
-                        collection_watched_total = len(user_server._history)
+                        collection_watched_total = len(collection_watched_lst)
                         percent_watched = 100 * (float(collection_watched_total) / float(collection_total))
                         print("    {} has listened {} items ({}%).".format(user_server._username, collection_watched_total,
                                                                           int(percent_watched)))
@@ -378,26 +370,19 @@ if __name__ == '__main__':
                     # image = rget(thumb_url, stream=True)
                     image = urllib.request.urlretrieve(thumb_url)
                     for user_server in user_servers:
-                        try:
-                            collection_watched_lst = []
-                            for item in collection_items:
-                                user_item = user_server.fetchItem(item.ratingKey)
-                                if user_item.isWatched:
-                                    collection_watched_lst.append(user_item)
-                            collection_watched_total = len(collection_watched_lst)
-                            percent_watched = 100 * (float(collection_watched_total) / float(collection_total))
-                            print("    {} has watched {} items ({}%).".format(user_server._username, collection_watched_total,
-                                                                              int(percent_watched)))
-                            if user_dict.get(user_server._username):
-                                user_dict[user_server._username].update({collection: collection_watched_total})
-                            else:
-                                user_dict[user_server._username] = {collection: collection_watched_total}
-                        except Exception as e:
-                            print((user_server._username, e))
-                            if user_dict.get(user_server._username):
-                                user_dict[user_server._username].update({collection: 0})
-                            else:
-                                user_dict[user_server._username] = {collection: 0}
+                        collection_watched_lst = []
+                        for item in collection_items:
+                            user_item = user_server.fetchItem(item.ratingKey)
+                            if user_item.isWatched:
+                                collection_watched_lst.append(user_item)
+                        collection_watched_total = len(collection_watched_lst)
+                        percent_watched = 100 * (float(collection_watched_total) / float(collection_total))
+                        print("    {} has watched {} items ({}%).".format(user_server._username, collection_watched_total,
+                                                                          int(percent_watched)))
+                        if user_dict.get(user_server._username):
+                            user_dict[user_server._username].update({collection: collection_watched_total})
+                        else:
+                            user_dict[user_server._username] = {collection: collection_watched_total}
 
         if opts.shows:
             title = "User's Watch Percentage by Shows\nFrom: {}"
@@ -411,24 +396,17 @@ if __name__ == '__main__':
                 source_dict[show_title] = len(show.episodes())
                 print("Show: {}, has {} episodes.".format(show_title, episode_total))
                 for user_server in user_servers:
-                    try:
-                        user_show = user_server.fetchItem(show.ratingKey)
-                        source_watched_lst = user_show.watched()
-                        source_watched_total = len(source_watched_lst)
-                        percent_watched = 100 * (float(source_watched_total) / float(episode_total))
-                        print("    {} has watched {} items ({}%).".format(user_server._username, source_watched_total,
-                                                                          int(percent_watched)))
-                
-                        if user_dict.get(user_server._username):
-                            user_dict[user_server._username].update({show_title: source_watched_total})
-                        else:
-                            user_dict[user_server._username] = {show_title: source_watched_total}
-                    except Exception as e:
-                        print((user_server._username, e))
-                        if user_dict.get(user_server._username):
-                            user_dict[user_server._username].update({show_title: 0})
-                        else:
-                            user_dict[user_server._username] = {show_title: 0}
+                    user_show = user_server.fetchItem(show.ratingKey)
+                    source_watched_lst = user_show.watched()
+                    source_watched_total = len(source_watched_lst)
+                    percent_watched = 100 * (float(source_watched_total) / float(episode_total))
+                    print("    {} has watched {} items ({}%).".format(user_server._username, source_watched_total,
+                                                                      int(percent_watched)))
+            
+                    if user_dict.get(user_server._username):
+                        user_dict[user_server._username].update({show_title: source_watched_total})
+                    else:
+                        user_dict[user_server._username] = {show_title: source_watched_total}
 
     elif opts.tautulli:
         # Create a Tautulli instance
