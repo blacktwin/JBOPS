@@ -330,7 +330,8 @@ if __name__ == '__main__':
                         continue
                     section_watched_total = len(section_watched_lst)
                     percent_watched = 100 * (float(section_watched_total) / float(section_total))
-                    print("    {} has watched {} items ({}%).".format(user_server._username, section_watched_total, int(percent_watched)))
+                    print("    {} has watched {} items ({}%).".format(user_server._username, section_watched_total,
+                                                                      int(percent_watched)))
 
                     if user_dict.get(user_server._username):
                         user_dict[user_server._username].update({library: section_watched_total})
@@ -352,11 +353,11 @@ if __name__ == '__main__':
                         user_collection = user_server.fetchItem(_collection.ratingKey)
                         for album in user_collection.items():
                             if album.viewedLeafCount:
-                                user_server._history.append(album)
                                 collection_watched_lst.append(album)
                         collection_watched_total = len(collection_watched_lst)
                         percent_watched = 100 * (float(collection_watched_total) / float(collection_total))
-                        print("    {} has listened {} items ({}%).".format(user_server._username, collection_watched_total,
+                        print("    {} has listened {} items ({}%).".format(user_server._username,
+                                                                           collection_watched_total,
                                                                           int(percent_watched)))
                         if user_dict.get(user_server._username):
                             user_dict[user_server._username].update({collection: collection_watched_total})
@@ -377,7 +378,8 @@ if __name__ == '__main__':
                                 collection_watched_lst.append(user_item)
                         collection_watched_total = len(collection_watched_lst)
                         percent_watched = 100 * (float(collection_watched_total) / float(collection_total))
-                        print("    {} has watched {} items ({}%).".format(user_server._username, collection_watched_total,
+                        print("    {} has watched {} items ({}%).".format(user_server._username,
+                                                                          collection_watched_total,
                                                                           int(percent_watched)))
                         if user_dict.get(user_server._username):
                             user_dict[user_server._username].update({collection: collection_watched_total})
@@ -463,6 +465,4 @@ if __name__ == '__main__':
                     user_dict[user] = {library: section_watched_total}
 
     if opts.pie:
-        # if collections_totals_dict:
-        #     sections_totals_dict = collections_totals_dict
         make_pie(user_dict, source_dict, title, opts.filename, image, opts.headless)
