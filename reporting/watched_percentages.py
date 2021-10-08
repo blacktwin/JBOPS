@@ -175,6 +175,21 @@ class Plex(object):
                     collections[collection.title] = collection
 
         return collections
+    
+    def all_shows(self):
+        """All collections from server
+        Returns
+        -------
+        shows: dict
+            {Show title: show object}
+        """
+        shows = {}
+        for section in self.all_sections().values():
+            if section.type == 'show':
+                for show in section.all():
+                    shows[show.title] = show
+
+        return shows
 
     def all_sections_totals(self, library=None):
         """All sections total items
@@ -269,6 +284,8 @@ if __name__ == '__main__':
                         help='Libraries to scan for watched content.')
     parser.add_argument('--collections', nargs='*', metavar='collection',
                         help='Collections to scan for watched content.')
+    parser.add_argument('--shows', nargs='*', metavar='show',
+                        help='Shows to scan for watched content.')
     parser.add_argument('--users', nargs='*', metavar='users',
                         help='Users to scan for watched content.')
     parser.add_argument('--pie', default=False, action='store_true',
@@ -382,7 +399,36 @@ if __name__ == '__main__':
                             else:
                                 user_dict[user_server._username] = {collection: 0}
 
-
+        if opts.shows:
+            title = "User's Watch Percentage by Shows\nFrom: {}"
+            title = title.format(plex_server.server.friendlyName)
+            all_shows = plex_server.all_shows()
+            
+            for show_title in opts.shows:
+                show = all_shows.get(show_title)
+                episode_total = len(show.episodes())
+                season_total = len(show.seasons())
+                source_dict[show_title] = len(show.episodes())
+                print("Show: {}, has {} episodes.".format(show_title, episode_total))
+                for user_server in user_servers:
+                    try:
+                        user_show = user_server.fetchItem(show.ratingKey)
+                        source_watched_lst = user_show.watched()
+                        source_watched_total = len(source_watched_lst)
+                        percent_watched = 100 * (float(source_watched_total) / float(episode_total))
+                        print("    {} has watched {} items ({}%).".format(user_server._username, source_watched_total,
+                                                                          int(percent_watched)))
+                
+                        if user_dict.get(user_server._username):
+                            user_dict[user_server._username].update({show_title: source_watched_total})
+                        else:
+                            user_dict[user_server._username] = {show_title: source_watched_total}
+                    except Exception as e:
+                        print((user_server._username, e))
+                        if user_dict.get(user_server._username):
+                            user_dict[user_server._username].update({show_title: 0})
+                        else:
+                            user_dict[user_server._username] = {show_title: 0}
 
     elif opts.tautulli:
         # Create a Tautulli instance
