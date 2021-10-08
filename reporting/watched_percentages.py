@@ -160,6 +160,21 @@ class Plex(object):
         sections = {section.title: section for section in self.server.library.sections()}
 
         return sections
+    
+    def all_collections(self):
+        """All collections from server
+        Returns
+        -------
+        sections: dict
+            {collection title: collection object}
+        """
+        collections = {}
+        for section in self.all_sections().values():
+            if section.type != 'photo':
+                for collection in section.collections():
+                    collections[collection.title] = collection
+
+        return collections
 
     def all_sections_totals(self, library=None):
         """All sections total items
@@ -251,6 +266,8 @@ if __name__ == '__main__':
 
     parser.add_argument('--libraries', nargs='*', metavar='library',
                         help='Libraries to scan for watched content.')
+    parser.add_argument('--collections', nargs='*', metavar='collection',
+                        help='Collections to scan for watched content.')
     parser.add_argument('--users', nargs='*', metavar='users',
                         help='Users to scan for watched content.')
     parser.add_argument('--pie', default=False, action='store_true',
@@ -262,45 +279,110 @@ if __name__ == '__main__':
     opts = parser.parse_args()
 
     sections_totals_dict = {}
+    collections_totals_dict = {}
+    user_servers = []
     sections_dict = {}
     user_dict = {}
-    title = "User's Watch Percentage by Library\nFrom: {}"
+    title = ''
+    image = ''
+
 
     if opts.plex:
         admin_account = Plex(PLEX_TOKEN)
         plex_server = Plex(PLEX_TOKEN, PLEX_URL)
-        title = title.format(plex_server.server.friendlyName)
+        for user in opts.users:
+            user_server = plex_server.server.switchUser(user)
+            user_server._history = []
+            user_server._username = user
+            user_servers.append(user_server)
+        
+        if opts.libraries:
+            title = "User's Watch Percentage by Library\nFrom: {}"
+            title = title.format(plex_server.server.friendlyName)
 
-        for library in opts.libraries:
-            section_total = plex_server.all_sections_totals(library)
-            sections_totals_dict[library] = section_total
-            print("Section: {}, has {} items.".format(library, section_total))
-            for user in opts.users:
-                try:
-                    user_account = admin_account.account.user(user)
-                    token = user_account.get_token(plex_server.server.machineIdentifier)
-                    user_server = Plex(url=PLEX_URL, token=token)
-                    section = user_server.server.library.section(library)
-                    if section.type == 'movie':
-                        section_watched_lst = section.search(unwatched=False)
-                    elif section.type == 'show':
-                        section_watched_lst = section.search(libtype='episode', unwatched=False)
-                    else:
-                        continue
-                    section_watched_total = len(section_watched_lst)
-                    percent_watched = 100 * (float(section_watched_total) / float(section_total))
-                    print("    {} has watched {} items ({}%).".format(user, section_watched_total, int(percent_watched)))
+            for library in opts.libraries:
+                section_total = plex_server.all_sections_totals(library)
+                sections_totals_dict[library] = section_total
+                print("Section: {}, has {} items.".format(library, section_total))
+                for user_server in user_servers:
+                    try:
+                        section = user_server.server.library.section(library)
+                        if section.type == 'movie':
+                            section_watched_lst = section.search(unwatched=False)
+                        elif section.type == 'show':
+                            section_watched_lst = section.search(libtype='episode', unwatched=False)
+                        else:
+                            continue
+                        section_watched_total = len(section_watched_lst)
+                        percent_watched = 100 * (float(section_watched_total) / float(section_total))
+                        print("    {} has watched {} items ({}%).".format(user, section_watched_total, int(percent_watched)))
+    
+                        if user_dict.get(user):
+                            user_dict[user].update({library: section_watched_total})
+                        else:
+                            user_dict[user] = {library: section_watched_total}
+                    except Exception as e:
+                        print((user, e))
+                        if user_dict.get(user):
+                            user_dict[user].update({library: 0})
+                        else:
+                            user_dict[user] = {library: 0}
+                            
+        if opts.collections:
+            title = "User's Watch Percentage by Collection\nFrom: {}"
+            title = title.format(plex_server.server.friendlyName)
+            for collection in opts.collections:
+                _collection = plex_server.all_collections()[collection]
+                collection_albums = _collection.items()
+                collection_total = len(collection_albums)
+                collections_totals_dict[collection] = collection_total
+                print("Collection: {}, has {} items.".format(collection, collection_total))
+                if _collection.subtype == 'album':
+                    for user_server in user_servers:
+                        collection_watched_lst = []
+                        user_collection = user_server.fetchItem(_collection.ratingKey)
+                        for album in user_collection.items():
+                            if album.viewedLeafCount:
+                                user_server._history.append(album)
+                                collection_watched_lst.append(album)
+                        collection_watched_total = len(user_server._history)
+                        percent_watched = 100 * (float(collection_watched_total) / float(collection_total))
+                        print("    {} has listened {} items ({}%).".format(user_server._username, collection_watched_total,
+                                                                          int(percent_watched)))
+                        if user_dict.get(user_server._username):
+                            user_dict[user_server._username].update({collection: collection_watched_total})
+                        else:
+                            user_dict[user_server._username] = {collection: collection_watched_total}
+                        
+                else:
+                    collection_items = _collection.items()
+                    collection_total = len(collection_items)
+                    thumb_url = '{}{}&X-Plex-Token={}'.format(PLEX_URL, _collection.thumb, PLEX_TOKEN)
+                    # image = rget(thumb_url, stream=True)
+                    image = urllib.request.urlretrieve(thumb_url)
+                    for user_server in user_servers:
+                        try:
+                            collection_watched_lst = []
+                            for item in collection_items:
+                                user_item = user_server.fetchItem(item.ratingKey)
+                                if user_item.isWatched:
+                                    collection_watched_lst.append(user_item)
+                            collection_watched_total = len(collection_watched_lst)
+                            percent_watched = 100 * (float(collection_watched_total) / float(collection_total))
+                            print("    {} has watched {} items ({}%).".format(user_server._username, collection_watched_total,
+                                                                              int(percent_watched)))
+                            if user_dict.get(user_server._username):
+                                user_dict[user_server._username].update({collection: collection_watched_total})
+                            else:
+                                user_dict[user_server._username] = {collection: collection_watched_total}
+                        except Exception as e:
+                            print((user_server._username, e))
+                            if user_dict.get(user_server._username):
+                                user_dict[user_server._username].update({collection: 0})
+                            else:
+                                user_dict[user_server._username] = {collection: 0}
 
-                    if user_dict.get(user):
-                        user_dict[user].update({library: section_watched_total})
-                    else:
-                        user_dict[user] = {library: section_watched_total}
-                except Exception as e:
-                    print((user, e))
-                    if user_dict.get(user):
-                        user_dict[user].update({library: 0})
-                    else:
-                        user_dict[user] = {library: 0}
+
 
     elif opts.tautulli:
         # Create a Tautulli instance
@@ -309,7 +391,7 @@ if __name__ == '__main__':
                                               verify_ssl=VERIFY_SSL))
         # Pull all libraries from Tautulli
         tautulli_sections = tautulli_server.get_libraries()
-        title = title.format("Tautulli")
+        title = "User's Watch Percentage by Library\nFrom: Tautulli"
         for section in tautulli_sections:
             library = Library(section)
             sections_dict[library.title] = library
@@ -357,4 +439,6 @@ if __name__ == '__main__':
                     user_dict[user] = {library: section_watched_total}
 
     if opts.pie:
-        make_pie(user_dict, sections_totals_dict, title, opts.filename, opts.headless)
+        if collections_totals_dict:
+            sections_totals_dict = collections_totals_dict
+        make_pie(user_dict, sections_totals_dict, title, opts.filename, image, opts.headless)
