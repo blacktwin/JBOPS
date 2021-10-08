@@ -306,7 +306,7 @@ if __name__ == '__main__':
                 print("Section: {}, has {} items.".format(library, section_total))
                 for user_server in user_servers:
                     try:
-                        section = user_server.server.library.section(library)
+                        section = user_server.library.section(library)
                         if section.type == 'movie':
                             section_watched_lst = section.search(unwatched=False)
                         elif section.type == 'show':
@@ -315,18 +315,18 @@ if __name__ == '__main__':
                             continue
                         section_watched_total = len(section_watched_lst)
                         percent_watched = 100 * (float(section_watched_total) / float(section_total))
-                        print("    {} has watched {} items ({}%).".format(user, section_watched_total, int(percent_watched)))
+                        print("    {} has watched {} items ({}%).".format(user_server._username, section_watched_total, int(percent_watched)))
     
-                        if user_dict.get(user):
-                            user_dict[user].update({library: section_watched_total})
+                        if user_dict.get(user_server._username):
+                            user_dict[user_server._username].update({library: section_watched_total})
                         else:
-                            user_dict[user] = {library: section_watched_total}
+                            user_dict[user_server._username] = {library: section_watched_total}
                     except Exception as e:
-                        print((user, e))
-                        if user_dict.get(user):
-                            user_dict[user].update({library: 0})
+                        print((user_server._username, e))
+                        if user_dict.get(user_server._username):
+                            user_dict[user_server._username].update({library: 0})
                         else:
-                            user_dict[user] = {library: 0}
+                            user_dict[user_server._username] = {library: 0}
                             
         if opts.collections:
             title = "User's Watch Percentage by Collection\nFrom: {}"
