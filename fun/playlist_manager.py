@@ -523,17 +523,21 @@ def build_playlist(jbop, libraries=None, days=None, top=None, filters=None, sear
     return keys_list
 
 
-def share_playlists(playlist_titles, users):
+def share_playlists(playlists, users):
     """
     Parameters
     ----------
-    playlist_titles: list
+    playlists: list
         list of playlist titles
     users: list
         list of user names
     """
     for user in users:
-        for title in playlist_titles:
+        for playlist in playlists:
+            if isinstance(playlist, str):
+                title = playlist
+            else:
+                title = playlist.title
             logger.info("...Shared {title} playlist to '{user}'.".format(title=title, user=user))
             plex.playlist(title).copyToUser(user)
 
@@ -945,7 +949,6 @@ if __name__ == "__main__":
                 playlists = data['user_selected']
             else:
                 playlists = data['all_playlists']
-            playlists_titles = [pl.title for pl in playlists]
             for pl in playlists:
                 pl_dict = {'items': []}
                 pl_dict.update(vars(pl))
