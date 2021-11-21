@@ -3,7 +3,6 @@
 #
 # Description:  Automatically change episode artwork in Plex to hide spoilers.
 # Author:       /u/SwiftPanda16
-#               /u/aldoblack (The slight modification that can update all shows.)
 # Requires:     plexapi, requests
 # Tautulli script trigger:
 #    * Notify on recently added
