@@ -3,14 +3,14 @@
 #
 # Description:  Automatically change episode artwork in Plex to hide spoilers.
 # Author:       /u/SwiftPanda16
+#               /u/aldoblack (The slight modification that can update all shows.)
 # Requires:     plexapi, requests
 # Tautulli script trigger:
 #    * Notify on recently added
 #    * Notify on watched (optional - to remove the artwork after being watched)
 # Tautulli script conditions:
-#    * Condition {1}:
-#        [Media Type | is | show or season or episode]
 #    * Condition {2} (optional):
+#        [ Media Type | is | show or season or episode ]
 #        [ Library Name | is | DVR ]
 #        [ Show Namme | is | Game of Thrones ]
 # Tautulli script arguments:
@@ -65,7 +65,7 @@ def get_blurred_image(rating_key, blur=25):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--rating_key', required=True, type=int)
+    parser.add_argument('--rating_key', type=int)
     parser.add_argument('--image')
     parser.add_argument('--blur', type=int, default=25)
     parser.add_argument('--summary_prefix', nargs='?', const='** SPOILERS **')
@@ -73,61 +73,67 @@ if __name__ == "__main__":
     opts = parser.parse_args()
 
     plex = PlexServer(PLEX_URL, PLEX_TOKEN)
-    item = plex.fetchItem(opts.rating_key)
-
-    if item.type == 'show':
-        episodes = item.episodes()
-        show = item
-    elif item.type == 'season':
-        episodes = item.episodes()
-        show = item.show()
-    elif item.type == 'episode':
-        episodes = [item]
-        show = item.show()
+    if opts.rating_key:
+        # To save duplicate code, add the show/season/episode to a list.
+        items = [plex.fetchItem(opts.rating_key)]
     else:
-        print('Only media type show, season, or episode is supported: '
-              '{item.title} ({item.ratingKey}) is media type {item.type}.'.format(item=item))
-        sys.exit(0)
+        # WARNING: If `rating_key` is empty, this might take some time if you have a lot of shows.
+        items = plex.library.all(libtype="show")
 
-    for episode in episodes:
-        for part in episode.iterParts():
-            episode_filepath = part.file
-            episode_folder = os.path.dirname(episode_filepath)
-            episode_filename = os.path.splitext(os.path.basename(episode_filepath))[0]
+    for item in items:
+        if item.type == 'show':
+            episodes = item.episodes()
+            show = item
+        elif item.type == 'season':
+            episodes = item.episodes()
+            show = item.show()
+        elif item.type == 'episode':
+            episodes = [item]
+            show = item.show()
+        else:
+            print('Only media type show, season, or episode is supported: '
+                  '{item.title} ({item.ratingKey}) is media type {item.type}.'.format(item=item))
+            sys.exit(0)
 
-            if opts.remove:
-                # Find image files with the same name as the episode
-                for filename in os.listdir(episode_folder):
-                    if filename.startswith(episode_filename) and filename.endswith(('.jpg', '.png')):
-                        # Delete the episode artwork image file
-                        os.remove(os.path.join(episode_folder, filename))
+        for episode in episodes:
+            for part in episode.iterParts():
+                episode_filepath = part.file
+                episode_folder = os.path.dirname(episode_filepath)
+                episode_filename = os.path.splitext(os.path.basename(episode_filepath))[0]
 
-                # Unlock the summary so it will get updated on refresh
-                episode.edit(**{'summary.locked': 0})
-                continue
+                if opts.remove:
+                    # Find image files with the same name as the episode
+                    for filename in os.listdir(episode_folder):
+                        if filename.startswith(episode_filename) and filename.endswith(('.jpg', '.png')):
+                            # Delete the episode artwork image file
+                            os.remove(os.path.join(episode_folder, filename))
 
-            if opts.image:
-                # File path to episode artwork using the same episode file name
-                episode_artwork = os.path.splitext(episode_filepath)[0] + os.path.splitext(opts.image)[1]
-                # Copy the image to the episode artwork
-                shutil.copy2(opts.image, episode_artwork)
+                    # Unlock the summary so it will get updated on refresh
+                    episode.edit(**{'summary.locked': 0})
+                    continue
 
-            elif opts.blur:
-                # File path to episode artwork using the same episode file name
-                episode_artwork = os.path.splitext(episode_filepath)[0] + '.png'
-                # Get the blurred artwork from Tautulli
-                blurred_artwork = get_blurred_image(episode.ratingKey, opts.blur)
-                if blurred_artwork:
+                if opts.image:
+                    # File path to episode artwork using the same episode file name
+                    episode_artwork = os.path.splitext(episode_filepath)[0] + os.path.splitext(opts.image)[1]
                     # Copy the image to the episode artwork
-                    with open(episode_artwork, 'wb') as f:
-                        shutil.copyfileobj(blurred_artwork, f)
+                    shutil.copy2(opts.image, episode_artwork)
 
-            if opts.summary_prefix and not episode.summary.startswith(opts.summary_prefix):
-                # Use a zero-width space (\u200b) for blank lines
-                episode.edit(**{
-                    'summary.value': opts.summary_prefix + '\n\u200b\n' + episode.summary,
-                    'summary.locked': 1
-                })
+                elif opts.blur:
+                    # File path to episode artwork using the same episode file name
+                    episode_artwork = os.path.splitext(episode_filepath)[0] + '.png'
+                    # Get the blurred artwork from Tautulli
+                    blurred_artwork = get_blurred_image(episode.ratingKey, opts.blur)
+                    if blurred_artwork:
+                        # Copy the image to the episode artwork
+                        with open(episode_artwork, 'wb') as f:
+                            shutil.copyfileobj(blurred_artwork, f)
 
-        # Refresh metadata for the episode
-        episode.refresh()
+                if opts.summary_prefix and not episode.summary.startswith(opts.summary_prefix):
+                    # Use a zero-width space (\u200b) for blank lines
+                    episode.edit(**{
+                        'summary.value': opts.summary_prefix + '\n\u200b\n' + episode.summary,
+                        'summary.locked': 1
+                    })
+
+            # Refresh metadata for the episode
+            episode.refresh()
