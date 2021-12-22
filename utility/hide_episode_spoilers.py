@@ -79,7 +79,7 @@ def modify_episode_artwork(plex, rating_key, image=None, blur=None, summary_pref
                 # File path to episode artwork using the same episode file name
                 episode_artwork = os.path.splitext(episode_filepath)[0] + os.path.splitext(image)[1]
                 # Don't create the artwork if it already exists
-                if not os.path.isfile(episode_artwork):
+                if not os.path.isfile(episode_artwork) or replace:
                     # Copy the image to the episode artwork
                     shutil.copy2(image, episode_artwork)
                     # Mark episode for metadata refresh
@@ -89,7 +89,7 @@ def modify_episode_artwork(plex, rating_key, image=None, blur=None, summary_pref
                 # File path to episode artwork using the same episode file name
                 episode_artwork = os.path.splitext(episode_filepath)[0] + '.png'
                 # Don't create the artwork if it already exists
-                if not os.path.isfile(episode_artwork):
+                if not os.path.isfile(episode_artwork) or replace:
                     # Get the blurred artwork
                     image_url = plex.transcodeImage(
                         episode.thumbUrl,
@@ -116,7 +116,7 @@ def modify_episode_artwork(plex, rating_key, image=None, blur=None, summary_pref
                 # Mark episode for metadata refresh
                 episode_modified = True
 
-        if episode_modified or replace:
+        if episode_modified:
             # Refresh metadata for the episode
             episode.refresh()
 
