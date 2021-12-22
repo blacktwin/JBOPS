@@ -82,6 +82,7 @@ def modify_episode_artwork(plex, rating_key, image=None, blur=None, summary_pref
                 if not os.path.isfile(episode_artwork):
                     # Copy the image to the episode artwork
                     shutil.copy2(image, episode_artwork)
+                    # Mark episode for metadata refresh
                     episode_modified = True
 
             elif blur:
