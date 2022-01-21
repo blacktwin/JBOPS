@@ -11,11 +11,6 @@ Notes:
 
     * Episode titles, summaries, and tags will be appended to the first episode of the group.
 
-    * The episode number will display as the first episode in the group.
-        e.g. Episode 1-2 --> Episode 1 (It is not possible to display "Episode 1 & 2")
-        e.g. Episode 3-4 --> Episode 3 (It is not possible to reduce this to "Episode 2")
-        e.g. Episode 5-8 --> Episode 5 (It is possible to merge an arbitrary number of episodes)
-
 Usage:
     python merge_multiepisodes.py --library "TV Shows" --show "SpongeBob SquarePants"
 '''
@@ -43,7 +38,7 @@ def group_episodes(plex, library, show):
     for episode in show.episodes():
         groups[episode.locations[0]].append(episode)
 
-    for first, *episodes in groups.values():
+    for index, (first, *episodes) in enumerate(groups.values()):
         if not episodes:
             continue
 
@@ -69,7 +64,9 @@ def group_episodes(plex, library, show):
             'summary.value': summary[:-2],
             'summary.locked': 1,
             'originallyAvailableAt.locked': 1,
-            'contentRating.locked': 1
+            'contentRating.locked': 1,
+            'index.value': index + 1,
+            'index.locked': 1
         })
         first.addWriter(writers, locked=True)
         first.addDirector(directors, locked=True)
