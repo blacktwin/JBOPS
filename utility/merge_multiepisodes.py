@@ -11,6 +11,8 @@ Notes:
 
     * Episode titles, summaries, and tags will be appended to the first episode of the group.
 
+    * To revert the changes and split the episodes again, the show must be removed and re-added to Plex (aka Plex Dance).
+
 Usage:
     python merge_multiepisodes.py --library "TV Shows" --show "SpongeBob SquarePants"
 '''
