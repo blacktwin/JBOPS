@@ -310,16 +310,16 @@ Killing streams is a Plex Pass feature. These scripts will only work for Plex Pa
 
 #### Enable API in Tautulli:
 
-Tautullli > Settings > Web Interface > API > Enable API
+Tautulli > Settings > Web Interface > API > Enable API
 
 
 #### Enabling Scripts in Tautulli:
 
-Taultulli > Settings > Notification Agents > Add a Notification Agent > Script
+Tautulli > Settings > Notification Agents > Add a Notification Agent > Script
 
 #### Configuration
 
-Taultulli > Settings > Notification Agents > New Script > Configuration:
+Tautulli > Settings > Notification Agents > New Script > Configuration:
 - [ ] Set scripts location to location of your script
 - [ ] Scroll down to option you want to use and select the script from the drop down menu
 - [ ] Set desired Script Timeout value
@@ -327,13 +327,13 @@ Taultulli > Settings > Notification Agents > New Script > Configuration:
 - [ ] Save
       
 #### Triggers
-Taultulli > Settings > Notification Agents > New Script > Triggers:
+Tautulli > Settings > Notification Agents > New Script > Triggers:
 
 - [ ] Check desired trigger
 - [ ] Save
 
 #### Conditions
-Taultulli > Settings > Notification Agents > New Script > Conditions:
+Tautulli > Settings > Notification Agents > New Script > Conditions:
 
 - [ ] Set desired conditions
 - [ ] Save
@@ -341,7 +341,7 @@ Taultulli > Settings > Notification Agents > New Script > Conditions:
 For more information on Tautulli conditions see [here](https://github.com/Tautulli/Tautulli-Wiki/wiki/Custom-Notification-Conditions)
 
 #### Script Arguments
-Taultulli > Settings > Notification Agents > New Script > Script Arguments:
+Tautulli > Settings > Notification Agents > New Script > Script Arguments:
 
 - [ ] Select desired trigger
 - [ ] Input desired notification parameters (List of parameters will likely be found inside script)
