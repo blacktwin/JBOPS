@@ -37,27 +37,32 @@ PLEX_TOKEN = os.getenv('PLEX_TOKEN', PLEX_TOKEN)
 
 
 def lock_unlock(plex, rating_key=None, libraries=None, lock=None, unlock=None):
-    if rating_key:
-        lock_unlock_items([plex.fetchItem(rating_key)], lock, unlock)
-
     if libraries is None:
         libraries = []
-
-    for lib in libraries:
-        library = plex.library.section(lib)
-        lock_unlock_items(library.all(), lock, unlock)
-        if library.TYPE == 'show':
-            lock_unlock_items(library.all(libtype='season'), lock, unlock)
-        elif library.TYPE == 'artist':
-            lock_unlock_items(library.all(libtype='album'), lock, unlock)
-
-
-def lock_unlock_items(items, lock, unlock):
     if lock is None:
         lock = []
     if unlock is None:
         unlock = []
 
+    if rating_key:
+        item = plex.fetchItem(rating_key)
+        lock_unlock_items([item], lock, unlock)
+        if item.type == 'show':
+            lock_unlock_items(item.seasons(), lock, unlock)
+        elif item.type == 'artist':
+            lock_unlock_items(item.albums(), lock, unlock)
+
+    else:
+        for lib in libraries:
+            library = plex.library.section(lib)
+            lock_unlock_library(library, lock, unlock)
+            if library.type == 'show':
+                lock_unlock_library(library, lock, unlock, libtype='season')
+            elif library.type == 'artist':
+                lock_unlock_library(library, lock, unlock, libtype='album')
+
+
+def lock_unlock_items(items, lock, unlock):
     for item in items:
         if 'poster' in lock:
             item.lockPoster()
@@ -67,6 +72,17 @@ def lock_unlock_items(items, lock, unlock):
             item.unlockPoster()
         if 'art' in unlock:
             item.unlockArt()
+
+
+def lock_unlock_library(library, lock, unlock, libtype=None):
+    if 'poster' in lock:
+        library.lockAllField('thumb', libtype=libtype)
+    if 'art' in lock:
+        library.lockAllField('art', libtype=libtype)
+    if 'poster' in unlock:
+        library.unlockAllField('thumb', libtype=libtype)
+    if 'art' in unlock:
+        library.unlockAllField('art', libtype=libtype)
 
 
 if __name__ == "__main__":
