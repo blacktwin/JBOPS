@@ -944,7 +944,6 @@ if __name__ == "__main__":
         logger.info("Exporting the user's playlist(s)...")
         # Only import if exporting
         import json
-        import jsonpickle
         import csv
         from flatten_json import flatten
         
@@ -965,8 +964,7 @@ if __name__ == "__main__":
                     item_dict = export_min(item)
                     pl_dict['items'].append(item_dict)
 
-                json_dump = jsonpickle.Pickler(unpicklable=False).flatten(obj=pl_dict)
-                title = json_dump['title']
+                title = pl.title
                 output_file = '{}-{}-Playlist.{}'.format(user, title, opts.export)
                 if opts.export == 'json':
                     with open(output_file, 'w') as fp:
