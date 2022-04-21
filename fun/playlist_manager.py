@@ -968,20 +968,20 @@ if __name__ == "__main__":
                 output_file = '{}-{}-Playlist.{}'.format(user, title, opts.export)
                 if opts.export == 'json':
                     with open(output_file, 'w') as fp:
-                        json.dump(json_dump, fp, indent=4, sort_keys=True)
+                        json.dump(pl_dict, fp, indent=4, sort_keys=True)
                 elif opts.export == 'csv':
                     columns = []
                     data_list = []
-                    for rows in json_dump['items']:
+                    for rows in pl_dict['items']:
                         flat_data = flatten(rows)
-                        columns += list(flat_data)
-                        data_list.append(flat_data)
+                        columns += list(rows)
+                        data_list.append(rows)
                     with open(output_file, 'w', encoding='UTF-8', newline='') as data_file:
                         columns = sorted(list(set(columns)))
                         
                         writer = csv.DictWriter(data_file, fieldnames=columns)
                         writer.writeheader()
-                        for data in data_list:
+                        for data in pl_dict['items']:
                             writer.writerow(data)
 
                     
