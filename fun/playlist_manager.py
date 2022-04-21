@@ -720,35 +720,40 @@ def create_title(jbop, libraries, days, filters, search, limit):
     return title
 
 
-def object_cleaner(item):
+def export_min(item):
     """
-    Removes any protected attributes from a PlexAPI object.
-    Returns the object's attributes into a nested dict
-    
+
     Parameters
     ----------
-    item (object): A PlexAPI object
+    item: class
+        A Playlist item
 
     Returns
     -------
-    item_dict
+    export_dict
     """
     try:
         if item.isPartialObject:
             item.reload()
     except:
         pass
+    export_dict = dict()
     item_dict = vars(item)
-
-    for k in list(item_dict):
-        if k.startswith('_'):
-            del item_dict[k]
-            continue
-        if isinstance(item_dict[k], list):
-            for _ in item_dict[k]:
-                object_cleaner(_)
-
-    return item_dict
+    guids = []
+    if item.TYPE in ['track', 'episode']:
+        export_list = ['grandparentGuid', 'grandparentTitle', 'parentGuid', 'parentTitle', 'guid', 'title', 'guids']
+    else:
+        export_list = ['guid', 'title', 'guids']
+    for export in item_dict.items():
+        if export[0] in export_list:
+            if export[0] == 'guids':
+                for guid in export[1]:
+                   guids.append(guid.id)
+                export_dict.update({'guids': guids})
+            else:
+                export_dict.update(dict([export]))
+    
+    return export_dict
 
 
 if __name__ == "__main__":
@@ -957,7 +962,7 @@ if __name__ == "__main__":
                         del pl_dict[k]
                 items = plex.fetchItem(pl.ratingKey).items()
                 for item in items:
-                    item_dict = object_cleaner(item)
+                    item_dict = export_min(item)
                     pl_dict['items'].append(item_dict)
 
                 json_dump = jsonpickle.Pickler(unpicklable=False).flatten(obj=pl_dict)
