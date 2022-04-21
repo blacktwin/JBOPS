@@ -110,6 +110,7 @@ from __future__ import unicode_literals
 from builtins import str
 import sys
 import os
+import json
 import random
 import logging
 import requests
@@ -182,6 +183,8 @@ filters_lst = list(set([y.key for x in sections if x.type != 'photo' for y in x.
 admin_playlist_lst = [x for x in plex.playlists()]
 today = datetime.datetime.now().date()
 weeknum = datetime.date(today.year, today.month, today.day).isocalendar()[1]
+json_check = sorted([f for f in os.listdir('.') if os.path.isfile(f) and f.endswith(".json")],
+                    key=os.path.getmtime)
 
 
 def actions():
