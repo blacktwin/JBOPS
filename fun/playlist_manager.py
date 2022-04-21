@@ -196,7 +196,7 @@ def actions():
     share - share existing playlist by title from admin to users
     export - export playlist by title from admin to users
     """
-    return ['add', 'remove', 'update', 'show', 'share', 'export']
+    return ['add', 'remove', 'update', 'show', 'share', 'export', 'import']
 
 
 def selectors():
@@ -806,6 +806,8 @@ if __name__ == "__main__":
     parser.add_argument('--export', choices=['csv', 'json'], default='json',
                         help='Space separated list of case sensitive names to process. Allowed names are:\n'
                              'Choices: %(choices)s\nDefault: %(default)s)')
+    parser.add_argument('--importJson', nargs='?', type=str, choices=json_check, metavar='',
+                        help='Filename of json file to use. \n(choices: %(choices)s)')
 
     opts = parser.parse_args()
 
@@ -883,7 +885,7 @@ if __name__ == "__main__":
             logger.info("{}'s current playlist(s): {}".format(user, ', '.join(playlists)))
         exit()
 
-    if libraries:
+    if libraries and opts.importJson == None:
         title = create_title(opts.jbop, libraries, opts.days, filters, search, opts.limit)
         keys_list = build_playlist(opts.jbop, libraries, opts.days, opts.top, filters, search, opts.limit)
 
@@ -984,8 +986,27 @@ if __name__ == "__main__":
                         writer.writeheader()
                         for data in pl_dict['items']:
                             writer.writerow(data)
-
                     
-                logger.info("Exporting {}'s current playlist: {} (./{})".format(user, title, output_file))
+                logger.info("Exported (./{})".format(output_file))
+                
+    if opts.action == 'import':
+        if len(opts.libraries) > 1:
+            logger.error("Import can only use one library.")
+            exit()
+        logger.info('Using {} file to import.'.format(opts.importJson))
+        with open(''.join(opts.importJson)) as json_data:
+            import_json = json.load(json_data)
+        title = import_json['title']
+        items = []
+        for item in import_json['items']:
+            import_library = plex.library.section(opts.libraries[0])
+            plex_guid = item['guid'].rsplit('/', 1)[1]
+            item_guid = plex.library.search(guid=item['guid'])
+            items += item_guid
+        logger.info("Total items from playlist to import: {}".format(len(items)))
+        for user in playlist_dict['data']:
+            logger.info("Importing playlist {} to user {}".format(title, user['user']))
+            user['server'].createPlaylist(title, section=opts.libraries[0], items=items)
+        
 
     logger.info("Done.")
