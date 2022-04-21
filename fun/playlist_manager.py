@@ -955,10 +955,7 @@ if __name__ == "__main__":
                 playlists = data['all_playlists']
             for pl in playlists:
                 pl_dict = {'items': []}
-                pl_dict.update(vars(pl))
-                for k in list(pl_dict):
-                    if k.startswith('_'):
-                        del pl_dict[k]
+                pl_dict['title'] = pl.title
                 items = plex.fetchItem(pl.ratingKey).items()
                 for item in items:
                     item_dict = export_min(item)
