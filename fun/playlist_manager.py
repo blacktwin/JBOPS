@@ -954,6 +954,7 @@ if __name__ == "__main__":
             else:
                 playlists = data['all_playlists']
             for pl in playlists:
+                logger.info("Exporting {}'s playlist: {}".format(user, pl.title))
                 pl_dict = {'items': []}
                 pl_dict['title'] = pl.title
                 items = plex.fetchItem(pl.ratingKey).items()
