@@ -76,10 +76,16 @@ optional arguments:
     python playlist_manager.py --action share --allUsers --playlists "My Custom Playlist" "Another Playlist"
     
  Export each of an user's Playlists contents to a json file in the root of the script
-    python playlist_manager.py" --action export --user USER --playlists "Most Popular Movies (30 days)" "New Hot"
+    python playlist_manager.py --action export --user USER --playlists "Most Popular Movies (30 days)" "New Hot"
     
  Export each of an user's Playlists contents to a csv file in the root of the script
-    python playlist_manager.py" --action export --user USER --allPlaylists --export csv
+    python playlist_manager.py --action export --user USER --allPlaylists --export csv
+    
+ Import a user's exported Playlist json file to the admin's Movies library
+    python playlist_manager.py --action import --self --importJson "User-Title-Playlist.json" --libraries "Movies"
+    
+ Import a admin's exported Playlist json file to users shared Movies library
+    python playlist_manager.py --action import --users User1 "Another User" --importJson "User-Title-Playlist.json" --libraries "Movies"
 
  Search and Filter;
 
@@ -960,12 +966,15 @@ if __name__ == "__main__":
                 playlists = data['all_playlists']
             for pl in playlists:
                 logger.info("Exporting {}'s playlist: {}".format(user, pl.title))
-                pl_dict = {'items': []}
-                pl_dict['title'] = pl.title
-                items = plex.fetchItem(pl.ratingKey).items()
-                for item in items:
-                    item_dict = export_min(item)
-                    pl_dict['items'].append(item_dict)
+                pl_dict = {'title': pl.title}
+                if pl.smart:
+                    pl_dict['smartFilters'] = pl.filters()
+                else:
+                    pl_dict['items'] = []
+                    items = plex.fetchItem(pl.ratingKey).items()
+                    for item in items:
+                        item_dict = export_min(item)
+                        pl_dict['items'].append(item_dict)
 
                 title = pl.title
                 output_file = '{}-{}-Playlist.{}'.format(user, title, opts.export)
@@ -997,16 +1006,28 @@ if __name__ == "__main__":
         with open(''.join(opts.importJson)) as json_data:
             import_json = json.load(json_data)
         title = import_json['title']
-        items = []
-        for item in import_json['items']:
-            import_library = plex.library.section(opts.libraries[0])
-            plex_guid = item['guid'].rsplit('/', 1)[1]
-            item_guid = plex.library.search(guid=item['guid'])
-            items += item_guid
-        logger.info("Total items from playlist to import: {}".format(len(items)))
-        for user in playlist_dict['data']:
-            logger.info("Importing playlist {} to user {}".format(title, user['user']))
-            user['server'].createPlaylist(title, section=opts.libraries[0], items=items)
+        section = opts.libraries[0]
+        if import_json.get('items'):
+            items = []
+            for item in import_json['items']:
+                import_library = plex.library.section(opts.libraries[0])
+                plex_guid = item['guid'].rsplit('/', 1)[1]
+                item_guid = plex.library.search(guid=item['guid'])
+                items += item_guid
+            logger.info("Total items from playlist to import: {}".format(len(items)))
+            for user in playlist_dict['data']:
+                logger.info("Importing playlist {} to user {}".format(title, user['user']))
+                user['server'].createPlaylist(title, section=section, items=items)
+        else:
+            logger.info("Importing Smart Playlist: {}".format(title))
+            limit = import_json["smartFilters"].get("limit")
+            libtype = import_json["smartFilters"].get("libtype")
+            sort = import_json["smartFilters"].get("sort")
+            filters = import_json["smartFilters"].get("filters")
+            for user in playlist_dict['data']:
+                logger.info("Importing playlist {} to user {}".format(title, user['user']))
+                user['server'].createPlaylist(title, section=section, smart=True, limit=limit,
+                                              libtype=libtype, sort=sort, filters=filters)
         
 
     logger.info("Done.")
