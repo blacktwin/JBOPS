@@ -1,7 +1,8 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 '''
-Description: Automatically generate pinyin sort title for Chinese movie library
+Description: Automatically generate pinyin sort title for Chinese media library
 Author: timmy0209
 Maintainer: sjtuross
 Requires: plexapi, pypinyin
@@ -21,68 +22,13 @@ Tautulli script arguments:
         --section {section_id}
 '''
 
-import urllib
-import http.client
-import json
 import argparse
 import os
-import xmltodict
 import pypinyin
 from plexapi.server import PlexServer
 
 PLEX_URL = ""
 PLEX_TOKEN = ""
-
-def fetchPlexApi(path='', method='GET', getFormPlextv=False, token=PLEX_TOKEN, params=None):
-        """a helper function that fetches data from and put data to the plex server"""
-        #print(path)
-        headers = {'X-Plex-Token': token,
-                'Accept': 'application/json'}
-        if getFormPlextv:
-            url = 'plex.tv'        
-            connection = http.client.HTTPSConnection(url)
-        else:
-            url = PLEX_URL.rstrip('/').replace('http://','')     
-            connection = http.client.HTTPConnection(url)
-        try:
-            if method.upper() == 'GET':
-                pass
-            elif method.upper() == 'POST':
-                headers.update({'Content-type': 'application/x-www-form-urlencoded'})
-                pass
-            elif method.upper() == 'PUT':
-                pass
-            elif method.upper() == 'DELETE':
-                pass
-            else:
-                print("Invalid request method provided: {method}".format(method=method))
-                connection.close()
-                return
-
-            connection.request(method.upper(), path , params, headers)     
-            response = connection.getresponse()         
-            r = response.read()             
-            contentType = response.getheader('Content-Type')      
-            status = response.status    
-            connection.close()
-
-            if response and len(r):     
-                if 'application/json' in contentType:         
-                    return json.loads(r)
-                elif 'application/xml' in contentType:
-                    return xmltodict.parse(r)
-                else:
-                    return r
-            else:
-                return r
-
-        except Exception as e:
-            connection.close()
-            print("Error fetching from Plex API: {err}".format(err=e))
-
-def updateSortTitle(rating,item):
-    sortQuery =urllib.parse.quote(item.encode('utf-8'))                                
-    data = fetchPlexApi("/library/sections/"+sectionNum+"/all?type=1&id=%s&titleSort.value=%s&"%(rating,sortQuery), "PUT",token=PLEX_TOKEN) 
 
 def check_contain_chinese(check_str):
      for ch in check_str:
@@ -98,38 +44,15 @@ def changepinyin (title):
     c = ''.join(b)
     return c
 
-def loopThroughAllMovies():
-    toDo = True
-    start = 0
-    size = 100
-    while toDo:
-        if len(sectionNum):
-            url = "/library/sections/" + sectionNum + "/all?type=1&X-Plex-Container-Start=%i&X-Plex-Container-Size=%i" % (start, size)
-            metadata = fetchPlexApi(url,token=PLEX_TOKEN)
-            container = metadata["MediaContainer"]
-            elements = container["Metadata"]
-            totalSize = container["totalSize"]
-            offset = container["offset"]
-            size = container["size"]      
-            start = start + size        
-            if totalSize-offset-size == 0:
-                toDo = False
-            # loop through all elements
-            for movie in elements:
-                mediaType = movie["type"]
-                if mediaType != "movie":
-                    continue
-                if 'titleSort' in movie:
-                    titleSort = movie["titleSort"]
-                    if not check_contain_chinese(titleSort):
-                        continue
-                title = movie["title"]
-                if check_contain_chinese(title):
-                    titleSort = changepinyin(title)
-                    print(title)
-                    key = movie["ratingKey"]        
-                    updateSortTitle(key, titleSort)
-    print("Success!")
+def loopThroughAllItems(plex, sectionId):
+    section=plex.library.sectionByID(int(sectionId))
+    if section.type in ('movie', 'show', 'artist'):
+        for item in section.all():
+            if check_contain_chinese(item.titleSort):
+                titleSort=changepinyin(item.titleSort)
+                item.edit(**{"titleSort.value":titleSort, "titleSort.locked":1})
+                print(item.title)
+    print("Success")
 
 if __name__ == '__main__':
 
@@ -152,10 +75,10 @@ if __name__ == '__main__':
 
     if not opts.section:
         for section in plex.library.sections():
-            if section.type == 'movie':
+            if section.type in ('movie', 'show', 'artist'):
                 print(section)
-        sectionNum = input('Enter Movie Library Section Id:')
+        sectionId = input('Enter Media Library Section Id:')
     else:
-        sectionNum = opts.section
+        sectionId = opts.section
 
-    loopThroughAllMovies()
+    loopThroughAllItems(plex, sectionId)
