@@ -46,12 +46,24 @@ def changepinyin (title):
 
 def loopThroughAllItems(plex, sectionId):
     section=plex.library.sectionByID(int(sectionId))
-    if section.type in ('movie', 'show', 'artist'):
+    if section.type in ('movie', 'show'):
         for item in section.all():
             if check_contain_chinese(item.titleSort):
                 titleSort=changepinyin(item.titleSort)
                 item.edit(**{"titleSort.value":titleSort, "titleSort.locked":1})
                 print(item.title)
+    if section.type == 'artist':
+        for artist in section.all():
+            if check_contain_chinese(artist.titleSort):
+                titleSort=changepinyin(artist.titleSort)
+                artist.edit(**{"titleSort.value":titleSort, "titleSort.locked":1})
+                print(artist.title)
+            for album in artist.albums():
+                if check_contain_chinese(album.titleSort):
+                    titleSort=changepinyin(album.titleSort)
+                    album.edit(**{"titleSort.value":titleSort, "titleSort.locked":1})
+                    print(artist.title, "-", album.title)
+ 
     print("Success")
 
 if __name__ == '__main__':
