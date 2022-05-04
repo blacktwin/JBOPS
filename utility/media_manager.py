@@ -20,7 +20,11 @@ Enabling Scripts in Tautulli:
         python media_manager.py --libraries Movies --select unwatched --date "2015-05-05" --action delete
      
      Find watched TV Shows that both User1 and User2 have watched
-        python media_manager.py --libraries "TV Shows" --select watched --users User1 User2
+        python media_manager.py --libraries "TV Shows" --select watched --users User1 User2 --action show
+    
+     Find library items that were last played before 2021-01-01
+        python media_manger.py --libraries "Movies --select lastPlayed --date 2021-01-01 --action show
+
 
 """
 from __future__ import print_function
