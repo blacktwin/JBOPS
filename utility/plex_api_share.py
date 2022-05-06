@@ -371,18 +371,16 @@ if __name__ == "__main__":
         if opts.movieLabels:
             allowed_filters(opts.movieLabels, filterMovies)
         if opts.movieRatings:
-            filterMovies['contentRating'] = opts.movieRatings
+            allowed_filters(opts.movieRatings, filterMovies)
         if opts.tvLabels or opts.tvRatings:
             filterTelevision = {}
         if opts.tvLabels:
-            filterTelevision['label'] = opts.tvLabels
-            for label in opts.filterTelevision[0]:
-                add_to_dictlist(filterMovies, label[0], label[1])
+            allowed_filters(opts.tvLabels, filterTelevision)
         if opts.tvRatings:
-            filterTelevision['contentRating'] = opts.tvRatings
+            allowed_filters(opts.tvRatings, filterTelevision)
         if opts.musicLabels:
             filterMusic = {}
-            filterMusic['label'] = opts.musicLabels
+            allowed_filters(opts.musicLabels, filterMusic)
     except AttributeError:
         print('No Plex Pass moving on...')
 
