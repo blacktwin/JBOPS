@@ -50,21 +50,26 @@ def loopThroughAllItems(plex, sectionId, regenerate):
         for item in section.all():
             if check_contain_chinese(item.title if regenerate else item.titleSort):
                 titleSort=changepinyin(item.title if regenerate else item.titleSort)
-                item.edit(**{"titleSort.value":titleSort, "titleSort.locked":1})
-                print(item.title)
+                item.editSortTitle(titleSort, True)
+                print(section.type.capitalize(), "-", item.title)
+        for collection in section.collections():
+            if collection.content==None and check_contain_chinese(collection.title if regenerate else collection.titleSort):
+                titleSort=changepinyin(collection.title if regenerate else collection.titleSort)
+                collection.editSortTitle(titleSort, True)
+                print("Collection", "-", collection.title)
     if section.type == 'artist':
         for artist in section.all():
             if check_contain_chinese(artist.title if regenerate else artist.titleSort):
                 titleSort=changepinyin(artist.title if regenerate else artist.titleSort)
-                artist.edit(**{"titleSort.value":titleSort, "titleSort.locked":1})
-                print(artist.title)
+                artist.editSortTitle(titleSort, True)
+                print(section.type.capitalize(), "-", artist.title)
             for album in artist.albums():
                 if check_contain_chinese(album.title if regenerate else album.titleSort):
                     titleSort=changepinyin(album.title if regenerate else album.titleSort)
-                    album.edit(**{"titleSort.value":titleSort, "titleSort.locked":1})
-                    print(artist.title, "-", album.title)
+                    album.editSortTitle(titleSort, True)
+                    print(section.type.capitalize(), "-", artist.title, "-", album.title)
  
-    print("Success!")
+    print("\nSuccess!")
 
 if __name__ == '__main__':
 
