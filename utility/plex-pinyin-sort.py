@@ -37,7 +37,7 @@ def check_contain_chinese(check_str):
      return False
 
 def changepinyin (title):
-    a = pypinyin.pinyin(title, style=pypinyin.FIRST_LETTER)
+    a = pypinyin.pinyin(title, style=pypinyin.FIRST_LETTER, errors='ignore')
     b = []
     for i in range(len(a)):
         b.append(str(a[i][0]).upper())
