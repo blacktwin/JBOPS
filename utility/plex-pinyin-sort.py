@@ -44,27 +44,27 @@ def changepinyin (title):
     c = ''.join(b)
     return c
 
-def loopThroughAllItems(plex, sectionId):
+def loopThroughAllItems(plex, sectionId, regenerate):
     section=plex.library.sectionByID(int(sectionId))
     if section.type in ('movie', 'show'):
         for item in section.all():
-            if check_contain_chinese(item.titleSort):
-                titleSort=changepinyin(item.titleSort)
+            if check_contain_chinese(item.title if regenerate else item.titleSort):
+                titleSort=changepinyin(item.title if regenerate else item.titleSort)
                 item.edit(**{"titleSort.value":titleSort, "titleSort.locked":1})
                 print(item.title)
     if section.type == 'artist':
         for artist in section.all():
-            if check_contain_chinese(artist.titleSort):
-                titleSort=changepinyin(artist.titleSort)
+            if check_contain_chinese(artist.title if regenerate else artist.titleSort):
+                titleSort=changepinyin(artist.title if regenerate else artist.titleSort)
                 artist.edit(**{"titleSort.value":titleSort, "titleSort.locked":1})
                 print(artist.title)
             for album in artist.albums():
-                if check_contain_chinese(album.titleSort):
-                    titleSort=changepinyin(album.titleSort)
+                if check_contain_chinese(album.title if regenerate else album.titleSort):
+                    titleSort=changepinyin(album.title if regenerate else album.titleSort)
                     album.edit(**{"titleSort.value":titleSort, "titleSort.locked":1})
                     print(artist.title, "-", album.title)
  
-    print("Success")
+    print("Success!")
 
 if __name__ == '__main__':
 
@@ -72,6 +72,7 @@ if __name__ == '__main__':
     parser.add_argument('-u', '--url')
     parser.add_argument('-t', '--token')
     parser.add_argument('-s', '--section')
+    parser.add_argument('-r', '--regenerate', nargs='?', type=int, const=1, default=0)
     opts = parser.parse_args()
 
     PLEX_URL = opts.url or os.getenv('PLEX_URL', PLEX_URL)
@@ -92,5 +93,7 @@ if __name__ == '__main__':
         sectionId = input('Enter Media Library Section Id:')
     else:
         sectionId = opts.section
+    
+    regenerate = False if opts.regenerate==0 else True
 
-    loopThroughAllItems(plex, sectionId)
+    loopThroughAllItems(plex, sectionId, regenerate)
