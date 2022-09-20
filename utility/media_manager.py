@@ -25,6 +25,9 @@ Enabling Scripts in Tautulli:
      Find library items that were last played before 2021-01-01
         python media_manger.py --libraries "Movies --select lastPlayed --date 2021-01-01 --action show
 
+     Find library items that have audience rating less than 6
+        python3 media_manager.py --libraries "Movies 2022" --select rating --selectValue "<_6" --action show
+
 
 """
 from __future__ import print_function
@@ -128,6 +131,7 @@ class Metadata(object):
         self.video_resolution = d.get('video_resolution')
         self.video_codec = d.get('video_codec')
         self.media_info = d.get('media_info')
+        self.audience_rating= d.get('audience_rating')
         if self.media_info:
             self.parts = self.media_info[0].get('parts')
             self.file = self.parts[0].get('file')
@@ -480,6 +484,39 @@ def watched_work(user, sectionID=None, ratingKey=None):
             break
         start += count
 
+def rating_work(sectionID, operator, value):
+    """
+    Parameters
+    ----------
+    sectionID (int): Library key
+    value (str): audience rating criteria
+    Returns
+    -------
+    rating_lst (list): List of Metdata objects of items matching audience rating
+    """
+    count = 25
+    start = 0
+    rating_lst = []
+    while True:
+        tt_size = tautulli_server.get_library_media_info(section_id=sectionID,
+                                                            start=start, length=count)
+        if all([tt_size]):
+            start += count
+            for item in tt_size:
+                _meta = tautulli_server.get_metadata(item['rating_key'])
+                metadata = Metadata(_meta)
+                try:
+                    if metadata.audience_rating:
+                        audience_rating = float(metadata.audience_rating)
+                        if operator(audience_rating, float(value)):
+                            rating_lst.append(metadata)
+                except AttributeError:
+                    print("Metadata error found with rating_key: ({})".format(item['rating_key']))
+            continue
+        elif not all([tt_size]):
+            break
+        start += count
+    return rating_lst
 
 def transcode_work(sectionID, operator, value):
     """
@@ -540,6 +577,8 @@ def action_show(items, selector, date, users=None):
         print("The following items were watched by {}".format(", ".join([user.name for user in users])))
     elif selector == 'unwatched':
         print("The following items were added before {} and are unwatched".format(date))
+    elif selector == 'rating':
+        print("The following item(s) meet the criteria")
     else:
         print("The following items were added before {}".format(date))
     
@@ -555,6 +594,10 @@ def action_show(items, selector, date, users=None):
                 last_played = datetime.datetime.utcfromtimestamp(float(item.last_played)).strftime("%Y-%m-%d")
                 print(u"\t{} added {} and last played {}\tSize: {}\n\t\tFile: {}".format(
                     item.title, added_at, last_played, sizeof_fmt(size), item.file))
+
+            elif selector == 'rating':
+                print(u"\t{} added {}\tSize: {}\tRating: {}\n\t\tFile: {}".format(
+                    item.title, added_at, sizeof_fmt(size), item.audience_rating, item.file))
     
             elif selector == 'transcoded':
                 print(u"\t{} added {}\tSize: {}\tTransocded: {} time(s)\n\t\tFile: {}".format(
@@ -635,6 +678,7 @@ if __name__ == '__main__':
     last_played_lst = []
     size_lst = []
     user_lst = []
+    rating_lst = []
     transcode_lst = []
     date_format = ''
 
@@ -760,7 +804,16 @@ if __name__ == '__main__':
                 print("Size must end with one of these notations: {}".format(", ".join(UNTIS.keys())))
             pass
         elif opts.select == "rating":
-            pass
+            if libraries:
+                for _library in libraries:
+                    print("Checking library: '{}' items with {}{} rating...".format(
+                        _library.title, operator, value))
+                    rating_lst += rating_work(sectionID=_library.key, operator=op, value=value)
+
+            if opts.action == "show":
+                action_show(rating_lst, opts.select, None)
+            elif opts.action == 'delete':
+                plex_deletion(rating_lst, libraries, opts.toggleDeletion)
         elif opts.select == "transcoded":
             if libraries:
                 for _library in libraries:
