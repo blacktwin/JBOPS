@@ -85,10 +85,12 @@ USER_IGNORE = ['User1']
 STAT_CHOICE = ['duration', 'plays']
 
 # Customize time display
-# {0:d} hr {1:02d} min {2:02d} sec  -->  1 hr 32 min 00 sec
-# {0:d} hr {1:02d} min  -->  1 hr 32 min
-# {0:02d} hr {1:02d} min  -->  01 hr 32 min
-TIME_DISPLAY = "{0:d} hr {1:02d} min {2:02d} sec"
+# {0:d} day(s) {1:d} hr {2:02d} min {3:02d} sec --> 1 day(s) 0 hr 34 min 02 sec
+# {1:d} hr {2:02d} min {3:02d} sec  -->  1 hr 32 min 00 sec
+# {1:d} hr {2:02d} min  -->  1 hr 32 min
+# {1:02d} hr {2:02d} min  -->  01 hr 32 min
+# 0 = days, 1 = hours, 2 = minutes, 3 = seconds
+TIME_DISPLAY = "{0:d} day(s) {1:d} hr {2:02d} min {3:02d} sec"
 
 # Customize BODY to your liking
 BODY_TEXT = """\
@@ -172,7 +174,11 @@ def get_user_stats(home_stats, rich, stats_type, notify=None):
         if user not in USER_IGNORE:
             if stats_type == 'duration':
                 user_total = timedelta(seconds=stat)
-                USER_STATS = USER_STAT.format(user, user_total)
+                days = user_total.days
+                hours, remainder = divmod(user_total.seconds, 3600)
+                minutes, seconds = divmod(remainder, 60)
+                user_custom = TIME_DISPLAY.format(days, hours, minutes, seconds)
+                USER_STATS = USER_STAT.format(user, user_custom)
             else:
                 USER_STATS = USER_STAT.format(user, stat)
             if rich or not notify:
