@@ -726,7 +726,9 @@ if __name__ == '__main__':
             for _library in libraries:
                 print("Checking library: '{}' watch statuses...".format(_library.title))
                 unwatched_lst += unwatched_work(sectionID=_library.key, date=date)
-                
+        if not unwatched_lst:
+            print("{} item(s) have been found.".format(len(unwatched_lst)))
+            exit()
         if opts.action == "show":
             action_show(unwatched_lst, opts.select, date_format)
             
