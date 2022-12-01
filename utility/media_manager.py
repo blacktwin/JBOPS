@@ -355,10 +355,11 @@ def last_played_work(sectionID, date=None):
             start += count
             for item in tt_history:
                 _meta = tautulli_server.get_metadata(item['rating_key'])
-                metadata = Metadata(_meta)
-                if (float(item['last_played'])) < date:
-                    metadata.last_played = item['last_played']
-                    last_played_lst.append(metadata)
+                if _meta:  # rating_key that no longer exists on the Plex server will return blank metadata
+                    metadata = Metadata(_meta)
+                    if (float(item['last_played'])) < date:
+                        metadata.last_played = item['last_played']
+                        last_played_lst.append(metadata)
         elif not all([tt_history]):
             break
         start += count
@@ -390,8 +391,9 @@ def unwatched_work(sectionID, date=None):
             start += count
             for item in tt_history:
                 _meta = tautulli_server.get_metadata(item['rating_key'])
-                metadata = Metadata(_meta)
-                unwatched_lst.append(metadata)
+                if _meta:  # rating_key that no longer exists on the Plex server will return blank metadata
+                    metadata = Metadata(_meta)
+                    unwatched_lst.append(metadata)
             continue
         elif not all([tt_history]):
             break
@@ -424,19 +426,20 @@ def size_work(sectionID, operator, value, episodes):
             start += count
             for item in tt_size:
                 _meta = tautulli_server.get_metadata(item['rating_key'])
-                metadata = Metadata(_meta)
-                try:
-                    if episodes:
-                        for _episode in metadata.episodes:
-                            file_size = int(_episode.file_size)
+                if _meta:  # rating_key that no longer exists on the Plex server will return blank metadata
+                    metadata = Metadata(_meta)
+                    try:
+                        if episodes:
+                            for _episode in metadata.episodes:
+                                file_size = int(_episode.file_size)
+                                if operator(file_size, value):
+                                    size_lst.append(_episode)
+                        else:
+                            file_size = int(metadata.file_size)
                             if operator(file_size, value):
-                                size_lst.append(_episode)
-                    else:
-                        file_size = int(metadata.file_size)
-                        if operator(file_size, value):
-                            size_lst.append(metadata)
-                except AttributeError:
-                    print("Metadata error found with rating_key: ({})".format(item['rating_key']))
+                                size_lst.append(metadata)
+                    except AttributeError:
+                        print("Metadata error found with rating_key: ({})".format(item['rating_key']))
             continue
         elif not all([tt_size]):
             break
@@ -476,8 +479,9 @@ def watched_work(user, sectionID=None, ratingKey=None):
                     user.watch.get(metadata.rating_key).watched_status += 1
                 else:
                     _meta = tautulli_server.get_metadata(metadata.rating_key)
-                    metadata = Metadata(_meta)
-                    user.watch.update({metadata.rating_key: metadata})
+                    if _meta:  # rating_key that no longer exists on the Plex server will return blank metadata
+                        metadata = Metadata(_meta)
+                        user.watch.update({metadata.rating_key: metadata})
                     
             continue
         elif not all([tt_history]):
@@ -504,14 +508,15 @@ def rating_work(sectionID, operator, value):
             start += count
             for item in tt_size:
                 _meta = tautulli_server.get_metadata(item['rating_key'])
-                metadata = Metadata(_meta)
-                try:
-                    if metadata.audience_rating:
-                        audience_rating = float(metadata.audience_rating)
-                        if operator(audience_rating, float(value)):
-                            rating_lst.append(metadata)
-                except AttributeError:
-                    print("Metadata error found with rating_key: ({})".format(item['rating_key']))
+                if _meta:  # rating_key that no longer exists on the Plex server will return blank metadata
+                    metadata = Metadata(_meta)
+                    try:
+                        if metadata.audience_rating:
+                            audience_rating = float(metadata.audience_rating)
+                            if operator(audience_rating, float(value)):
+                                rating_lst.append(metadata)
+                    except AttributeError:
+                        print("Metadata error found with rating_key: ({})".format(item['rating_key']))
             continue
         elif not all([tt_size]):
             break
