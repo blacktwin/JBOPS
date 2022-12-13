@@ -437,22 +437,9 @@ if __name__ == '__main__':
     if opts.map == 'Geo':
         geojson = get_geojson_dict(geo_json)
         print("\n")
+        geojson_file = '{}.geojson'.format(''.join(opts.filename))
+        with open(geojson_file, 'w') as fp:
+            json.dump(geojson, fp, indent=4, sort_keys=True)
 
-        r = requests.post("https://api.github.com/gists",
-                          json={
-                              "description": title_string,
-                              "files": {
-                                  '{}.geojson'.format(filename): {
-                                      "content": json.dumps(geojson, indent=4)
-                                  }
-                              }
-                          },
-                          headers={
-                              'Content-Type': 'application/json'
-                          })
-
-        print(r.json()['html_url'])
-        if not opts.headless:
-            webbrowser.open(r.json()['html_url'])
     else:
         draw_map(opts.map, geo_json, filename, opts.headless, opts.legend)
