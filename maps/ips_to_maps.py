@@ -305,7 +305,7 @@ def draw_map(map_type, geo_dict, filename, headless, leg_choice):
             if key == SERVER_FRIENDLY:
                 color = '#FFAC05'
                 marker = '*'
-                markersize = 10
+                markersize = 8
                 zord = 3
                 alph = 1
             else:
@@ -316,9 +316,9 @@ def draw_map(map_type, geo_dict, filename, headless, leg_choice):
                     print('Platform: {} is missing from PLATFORM_COLORS. Using DEFAULT_COLOR.'.format(data['platform']))
                 marker = '.'
                 if data['play_count'] >= 100:
-                    markersize = (data['play_count'] * .1)
+                    markersize = (data['play_count'] * .01)
                 elif data['play_count'] <= 2:
-                    markersize = 2
+                    markersize = 1
                 else:
                     markersize = 2
                 zord = 2
