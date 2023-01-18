@@ -45,7 +45,14 @@ def check_streaming_services(plex, libraries, services, available_only):
             if available_only and not availabilities:
                 continue
 
-            print(f'  └─ {item.title} ({item.year})')
+            if item.type == 'movie':
+                subtitle = item.media[0].videoResolution
+                subtitle = subtitle.upper() if subtitle == 'sd' else ((subtitle + 'p') if subtitle.isdigit() else '')
+            else:
+                subtitle = item.childCount
+                subtitle = str(subtitle) + ' season' + ('s' if subtitle > 1 else '')
+
+            print(f'  └─ {item.title} ({item.year}) ({subtitle})')
 
             for availability in availabilities:
                 title = availability.title
