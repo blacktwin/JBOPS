@@ -7,15 +7,16 @@
 
 import argparse
 import os
+from plexapi import CONFIG
 from plexapi.server import PlexServer
 from plexapi.exceptions import BadRequest
 
 PLEX_URL = ''
 PLEX_TOKEN = ''
 
-# Environment Variables
-PLEX_URL = os.getenv('PLEX_URL', PLEX_URL)
-PLEX_TOKEN = os.getenv('PLEX_TOKEN', PLEX_TOKEN)
+# Environment Variables or PlexAPI Config
+PLEX_URL = os.getenv('PLEX_URL', PLEX_URL) or CONFIG.data['auth'].get('server_baseurl')
+PLEX_TOKEN = os.getenv('PLEX_TOKEN', PLEX_TOKEN) or CONFIG.data['auth'].get('server_token')
 
 
 def check_streaming_services(plex, libraries, services, available_only):
