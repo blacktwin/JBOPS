@@ -19,13 +19,13 @@ PLEX_TOKEN = os.getenv('PLEX_TOKEN', PLEX_TOKEN)
 
 
 def check_streaming_services(plex, libraries, services, available_only):
-    if not libraries:
+    if libraries:
+        sections = [plex.library.section(library) for library in libraries]
+    else:
         sections = [
             section for section in plex.library.sections()
             if section.agent in {'tv.plex.agents.movie', 'tv.plex.agents.series'}
         ]
-    else:
-        sections = [plex.library.section(library) for library in libraries]
 
     for section in sections:
         print(f'{section.title}')
