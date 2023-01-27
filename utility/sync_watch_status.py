@@ -407,6 +407,30 @@ def sync_watch_status(watched, section, accountTo, userTo, same_server=False):
             pass
 
 
+def batching_watched(section, libtype):
+    count = 100
+    start = 0
+    watched_lst = []
+    while True:
+    
+        if libtype == 'show':
+            search_watched = section.search(libtype='episode', container_start=start, container_size=count,
+                                         **{'show.unwatchedLeaves': False})
+        else:
+            search_watched = section.search(unwatched=False, container_start=start, container_size=count)
+        if all([search_watched]):
+            start += count
+            for item in search_watched:
+                if item not in watched_lst:
+                    watched_lst.append(item)
+            continue
+        elif not all([search_watched]):
+            break
+        start += count
+        
+    return watched_lst
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Sync watch status from one user to others.",
                                      formatter_class=argparse.RawTextHelpFormatter)
@@ -498,10 +522,7 @@ if __name__ == '__main__':
             else:
                 # Check library for watched items
                 sectionFrom = watchedFrom.library.section(_library.title)
-                if _library.type == 'show':
-                    watched_lst = sectionFrom.search(libtype='episode', **{'show.unwatchedLeaves': False})
-                else:
-                    watched_lst = sectionFrom.search(unwatched=False)
+                watched_lst = batching_watched(sectionFrom, _library.type)
 
             for user in plexTo:
                 username, server = user
