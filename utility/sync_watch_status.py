@@ -396,9 +396,9 @@ def sync_watch_status(watched, section, accountTo, userTo, same_server=False):
                 # .fetchItem retrieves a full object
                 fetch_check = sectionTo.fetchItem(watch_check.key)
             # If item is already watched ignore
-            if not fetch_check.isWatched:
+            if not fetch_check.isPlayed:
                 # todo-me should watched count be synced?
-                fetch_check.markWatched()
+                fetch_check.markPlayed()
                 title = fetch_check._prettyfilename()
                 print("Synced watched status of {} to account {}...".format(title, userTo))
 
@@ -542,7 +542,7 @@ if __name__ == '__main__':
             print("Request manually triggered to update watch status")
             watchedFrom = check_users_access(plex_access, userFrom, serverFrom)
             watched_item = watchedFrom.fetchItem(int(opts.ratingKey))
-            if not watched_item.isWatched:
+            if not watched_item.isPlayed:
                 print("Rating Key {} was not reported as watched in Plex for user {}".format(opts.ratingKey,
                                                                                              userFrom))
                 exit()
