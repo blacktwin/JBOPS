@@ -73,25 +73,20 @@ def group_episodes(plex, library, show, renumber):
             if episodes:
                 merge(first, episodes)
 
-            first.addWriter(writers, locked=True)
-            first.addDirector(directors, locked=True)
-
-            edits = {
-                'title.value': title[:-3],
-                'title.locked': 1,
-                'titleSort.value': titleSort[:-3],
-                'titleSort.locked': 1,
-                'summary.value': summary[:-2],
-                'summary.locked': 1,
-                'originallyAvailableAt.locked': 1,
-                'contentRating.locked': 1
-            }
+            first.batchEdits() \
+                .editTitle(title[:-3]) \
+                .editSortTitle(titleSort[:-3]) \
+                .editSummary(summary[:-2]) \
+                .editContentRating(first.contentRating) \
+                .editOriginallyAvailable(first.originallyAvailableAt) \
+                .addWriter(writers) \
+                .addDirector(directors) \
 
             if renumber:
-                edits['index.value'] = index
-                edits['index.locked'] = 1
+                first._edits['index.value'] = index
+                first._edits['index.locked'] = 1
 
-            first.edit(**edits)
+            first.saveEdits()
 
 
 def merge(first, episodes):
