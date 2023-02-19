@@ -4,7 +4,7 @@
 '''
 Description:  Automatically merge multi-episode files in Plex into a single entry.
 Author:       /u/SwiftPanda16
-Requires:     plexapi
+Requires:     plexapi, pillow (optional)
 Notes:
     * All episodes **MUST** be organized correctly according to Plex's "Multiple Episodes in a Single File".
         https://support.plex.tv/articles/naming-and-organizing-your-tv-show-files/#toc-4
@@ -26,12 +26,25 @@ Usage:
 
     * With renumbering episodes:
         python merge_multiepisodes.py --library "TV Shows" --show "SpongeBob SquarePants" --renumber
+
+    * With renumbering episodes and composite thumb:
+        python merge_multiepisodes.py --library "TV Shows" --show "SpongeBob SquarePants" --renumber --composite-thumb
 '''
 
 import argparse
+import functools
+import io
+import math
 import os
+import requests
 from collections import defaultdict
 from plexapi.server import PlexServer
+
+try:
+    from PIL import Image, ImageDraw
+    hasPIL = True
+except ImportError:
+    hasPIL = False
 
 
 # ## EDIT SETTINGS ##
@@ -39,12 +52,18 @@ from plexapi.server import PlexServer
 PLEX_URL = ''
 PLEX_TOKEN = ''
 
+# Composite Thumb Settings
+WIDTH, HEIGHT = 640, 360  # 16:9 aspect ratio
+LINE_ANGLE = 25  # degrees
+LINE_THICKNESS = 10
+
+
 # Environmental Variables
 PLEX_URL = os.getenv('PLEX_URL', PLEX_URL)
 PLEX_TOKEN = os.getenv('PLEX_TOKEN', PLEX_TOKEN)
 
 
-def group_episodes(plex, library, show, renumber):
+def group_episodes(plex, library, show, renumber, composite_thumb):
     show = plex.library.section(library).get(show)
 
     for season in show.seasons():
@@ -71,6 +90,16 @@ def group_episodes(plex, library, show, renumber):
                 directors.extend([director.tag for director in episode.directors])
 
             if episodes:
+                if composite_thumb:
+                    firstImgFile = download_image(
+                        plex.transcodeImage(first.thumbUrl, width=WIDTH, height=HEIGHT)
+                    )
+                    lastImgFile = download_image(
+                        plex.transcodeImage(episodes[-1].thumbUrl, width=WIDTH, height=HEIGHT)
+                    )
+                    compImgFile = create_composite_thumb(firstImgFile, lastImgFile)
+                    first.uploadPoster(filepath=compImgFile)
+
                 merge(first, episodes)
 
             first.batchEdits() \
@@ -94,12 +123,94 @@ def merge(first, episodes):
     first._server.query(key, method=first._server._session.put)
 
 
+def download_image(url):
+    r = requests.get(url, stream=True)
+    r.raw.decode_content = True
+    return r.raw
+
+
+def create_composite_thumb(firstImgFile, lastImgFile):
+    mask, line = create_masks()
+
+    # Open and crop first image
+    firstImg = Image.open(firstImgFile)
+    width, height = firstImg.size
+    firstImg = firstImg.crop(
+        (
+            (width - WIDTH) // 2,
+            (height - HEIGHT) // 2,
+            (width + WIDTH) // 2,
+            (height + HEIGHT) // 2
+        )
+    )
+
+    # Open and crop last image
+    lastImg = Image.open(lastImgFile)
+    width, height = lastImg.size
+    lastImg = lastImg.crop(
+        (
+            (width - WIDTH) // 2,
+            (height - HEIGHT) // 2,
+            (width + WIDTH) // 2,
+            (height + HEIGHT) // 2
+        )
+    )
+
+    # Create composite image
+    comp = Image.composite(line, Image.composite(firstImg, lastImg, mask), line)
+
+    # Return composite image as file-like object
+    compImgFile = io.BytesIO()
+    comp.save(compImgFile, format='jpeg')
+    compImgFile.seek(0)
+    return compImgFile
+
+
+@functools.lru_cache(maxsize=None)
+def create_masks():
+    scale = 3  # For line anti-aliasing
+    offset = HEIGHT // 2 * math.tan(LINE_ANGLE * math.pi / 180)
+
+    # Create diagonal mask
+    mask = Image.new('L', (WIDTH, HEIGHT), 0)
+    draw = ImageDraw.Draw(mask)
+    draw.polygon(
+        (
+            (0, 0),
+            (WIDTH // 2 + offset, 0),
+            (WIDTH // 2 - offset, HEIGHT),
+            (0, HEIGHT)
+        ),
+        fill=255
+    )
+
+    # Create diagonal line (use larger image then scale down with anti-aliasing)
+    line = Image.new('L', (scale * WIDTH, scale * HEIGHT), 0)
+    draw = ImageDraw.Draw(line)
+    draw.line(
+        (
+            (scale * (WIDTH // 2 + offset), -scale),
+            (scale * (WIDTH // 2 - offset), scale * (HEIGHT + 1))
+        ),
+        fill=255,
+        width=scale * LINE_THICKNESS
+    )
+    line = line.resize((WIDTH, HEIGHT), Image.Resampling.LANCZOS)
+
+    return mask, line
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--library', required=True)
     parser.add_argument('--show', required=True)
     parser.add_argument('--renumber', action='store_true')
+    parser.add_argument('--composite_thumb', action='store_true')
     opts = parser.parse_args()
+
+    if opts.composite_thumb and not hasPIL:
+        print('PIL is not installed. Please install `pillow` to create composite thumbnails.')
+        exit(1)
 
     plex = PlexServer(PLEX_URL, PLEX_TOKEN)
     group_episodes(plex, **vars(opts))
