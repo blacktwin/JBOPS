@@ -97,7 +97,8 @@ def get_library_media_info(section_id):
     payload = {'apikey': TAUTULLI_APIKEY,
                'section_id': section_id,
                'cmd': 'get_library_media_info',
-               'length': 10000}
+               'length': 10000,
+               'refresh': True}
 
     try:
         r = requests.get(TAUTULLI_URL.rstrip('/') + '/api/v2', params=payload)
