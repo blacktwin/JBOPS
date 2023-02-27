@@ -40,7 +40,7 @@ PLEX_URL = os.getenv('PLEX_URL', PLEX_URL)
 PLEX_TOKEN = os.getenv('PLEX_TOKEN', PLEX_TOKEN)
 
 
-def modify_episode_artwork(plex, rating_key, image=None, blur=None, summary_prefix=None, remove=False):
+def modify_episode_artwork(plex, rating_key, image=None, blur=None, summary_prefix=None, remove=False, replace=False):
     item = plex.fetchItem(rating_key)
 
     if item.type == 'show':
@@ -55,6 +55,8 @@ def modify_episode_artwork(plex, rating_key, image=None, blur=None, summary_pref
         return
 
     for episode in episodes:
+        episode_modified = False
+
         for part in episode.iterParts():
             episode_filepath = part.file
             episode_folder = os.path.dirname(episode_filepath)
@@ -69,31 +71,41 @@ def modify_episode_artwork(plex, rating_key, image=None, blur=None, summary_pref
 
                 # Unlock the summary so it will get updated on refresh
                 episode.edit(**{'summary.locked': 0})
+                # Mark episode for metadata refresh
+                episode_modified = True
                 continue
 
             if image:
                 # File path to episode artwork using the same episode file name
                 episode_artwork = os.path.splitext(episode_filepath)[0] + os.path.splitext(image)[1]
-                # Copy the image to the episode artwork
-                shutil.copy2(image, episode_artwork)
+                # Don't create the artwork if it already exists
+                if not os.path.isfile(episode_artwork) or replace:
+                    # Copy the image to the episode artwork
+                    shutil.copy2(image, episode_artwork)
+                    # Mark episode for metadata refresh
+                    episode_modified = True
 
             elif blur:
                 # File path to episode artwork using the same episode file name
                 episode_artwork = os.path.splitext(episode_filepath)[0] + '.png'
-                # Get the blurred artwork
-                image_url = plex.transcodeImage(
-                    episode.thumbUrl,
-                    height=270,
-                    width=480,
-                    blur=blur,
-                    imageFormat='png'
-                )
-                r = requests.get(image_url, stream=True)
-                if r.status_code == 200:
-                    r.raw.decode_content = True
-                    # Copy the image to the episode artwork
-                    with open(episode_artwork, 'wb') as f:
-                        shutil.copyfileobj(r.raw, f)
+                # Don't create the artwork if it already exists
+                if not os.path.isfile(episode_artwork) or replace:
+                    # Get the blurred artwork
+                    image_url = plex.transcodeImage(
+                        episode.thumbUrl,
+                        height=270,
+                        width=480,
+                        blur=blur,
+                        imageFormat='png'
+                    )
+                    r = requests.get(image_url, stream=True)
+                    if r.status_code == 200:
+                        r.raw.decode_content = True
+                        # Copy the image to the episode artwork
+                        with open(episode_artwork, 'wb') as f:
+                            shutil.copyfileobj(r.raw, f)
+                    # Mark episode for metadata refresh
+                    episode_modified = True  
 
             if summary_prefix and not episode.summary.startswith(summary_prefix):
                 # Use a zero-width space (\u200b) for blank lines
@@ -101,9 +113,12 @@ def modify_episode_artwork(plex, rating_key, image=None, blur=None, summary_pref
                     'summary.value': summary_prefix + '\n\u200b\n' + episode.summary,
                     'summary.locked': 1
                 })
+                # Mark episode for metadata refresh
+                episode_modified = True
 
-        # Refresh metadata for the episode
-        episode.refresh()
+        if episode_modified:
+            # Refresh metadata for the episode
+            episode.refresh()
 
 
 if __name__ == "__main__":
@@ -113,6 +128,7 @@ if __name__ == "__main__":
     parser.add_argument('--blur', type=int, default=25)
     parser.add_argument('--summary_prefix', nargs='?', const='** SPOILERS **')
     parser.add_argument('--remove', action='store_true')
+    parser.add_argument('--replace', action='store_true')
     opts = parser.parse_args()
 
     plex = PlexServer(PLEX_URL, PLEX_TOKEN)
