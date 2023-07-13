@@ -807,6 +807,8 @@ if __name__ == '__main__':
 
                 if opts.action == "show":
                     action_show(size_lst, opts.select, opts.date)
+                elif opts.action == 'delete':
+                    plex_deletion(size_lst, libraries, opts.toggleDeletion)
             else:
                 print("Size must end with one of these notations: {}".format(", ".join(UNTIS.keys())))
             pass
