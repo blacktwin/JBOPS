@@ -21,8 +21,13 @@
 #            --rating_key {rating_key} --blur 25
 #        To add a prefix to the summary (optional string prefix):
 #            --rating_key {rating_key} --summary_prefix "** SPOILERS **"
+#        To upload the episode artwork instead of creating a local asset (optional, for when the script cannot access the media folder):
+#            --rating_key {rating_key} --blur 25 --upload
 #    * Watched (optional):
-#        --rating_key {rating_key} --remove
+#        To remove the local asset episode artwork:
+#            --rating_key {rating_key} --remove
+#        To remove the uploaded episode artwork
+#            --rating_key {rating_key} --remove --upload
 # Note:
 #    * "Use local assets" must be enabled for the library in Plex (Manage Library > Edit > Advanced > Use local assets).
 
@@ -40,7 +45,7 @@ PLEX_URL = os.getenv('PLEX_URL', PLEX_URL)
 PLEX_TOKEN = os.getenv('PLEX_TOKEN', PLEX_TOKEN)
 
 
-def modify_episode_artwork(plex, rating_key, image=None, blur=None, summary_prefix=None, remove=False):
+def modify_episode_artwork(plex, rating_key, image=None, blur=None, summary_prefix=None, remove=False, upload=False):
     item = plex.fetchItem(rating_key)
 
     if item.type == 'show':
@@ -61,21 +66,29 @@ def modify_episode_artwork(plex, rating_key, image=None, blur=None, summary_pref
             episode_filename = os.path.splitext(os.path.basename(episode_filepath))[0]
 
             if remove:
-                # Find image files with the same name as the episode
-                for filename in os.listdir(episode_folder):
-                    if filename.startswith(episode_filename) and filename.endswith(('.jpg', '.png')):
-                        # Delete the episode artwork image file
-                        os.remove(os.path.join(episode_folder, filename))
+                if upload:
+                    # Unlock and select the first poster
+                    episode.unlockPoster().posters()[0].select()
+                else:
+                    # Find image files with the same name as the episode
+                    for filename in os.listdir(episode_folder):
+                        if filename.startswith(episode_filename) and filename.endswith(('.jpg', '.png')):
+                            # Delete the episode artwork image file
+                            os.remove(os.path.join(episode_folder, filename))
 
                 # Unlock the summary so it will get updated on refresh
-                episode.edit(**{'summary.locked': 0})
+                episode.editSummary(episode.summary, locked=False)
                 continue
 
             if image:
-                # File path to episode artwork using the same episode file name
-                episode_artwork = os.path.splitext(episode_filepath)[0] + os.path.splitext(image)[1]
-                # Copy the image to the episode artwork
-                shutil.copy2(image, episode_artwork)
+                if upload:
+                    # Upload the image to the episode artwork
+                    episode.uploadPoster(filepath=image)
+                else:
+                    # File path to episode artwork using the same episode file name
+                    episode_artwork = os.path.splitext(episode_filepath)[0] + os.path.splitext(image)[1]
+                    # Copy the image to the episode artwork
+                    shutil.copy2(image, episode_artwork)
 
             elif blur:
                 # File path to episode artwork using the same episode file name
@@ -91,16 +104,17 @@ def modify_episode_artwork(plex, rating_key, image=None, blur=None, summary_pref
                 r = requests.get(image_url, stream=True)
                 if r.status_code == 200:
                     r.raw.decode_content = True
-                    # Copy the image to the episode artwork
-                    with open(episode_artwork, 'wb') as f:
-                        shutil.copyfileobj(r.raw, f)
+                    if upload:
+                        # Upload the image to the episode artwork
+                        episode.uploadPoster(filepath=r.raw)
+                    else:
+                        # Copy the image to the episode artwork
+                        with open(episode_artwork, 'wb') as f:
+                            shutil.copyfileobj(r.raw, f)
 
             if summary_prefix and not episode.summary.startswith(summary_prefix):
                 # Use a zero-width space (\u200b) for blank lines
-                episode.edit(**{
-                    'summary.value': summary_prefix + '\n\u200b\n' + episode.summary,
-                    'summary.locked': 1
-                })
+                episode.editSummary(summary_prefix + '\n\u200b\n' + episode.summary)
 
         # Refresh metadata for the episode
         episode.refresh()
@@ -113,6 +127,7 @@ if __name__ == "__main__":
     parser.add_argument('--blur', type=int, default=25)
     parser.add_argument('--summary_prefix', nargs='?', const='** SPOILERS **')
     parser.add_argument('--remove', action='store_true')
+    parser.add_argument('--upload', action='store_true')
     opts = parser.parse_args()
 
     plex = PlexServer(PLEX_URL, PLEX_TOKEN)

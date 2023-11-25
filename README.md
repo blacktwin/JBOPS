@@ -338,7 +338,7 @@ Tautulli > Settings > Notification Agents > New Script > Conditions:
 - [ ] Set desired conditions
 - [ ] Save
 
-For more information on Tautulli conditions see [here](https://github.com/Tautulli/Tautulli-Wiki/wiki/Custom-Notification-Conditions)
+For more information on Tautulli conditions see [here](https://github.com/Tautulli/Tautulli/wiki/Custom-Notification-Conditions)
 
 #### Script Arguments
 Tautulli > Settings > Notification Agents > New Script > Script Arguments:
