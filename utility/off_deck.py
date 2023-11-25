@@ -72,7 +72,9 @@ if __name__ == '__main__':
                         help='User whose Continue Watching will be modified.')
     parser.add_argument('--playlists', nargs='+',
                         help='Shows in playlist to be removed from Continue Watching')
-
+    parser.add_argument('--markWatched', action='store_true',
+                        help='Mark episode as watched after removing from Continue Watching')
+    
     opts = parser.parse_args()
 
     to_remove = []
@@ -105,3 +107,6 @@ if __name__ == '__main__':
                 item.grandparentTitle, int(item.parentIndex), int(item.index), item.title))
             # item.removeFromContinueWatching()
             remove_from_cw(plex_server, item.ratingKey)
+            if opts.markWatched:
+                print('Marking as watched!')
+                item.markPlayed()
