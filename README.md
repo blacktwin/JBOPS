@@ -4,14 +4,51 @@
 
 Most of these scripts utilize a combination of [Tautulli](https://github.com/Tautulli/Tautulli), [python-plexapi](https://github.com/pkkid/python-plexapi), and [requests](http://docs.python-requests.org/en/master/user/install/#install).
 
-For use of config.ini for common variables please use [plexapi.CONFIG](http://python-plexapi.readthedocs.io/en/latest/configuration.html)
+## Usage
 
-Default location `~/.config/plexapi/config.ini`
-```python
-# To find path
-import plexapi
-print(plexapi.CONFIG_PATH)
+Clone this repo to get started!
+
+### Docker (with make)
+
+Edit the config.ini file to include your information.
 ```
+make build
+make ARGS="utility/library_growth.py -h"
+```
+
+### Docker (without make)
+
+Edit the config.ini file to include your information
+
+```
+docker build -t jbops .
+docker run --rm -v .:/usr/src/app jbops python3 utility/library_growth.py -h
+```
+
+### Without Docker
+
+> [!NOTE]
+> You can either use the config.ini file to configure the scripts or you can edit each of the scripts manually.
+> For use of config.ini for common variables please use [plexapi.CONFIG](http://python-plexapi.readthedocs.io/en/latest/configuration.html)
+> Default location `~/.config/plexapi/config.ini`
+> ```python
+> # To find path
+> import plexapi
+> print(plexapi.CONFIG_PATH)
+> ```
+
+Install the required Python Packages
+```
+pip install -r requirements.txt
+```
+
+Run the scripts
+```
+python3 utility/library_growth.py -h
+```
+
+> [!TIP]
+> Each of the scripts has a help menu that can be displayed with either `-h` or `--help`
 
 ### Contact 
 [![PM](https://img.shields.io/badge/Discord-Scripts-lightgrey.svg?colorB=7289da)](https://discord.gg/tQcWEUp) [![PM](https://img.shields.io/badge/Reddit-Message-lightgrey.svg)](https://www.reddit.com/user/Blacktwin/)  [![PM](https://img.shields.io/badge/Plex-Message-orange.svg)](https://forums.plex.tv/u/blacktwin) [![Issue](https://img.shields.io/badge/Submit-Issue-red.svg)](https://github.com/blacktwin/JBOPS/issues/new) 

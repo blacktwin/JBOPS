@@ -1,7 +1,13 @@
-#---------------------------------------------------------
-# Potential requirements.
-# pip install -r requirements.txt
-#---------------------------------------------------------
-requests
-plexapi
-urllib3
+flatten_json==0.1.14
+future==0.18.3
+gmusicapi==13.0.0
+google_api_python_client==2.113.0
+httplib2==0.22.0
+matplotlib==3.8.2
+oauth2client==4.1.3
+Pillow==10.2.0
+plexapi==4.15.7
+psutil==5.9.7
+python_twitter==3.5
+Requests==2.31.0
+urllib3==2.1.0
