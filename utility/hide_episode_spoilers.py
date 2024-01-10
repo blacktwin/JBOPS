@@ -114,7 +114,7 @@ def modify_episode_artwork(plex, rating_key, image=None, blur=None, summary_pref
 
             if summary_prefix and not episode.summary.startswith(summary_prefix):
                 # Use a zero-width space (\u200b) for blank lines
-                episode.editSummary(summary_prefix + '\n\u200b\n' + episode.summary)
+                episode.editSummary(summary_prefix + '\n\u200b\n\u200b\n' + episode.summary)
 
         # Refresh metadata for the episode
         episode.refresh()
