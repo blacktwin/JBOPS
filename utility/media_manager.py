@@ -23,7 +23,7 @@ Enabling Scripts in Tautulli:
         python media_manager.py --libraries "TV Shows" --select watched --users User1 User2 --action show
     
      Find library items that were last played before 2021-01-01
-        python media_manger.py --libraries "Movies --select lastPlayed --date 2021-01-01 --action show
+        python media_manger.py --libraries Movies --select lastPlayed --date 2021-01-01 --action show
 
      Find library items that have audience rating less than 6
         python3 media_manager.py --libraries "Movies 2022" --select rating --selectValue "<_6" --action show
