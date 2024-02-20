@@ -13,8 +13,8 @@ Usage:
     * Change the poster for a specific item:
         python select_tmdb_poster.py --rating_key 1234
 
-    * Ignore locked posters:
-        python select_tmdb_poster.py --library "Movies" --ignore_locked
+    * By default locked posters are skipped. To update locked posters:
+        python select_tmdb_poster.py --library "Movies" --include_locked
 
 Tautulli script trigger:
     * Notify on recently added
@@ -43,7 +43,7 @@ PLEX_URL = PLEX_URL or os.getenv('PLEX_URL', PLEX_URL)
 PLEX_TOKEN = PLEX_TOKEN or os.getenv('PLEX_TOKEN', PLEX_TOKEN)
 
 
-def select_tmdb_poster_library(library, ignore_locked=False):
+def select_tmdb_poster_library(library, include_locked=False):
     for item in library.all(includeGuids=False):
         # Only reload for fields
         item.reload(
@@ -67,17 +67,17 @@ def select_tmdb_poster_library(library, ignore_locked=False):
             includeReviews=0,
             includeStations=0
         )
-        select_tmdb_poster_item(item, ignore_locked=ignore_locked)
+        select_tmdb_poster_item(item, include_locked=include_locked)
 
 
-def select_tmdb_poster_item(item, ignore_locked=False):
+def select_tmdb_poster_item(item, include_locked=False):
     posters = item.posters()
     selected_poster = next((p for p in posters if p.selected), None)
 
     if selected_poster is None or not item.isLocked('thumb'):
         print(f"WARNING: No poster selected for {item.title}")
         select_tmdb_poster(item, posters)
-    elif not ignore_locked and item.isLocked('thumb'):
+    elif not include_locked and item.isLocked('thumb'):
         print(f"Poster is locked for {item.title}. Skipping.")
     elif selected_poster.provider == 'gracenote':
         select_tmdb_poster(item, posters)
@@ -95,16 +95,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--rating_key', type=int)
     parser.add_argument('--library')
-    parser.add_argument('--ignore_locked', action='store_true')
+    parser.add_argument('--include_locked', action='store_true')
     opts = parser.parse_args()
 
     plex = PlexServer(PLEX_URL, PLEX_TOKEN)
 
     if opts.rating_key:
         item = plex.fetchItem(opts.rating_key)
-        select_tmdb_poster_item(item, opts.ignore_locked)
+        select_tmdb_poster_item(item, opts.include_locked)
     elif opts.library:
         library = plex.library.section(opts.library)
-        select_tmdb_poster_library(library, opts.ignore_locked)
+        select_tmdb_poster_library(library, opts.include_locked)
     else:
         print("No --rating_key or --library specified. Exiting.")
