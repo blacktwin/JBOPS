@@ -72,21 +72,24 @@ def select_tmdb_poster_library(library, include_locked=False):
 
 def select_tmdb_poster_item(item, include_locked=False):
     if item.isLocked('thumb') and not include_locked:
-        print(f"Skipping locked poster for {item.title}.")
+        print(f"Locked poster for {item.title}. Skipping.")
         return
 
     posters = item.posters()
     selected_poster = next((p for p in posters if p.selected), None)
 
     if selected_poster is None:
-        print(f"WARNING: No poster selected for {item.title}")
+        print(f"WARNING: No poster selected for {item.title}.")
+    else:
+        skipping = ' Skipping.' if selected_poster.provider != 'gracenote' else ''
+        print(f"Poster provider is '{selected_poster.provider}' for {item.title}.{skipping}")
 
     if selected_poster is None or selected_poster.provider == 'gracenote':
         # Fallback to first poster if no TMDB posters are available
         tmdb_poster = next((p for p in posters if p.provider == 'tmdb'), posters[0])
         # Selecting the poster automatically locks it
         tmdb_poster.select()
-        print(f"Selected {tmdb_poster.provider} poster for {item.title}")
+        print(f"Selected {tmdb_poster.provider} poster for {item.title}.")
 
 
 if __name__ == '__main__':
