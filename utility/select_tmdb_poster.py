@@ -46,27 +46,7 @@ PLEX_TOKEN = PLEX_TOKEN or os.getenv('PLEX_TOKEN', PLEX_TOKEN)
 def select_tmdb_poster_library(library, include_locked=False):
     for item in library.all(includeGuids=False):
         # Only reload for fields
-        item.reload(
-            checkFiles=0,
-            includeAllConcerts=0,
-            includeBandwidths=0,
-            includeChapters=0,
-            includeChildren=0,
-            includeConcerts=0,
-            includeExternalMedia=0,
-            includeExtras=0,
-            includeFields=1,
-            includeGeolocation=0,
-            includeLoudnessRamps=0,
-            includeMarkers=0,
-            includeOnDeck=0,
-            includePopularLeaves=0,
-            includePreferences=0,
-            includeRelated=0,
-            includeRelatedCount=0,
-            includeReviews=0,
-            includeStations=0
-        )
+        item.reload(**{k: 0 for k, v in movie._INDLUCES.items()})
         select_tmdb_poster_item(item, include_locked=include_locked)
 
 
