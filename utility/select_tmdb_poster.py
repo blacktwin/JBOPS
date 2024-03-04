@@ -46,7 +46,7 @@ PLEX_TOKEN = PLEX_TOKEN or os.getenv('PLEX_TOKEN', PLEX_TOKEN)
 def select_tmdb_poster_library(library, include_locked=False):
     for item in library.all(includeGuids=False):
         # Only reload for fields
-        item.reload(**{k: 0 for k, v in item._INDLUCES.items()})
+        item.reload(**{k: 0 for k, v in item._INCLUDES.items()})
         select_tmdb_poster_item(item, include_locked=include_locked)
 
 
