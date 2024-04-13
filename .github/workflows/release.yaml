@@ -1,14 +1,20 @@
 ---
-name: release
+name: Release
 
 on:
+  pull_request:
   push:
-    tags:
-      - v*
+    branches: ["master"]
+  release:
+    types: ["published"]
 
 jobs:
-  build:
+  build-image:
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,13 +25,14 @@ jobs:
         with:
           images: |
             ghcr.io/blacktwin/jbops
-          flavor: |
-            latest=true
-            prefix=v
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+            type=semver,pattern={{version}},prefix=v
+            type=semver,pattern={{major}}.{{minor}},prefix=v
+            type=semver,pattern={{major}},prefix=v
+            type=ref,event=branch
+            type=ref,event=pr
+          flavor: |
+            latest=auto
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -41,7 +48,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push
-        if: github.event_name != 'pull_request'
         uses: docker/build-push-action@v5
         with:
           context: .
