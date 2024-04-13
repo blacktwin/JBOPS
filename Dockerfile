@@ -23,7 +23,7 @@ RUN apk add --no-cache \
 ENV PLEXAPI_CONFIG_PATH="/config/config.ini" \
     JBOPS_SCRIPT_PATH="fun/plexapi_haiku.py"
 
-USER nobody
+USER nobody:nogroup
 VOLUME ["/config"]
 
 ENTRYPOINT ["/bin/bash"]
