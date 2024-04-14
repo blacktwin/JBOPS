@@ -12,9 +12,6 @@ RUN apk add --no-cache \
         libffi-dev \
         openssl-dev \
         musl-dev \
-        python3-dev \
-        py3-pip \
-    && pip install --upgrade pip \
     && pip install --upgrade --requirement /app/requirements.txt \
     && apk del --purge .build-deps \
     && chown -R root:root /app \
