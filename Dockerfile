@@ -15,7 +15,11 @@ RUN apk add --no-cache \
     && pip install --upgrade --requirement /app/requirements.txt \
     && apk del --purge .build-deps \
     && chown -R root:root /app \
-    && chmod -R 755 /app
+    && chmod -R 755 /app \
+    && rm -rf \
+        /root/.cache \
+        /root/.cargo \
+        /tmp/*
 
 ENV PLEXAPI_CONFIG_PATH="/config/config.ini" \
     JBOPS_SCRIPT_PATH="fun/plexapi_haiku.py"
