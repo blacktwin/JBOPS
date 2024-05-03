@@ -592,6 +592,8 @@ if __name__ == "__main__":
                         help='Poster URL of the media')
     parser.add_argument('--richColor', type=arg_decoding,
                         help='Color of the rich message')
+    parser.add_argument('--delay', type=int, default=0,
+                        help='Delay in seconds before killing the stream.')
     parser.add_argument("--debug", action='store_true',
                         help='Enable debug messages.')
 
@@ -622,6 +624,9 @@ if __name__ == "__main__":
         kill_message = ' '.join(opts.killMessage)
     else:
         kill_message = 'The server owner has ended the stream.'
+
+    if opts.delay:
+        time.sleep(opts.delay)
 
     if opts.jbop == 'stream':
         tautulli_stream.terminate(kill_message)

@@ -185,6 +185,21 @@ Arguments:
 --jbop stream --username {username} --sessionId {session_id}
 ```
 
+### Kill transcodes with a delay
+
+_This will wait 10 seconds before killing the stream._
+
+Triggers:
+* Playback Start
+* Transcode Decision Change
+
+Conditions: \[ `Transcode Decision` | `is` | `transcode` \]
+
+Arguments:
+```
+--jbop stream --username {username} --sessionId {session_id} --killMessage 'Transcoding streams are not allowed.' --delay 10
+```
+
 ### Kill all of a user's streams with notification
 
 Triggers: Playback Start  
