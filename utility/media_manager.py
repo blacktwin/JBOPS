@@ -591,12 +591,12 @@ def action_show(items, selector, date, users=None):
         try:
             if selector == 'watched':
                 item = users[0].watch[item]
-            added_at = datetime.datetime.utcfromtimestamp(float(item.added_at)).strftime("%Y-%m-%d")
+            added_at = datetime.datetime.fromtimestamp(float(item.added_at), datetime.UTC).strftime("%Y-%m-%d")
             size = int(item.file_size) if item.file_size else 0
             sizes.append(size)
         
             if selector == 'lastPlayed':
-                last_played = datetime.datetime.utcfromtimestamp(float(item.last_played)).strftime("%Y-%m-%d")
+                last_played = datetime.datetime.fromtimestamp(float(item.last_played)datetime.UTC).strftime("%Y-%m-%d")
                 print(u"\t{} added {} and last played {}\tSize: {}\n\t\tFile: {}".format(
                     item.title, added_at, last_played, sizeof_fmt(size), item.file))
 
@@ -697,7 +697,7 @@ if __name__ == '__main__':
         date = time.mktime(time.strptime(opts.date, "%Y-%m-%d"))
     
     if date:
-        days = (datetime.datetime.utcnow() - datetime.datetime.fromtimestamp(date))
+        days = (datetime.datetime.now(datetime.UTC) - datetime.datetime.fromtimestamp(date))
         date_format = time.strftime("%Y-%m-%d", time.localtime(date))
         date_format = '{} ({} days)'.format(date_format, days.days)
     # Create a Tautulli instance
