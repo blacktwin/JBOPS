@@ -16,7 +16,7 @@ from __future__ import unicode_literals
 from builtins import range
 from builtins import object
 from plexapi.server import CONFIG
-from datetime import datetime, timedelta, date
+from datetime import UTC, datetime, timedelta, timezone, date
 from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.exceptions import RequestException
@@ -117,7 +117,7 @@ BODY_TEXT = """\
 
 def utc_now_iso():
     """Get current time in ISO format"""
-    utcnow = datetime.utcnow()
+    utcnow = datetime.now(UTC)
 
     return utcnow.isoformat()
 
@@ -467,8 +467,8 @@ if __name__ == '__main__':
     TODAY = int(time.time())
     DAYS = opts.days
     DAYS_AGO = int(TODAY - DAYS * 24 * 60 * 60)
-    START_DATE = (datetime.utcfromtimestamp(DAYS_AGO).strftime("%Y-%m-%d"))  # DAYS_AGO as YYYY-MM-DD
-    END_DATE = (datetime.utcfromtimestamp(TODAY).strftime("%Y-%m-%d"))  # TODAY as YYYY-MM-DD
+    START_DATE = (datetime.fromtimestamp(DAYS_AGO, UTC).strftime("%Y-%m-%d"))  # DAYS_AGO as YYYY-MM-DD
+    END_DATE = (datetime.fromtimestamp(TODAY, UTC).strftime("%Y-%m-%d"))  # TODAY as YYYY-MM-DD
 
     start_date = date(date_split(START_DATE)[0], date_split(START_DATE)[1], date_split(START_DATE)[2])
     end_date = date(date_split(END_DATE)[0], date_split(END_DATE)[1], date_split(END_DATE)[2])

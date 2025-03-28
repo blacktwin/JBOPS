@@ -56,7 +56,7 @@ import sys
 import json
 import time
 import argparse
-from datetime import datetime
+from datetime import UTC, datetime
 from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.exceptions import RequestException
@@ -91,7 +91,7 @@ TAUTULLI_ICON = 'https://github.com/Tautulli/Tautulli/raw/master/data/interfaces
 
 def utc_now_iso():
     """Get current time in ISO format"""
-    utcnow = datetime.utcnow()
+    utcnow = datetime.now(UTC)
 
     return utcnow.isoformat()
 
