@@ -59,6 +59,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from builtins import object
 import argparse
+import os
 from plexapi.myplex import MyPlexAccount
 from plexapi.server import PlexServer
 from plexapi.server import CONFIG
@@ -66,17 +67,28 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.exceptions import RequestException
 
-# Using CONFIG file
+# Manual
+PLEX_URL = ''
 PLEX_TOKEN = ''
 TAUTULLI_URL = ''
 TAUTULLI_APIKEY = ''
 
+# Environmental Variables
+PLEX_URL = os.getenv('PLEX_URL', PLEX_URL)
+PLEX_TOKEN = os.getenv('PLEX_TOKEN', PLEX_TOKEN)
+TAUTULLI_URL = os.getenv('TAUTULLI_URL', TAUTULLI_URL)
+TAUTULLI_APIKEY = os.getenv('TAUTULLI_APIKEY', TAUTULLI_APIKEY)
+TAUTULLI_ENCODING = os.getenv('TAUTULLI_ENCODING', 'UTF-8')
+
+# Using CONFIG file
+if not PLEX_URL:
+    PLEX_URL = CONFIG.data['auth'].get('server_baseurl', '')
 if not PLEX_TOKEN:
-    PLEX_TOKEN = CONFIG.data['auth'].get('server_token')
+    PLEX_TOKEN = CONFIG.data['auth'].get('server_token', '')
 if not TAUTULLI_URL:
-    TAUTULLI_URL = CONFIG.data['auth'].get('tautulli_baseurl')
+    TAUTULLI_URL = CONFIG.data['auth'].get('tautulli_baseurl', '')
 if not TAUTULLI_APIKEY:
-    TAUTULLI_APIKEY = CONFIG.data['auth'].get('tautulli_apikey')
+    TAUTULLI_APIKEY = CONFIG.data['auth'].get('tautulli_apikey', '')
 
 VERIFY_SSL = False
 
@@ -195,7 +207,7 @@ class Tautulli(object):
 class Plex(object):
     def __init__(self, token, url=None):
         if token and not url:
-            self.account = MyPlexAccount(token)
+            self.account = MyPlexAccount(token=token)
         if token and url:
             session = Connection().session
             self.server = PlexServer(baseurl=url, token=token, session=session)
