@@ -538,7 +538,7 @@ if __name__ == '__main__':
 
             for user in plexTo:
                 username, server = user
-                if server == serverFrom:
+                if server.friendlyName == serverFrom:
                     same_server = True
                 sync_watch_status(watched_lst, _library.title, server, username, same_server)
 
