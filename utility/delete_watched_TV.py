@@ -89,7 +89,7 @@ for user in USER_LST:
                     for rating_key in history:
                         # Getting metadata of what was watched
                         meta = get_metadata(rating_key)
-                        if not any(d['title'] == meta.title for d in meta_lst):
+                        if not any(d['file'] == meta.file for d in meta_lst):
                             meta_dict = {
                                 'title': meta.title,
                                 'file': meta.file,
@@ -100,7 +100,7 @@ for user in USER_LST:
                             meta_lst.append(meta_dict)
                         else:
                             for d in meta_lst:
-                                if d['title'] == meta.title:
+                                if d['file'] == meta.file:
                                     d['watched_by'].append(user)
                     continue
                 elif not all([history]):
