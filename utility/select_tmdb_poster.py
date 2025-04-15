@@ -117,15 +117,18 @@ def select_poster(item, include_locked=False, provider=PREFERRED_POSTER_PROVIDER
     if selected_poster is None:
         print(f"  - WARNING: No poster selected for {item.title}.")
     else:
-        skipping_poster = ' Skipping.' if selected_poster.provider not in REPLACE_PROVIDERS else ''
-        print(f"  - Poster provider is '{selected_poster.provider}' for {item.title}.{skipping_poster}")
+        skip_poster = selected_poster.provider not in REPLACE_PROVIDERS
+        print(f"  - Poster provider is '{selected_poster.provider}' for {item.title}.")
 
     if posters and (selected_poster is None or selected_poster.provider in REPLACE_PROVIDERS):
         # Fallback to first poster if no preferred provider posters are available
         provider_poster = next((p for p in posters if p.provider == provider), posters[0])
         # Selecting the poster automatically locks it
         provider_poster.select()
-        print(f"  - Selected {provider_poster.provider} poster for {item.title}.")
+        print(f"  - Selected and locked {provider_poster.provider} poster for {item.title}.")
+    elif skip_poster and selected_poster:
+        item.lockPoster()
+        print(f"  - Locked {selected_poster.provider} poster for {item.title}.")
 
 
 def select_art(item, include_locked=False, provider=PREFERRED_ART_PROVIDER):
@@ -141,16 +144,18 @@ def select_art(item, include_locked=False, provider=PREFERRED_ART_PROVIDER):
     if selected_art is None:
         print(f"  - WARNING: No art selected for {item.title}.")
     else:
-        skipping_art = ' Skipping.' if selected_art.provider not in REPLACE_PROVIDERS else ''
-        print(f"  - Art provider is '{selected_art.provider}' for {item.title}.{skipping_art}")
+        skip_art = selected_art.provider not in REPLACE_PROVIDERS
+        print(f"  - Art provider is '{selected_art.provider}' for {item.title}.")
 
     if arts and (selected_art is None or selected_art.provider in REPLACE_PROVIDERS):
         # Fallback to first art if no preferred provider arts are available
         provider_art = next((p for p in arts if p.provider == provider), arts[0])
         # Selecting the art automatically locks it
         provider_art.select()
-        print(f"  - Selected {provider_art.provider} art for {item.title}.")
-
+        print(f"  - Selected and locked {provider_art.provider} art for {item.title}.")
+    elif skip_art and selected_art:
+        item.lockArt()
+        print(f"  - Locked {selected_art.provider} art for {item.title}.")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
