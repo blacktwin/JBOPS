@@ -36,6 +36,7 @@ import os
 import requests
 import shutil
 from plexapi.server import PlexServer
+from datetime import datetime
 
 PLEX_URL = ''
 PLEX_TOKEN = ''
@@ -45,7 +46,7 @@ PLEX_URL = os.getenv('PLEX_URL', PLEX_URL)
 PLEX_TOKEN = os.getenv('PLEX_TOKEN', PLEX_TOKEN)
 
 
-def modify_episode_artwork(plex, rating_key, image=None, blur=None, summary_prefix=None, remove=False, upload=False):
+def modify_episode_artwork(plex, rating_key, image=None, blur=None, summary_prefix=None, remove=False, upload=False, hideTitle=False):
     item = plex.fetchItem(rating_key)
 
     if item.type == 'show':
@@ -115,7 +116,9 @@ def modify_episode_artwork(plex, rating_key, image=None, blur=None, summary_pref
             if summary_prefix and not episode.summary.startswith(summary_prefix):
                 # Use a zero-width space (\u200b) for blank lines
                 episode.editSummary(summary_prefix + '\n\u200b\n' + episode.summary)
-
+            if hideTitle:
+                episode_title = episode.originallyAvailableAt.strftime("%B %d, %Y")
+                episode.editTitle('Aired ' + episode_title)
         # Refresh metadata for the episode
         episode.refresh()
 
@@ -128,6 +131,7 @@ if __name__ == "__main__":
     parser.add_argument('--summary_prefix', nargs='?', const='** SPOILERS **')
     parser.add_argument('--remove', action='store_true')
     parser.add_argument('--upload', action='store_true')
+    parser.add_argument('-hideTitle', action='store_true')
     opts = parser.parse_args()
 
     plex = PlexServer(PLEX_URL, PLEX_TOKEN)
