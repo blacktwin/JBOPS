@@ -23,6 +23,8 @@
 #            --rating_key {rating_key} --summary_prefix "** SPOILERS **"
 #        To upload the episode artwork instead of creating a local asset (optional, for when the script cannot access the media folder):
 #            --rating_key {rating_key} --blur 25 --upload
+#        To replace episode title with "Aired %B %d, %Y (May 13, 2025) (optional, for shows where the title is a spoiler e.g. Jeopardy!)
+#            --hideTitle
 #    * Watched (optional):
 #        To remove the local asset episode artwork:
 #            --rating_key {rating_key} --remove
@@ -131,7 +133,7 @@ if __name__ == "__main__":
     parser.add_argument('--summary_prefix', nargs='?', const='** SPOILERS **')
     parser.add_argument('--remove', action='store_true')
     parser.add_argument('--upload', action='store_true')
-    parser.add_argument('-hideTitle', action='store_true')
+    parser.add_argument('--hideTitle', action='store_true')
     opts = parser.parse_args()
 
     plex = PlexServer(PLEX_URL, PLEX_TOKEN)
