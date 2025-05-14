@@ -79,8 +79,9 @@ def modify_episode_artwork(plex, rating_key, image=None, blur=None, summary_pref
                             # Delete the episode artwork image file
                             os.remove(os.path.join(episode_folder, filename))
 
-                # Unlock the summary so it will get updated on refresh
+                # Unlock the summary & title so they will get updated on refresh
                 episode.editSummary(episode.summary, locked=False)
+                episode.editTitle(episode.title, locked=False)
                 continue
 
             if image:
