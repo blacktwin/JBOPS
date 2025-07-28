@@ -36,6 +36,7 @@ import functools
 import io
 import math
 import os
+import re
 import requests
 from collections import defaultdict
 from plexapi.server import PlexServer
@@ -68,6 +69,8 @@ def group_episodes(plex, library, show, renumber, composite_thumb):
 
     for season in show.seasons():
         groups = defaultdict(list)
+        titles_toMerge = []
+        titlesSort_toMerge = []
         startIndex = None
 
         for episode in season.episodes():
@@ -76,15 +79,15 @@ def group_episodes(plex, library, show, renumber, composite_thumb):
                 startIndex = episode.index
 
         for index, (first, *episodes) in enumerate(groups.values(), start=startIndex):
-            title = first.title + ' / '
-            titleSort = first.titleSort + ' / '
+            titles_toMerge.append(first.title)
+            titlesSort_toMerge.append(first.titleSort)
             summary = first.summary + '\n\n'
             writers = []
             directors = []
 
             for episode in episodes:
-                title += episode.title + ' / '
-                titleSort += episode.titleSort + ' / '
+                titles_toMerge.append(episode.title)
+                titlesSort_toMerge.append(episode.titleSort)
                 summary += episode.summary + '\n\n'
                 writers.extend([writer.tag for writer in episode.writers])
                 directors.extend([director.tag for director in episode.directors])
@@ -103,8 +106,8 @@ def group_episodes(plex, library, show, renumber, composite_thumb):
                 merge(first, episodes)
 
             first.batchEdits() \
-                .editTitle(title[:-3]) \
-                .editSortTitle(titleSort[:-3]) \
+                .editTitle(merge_titles(titles_toMerge)) \
+                .editSortTitle(merge_titles(titlesSort_toMerge)) \
                 .editSummary(summary[:-2]) \
                 .editContentRating(first.contentRating) \
                 .editOriginallyAvailable(first.originallyAvailableAt) \
@@ -116,6 +119,38 @@ def group_episodes(plex, library, show, renumber, composite_thumb):
                 first._edits['index.locked'] = 1
 
             first.saveEdits()
+
+
+# Regex pattern to match episode part indicators in titles.
+# Matches:
+#   - partX, ptX, cdX, discX, diskX, dvdX (where X is a number, with optional space)
+#   - (X) (where X is a number in parentheses)
+MERGE_TITLE_PATTERN = r'(\b(part|pt|cd|disc|disk|dvd)\s?\d+|\(\d+\))'
+
+def merge_titles(titles):
+    merged_titles = []
+    base_title = None
+
+    for title in titles:
+        # Check if the title contains any of the specified patterns (case insensitive)
+        match = re.search(MERGE_TITLE_PATTERN, title, re.IGNORECASE)
+
+        if match:
+            # If base title is not yet set, extract it from the first part (ignore case)
+            if base_title is None:
+                base_title = re.sub(MERGE_TITLE_PATTERN, '', title, flags=re.IGNORECASE).strip()
+        else:
+            # If the current title doesn't match part patterns and we have a base title, merge it
+            if base_title:
+                merged_titles.append(base_title)  # Append base title once
+                base_title = None  # Reset base title for next potential title
+            merged_titles.append(title)
+
+    # If the last title was part of a merged series, add the base title at the end
+    if base_title:
+        merged_titles.append(base_title)
+
+    return " | ".join(merged_titles)
 
 
 def merge(first, episodes):
