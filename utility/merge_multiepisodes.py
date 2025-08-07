@@ -79,18 +79,21 @@ def group_episodes(plex, library, show, renumber, composite_thumb):
                 startIndex = episode.index
 
         for index, (first, *episodes) in enumerate(groups.values(), start=startIndex):
-            titles_toMerge.append(first.title)
-            titlesSort_toMerge.append(first.titleSort)
-            summary = first.summary + '\n\n'
+            titles_toMerge = [first.title]
+            titlesSort_toMerge = [first.titleSort]
+            summary = [first.summary]
             writers = []
             directors = []
 
             for episode in episodes:
                 titles_toMerge.append(episode.title)
                 titlesSort_toMerge.append(episode.titleSort)
-                summary += episode.summary + '\n\n'
+                summary.append(episode.summary)
                 writers.extend([writer.tag for writer in episode.writers])
                 directors.extend([director.tag for director in episode.directors])
+
+            writers = list(set(writers))
+            directors = list(set(directors))
 
             if episodes:
                 if composite_thumb:
@@ -108,7 +111,7 @@ def group_episodes(plex, library, show, renumber, composite_thumb):
             first.batchEdits() \
                 .editTitle(merge_titles(titles_toMerge)) \
                 .editSortTitle(merge_titles(titlesSort_toMerge)) \
-                .editSummary(summary[:-2]) \
+                .editSummary('\n\n'.join(summary) \
                 .editContentRating(first.contentRating) \
                 .editOriginallyAvailable(first.originallyAvailableAt) \
                 .addWriter(writers) \
@@ -154,6 +157,8 @@ def merge_titles(titles):
 
 
 def merge(first, episodes):
+    if not episodes:
+        return
     key = '%s/merge?ids=%s' % (first.key, ','.join([str(r.ratingKey) for r in episodes]))
     first._server.query(key, method=first._server._session.put)
 
@@ -240,11 +245,15 @@ if __name__ == '__main__':
     parser.add_argument('--library', required=True)
     parser.add_argument('--show', required=True)
     parser.add_argument('--renumber', action='store_true')
-    parser.add_argument('--composite_thumb', action='store_true')
+    parser.add_argument('--composite-thumb', action='store_true')
     opts = parser.parse_args()
 
     if opts.composite_thumb and not hasPIL:
         print('PIL is not installed. Please install `pillow` to create composite thumbnails.')
+        exit(1)
+
+    if not PLEX_URL or not PLEX_TOKEN:
+        print('Please set PLEX_URL and PLEX_TOKEN environment variables or edit the script to include your Plex server URL and token.')
         exit(1)
 
     plex = PlexServer(PLEX_URL, PLEX_TOKEN)
