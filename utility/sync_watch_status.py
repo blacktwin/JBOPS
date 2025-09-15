@@ -427,7 +427,7 @@ def batching_watched(section, libtype):
     
         if libtype == 'show':
             search_watched = section.search(libtype='episode', container_start=start, container_size=count,
-                                         **{'show.unwatchedLeaves': False})
+                                         **{'episode.unwatched':False})
         else:
             search_watched = section.search(unwatched=False, container_start=start, container_size=count)
         if all([search_watched]):
