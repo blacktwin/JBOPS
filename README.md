@@ -85,7 +85,7 @@ Scripts pulled from my gist profile.
     <tr>
     <td><a href="https://gist.github.com/blacktwin/4ccb79c7d01a95176b8e88bf4890cd2b"><img src="https://img.shields.io/badge/gist-original-green.svg"></a></td>
     <td><a href="../master/fun/plexapi_haiku.py">plexapi_haiku</a></td>
-    <td>Create a hiaku from titles found in Plex.</td>
+    <td>Create a haiku from titles found in Plex.</td>
   </tr>
 </table>
 </details>
