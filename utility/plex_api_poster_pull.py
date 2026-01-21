@@ -73,9 +73,12 @@ for library in library_name:
             image_path = u'{}/{}.jpg'.format(movie_path, name)
         elif child.type == 'show':
             image_path = u'{}/{}.jpg'.format(show_path, name)
-        # Check if file already exists
-        if os.path.isfile(image_path):
-            print("ERROR, %s already exist" % image_path)
-        else:
-            # Save to directory
-            urllib.request.urlretrieve(thumb_url, image_path)
+
+        # If the poster file to be written already exists, append an incrementing number to the filename
+        increment = 0
+        while os.path.isfile(image_path):
+            increment += 1
+            image_path = u'{}/{}_{}.jpg'.format(os.path.dirname(image_path), name, increment)
+
+        # Save to directory
+        urllib.request.urlretrieve(thumb_url, image_path)
