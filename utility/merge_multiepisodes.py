@@ -28,7 +28,7 @@ Usage:
         python merge_multiepisodes.py --library "TV Shows" --show "SpongeBob SquarePants" --renumber
 
     * With renumbering episodes and composite thumb:
-        python merge_multiepisodes.py --library "TV Shows" --show "SpongeBob SquarePants" --renumber --composite-thumb
+        python merge_multiepisodes.py --library "TV Shows" --show "SpongeBob SquarePants" --renumber --composite_thumb
 '''
 
 import argparse
