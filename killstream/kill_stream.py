@@ -56,10 +56,17 @@ import sys
 import json
 import time
 import argparse
+import tempfile
 from datetime import datetime
 from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.exceptions import RequestException
+
+try:
+    import fcntl
+except ImportError:
+    fcntl = None
+    import msvcrt
 
 
 TAUTULLI_URL = ''
@@ -562,6 +569,36 @@ class Notification(object):
         self.send(body=slack_message)
 
 
+def monitor_lock(session_id):
+    """Take an exclusive lock for this session's pause monitor.
+
+    Repeated Playback Pause notifications for one session each start another
+    monitor, and each one lives for up to `--limit` seconds. They stack until the
+    machine runs out of memory. Only one monitor per session is ever useful, so a
+    second one exits at once.
+
+    The operating system releases the lock when the process ends. A monitor that
+    is killed leaves nothing stale behind that would block later pauses.
+
+    Returns the open lock file, or None when another monitor already holds it.
+    """
+    lock_path = os.path.join(tempfile.gettempdir(),
+                             'kill_stream-paused-{}.lock'.format(session_id))
+    lock_file = open(lock_path, 'a')
+    lock_file.seek(0)
+
+    try:
+        if fcntl is None:
+            msvcrt.locking(lock_file.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except IOError:
+        lock_file.close()
+        return None
+
+    return lock_file
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Killing Plex streams from Tautulli.")
@@ -639,6 +676,14 @@ if __name__ == "__main__":
             notify(opts, kill_message, 'All Streams', a_stream, tautulli_server)
 
     elif opts.jbop == 'paused':
+        # Hold the handle for the life of the monitor. Closing it frees the lock.
+        pause_lock = monitor_lock(opts.sessionId)
+        if pause_lock is None:
+            sys.stdout.write(
+                "Session '{}' is already being monitored for a long pause, "
+                .format(opts.sessionId) + "exiting.\n")
+            sys.exit(0)
+
         killed_stream = tautulli_stream.terminate_long_pause(kill_message, opts.limit, opts.interval)
         if killed_stream:
             notify(opts, kill_message, 'Paused', tautulli_stream, tautulli_server)
