@@ -65,8 +65,8 @@ from requests.exceptions import RequestException
 try:
     import fcntl
 except ImportError:
-    # Windows has no fcntl. The single-monitor guard is a no-op there.
     fcntl = None
+    import msvcrt
 
 
 TAUTULLI_URL = ''
@@ -572,26 +572,26 @@ class Notification(object):
 def monitor_lock(session_id):
     """Take an exclusive lock for this session's pause monitor.
 
-    Tautulli sends a Playback Pause notification every time the client reports a
-    paused state, not only on the change to paused. A client that re-reports pause
-    starts another monitor per notification, and each one lives for up to
-    `--limit` seconds. They stack until the machine runs out of memory. Only one
-    monitor per session is ever useful, so a second one exits at once.
+    Repeated Playback Pause notifications for one session each start another
+    monitor, and each one lives for up to `--limit` seconds. They stack until the
+    machine runs out of memory. Only one monitor per session is ever useful, so a
+    second one exits at once.
 
-    The lock is an flock, which the kernel drops when the process dies. A monitor
-    that is killed leaves nothing stale behind that would block later pauses.
+    The operating system releases the lock when the process ends. A monitor that
+    is killed leaves nothing stale behind that would block later pauses.
 
     Returns the open lock file, or None when another monitor already holds it.
     """
     lock_path = os.path.join(tempfile.gettempdir(),
                              'kill_stream-paused-{}.lock'.format(session_id))
-    lock_file = open(lock_path, 'w')
-
-    if fcntl is None:
-        return lock_file
+    lock_file = open(lock_path, 'a')
+    lock_file.seek(0)
 
     try:
-        fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        if fcntl is None:
+            msvcrt.locking(lock_file.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except IOError:
         lock_file.close()
         return None
